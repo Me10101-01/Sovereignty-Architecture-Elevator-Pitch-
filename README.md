@@ -2,6 +2,16 @@
 
 **A comprehensive Discord-integrated DevOps automation system for the Strategickhaos ecosystem, featuring AI agents, GitLens integration, and sovereign infrastructure management.**
 
+## 🔬 New: Reverse Engineering & Sovereignty Methodology
+
+**Advanced tools and methodologies for creating sovereign, vulnerability-free software:**
+
+- 📚 **[Complete Methodology Guide](REVERSE_ENGINEERING_SOVEREIGNTY_METHODOLOGY.md)** - 1,200+ lines covering particle accelerators, chemical synthesizers, DNA blocks, neural biology, 30 Bloom's Taxonomy ideas, 20 web scraping techniques, and 30 failure modes
+- ⚙️ **[Configuration File](sovereignty_analysis_config.yaml)** - Complete YAML config for all analysis workflows
+- 🛠️ **[Shell Automation](sovereignty-analysis.sh)** - Web capture, HAR analysis, Git workflows
+- 🐍 **[Python Analyzer](sovereignty_analyzer.py)** - Security analysis, vulnerability detection, version comparison
+- 📖 **[Quick Start Guide](SOVEREIGNTY_METHODOLOGY_README.md)** - Get started in minutes
+
 ## 🏛️ Architecture Overview
 
 This system creates a **sovereignty control plane** that bridges:
@@ -9,6 +19,7 @@ This system creates a **sovereignty control plane** that bridges:
 - **Infrastructure** - Kubernetes, observability, AI agents  
 - **Development** - GitLens, PR workflows, CI/CD automation
 - **AI Agents** - Intelligent assistance with vector knowledge base
+- **Reverse Engineering** - Advanced analysis and sovereignty assessment tools
 
 ## 🚀 Quick Start
 
@@ -248,6 +259,43 @@ kubectl logs -f deployment/event-gateway -n ops
 # Verify HMAC signature
 curl -X POST https://events.strategickhaos.com/health
 ```
+
+## 🔬 Reverse Engineering & Sovereignty Analysis
+
+**New comprehensive tools for creating sovereign software:**
+
+### Quick Start
+```bash
+# Initialize analysis environment
+./sovereignty-analysis.sh init
+
+# Capture and analyze a web application
+./sovereignty-analysis.sh capture https://example.com
+
+# Analyze HAR file for security and performance
+./sovereignty_analyzer.py analyze-har capture.har
+
+# Compare original vs sovereign version
+./sovereignty_analyzer.py compare original.har sovereign.har
+```
+
+### Key Features
+- **4 Reverse Engineering Domains**: Particle accelerators, chemical synthesizers, DNA blocks, neural biology
+- **30 Bloom's Taxonomy Ideas**: Highest tier analysis, evaluation, and creation strategies
+- **20 Web Scraping Techniques**: HAR capture, F12 analysis, Obsidian integration
+- **Security Analysis**: Vulnerability detection, header analysis, dependency auditing
+- **Performance Monitoring**: Response time analysis, resource profiling, comparison tools
+- **30 Failure Modes**: Complete catalog with prevention strategies
+- **30 Educational URLs**: Curated resources for security, ML, architecture, advanced topics
+
+### Integration
+All tools integrate seamlessly with:
+- **Obsidian Vault** - Structured knowledge management
+- **MCP Server** - Swarm intelligence access
+- **Git Lens** - Change tracking and collaboration
+- **Discord** - Notifications and status updates
+
+See **[SOVEREIGNTY_METHODOLOGY_README.md](SOVEREIGNTY_METHODOLOGY_README.md)** for complete documentation.
 
 ## 📄 License & Support
 
