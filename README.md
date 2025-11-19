@@ -12,6 +12,15 @@ This system creates a **sovereignty control plane** that bridges:
 
 ## 🚀 Quick Start
 
+### Windows - Full Boot Explosion (8-Screen Developer Setup)
+```powershell
+# Complete strategic-khaos environment startup
+.\strategic-khaos-boot.ps1
+
+# See STRATEGIC_KHAOS_BOOT.md for options and customization
+```
+
+### Linux/macOS - Manual Bootstrap
 ```bash
 # 1. Clone and bootstrap
 git clone https://github.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture.git
@@ -248,6 +257,32 @@ kubectl logs -f deployment/event-gateway -n ops
 # Verify HMAC signature
 curl -X POST https://events.strategickhaos.com/health
 ```
+
+## 🚀 Strategic Khaos Boot Script
+
+For Windows users with multi-monitor setups, the **Strategic Khaos Boot Explosion** script provides a one-command full environment startup:
+
+```powershell
+.\strategic-khaos-boot.ps1
+```
+
+**Features:**
+- Starts Docker Desktop, WireGuard VPN, and Ollama
+- Deploys Kubernetes cluster configurations
+- Opens 8 VS Code windows across monitors (container-attached + projects)
+- Launches browser tabs for all service interfaces
+- Plays notification sound on completion
+
+**Quick Options:**
+```powershell
+# Skip specific components
+.\strategic-khaos-boot.ps1 -SkipVPN -SkipBrowser
+
+# Fast restart (services already running)
+.\strategic-khaos-boot.ps1 -SkipDocker -SkipOllama
+```
+
+📖 **Full documentation:** [STRATEGIC_KHAOS_BOOT.md](STRATEGIC_KHAOS_BOOT.md)
 
 ## 📄 License & Support
 
