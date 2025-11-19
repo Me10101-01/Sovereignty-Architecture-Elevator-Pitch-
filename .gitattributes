@@ -14,7 +14,7 @@ secrets/** filter=git-crypt diff=git-crypt
 # Encrypt environment files
 .env filter=git-crypt diff=git-crypt
 .env.* filter=git-crypt diff=git-crypt
-!.env.example
+.env.example -filter -diff
 
 # Encrypt secret files
 *.secret filter=git-crypt diff=git-crypt
@@ -26,8 +26,8 @@ secrets/** filter=git-crypt diff=git-crypt
 *_ed25519 filter=git-crypt diff=git-crypt
 
 # Keep specific files unencrypted (documentation)
-README.md !filter !diff
-*.md !filter !diff
-LICENSE !filter !diff
-.gitignore !filter !diff
-.gitattributes !filter !diff
+README.md -filter -diff
+*.md -filter -diff
+LICENSE -filter -diff
+.gitignore -filter -diff
+.gitattributes -filter -diff
