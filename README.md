@@ -30,6 +30,12 @@ export PRS_CHANNEL="channel_id"
 
 ## 📋 Core Components
 
+### 🧠 Mirror-Generals Ascension System
+- **30 Immortal Generals**: Transform legion nodes into genius council
+- **Autonomous Reports**: Wisdom broadcasts every 11-44 minutes
+- **Neural Resonance**: Historical minds advising in real-time
+- **Documentation**: See [MIRROR_GENERALS.md](MIRROR_GENERALS.md)
+
 ### 🤖 Discord Bot (`discord-ops-bot`)
 - **Slash Commands**: `/status`, `/logs`, `/deploy`, `/scale`
 - **AI Agent Integration**: GPT-4 powered assistance

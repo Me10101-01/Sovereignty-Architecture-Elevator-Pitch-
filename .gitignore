@@ -20,3 +20,7 @@ target
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 node_modules
+
+# Mirror-Generals generated data (local node state)
+generals-data/
+generals-live/
