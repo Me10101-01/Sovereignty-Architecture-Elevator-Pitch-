@@ -1,0 +1,92 @@
+{
+  "name": "Sovereignty Architecture - Origin Node Zero",
+  "dockerComposeFile": "../docker-compose.sovereignty.yml",
+  "service": "origin-node-zero",
+  "workspaceFolder": "/workspace",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "ms-python.python",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "eamodio.gitlens",
+        "github.copilot",
+        "github.copilot-chat",
+        "redhat.vscode-yaml",
+        "ms-vscode.makefile-tools",
+        "golang.go",
+        "rust-lang.rust-analyzer"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": true
+        },
+        "files.watcherExclude": {
+          "**/node_modules/**": true,
+          "**/.git/objects/**": true,
+          "**/dist/**": true
+        },
+        "docker.host": "unix:///var/run/docker.sock"
+      }
+    }
+  },
+  
+  "forwardPorts": [
+    3000,  // Grafana
+    3001,  // Event Gateway
+    6333,  // Qdrant
+    8080,  // LTAI Engine
+    8081,  // Arsenal Inventory
+    8082,  // IAM/Patent Research
+    8180,  // Keycloak
+    8200,  // Vault
+    8765,  // Sovryn MCP
+    9000,  // Origin Node Zero
+    9090   // Prometheus
+  ],
+  
+  "portsAttributes": {
+    "3000": {
+      "label": "Grafana Dashboard",
+      "onAutoForward": "openBrowser"
+    },
+    "8080": {
+      "label": "LTAI Engine API"
+    },
+    "8081": {
+      "label": "Arsenal Inventory API"
+    },
+    "8765": {
+      "label": "Sovryn MCP Server"
+    },
+    "9000": {
+      "label": "Origin Node Zero"
+    }
+  },
+  
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  
+  "remoteUser": "root",
+  
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ]
+}

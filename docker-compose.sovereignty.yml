@@ -1,0 +1,384 @@
+# Docker Compose configuration for complete Sovereignty Architecture
+# Includes Origin Node Zero, LTAI Engine, Sovryn Sync, Arsenal, and all supporting services
+
+version: '3.8'
+
+services:
+  # ============================================================================
+  # Origin Node Zero - Command & Control Interface
+  # ============================================================================
+  origin-node-zero:
+    build:
+      context: ./src
+      dockerfile: Dockerfile.origin-node
+    image: strategickhaos/origin-node-zero:latest
+    container_name: origin-node-zero
+    hostname: DOM_010101
+    environment:
+      - NODE_ID=DOM_010101
+      - NODE_NAME=Origin Node Zero
+      - OPERATOR=Domenic Garza
+      - SWARM_CONFIG=/etc/swarm/config.yaml
+      - LTAI_ENGINE_URL=http://ltai-engine:8080
+      - SOVRYN_MCP_URL=http://sovryn-sync:8765
+      - ARSENAL_API_URL=http://arsenal-inventory:8080
+    volumes:
+      - ./swarm_config.yaml:/etc/swarm/config.yaml:ro
+      - origin-node-data:/var/lib/origin-node
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - sovereignty-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # LTAI Workflow Engine - Dynamic Agent Instantiation
+  # ============================================================================
+  ltai-engine:
+    build:
+      context: ./src
+      dockerfile: Dockerfile.ltai
+    image: strategickhaos/ltai-engine:latest
+    container_name: ltai-engine
+    environment:
+      - ENGINE_PORT=8080
+      - AGENT_POOL_SIZE=1000
+      - AGENT_POOL_MIN=100
+      - AGENT_POOL_MAX=10000
+      - AUTO_SCALING=true
+      - COORDINATION_TOPOLOGY=fully_connected_mesh
+      - POSTGRES_URL=postgresql://ltai:${LTAI_DB_PASSWORD}@postgres:5432/ltai
+      - REDIS_URL=redis://redis:6379/0
+      - QDRANT_URL=http://qdrant:6333
+    volumes:
+      - ltai-data:/var/lib/ltai
+      - ./swarm_config.yaml:/etc/ltai/config.yaml:ro
+    networks:
+      - sovereignty-net
+    depends_on:
+      - postgres
+      - redis
+      - qdrant
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 16G
+        reservations:
+          cpus: '4'
+          memory: 8G
+
+  # ============================================================================
+  # Sovryn Distributed File Sync with MCP
+  # ============================================================================
+  sovryn-sync:
+    build:
+      context: ./src
+      dockerfile: Dockerfile.sovryn
+    image: strategickhaos/sovryn-sync:latest
+    container_name: sovryn-sync
+    environment:
+      - NODE_ID=sovryn_primary
+      - STORAGE_PATH=/var/sovryn/data
+      - MCP_PORT=8765
+      - MCP_TLS_ENABLED=true
+      - ENCRYPTION_KEY=${SOVRYN_ENCRYPTION_KEY}
+      - PEER_DISCOVERY=true
+    volumes:
+      - sovryn-data:/var/sovryn/data
+      - sovryn-config:/etc/sovryn
+      - ./certs/sovryn:/etc/sovryn/tls:ro
+    ports:
+      - "8765:8765"  # MCP API
+      - "7777:7777"  # Peer-to-peer sync
+    networks:
+      - sovereignty-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8765/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # Arsenal Inventory System
+  # ============================================================================
+  arsenal-inventory:
+    build:
+      context: ./src
+      dockerfile: Dockerfile.arsenal
+    image: strategickhaos/arsenal-inventory:latest
+    container_name: arsenal-inventory
+    environment:
+      - API_PORT=8080
+      - POSTGRES_URL=postgresql://arsenal:${ARSENAL_DB_PASSWORD}@postgres:5432/arsenal
+      - DISCOVERY_INTERVAL=60s
+      - KUBERNETES_DISCOVERY=true
+      - DOCKER_DISCOVERY=true
+      - SOVRYN_SYNC_ENABLED=true
+      - SOVRYN_INVENTORY_PATH=/arsenal/inventory.yaml
+    volumes:
+      - arsenal-data:/var/lib/arsenal
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "8081:8080"
+    networks:
+      - sovereignty-net
+    depends_on:
+      - postgres
+      - sovryn-sync
+    restart: unless-stopped
+
+  # ============================================================================
+  # IAM/Patent Research System
+  # ============================================================================
+  iam-patent-research:
+    build:
+      context: ./src
+      dockerfile: Dockerfile.iam-patent
+    image: strategickhaos/iam-patent-research:latest
+    container_name: iam-patent-research
+    environment:
+      - API_PORT=8082
+      - KEYCLOAK_URL=http://keycloak:8080
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - PATENT_DB_URL=postgresql://patent:${PATENT_DB_PASSWORD}@postgres:5432/patent
+    volumes:
+      - patent-data:/var/lib/patent-research
+      - ./legal:/etc/patent-research/legal:ro
+    ports:
+      - "8082:8082"
+    networks:
+      - sovereignty-net
+    depends_on:
+      - keycloak
+      - vault
+      - postgres
+    restart: unless-stopped
+
+  # ============================================================================
+  # Supporting Services
+  # ============================================================================
+  
+  # PostgreSQL - Central database for all services
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_MULTIPLE_DATABASES=ltai,arsenal,patent,keycloak
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-postgres.sh:/docker-entrypoint-initdb.d/init-db.sh
+    networks:
+      - sovereignty-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis - Caching and message broker
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - sovereignty-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Qdrant - Vector database for RAG
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    volumes:
+      - qdrant-data:/qdrant/storage
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    networks:
+      - sovereignty-net
+    restart: unless-stopped
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+
+  # Keycloak - Identity and Access Management
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: keycloak
+    command: start-dev
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD}
+    ports:
+      - "8180:8080"
+    networks:
+      - sovereignty-net
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # HashiCorp Vault - Secrets Management
+  vault:
+    image: hashicorp/vault:latest
+    container_name: vault
+    cap_add:
+      - IPC_LOCK
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_ROOT_TOKEN}
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+    ports:
+      - "8200:8200"
+    volumes:
+      - vault-data:/vault/file
+      - vault-logs:/vault/logs
+    networks:
+      - sovereignty-net
+    restart: unless-stopped
+
+  # Prometheus - Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=90d'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - sovereignty-net
+    restart: unless-stopped
+
+  # Grafana - Metrics Visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    ports:
+      - "3000:3000"
+    networks:
+      - sovereignty-net
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # Loki - Log Aggregation
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki-data:/loki
+    ports:
+      - "3100:3100"
+    networks:
+      - sovereignty-net
+    restart: unless-stopped
+
+  # Discord Bot - Command Interface
+  discord-bot:
+    build:
+      context: ./src
+      dockerfile: Dockerfile.bot
+    image: strategickhaos/discord-bot:latest
+    container_name: discord-bot
+    environment:
+      - DISCORD_TOKEN=${DISCORD_BOT_TOKEN}
+      - ORIGIN_NODE_URL=http://origin-node-zero:9000
+      - LTAI_ENGINE_URL=http://ltai-engine:8080
+      - ARSENAL_API_URL=http://arsenal-inventory:8080
+    networks:
+      - sovereignty-net
+    depends_on:
+      - origin-node-zero
+      - ltai-engine
+    restart: unless-stopped
+
+  # Event Gateway - Webhook Router
+  event-gateway:
+    build:
+      context: ./src
+      dockerfile: Dockerfile.gateway
+    image: strategickhaos/event-gateway:latest
+    container_name: event-gateway
+    environment:
+      - PORT=3001
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - HMAC_SECRET=${EVENTS_HMAC_KEY}
+    ports:
+      - "3001:3001"
+    networks:
+      - sovereignty-net
+    restart: unless-stopped
+
+# ============================================================================
+# Volumes
+# ============================================================================
+volumes:
+  origin-node-data:
+    driver: local
+  ltai-data:
+    driver: local
+  sovryn-data:
+    driver: local
+  sovryn-config:
+    driver: local
+  arsenal-data:
+    driver: local
+  patent-data:
+    driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  qdrant-data:
+    driver: local
+  vault-data:
+    driver: local
+  vault-logs:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  loki-data:
+    driver: local
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  sovereignty-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
