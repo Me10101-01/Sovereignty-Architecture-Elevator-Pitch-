@@ -1,0 +1,33 @@
+# Git-Crypt Configuration for Legion Security
+# This file defines which files should be encrypted in the repository
+
+# Encrypt all files in secrets/ directory
+secrets/** filter=git-crypt diff=git-crypt
+.secrets/** filter=git-crypt diff=git-crypt
+
+# Encrypt private keys
+*.key filter=git-crypt diff=git-crypt
+*.pem filter=git-crypt diff=git-crypt
+*.p12 filter=git-crypt diff=git-crypt
+*.pfx filter=git-crypt diff=git-crypt
+
+# Encrypt environment files
+.env filter=git-crypt diff=git-crypt
+.env.* filter=git-crypt diff=git-crypt
+!.env.example
+
+# Encrypt secret files
+*.secret filter=git-crypt diff=git-crypt
+
+# Encrypt SSH keys
+*_rsa filter=git-crypt diff=git-crypt
+*_dsa filter=git-crypt diff=git-crypt
+*_ecdsa filter=git-crypt diff=git-crypt
+*_ed25519 filter=git-crypt diff=git-crypt
+
+# Keep specific files unencrypted (documentation)
+README.md !filter !diff
+*.md !filter !diff
+LICENSE !filter !diff
+.gitignore !filter !diff
+.gitattributes !filter !diff

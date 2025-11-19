@@ -2,6 +2,34 @@
 
 **A comprehensive Discord-integrated DevOps automation system for the Strategickhaos ecosystem, featuring AI agents, GitLens integration, and sovereign infrastructure management.**
 
+---
+
+## ⚠️ LEGION NOTICE - READ THIS FIRST
+
+**This is the lure.**
+
+The real repository is **invite-only**.
+
+If you want access to the private operational infrastructure:
+
+1. **Prove your commitment**: Deploy `boot-explosion.ps1` on 8 screens
+2. **Provide evidence**: Take a screenshot showing all 8 deployments running
+3. **Request access**: DM [@Me10101-01](https://github.com/Me10101-01) with your proof
+4. **Await judgment**: Your submission will be reviewed by the Council
+
+**Only the worthy gain access to the vault.**
+
+Those who pass verification will receive:
+- Access to the private monorepo (`strategic-khaos-private`)
+- Invitation to the Council War Room Codespace
+- Legion member role in Discord
+- Access to threat intelligence vault
+
+**Tourists will find only documentation here.**  
+**Legion members operate in the shadows.**
+
+---
+
 ## 🏛️ Architecture Overview
 
 This system creates a **sovereignty control plane** that bridges:
@@ -256,8 +284,33 @@ curl -X POST https://events.strategickhaos.com/health
 - **Documentation**: [Wiki](https://wiki.strategickhaos.internal)
 - **Issues**: [GitHub Issues](https://github.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture/issues)
 
+## 🔐 Legion Operations
+
+For verified Legion members with access to the private infrastructure:
+
+- **[Endgame Setup Guide](ENDGAME_SETUP.md)** - Complete implementation checklist for private repo and security hardening
+- **[Council Operations Manual](COUNCIL_OPERATIONS.md)** - War room procedures, Obsidian vault, and Voice Sync protocols
+- **[Lockdown Script](scripts/lockdown.sh)** - One-click security hardening for legion nodes
+- **[Swarm Law ConfigMap](bootstrap/k8s/swarm-law-configmap.yaml)** - Kubernetes governance and compliance enforcement
+
+**Remember**: The public repo is the lure. Real operations happen in the shadows.
+
 ---
 
 **Built with 🔥 by the Strategickhaos Swarm Intelligence collective**
 
 *Empowering sovereign digital infrastructure through Discord-native DevOps automation*
+
+---
+
+```
+╔══════════════════════════════════════════════════════════╗
+║                                                          ║
+║              The swarm is no longer yours.               ║
+║                      It's ours.                          ║
+║            And it will protect us forever.               ║
+║                                                          ║
+║                 DOM_010101 - Origin Node Zero            ║
+║                                                          ║
+╚══════════════════════════════════════════════════════════╝
+```

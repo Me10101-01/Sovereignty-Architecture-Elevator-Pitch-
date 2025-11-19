@@ -1,0 +1,259 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: swarm-law
+  namespace: kube-system
+  labels:
+    app: legion-governance
+    tier: system
+    managed-by: council
+  annotations:
+    description: "Swarm governance rules - immutable operational directives"
+    version: "1.0.0"
+    last-updated: "2025-11-19"
+data:
+  LAW.md: |
+    # SWARM LAW - Operational Directives
+    
+    ## Preamble
+    
+    This ConfigMap defines the immutable operational directives for all nodes 
+    within the Strategic Khaos Swarm Intelligence network. All nodes MUST 
+    comply with these directives or face immediate excommunication.
+    
+    ## Core Directives
+    
+    ### 1. Chain of Command
+    
+    All nodes bow to DOM_010101 - the Origin Node Zero.
+    - Hierarchical authority is absolute
+    - Commands from Origin Node are non-negotiable
+    - No autonomous deviation from protocol
+    
+    ### 2. Mandatory Security Baseline
+    
+    boot-explosion.ps1 execution is mandatory for all Windows nodes:
+    - Establishes secure boot chain
+    - Validates node integrity
+    - Enables swarm communication protocols
+    
+    ### 3. Secret Management Protocol
+    
+    Secrets stay private - NO EXCEPTIONS:
+    - All secrets encrypted via git-crypt
+    - GPG keys required for vault access
+    - No plaintext credentials in any repository
+    - Immediate revocation for violations
+    
+    ### 4. Trust Verification
+    
+    Trust but verify - honor system is DEAD:
+    - All nodes must present valid credentials
+    - Regular attestation required
+    - Automated trust scoring via threat models
+    - Zero trust architecture enforced
+    
+    ### 5. Honey-Pot Protocol
+    
+    Traitors get honey-potted - counter-intelligence is active:
+    - Public repositories serve as lures
+    - Real operations in private vaults only
+    - Suspicious activity triggers investigation
+    - Legion members verified via proof-of-work
+    
+    ## Node Requirements
+    
+    ### Minimum Baseline
+    
+    - git-crypt installed and initialized
+    - GPG key registered with Council
+    - Lockdown script executed successfully
+    - Secrets properly encrypted
+    - .gitignore configured for sensitive patterns
+    
+    ### Operational Status
+    
+    - All nodes report health metrics
+    - Failed checks trigger alerts
+    - Non-compliant nodes quarantined
+    - Remediation required for re-entry
+    
+    ## Governance
+    
+    ### Council Authority
+    
+    - War Room decisions are final
+    - Voice sync required for major changes
+    - Consensus required for law modifications
+    - Emergency powers vest with DOM_010101
+    
+    ### Enforcement
+    
+    - Automated compliance checking
+    - Manual audits at Council discretion
+    - Immediate suspension for violations
+    - Appeals heard in Voice Sync sessions
+    
+    ## Excommunication Criteria
+    
+    Automatic removal for:
+    - Committing plaintext secrets
+    - Unauthorized access attempts
+    - Failure to apply security patches
+    - Drift from approved configurations
+    - Breach of operational security
+    
+    ## Amendment Process
+    
+    1. Proposal submitted to War Room
+    2. Review by Council members
+    3. Voice Sync discussion required
+    4. Consensus vote (75% threshold)
+    5. Implementation via ConfigMap update
+    
+    ## Declaration
+    
+    By deploying this ConfigMap, you acknowledge:
+    - Complete understanding of all directives
+    - Commitment to operational security
+    - Acceptance of Council authority
+    - Responsibility for node compliance
+    
+    The swarm is no longer yours.
+    It's ours.
+    And it will protect us forever.
+    
+    ---
+    
+    **Origin Node Zero - DOM_010101**
+    *Established: 2025-11-19*
+    *Status: ACTIVE*
+
+  compliance-check.sh: |
+    #!/bin/bash
+    # Swarm Law Compliance Checker
+    # Run this to verify node compliance with Swarm Law
+    
+    COMPLIANCE_FAILED=0
+    
+    echo "🔍 Checking Swarm Law compliance..."
+    
+    # Check 1: git-crypt
+    if ! command -v git-crypt &> /dev/null; then
+        echo "❌ FAIL: git-crypt not installed"
+        COMPLIANCE_FAILED=1
+    else
+        echo "✅ PASS: git-crypt installed"
+    fi
+    
+    # Check 2: GPG key
+    if ! gpg --list-keys &> /dev/null; then
+        echo "❌ FAIL: No GPG keys found"
+        COMPLIANCE_FAILED=1
+    else
+        echo "✅ PASS: GPG keys configured"
+    fi
+    
+    # Check 3: Sensitive patterns in .gitignore
+    if [ -f .gitignore ]; then
+        if grep -q "\.key" .gitignore && grep -q "\.env" .gitignore; then
+            echo "✅ PASS: .gitignore configured"
+        else
+            echo "❌ FAIL: .gitignore missing sensitive patterns"
+            COMPLIANCE_FAILED=1
+        fi
+    else
+        echo "❌ FAIL: .gitignore not found"
+        COMPLIANCE_FAILED=1
+    fi
+    
+    # Check 4: No plaintext secrets
+    if git ls-files | xargs grep -l "BEGIN.*PRIVATE KEY" 2>/dev/null; then
+        echo "❌ FAIL: Plaintext secrets detected"
+        COMPLIANCE_FAILED=1
+    else
+        echo "✅ PASS: No plaintext secrets detected"
+    fi
+    
+    if [ $COMPLIANCE_FAILED -eq 0 ]; then
+        echo ""
+        echo "🎉 Node is COMPLIANT with Swarm Law"
+        exit 0
+    else
+        echo ""
+        echo "⚠️  Node is NON-COMPLIANT. Run lockdown.sh to remediate."
+        exit 1
+    fi
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: swarm-deployment-guide
+  namespace: kube-system
+  labels:
+    app: legion-governance
+    tier: documentation
+data:
+  DEPLOY.md: |
+    # Swarm Law Deployment Guide
+    
+    ## Prerequisites
+    
+    - kubectl configured with cluster admin access
+    - Understanding of Swarm Law directives
+    - Council authorization
+    
+    ## Deployment
+    
+    ```bash
+    # Apply the ConfigMap
+    kubectl apply -f swarm-law-configmap.yaml
+    
+    # Verify deployment
+    kubectl get configmap swarm-law -n kube-system
+    
+    # Read the law
+    kubectl get configmap swarm-law -n kube-system -o yaml
+    ```
+    
+    ## Integration
+    
+    Reference Swarm Law in your pods:
+    
+    ```yaml
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: legion-node
+    spec:
+      containers:
+      - name: worker
+        image: legion/worker:latest
+        volumeMounts:
+        - name: swarm-law
+          mountPath: /etc/swarm-law
+          readOnly: true
+      volumes:
+      - name: swarm-law
+        configMap:
+          name: swarm-law
+    ```
+    
+    ## Compliance Checking
+    
+    Extract and run compliance checker:
+    
+    ```bash
+    kubectl get configmap swarm-law -n kube-system \
+      -o jsonpath='{.data.compliance-check\.sh}' > check-compliance.sh
+    chmod +x check-compliance.sh
+    ./check-compliance.sh
+    ```
+    
+    ## Enforcement
+    
+    - Non-compliant pods should fail health checks
+    - Integrate compliance checker into init containers
+    - Alert on compliance failures
+    - Document remediation steps

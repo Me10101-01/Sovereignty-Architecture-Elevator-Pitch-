@@ -19,4 +19,62 @@ target
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# Node.js
 node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Secrets and Keys - LEGION SECURITY
+*.key
+*.pem
+*.p12
+*.pfx
+.env
+.env.*
+*.secret
+*_rsa
+*_dsa
+*_ecdsa
+*_ed25519
+secrets/
+.secrets/
+
+# Build artifacts
+dist/
+build/
+*.pyc
+__pycache__/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+/tmp/
+.cache/
+
+# Testing
+coverage/
+.nyc_output/
+*.test.log
+
+# Documentation build artifacts
+_site/
+.jekyll-cache/
