@@ -1,0 +1,65 @@
+# Strategic Khaos Boot Configuration Example
+# Copy this file to strategic-khaos-boot.config and customize
+# The boot script will read these values if the config file exists
+
+# Docker Desktop Path
+# Default: C:\Program Files\Docker\Docker\Docker Desktop.exe
+DOCKER_PATH=C:\Program Files\Docker\Docker\Docker Desktop.exe
+
+# WireGuard Multi-Up Script
+# Default: wg-quick-multi-up.ps1
+WG_SCRIPT=wg-quick-multi-up.ps1
+
+# Kubernetes Cluster Name
+# Default: strategic-khaos
+K8S_CLUSTER_NAME=strategic-khaos
+
+# Kubernetes Config Paths (comma-separated)
+# The script will try these in order
+K8S_CONFIG_PATHS=k8s/overlays/dev,bootstrap/k8s
+
+# Wait Time for Docker/WSL2/k8s (seconds)
+# Default: 35
+DOCKER_WAIT_TIME=35
+
+# Container Name Patterns (pipe-separated regex patterns)
+# Default: solver|map-server|ollama
+CONTAINER_PATTERNS=solver|map-server|ollama
+
+# VS Code Project Paths (comma-separated)
+# Format: path:name
+VSCODE_PROJECTS=.:Root (strategic-khaos),./map-server:map-server,./agents:agents
+
+# Extra Container Workspaces (comma-separated)
+# Format: container+path
+EXTRA_CONTAINER_WORKSPACES=ollama-01+/usr/src/app
+
+# Browser URLs (comma-separated)
+BROWSER_URLS=http://localhost:3000,http://localhost:11434,https://github.com/Me10101-01/strategic-khaos,http://localhost:8080
+
+# Browser Path (optional, auto-detected if not set)
+# BROWSER_PATH=C:\Program Files\Google\Chrome\Application\chrome.exe
+
+# Notification Sound Path
+# Default: C:\Windows\Media\notify.wav
+SOUND_PATH=C:\Windows\Media\notify.wav
+
+# Default Flags (set to true to enable by default)
+# These can be overridden by command-line flags
+SKIP_DOCKER=false
+SKIP_VPN=false
+SKIP_OLLAMA=false
+SKIP_VSCODE=false
+SKIP_BROWSER=false
+
+# Advanced: Docker Image Registry
+# Used for kind load docker-image command
+DOCKER_REGISTRY=localregistry
+DOCKER_IMAGE_TAG=local-all-images:latest
+
+# Advanced: VS Code Remote Container Path
+# The workspace path inside containers
+CONTAINER_WORKSPACE_PATH=/home/dom
+
+# Advanced: Enable Verbose Logging
+VERBOSE=false
