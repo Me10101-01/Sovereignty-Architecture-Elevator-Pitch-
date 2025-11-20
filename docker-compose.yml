@@ -175,6 +175,30 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # JDK Workspace (OpenJDK 21/25 with Maven & Gradle)
+  jdk-workspace:
+    build:
+      context: .
+      dockerfile: Dockerfile.jdk
+    container_name: cloudos-jdk
+    volumes:
+      - .:/workspace
+    ports:
+      - "5005:5005"   # JPDA debug
+      - "8888:8888"   # app port
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jdk.rule=Host(`java.localhost`)"
+      - "traefik.http.services.jdk.loadbalancer.server.port=8888"
+    networks:
+      - strategickhaos_network
+    healthcheck:
+      test: ["CMD", "java", "--version"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: ["tail", "-f", "/dev/null"]
+
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
