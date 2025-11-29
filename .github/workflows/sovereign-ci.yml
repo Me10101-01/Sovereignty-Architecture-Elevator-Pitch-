@@ -1,0 +1,82 @@
+name: Sovereign CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  sovereign-build:
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [self-hosted, ubuntu-latest]
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Display Environment Info
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🏗️  Build Environment"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Runner: ${{ matrix.runner }}"
+          echo "Hostname: $(hostname)"
+          echo "OS: $(uname -s)"
+          echo "Architecture: $(uname -m)"
+          echo "Kernel: $(uname -r)"
+          echo "User: $(whoami)"
+          echo "Working Directory: $(pwd)"
+          echo "Commit: $(git rev-parse --short HEAD)"
+          echo "Branch: $(git branch --show-current)"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
+      - name: Sync to Azure DevOps
+        if: github.ref == 'refs/heads/main' && matrix.runner == 'self-hosted'
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          AZURE_DEVOPS_ORG: at-strategickhaos
+          AZURE_DEVOPS_PROJECT: Sovereignty-Architecture
+        run: |
+          if [ -z "$AZURE_DEVOPS_PAT" ]; then
+            echo "⚠️  AZURE_DEVOPS_PAT not configured"
+            echo "Please add the secret at:"
+            echo "https://github.com/${{ github.repository }}/settings/secrets/actions"
+            exit 0
+          fi
+          
+          echo "🔄 Syncing to Azure DevOps..."
+          
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions Bot"
+          
+          AZURE_URL="https://x:${AZURE_DEVOPS_PAT}@dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_git/${AZURE_DEVOPS_PROJECT}"
+          
+          git remote add azure "$AZURE_URL" 2>/dev/null || git remote set-url azure "$AZURE_URL"
+          
+          if git push azure main --force --quiet; then
+            echo "✅ Successfully synced to Azure DevOps"
+            echo "Repository: https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}"
+          else
+            echo "⚠️  Failed to sync to Azure DevOps"
+            exit 1
+          fi
+          
+      - name: Success Summary
+        if: success()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ SOVEREIGNTY ACHIEVED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Runner Type: ${{ matrix.runner }}"
+          echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "Status: All systems operational"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
