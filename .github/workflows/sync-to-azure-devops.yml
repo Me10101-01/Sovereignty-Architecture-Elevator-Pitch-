@@ -18,8 +18,10 @@ jobs:
       - name: Push to Azure DevOps
         env:
           AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          AZURE_DEVOPS_ORG: at-strategickhaos
+          AZURE_DEVOPS_PROJECT: Sovereignty-Architecture
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Actions Bot"
-          git remote add azure "https://${AZURE_DEVOPS_PAT}@dev.azure.com/at-strategickhaos/Sovereignty-Architecture/_git/Sovereignty-Architecture"
+          git remote add azure "https://${AZURE_DEVOPS_PAT}@dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_git/Sovereignty-Architecture" || true
           git push azure main --force
