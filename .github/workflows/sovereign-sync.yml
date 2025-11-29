@@ -1,0 +1,66 @@
+name: Sovereign CI/CD Sync
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  sovereign-sync:
+    runs-on: self-hosted
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Display Sovereignty Status
+        run: |
+          echo "✅ SOVEREIGNTY ACHIEVED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Runner: $(hostname)"
+          echo "Working Directory: $(pwd)"
+          echo "User: $(whoami)"
+          echo "System: $(uname -a)"
+          echo "Uptime: $(uptime -p 2>/dev/null || uptime)"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
+      - name: Sync to Azure DevOps
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          AZURE_DEVOPS_ORG: at-strategickhaos
+          AZURE_DEVOPS_PROJECT: Sovereignty-Architecture
+        run: |
+          set -e
+          
+          echo "🔄 Syncing to Azure DevOps..."
+          
+          # Configure git
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions Bot"
+          
+          # Add Azure DevOps remote (suppress error if exists)
+          AZURE_URL="https://x:${AZURE_DEVOPS_PAT}@dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_git/${AZURE_DEVOPS_PROJECT}"
+          git remote add azure "$AZURE_URL" 2>/dev/null || git remote set-url azure "$AZURE_URL"
+          
+          # Push to Azure DevOps
+          echo "Pushing to Azure DevOps..."
+          if git push azure main --force; then
+            echo "✅ Successfully synced to Azure DevOps"
+            echo "Repository: https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}"
+          else
+            echo "❌ Failed to sync to Azure DevOps"
+            exit 1
+          fi
+          
+      - name: Update Sync Status
+        if: success()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ SYNC COMPLETE"
+          echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "Commit: $(git rev-parse --short HEAD)"
+          echo "Branch: $(git branch --show-current)"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
