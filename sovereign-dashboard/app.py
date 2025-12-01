@@ -9,6 +9,7 @@ Provides real-time visibility into Blue Team and Red Team clusters.
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
+import os
 import yaml
 from flask import Flask, render_template, jsonify
 from pathlib import Path
@@ -20,6 +21,7 @@ app = Flask(__name__)
 STATE_PATH = Path(__file__).parent / "STATE.yaml"
 BLUE_TEAM_CLUSTER = "jarvis-swarm-personal-001"
 RED_TEAM_CLUSTER = "red-team"
+DEBUG_MODE = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
 
 
 def load_state():
@@ -73,4 +75,6 @@ def api_health():
 
 if __name__ == "__main__":
     print_banner()
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    # Debug mode controlled by FLASK_DEBUG environment variable
+    # Set FLASK_DEBUG=true for development only
+    app.run(host="0.0.0.0", port=8080, debug=DEBUG_MODE)

@@ -49,8 +49,29 @@ class Cluster(str, Enum):
 # UTILITIES
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# Allowed kubectl operations (whitelist for safety)
+ALLOWED_KUBECTL_OPERATIONS = {
+    "get", "describe", "logs", "apply", "delete", "auth", "config"
+}
+
+
+def validate_kubectl_args(args: tuple) -> bool:
+    """Validate kubectl arguments against allowed operations."""
+    if not args:
+        return False
+    operation = args[0].lower()
+    return operation in ALLOWED_KUBECTL_OPERATIONS
+
+
 def kubectl(cluster: Cluster, *args) -> str:
-    """Execute kubectl command against specified cluster."""
+    """Execute kubectl command against specified cluster.
+    
+    Uses list-based subprocess.run to prevent shell injection.
+    Validates operations against whitelist for additional safety.
+    """
+    if not validate_kubectl_args(args):
+        return f"Error: Operation '{args[0] if args else 'none'}' not allowed"
+    
     context = RED_TEAM_CLUSTER if cluster == Cluster.RED else BLUE_TEAM_CLUSTER
     cmd = ["kubectl", f"--context={context}"] + list(args)
     result = subprocess.run(cmd, capture_output=True, text=True)
