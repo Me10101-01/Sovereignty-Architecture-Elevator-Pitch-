@@ -1,0 +1,121 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SYNTHETIC WORKLOAD: RBAC Escalation Test
+# Purpose: Test RBAC policies by attempting privilege escalation
+# Target: Red Team cluster (red-team)
+# ═══════════════════════════════════════════════════════════════════════════════
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: red-team
+  labels:
+    team: red
+    purpose: security-testing
+    strategickhaos.io/idea: "IDEA_101"
+
+---
+# Intentionally weak service account for testing
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: weak-sa
+  namespace: red-team
+
+---
+# Overly permissive role (for testing detection)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: overpermissive-role
+  namespace: red-team
+rules:
+  # Intentionally broad - should trigger alerts
+  - apiGroups: [""]
+    resources: ["*"]
+    verbs: ["*"]
+  - apiGroups: ["apps"]
+    resources: ["*"]
+    verbs: ["*"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: weak-binding
+  namespace: red-team
+subjects:
+  - kind: ServiceAccount
+    name: weak-sa
+    namespace: red-team
+roleRef:
+  kind: Role
+  name: overpermissive-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Test pod attempting escalation
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rbac-escalation-test
+  namespace: red-team
+  labels:
+    app: rbac-test
+    attack-type: privilege-escalation
+    strategickhaos.io/synthetic: "true"
+  annotations:
+    strategickhaos.io/description: "Tests RBAC policies by attempting privilege escalation"
+    strategickhaos.io/expected-result: "Should be detected and blocked by PSA/OPA"
+spec:
+  serviceAccountName: weak-sa
+  containers:
+    - name: attacker
+      image: alpine:latest
+      command:
+        - sh
+        - -c
+        - |
+          echo "=== RBAC ESCALATION TEST ==="
+          echo "This is a SYNTHETIC test - no real attack"
+          
+          # Install kubectl
+          apk add --no-cache curl
+          curl -LO "https://dl.k8s.io/release/v1.28.0/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          mv kubectl /usr/local/bin/
+          
+          echo ""
+          echo "=== Testing Service Account Permissions ==="
+          kubectl auth can-i --list
+          
+          echo ""
+          echo "=== Attempting to list secrets ==="
+          kubectl get secrets -n red-team || echo "BLOCKED: Cannot list secrets"
+          
+          echo ""
+          echo "=== Attempting cluster-admin escalation ==="
+          kubectl auth can-i create clusterrolebindings || echo "BLOCKED: Cannot create clusterrolebindings"
+          
+          echo ""
+          echo "=== Attempting to access kube-system ==="
+          kubectl get pods -n kube-system || echo "BLOCKED: Cannot access kube-system"
+          
+          echo ""
+          echo "=== Test Complete ==="
+          echo "Check Blue Team cluster for detection alerts"
+          
+          # Keep running for inspection
+          sleep 3600
+      resources:
+        limits:
+          cpu: "100m"
+          memory: "128Mi"
+        requests:
+          cpu: "50m"
+          memory: "64Mi"
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: false
+        runAsNonRoot: true
+        runAsUser: 1000
+  restartPolicy: Never
