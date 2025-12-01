@@ -3,8 +3,48 @@
 
 import { Router } from 'express';
 
+// Simple in-memory rate limiter for security-sensitive endpoints
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 60; // 60 requests per minute
+
+function rateLimiter(req, res, next) {
+  const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
+  const now = Date.now();
+  
+  // Clean old entries
+  for (const [key, value] of rateLimitStore.entries()) {
+    if (now - value.windowStart > RATE_LIMIT_WINDOW_MS) {
+      rateLimitStore.delete(key);
+    }
+  }
+  
+  const clientData = rateLimitStore.get(clientIP) || { count: 0, windowStart: now };
+  
+  // Reset window if expired
+  if (now - clientData.windowStart > RATE_LIMIT_WINDOW_MS) {
+    clientData.count = 0;
+    clientData.windowStart = now;
+  }
+  
+  clientData.count++;
+  rateLimitStore.set(clientIP, clientData);
+  
+  if (clientData.count > RATE_LIMIT_MAX_REQUESTS) {
+    return res.status(429).json({ 
+      error: 'Too many requests', 
+      retryAfter: Math.ceil((clientData.windowStart + RATE_LIMIT_WINDOW_MS - now) / 1000) 
+    });
+  }
+  
+  next();
+}
+
 export function APIRouter(modules, config) {
   const router = Router();
+  
+  // Apply rate limiting to all API routes
+  router.use(rateLimiter);
 
   // =============
   // EMAIL MODULE
