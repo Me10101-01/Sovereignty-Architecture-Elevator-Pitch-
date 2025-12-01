@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-security
+  labels:
+    team: blue
+    purpose: security-operations
+    idea: "101"
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: falco-system
+  labels:
+    team: blue
+    purpose: runtime-security
+    pod-security.kubernetes.io/enforce: privileged  # Falco needs privileged for syscall monitoring
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gatekeeper-system
+  labels:
+    team: blue
+    purpose: admission-control
+    pod-security.kubernetes.io/enforce: restricted
+---
+# Minimal RBAC for Blue Team following least privilege
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: blue-team-defender
+  namespace: ns-security
+  labels:
+    team: blue
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: blue-team-defender-binding
+  namespace: ns-security
+  labels:
+    team: blue
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: blue-team-defender
+subjects:
+  - kind: ServiceAccount
+    name: blue-team-defender
+    namespace: ns-security
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: blue-team-defender
+  namespace: ns-security
+  labels:
+    team: blue
+    purpose: security-operations
