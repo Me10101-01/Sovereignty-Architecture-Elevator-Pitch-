@@ -1,0 +1,4 @@
+# Sovereign Control Deck v2.0 Dependencies
+# Flask web application for Red/Blue Kubernetes cluster warfare
+
+flask>=2.3.0
