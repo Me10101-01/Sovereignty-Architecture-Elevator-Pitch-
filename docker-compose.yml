@@ -175,6 +175,33 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # CPA Sentinel - Compliance, Protection & Audit
+  cpa-sentinel:
+    build:
+      context: .
+      dockerfile: Dockerfile.cpa-sentinel
+    environment:
+      CPA_SENTINEL_CONFIG_PATH: /app/cpa_sentinel.yaml
+      DISCOVERY_CONFIG_PATH: /app/discovery.yml
+      NODE_ENV: production
+    volumes:
+      - ./cpa_sentinel.yaml:/app/cpa_sentinel.yaml:ro
+      - ./discovery.yml:/app/discovery.yml:ro
+      - ./src/cpa-sentinel:/app/src/cpa-sentinel:ro
+    ports:
+      - "8003:8003"
+    networks:
+      - strategickhaos_network
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
@@ -190,4 +217,5 @@ services:
       - event-gateway
       - refinory-api
       - grafana
+      - cpa-sentinel
     restart: unless-stopped
