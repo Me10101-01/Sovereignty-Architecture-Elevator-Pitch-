@@ -564,8 +564,18 @@ class AlertResponder(ThreatResponder):
     
     def __init__(self, config: Dict):
         self.config = config
-        self.discord_webhook = config.get('discord_webhook')
-        self.slack_webhook = config.get('slack_webhook')
+        self.discord_webhook = self._validate_webhook(config.get('discord_webhook'))
+        self.slack_webhook = self._validate_webhook(config.get('slack_webhook'))
+    
+    def _validate_webhook(self, url: Optional[str]) -> Optional[str]:
+        """Validate webhook URL format"""
+        if not url:
+            return None
+        # Ensure HTTPS for security
+        if url.startswith('https://'):
+            return url
+        logger.warning("Webhook URL must use HTTPS - webhook disabled")
+        return None
         
     def get_name(self) -> str:
         return "alert"

@@ -207,6 +207,9 @@ spec:
       containers:
         - name: falco
           image: falcosecurity/falco:0.37.0
+          # NOTE: Falco requires privileged mode for kernel-level syscall 
+          # monitoring. In production, consider using the eBPF driver with
+          # reduced privileges. See: https://falco.org/docs/getting-started/
           securityContext:
             privileged: true
           args:

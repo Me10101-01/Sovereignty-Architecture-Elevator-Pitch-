@@ -507,7 +507,9 @@ class BlueTeamCommands:
                 lines.append(f"  ❌ {name}: FAIL - {details}")
                 failed += 1
         
-        lines.append(f"\n📊 Score: {passed}/{passed + failed} ({100 * passed // (passed + failed)}%)")
+        total = passed + failed
+        score_pct = (100 * passed // total) if total > 0 else 0
+        lines.append(f"\n📊 Score: {passed}/{total} ({score_pct}%)")
         
         return '\n'.join(lines)
     

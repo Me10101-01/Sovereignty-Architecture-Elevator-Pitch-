@@ -106,11 +106,14 @@ spec:
       - production
       - staging
   parameters:
+    # NOTE: In a real production environment, you should restrict to only 
+    # private registries. docker.io/library/ is included here for the 
+    # battleground lab training environment only.
     repos:
       - "gcr.io/strategickhaos/"
       - "us-docker.pkg.dev/strategickhaos/"
       - "registry.k8s.io/"
-      - "docker.io/library/"
+      # - "docker.io/library/"  # Uncomment only for training environments
 
 ---
 # Block hostNetwork
