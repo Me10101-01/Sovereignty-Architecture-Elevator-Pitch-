@@ -10,19 +10,21 @@ sentinel:
   service_port: 8003
 
 # Monitored Entities
+# Note: Sensitive IDs should be set via environment variables in production
+# Example: CPA_ENTITY_WY_LLC_ID, CPA_ENTITY_EIN, CPA_ENTITY_VERIZON_ID
 entities:
   - name: "StrategicKhaos DAO LLC"
     type: "Wyoming LLC"
-    id: "2025-001708194"
+    id: "${CPA_ENTITY_WY_LLC_ID:-2025-001708194}"
     state: "WY"
     status: "active"
   - name: "ValorYield Engine"
     type: "501(c)(3)"
-    id: "EIN 39-2923503"
+    id: "${CPA_ENTITY_EIN:-EIN 39-2923503}"
     status: "active"
   - name: "Skyline Strategies"
     type: "DBA/Verizon"
-    id: "942748515-00001"
+    id: "${CPA_ENTITY_VERIZON_ID:-942748515-00001}"
     status: "active"
 
 # Email Protection Module
@@ -203,13 +205,15 @@ service:
   api_prefix: "/api/v1"
 
 # Notification Channels
+# Note: Email addresses should be set via environment variables in production
+# Example: CPA_NOTIFICATION_EMAIL
 notifications:
   discord:
     enabled: true
     channel: "#alerts"
   email:
     enabled: true
-    to: "domenic.garza@snhu.edu"
+    to: "${CPA_NOTIFICATION_EMAIL:-admin@example.com}"
   sms:
     enabled: false
     to: null

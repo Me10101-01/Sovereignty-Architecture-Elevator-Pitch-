@@ -93,11 +93,21 @@ app.listen(port, () => {
   startMonitoringTasks(modules, sentinelConfig);
 });
 
+// Configurable check intervals (in milliseconds)
+const CHECK_INTERVALS = {
+  CREDENTIAL_CHECK: 24 * 60 * 60 * 1000,  // 24 hours
+  INITIAL_CHECK_DELAY: 5000                // 5 seconds
+};
+
 function startMonitoringTasks(modules, config) {
+  // Get configurable interval or use default (24 hours)
+  const credentialCheckInterval = config.observability?.credential_check_interval_ms || 
+    CHECK_INTERVALS.CREDENTIAL_CHECK;
+  
   // Check credential expiration daily
   setInterval(() => {
     modules.credentials.checkExpirations();
-  }, 24 * 60 * 60 * 1000);
+  }, credentialCheckInterval);
   
   // Run initial checks
   setTimeout(() => {

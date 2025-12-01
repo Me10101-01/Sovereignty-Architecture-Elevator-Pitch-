@@ -1,6 +1,8 @@
 // src/cpa-sentinel/modules/security.js
 // Security Module - Alert correlation, IP monitoring, Discord login tracking
 
+import crypto from 'crypto';
+
 export class SecurityModule {
   constructor(config) {
     this.config = config || {};

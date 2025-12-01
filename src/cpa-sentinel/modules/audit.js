@@ -3,6 +3,9 @@
 
 import crypto from 'crypto';
 
+// Configurable batch size for Merkle root creation
+const MERKLE_BATCH_SIZE = 100;
+
 export class AuditModule {
   constructor(config) {
     this.config = config || {};
@@ -11,6 +14,7 @@ export class AuditModule {
     this.anchors = [];
     this.merkleRoots = [];
     this.auditLog = [];
+    this.merkleBatchSize = config?.merkle_batch_size || MERKLE_BATCH_SIZE;
   }
 
   getStatus() {
@@ -94,9 +98,9 @@ export class AuditModule {
     
     this.auditLog.push(event);
     
-    // Check if we should create a new Merkle root
-    if (this.auditLog.length % 100 === 0) {
-      this.createMerkleRoot(this.auditLog.slice(-100));
+    // Check if we should create a new Merkle root based on configurable batch size
+    if (this.auditLog.length % this.merkleBatchSize === 0) {
+      this.createMerkleRoot(this.auditLog.slice(-this.merkleBatchSize));
     }
     
     return event;

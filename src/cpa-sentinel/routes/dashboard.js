@@ -47,13 +47,13 @@ export function DashboardRouter(modules, config) {
       ],
       
       // Proofpoint Whitelist Summary
-      proofpointWhitelist: modules.email.getWhitelist().map(w => ({
+      proofpointWhitelist: (modules.email.getWhitelist() || []).map(w => ({
         sender: w.sender,
         description: w.description
       })),
       
       // Finance Watch Names
-      financeWatchNames: modules.finance.getWatchedNames(),
+      financeWatchNames: modules.finance.getWatchedNames() || [],
       
       // Recent Alerts
       recentAlerts: {

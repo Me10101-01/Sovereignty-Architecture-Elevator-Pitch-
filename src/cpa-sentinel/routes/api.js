@@ -12,9 +12,10 @@ export function APIRouter(modules, config) {
   
   // Get Proofpoint whitelist
   router.get('/email/whitelist', (req, res) => {
+    const whitelist = modules.email.getWhitelist() || [];
     res.json({
-      whitelist: modules.email.getWhitelist(),
-      count: modules.email.getWhitelist().length
+      whitelist,
+      count: whitelist.length
     });
   });
 
