@@ -13,8 +13,11 @@ metadata:
   namespace: attack-simulation
 rules:
 - apiGroups: [""]
-  resources: ["pods", "pods/log", "pods/exec", "configmaps", "secrets", "services"]
+  resources: ["pods", "pods/log", "pods/exec", "configmaps", "services"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch"]  # Read-only access to secrets for security testing
 - apiGroups: ["apps"]
   resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]

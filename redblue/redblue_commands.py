@@ -12,15 +12,24 @@ Commands:
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-# Constants
-RED_TEAM_CLUSTER = "autopilot-cluster-1"
-BLUE_TEAM_CLUSTER = "jarvis-swarm-personal-001"
+# Constants - Configuration
+# These can be overridden via environment variables
+GCP_PROJECT = os.environ.get("GCP_PROJECT", "strategickhaos-sovereign")
+GCP_REGION = os.environ.get("GCP_REGION", "us-central1")
+RED_TEAM_CLUSTER = os.environ.get("RED_TEAM_CLUSTER", "autopilot-cluster-1")
+BLUE_TEAM_CLUSTER = os.environ.get("BLUE_TEAM_CLUSTER", "jarvis-swarm-personal-001")
+
+
+def get_cluster_context(cluster: str) -> str:
+    """Generate cluster context string from configuration."""
+    return f"gke_{GCP_PROJECT}_{GCP_REGION}_{cluster}"
 
 
 class Colors:
@@ -68,7 +77,7 @@ def run_kubectl(args: list, cluster: Optional[str] = None) -> tuple:
     """Run kubectl command and return output."""
     cmd = ["kubectl"]
     if cluster:
-        cmd.extend(["--context", f"gke_strategickhaos-sovereign_us-central1_{cluster}"])
+        cmd.extend(["--context", get_cluster_context(cluster)])
     cmd.extend(args)
     
     try:
