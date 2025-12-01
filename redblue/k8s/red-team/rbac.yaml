@@ -1,0 +1,69 @@
+# Red Team Cluster - RBAC Configuration
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: redteam-operator
+  namespace: attack-simulation
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: redteam-operator
+  namespace: attack-simulation
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log", "pods/exec", "configmaps", "secrets", "services"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: redteam-operator-binding
+  namespace: attack-simulation
+subjects:
+- kind: ServiceAccount
+  name: redteam-operator
+  namespace: attack-simulation
+roleRef:
+  kind: Role
+  name: redteam-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+# Cluster-wide read-only access for red team auditing
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: redteam-auditor
+rules:
+- apiGroups: [""]
+  resources: ["namespaces", "nodes", "persistentvolumes"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["policy"]
+  resources: ["podsecuritypolicies"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: redteam-auditor-binding
+subjects:
+- kind: ServiceAccount
+  name: redteam-operator
+  namespace: attack-simulation
+roleRef:
+  kind: ClusterRole
+  name: redteam-auditor
+  apiGroup: rbac.authorization.k8s.io

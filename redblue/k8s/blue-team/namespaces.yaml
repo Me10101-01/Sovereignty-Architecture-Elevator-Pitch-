@@ -1,0 +1,57 @@
+# Blue Team Cluster - Namespace Configuration
+# jarvis-swarm-personal-001
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: antibody-dept
+  labels:
+    team: blue-team
+    purpose: digital-immune-system
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: state-sync
+  labels:
+    team: blue-team
+    purpose: state-synchronization
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: governance
+  labels:
+    team: blue-team
+    purpose: policy-engines
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    team: blue-team
+    purpose: observability
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agents
+  labels:
+    team: blue-team
+    purpose: defensive-agents
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
