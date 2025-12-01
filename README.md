@@ -2,6 +2,18 @@
 
 **A comprehensive Discord-integrated DevOps automation system for the Strategickhaos ecosystem, featuring AI agents, GitLens integration, and sovereign infrastructure management.**
 
+---
+
+## 🏆 FIRST SOVEREIGN OS
+
+> **[📜 Read the Declaration →](FIRST_SOVEREIGN_OS.md)**
+
+This repository contains the **world's first fully sovereign, dual-cluster, red/blue battleground operating system** — 100% owned by a single human, running on cloud infrastructure but governed by a locally-run control deck.
+
+**Key Achievement:** First successful fusion of Wyoming DAO Law + Autopilot Kubernetes + Flask/Tailwind Sovereign UI + Red/Blue Cyber Warfare Doctrine.
+
+---
+
 ## 🏛️ Architecture Overview
 
 This system creates a **sovereignty control plane** that bridges:
@@ -47,6 +59,14 @@ export PRS_CHANNEL="channel_id"
 - **Review Workflows**: Automated PR lifecycle notifications
 - **Commit Graph**: Real-time development activity feeds
 - **Launchpad**: Integrated with GitLens Pro features
+
+### 🔴🔵 Red/Blue Battleground (`battleground/`)
+- **Dual-Cluster Architecture**: Separate attack (Red) and defense (Blue) GKE clusters
+- **ReflexShell Commands**: `!redteam` and `!blueteam` military-grade command channels
+- **Antibody Department**: Self-healing threat response agents
+- **Synthetic Workloads**: Safe attack simulations for training
+- **Telemetry Sync**: Real-time metrics across both clusters
+- **[Full Documentation →](battleground/README.md)**
 
 ## 🏗️ Infrastructure
 
