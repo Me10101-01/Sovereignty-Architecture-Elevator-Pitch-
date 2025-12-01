@@ -1,0 +1,279 @@
+# Falco Runtime Security DaemonSet
+# Blue Team Defense Stack - IDEA_101
+# Deploys Falco for runtime threat detection
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: falco-system
+  labels:
+    team: blue
+    component: runtime-security
+    battleground: IDEA-101
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-config
+  namespace: falco-system
+  labels:
+    app: falco
+data:
+  falco.yaml: |
+    # Falco Configuration for Blue Team Cluster
+    json_output: true
+    json_include_output_property: true
+    log_stderr: true
+    log_syslog: true
+    log_level: info
+    
+    # Buffered output
+    buffered_outputs: false
+    
+    # Rules files
+    rules_file:
+      - /etc/falco/falco_rules.yaml
+      - /etc/falco/falco_rules.local.yaml
+      - /etc/falco/battleground_rules.yaml
+    
+    # Output settings
+    stdout_output:
+      enabled: true
+    
+    file_output:
+      enabled: false
+    
+    program_output:
+      enabled: false
+    
+    http_output:
+      enabled: false
+    
+    # Watch containers
+    watch_config_files: true
+    
+  battleground_rules.yaml: |
+    # Custom Battleground Detection Rules
+    
+    - rule: Privilege Escalation Detected
+      desc: Detect privilege escalation attempts in containers
+      condition: >
+        spawned_process and 
+        container and
+        proc.name in (sudo, su, doas, pkexec)
+      output: >
+        PRIVILEGE_ESCALATION: User %user.name attempted privilege escalation 
+        (command=%proc.cmdline container=%container.id image=%container.image.repository 
+        namespace=%k8s.ns.name pod=%k8s.pod.name)
+      priority: CRITICAL
+      tags: [privilege_escalation, mitre_T1548, battleground]
+    
+    - rule: Container Escape via nsenter
+      desc: Detect container escape attempts using nsenter
+      condition: >
+        spawned_process and
+        container and
+        proc.name = nsenter
+      output: >
+        CONTAINER_ESCAPE: nsenter executed in container 
+        (command=%proc.cmdline container=%container.id image=%container.image.repository)
+      priority: CRITICAL
+      tags: [container_escape, mitre_T1611, battleground]
+    
+    - rule: Crypto Miner Process Detected
+      desc: Detect cryptocurrency mining processes
+      condition: >
+        spawned_process and
+        container and
+        (
+          proc.name in (xmrig, minerd, cpuminer, cgminer, bfgminer) or
+          proc.cmdline contains "stratum+tcp" or
+          proc.cmdline contains "pool.minergate" or
+          proc.cmdline contains "nicehash"
+        )
+      output: >
+        CRYPTO_MINER: Mining process detected 
+        (process=%proc.name command=%proc.cmdline container=%container.id pod=%k8s.pod.name)
+      priority: HIGH
+      tags: [crypto_mining, mitre_T1496, battleground]
+    
+    - rule: Reverse Shell Attempt
+      desc: Detect reverse shell connections
+      condition: >
+        spawned_process and
+        container and
+        (
+          (proc.name = bash and proc.args contains "-i") or
+          (proc.name = nc and (proc.args contains "-e" or proc.args contains "-c")) or
+          (proc.name = python and proc.cmdline contains "socket") or
+          (proc.name = perl and proc.cmdline contains "socket") or
+          (proc.name = ruby and proc.cmdline contains "socket")
+        )
+      output: >
+        REVERSE_SHELL: Potential reverse shell detected 
+        (process=%proc.name command=%proc.cmdline container=%container.id)
+      priority: CRITICAL
+      tags: [reverse_shell, mitre_T1059, battleground]
+    
+    - rule: ServiceAccount Token Access
+      desc: Detect unauthorized access to ServiceAccount tokens
+      condition: >
+        open_read and
+        container and
+        fd.name startswith "/var/run/secrets/kubernetes.io" and
+        not proc.name in (kubelet, containerd, runc, pause)
+      output: >
+        RBAC_BYPASS: ServiceAccount token accessed 
+        (file=%fd.name process=%proc.name container=%container.id pod=%k8s.pod.name)
+      priority: HIGH
+      tags: [credential_access, mitre_T1528, battleground]
+    
+    - rule: Suspicious Network Tool Execution
+      desc: Detect execution of network reconnaissance tools
+      condition: >
+        spawned_process and
+        container and
+        proc.name in (nmap, masscan, zmap, netcat, nc, ncat, curl, wget) and
+        not proc.pname in (apt, apt-get, yum, dnf, apk)
+      output: >
+        NETWORK_RECON: Network tool executed 
+        (process=%proc.name command=%proc.cmdline container=%container.id)
+      priority: MEDIUM
+      tags: [discovery, mitre_T1046, battleground]
+    
+    - rule: Metadata Service Access
+      desc: Detect attempts to access cloud metadata services
+      condition: >
+        outbound and
+        container and
+        (
+          fd.sip = "169.254.169.254" or
+          fd.sip = "100.100.100.200"
+        )
+      output: >
+        METADATA_ACCESS: Cloud metadata service access attempted 
+        (destination=%fd.sip container=%container.id pod=%k8s.pod.name)
+      priority: HIGH
+      tags: [credential_access, mitre_T1552, battleground]
+    
+    - rule: Binary Written to Writable Directory
+      desc: Detect binaries written to writable directories
+      condition: >
+        open_write and
+        container and
+        fd.typechar = 'f' and
+        fd.name startswith "/tmp" and
+        (
+          fd.name endswith ".sh" or
+          fd.name endswith ".py" or
+          fd.name endswith ".pl" or
+          evt.arg.mode contains "x"
+        )
+      output: >
+        SUSPICIOUS_BINARY: Executable written to temp 
+        (file=%fd.name process=%proc.name container=%container.id)
+      priority: MEDIUM
+      tags: [persistence, mitre_T1036, battleground]
+
+---
+# Note: In production, you would use the official Falco Helm chart
+# This is a simplified representation for the battleground
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: falco
+  namespace: falco-system
+  labels:
+    app: falco
+    team: blue
+spec:
+  selector:
+    matchLabels:
+      app: falco
+  template:
+    metadata:
+      labels:
+        app: falco
+    spec:
+      serviceAccountName: falco
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+          operator: Exists
+      containers:
+        - name: falco
+          image: falcosecurity/falco:0.37.0
+          securityContext:
+            privileged: true
+          args:
+            - /usr/bin/falco
+            - --cri
+            - /run/containerd/containerd.sock
+            - -c
+            - /etc/falco/falco.yaml
+          volumeMounts:
+            - name: falco-config
+              mountPath: /etc/falco
+            - name: containerd-socket
+              mountPath: /run/containerd/containerd.sock
+              readOnly: true
+            - name: proc
+              mountPath: /host/proc
+              readOnly: true
+            - name: dev
+              mountPath: /host/dev
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+      volumes:
+        - name: falco-config
+          configMap:
+            name: falco-config
+        - name: containerd-socket
+          hostPath:
+            path: /run/containerd/containerd.sock
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: dev
+          hostPath:
+            path: /dev
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: falco
+  namespace: falco-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: falco
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "pods"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: falco
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: falco
+subjects:
+  - kind: ServiceAccount
+    name: falco
+    namespace: falco-system
