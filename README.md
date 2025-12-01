@@ -1,6 +1,6 @@
 # Strategickhaos Sovereignty Architecture - Discord DevOps Control Plane
 
-**A comprehensive Discord-integrated DevOps automation system for the Strategickhaos ecosystem, featuring AI agents, GitLens integration, and sovereign infrastructure management.**
+**A comprehensive Discord-integrated DevOps automation system for the Strategickhaos ecosystem, featuring AI agents, GitLens integration, sovereign infrastructure management, and CPA Sentinel compliance automation.**
 
 ## 🏛️ Architecture Overview
 
@@ -9,6 +9,7 @@ This system creates a **sovereignty control plane** that bridges:
 - **Infrastructure** - Kubernetes, observability, AI agents  
 - **Development** - GitLens, PR workflows, CI/CD automation
 - **AI Agents** - Intelligent assistance with vector knowledge base
+- **CPA Sentinel** - Compliance, Protection & Audit department as code (IDEA_100)
 
 ## 🚀 Quick Start
 
@@ -47,6 +48,65 @@ export PRS_CHANNEL="channel_id"
 - **Review Workflows**: Automated PR lifecycle notifications
 - **Commit Graph**: Real-time development activity feeds
 - **Launchpad**: Integrated with GitLens Pro features
+
+### 🛡️ CPA Sentinel (`cpa-sentinel`) - IDEA_100
+Compliance, Protection & Audit department as code. A comprehensive compliance monitoring and automation service.
+
+**Modules:**
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│                          CPA SENTINEL                                       │
+├────────────────────────────────────────────────────────────────────────────┤
+│  📧 EMAIL                    💳 FINANCE                  🛡️ BRAND          │
+│  ├─ SNHU Outlook             ├─ Stripe                   ├─ USPTO TSDR    │
+│  ├─ Gmail                    ├─ Sequence.io              ├─ Google Alerts │
+│  ├─ Proofpoint Auto-Release  ├─ Plaid (Banks)            ├─ Twitter/X     │
+│  └─ Domain Forms             ├─ NinjaTrader              ├─ Domain WHOIS  │
+│                              └─ Crypto Wallets           └─ GitHub Forks  │
+│                                                                            │
+│  📊 CREDIT                   🔍 VERIFICATION             📋 AUDIT         │
+│  ├─ D&B PAYDEX               ├─ OFAC SDN                 ├─ Merkle Trees  │
+│  ├─ Experian Business        ├─ UCC Filings              ├─ Git Anchors   │
+│  └─ WY SOS Good Standing     └─ PACER Litigation         └─ 7yr Retention │
+│                                                                            │
+│  SEQUENCE.IO COPYCAT DETECTION                                             │
+│  ├─ Watch: "StrategicKhaos", "ValorYield", "Me10101", "Dom Garza"          │
+│  ├─ Alert if someone invoices as you                                       │
+│  └─ Track payment descriptions for brand misuse                            │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Monitored Entities:**
+| Entity | Type | ID |
+|--------|------|-----|
+| StrategicKhaos DAO LLC | Wyoming LLC | 2025-001708194 |
+| ValorYield Engine | 501(c)(3) | EIN 39-2923503 |
+| Skyline Strategies | DBA/Verizon | 942748515-00001 |
+
+**Proofpoint Auto-Whitelist:**
+- `team@email.anthropic.com` - Claude updates
+- `noreply@x.ai` - Grok/xAI
+- `danielz529@github.com` - GitHub collaborator
+- `learn@send.zapier.com` - Zapier
+- `brokerage@ninjatrader.com` - NinjaTrader
+- `no-reply@getsequence.io` - Sequence.io
+- `noreply@email.openai.com` - OpenAI
+- `no-reply@docker.com` - Docker
+
+**Deploy CPA Sentinel:**
+```bash
+# Start with Docker Compose
+docker compose up -d redis cpa-sentinel
+
+# Access dashboard
+curl http://localhost:8003/dashboard
+
+# Check health
+curl http://localhost:8003/health
+
+# View metrics
+curl http://localhost:8003/metrics
+```
 
 ## 🏗️ Infrastructure
 

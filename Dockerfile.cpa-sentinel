@@ -1,0 +1,35 @@
+# Dockerfile.cpa-sentinel
+# CPA Sentinel - Compliance, Protection & Audit Service
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies for health check
+RUN apk add --no-cache curl
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY src/cpa-sentinel ./src/cpa-sentinel/
+COPY cpa_sentinel.yaml ./
+COPY discovery.yml ./
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV CPA_SENTINEL_CONFIG_PATH=/app/cpa_sentinel.yaml
+ENV DISCOVERY_CONFIG_PATH=/app/discovery.yml
+
+# Expose the service port
+EXPOSE 8003
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8003/health || exit 1
+
+# Run the service
+CMD ["node", "--experimental-specifier-resolution=node", "src/cpa-sentinel/index.js"]

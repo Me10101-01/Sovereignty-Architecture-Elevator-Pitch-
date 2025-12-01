@@ -98,6 +98,58 @@ groups:
           summary: "High architecture request backlog"
           description: "{{ $value }} architecture requests are pending processing."
 
+  - name: cpa_sentinel_alerts
+    rules:
+      - alert: CPASentinelDown
+        expr: up{job="cpa-sentinel"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: cpa-sentinel
+        annotations:
+          summary: "CPA Sentinel is down"
+          description: "CPA Sentinel compliance monitoring service has been down for more than 2 minutes."
+
+      - alert: CredentialExpiringSoon
+        expr: cpa_sentinel_credential_days_until_expiry < 30
+        for: 0m
+        labels:
+          severity: warning
+          service: cpa-sentinel
+        annotations:
+          summary: "Credential expiring soon"
+          description: "Credential {{ $labels.name }} expires in {{ $value }} days."
+
+      - alert: CredentialExpiredOrCritical
+        expr: cpa_sentinel_credential_days_until_expiry < 7
+        for: 0m
+        labels:
+          severity: critical
+          service: cpa-sentinel
+        annotations:
+          summary: "Credential expired or expiring critically soon"
+          description: "Credential {{ $labels.name }} is expired or expires in {{ $value }} days. Immediate action required."
+
+      - alert: CopycatDetected
+        expr: increase(cpa_sentinel_copycat_detections_total[1h]) > 0
+        for: 0m
+        labels:
+          severity: high
+          service: cpa-sentinel
+        annotations:
+          summary: "Brand copycat detected"
+          description: "Sequence.io copycat detection triggered. Someone may be invoicing as your brand."
+
+      - alert: ModuleUnhealthy
+        expr: cpa_sentinel_module_healthy == 0
+        for: 5m
+        labels:
+          severity: warning
+          service: cpa-sentinel
+        annotations:
+          summary: "CPA Sentinel module unhealthy"
+          description: "Module {{ $labels.module }} is unhealthy. Check module configuration."
+
   - name: infrastructure_alerts
     rules:
       - alert: RedisDown
