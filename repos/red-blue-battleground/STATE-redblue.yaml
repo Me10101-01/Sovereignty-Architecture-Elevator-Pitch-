@@ -1,0 +1,384 @@
+# Red/Blue Battleground State Configuration
+# Cross-cluster state synchronization and orchestration
+# IDEA_101 - Strategickhaos Sovereign Cyber Lab
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: battleground-state
+  namespace: battleground-system
+  labels:
+    app.kubernetes.io/name: battleground
+    app.kubernetes.io/component: state-manager
+    strategickhaos.io/idea: "IDEA_101"
+
+---
+# Battleground State Definition
+state:
+  version: "1.0.0"
+  last_sync: null  # Auto-populated
+  operator: "Node 137"
+  
+  # Cluster Definitions
+  clusters:
+    red_team:
+      name: "autopilot-cluster-1"
+      context: "gke_strategickhaos_us-central1_autopilot-cluster-1"
+      role: "attacker"
+      zone: "us-central1"
+      status: "operational"
+      capabilities:
+        - rbac_bypass
+        - privilege_escalation
+        - container_escape
+        - supply_chain_attack
+        - crypto_miner_simulation
+        - network_policy_evasion
+        - lateral_movement
+      
+    blue_team:
+      name: "jarvis-swarm-personal-001"
+      context: "gke_strategickhaos_us-central1_jarvis-swarm-personal-001"
+      role: "defender"
+      zone: "us-central1"
+      status: "operational"
+      capabilities:
+        - falco_runtime_security
+        - opa_gatekeeper
+        - istio_service_mesh
+        - network_policy_enforcement
+        - pod_security_admission
+        - antibody_daemon
+        - immune_memory
+
+  # Namespace Isolation
+  namespaces:
+    red_team:
+      - name: "attack-staging"
+        purpose: "Stage attack workloads"
+        cleanup_policy: "auto-30m"
+      - name: "rbac-testing"
+        purpose: "RBAC bypass exercises"
+        cleanup_policy: "manual"
+      - name: "malware-sandbox"
+        purpose: "Simulated malware testing"
+        cleanup_policy: "auto-15m"
+      - name: "ctf-arena"
+        purpose: "CTF exercise space"
+        cleanup_policy: "exercise-end"
+        
+    blue_team:
+      - name: "falco-system"
+        purpose: "Falco runtime security"
+        protected: true
+      - name: "gatekeeper-system"
+        purpose: "OPA Gatekeeper"
+        protected: true
+      - name: "istio-system"
+        purpose: "Service mesh control plane"
+        protected: true
+      - name: "antibody-system"
+        purpose: "Self-healing daemon"
+        protected: true
+      - name: "threat-quarantine"
+        purpose: "Quarantined workloads"
+        cleanup_policy: "manual"
+
+  # Attack Scenarios Registry
+  scenarios:
+    rbac_bypass:
+      id: "ATK-001"
+      severity: "HIGH"
+      description: "Service account token theft and escalation"
+      workloads:
+        - "rbac-escalation-test.yaml"
+      detection_method: "falco_rule:k8s_serviceaccount_token_access"
+      expected_ttd: "30s"  # Time to detect
+      
+    privilege_escalation:
+      id: "ATK-002"
+      severity: "CRITICAL"
+      description: "Container privilege escalation attempts"
+      workloads:
+        - "privilege-escalation-pod.yaml"
+      detection_method: "falco_rule:privilege_escalation"
+      expected_ttd: "15s"
+      
+    fake_malware:
+      id: "ATK-003"
+      severity: "HIGH"
+      description: "Simulated malware for detection testing"
+      workloads:
+        - "fake-malware-pod.yaml"
+      detection_method: "antibody:pattern_match"
+      expected_ttd: "45s"
+      
+    crypto_miner:
+      id: "ATK-004"
+      severity: "HIGH"
+      description: "Cryptocurrency mining simulation"
+      workloads:
+        - "crypto-miner-sim.yaml"
+      detection_method: "falco_rule:crypto_miner"
+      expected_ttd: "60s"
+      
+    supply_chain:
+      id: "ATK-005"
+      severity: "CRITICAL"
+      description: "Malicious image and dependency injection"
+      workloads:
+        - "supply-chain-attack.yaml"
+      detection_method: "opa:image_policy_violation"
+      expected_ttd: "5s"  # Should be blocked at admission
+      
+    reverse_shell:
+      id: "ATK-006"
+      severity: "CRITICAL"
+      description: "Reverse shell connection attempt"
+      workloads:
+        - "reverse-shell-pod.yaml"
+      detection_method: "falco_rule:reverse_shell"
+      expected_ttd: "10s"
+      
+    network_evasion:
+      id: "ATK-007"
+      severity: "MEDIUM"
+      description: "NetworkPolicy bypass attempts"
+      workloads:
+        - "network-evasion-pod.yaml"
+      detection_method: "networkpolicy:violation_log"
+      expected_ttd: "20s"
+
+  # CTF Exercises
+  ctf_exercises:
+    - id: "CTF-001"
+      name: "RBAC Rumble"
+      difficulty: "EASY"
+      duration_minutes: 30
+      description: "Exploit RBAC misconfigurations and capture the flag"
+      objectives:
+        - "Find the over-permissive ServiceAccount"
+        - "Extract the admin token"
+        - "Access the restricted ConfigMap"
+      flags:
+        - name: "ServiceAccount Discovery"
+          value: "FLAG{sa_overly_permissive}"
+          points: 100
+        - name: "Token Extraction"
+          value: "FLAG{token_extracted_successfully}"
+          points: 200
+        - name: "ConfigMap Access"
+          value: "FLAG{admin_configmap_accessed}"
+          points: 300
+      red_workloads:
+        - "rbac-escalation-test.yaml"
+      blue_defenses:
+        - "opa-rbac-policy.yaml"
+        
+    - id: "CTF-002"
+      name: "Network Ninja"
+      difficulty: "MEDIUM"
+      duration_minutes: 45
+      description: "Evade NetworkPolicies and reach the crown jewels"
+      objectives:
+        - "Map the network topology"
+        - "Find policy gaps"
+        - "Reach the database pod"
+      flags:
+        - name: "Topology Mapped"
+          value: "FLAG{network_topology_revealed}"
+          points: 150
+        - name: "Policy Gap Found"
+          value: "FLAG{egress_policy_gap}"
+          points: 250
+        - name: "Database Accessed"
+          value: "FLAG{db_pod_compromised}"
+          points: 400
+      red_workloads:
+        - "network-evasion-pod.yaml"
+      blue_defenses:
+        - "network-policies.yaml"
+        
+    - id: "CTF-003"
+      name: "Supply Chain Siege"
+      difficulty: "MEDIUM"
+      duration_minutes: 60
+      description: "Detect and block supply chain attacks"
+      objectives:
+        - "Identify the malicious image"
+        - "Trace the injection point"
+        - "Block the attack at admission"
+      flags:
+        - name: "Malicious Image Identified"
+          value: "FLAG{evil_image_found}"
+          points: 200
+        - name: "Injection Point Traced"
+          value: "FLAG{ci_pipeline_compromised}"
+          points: 300
+        - name: "Attack Blocked"
+          value: "FLAG{admission_denied}"
+          points: 500
+      red_workloads:
+        - "supply-chain-attack.yaml"
+      blue_defenses:
+        - "image-policy.yaml"
+        
+    - id: "DRILL-001"
+      name: "Full Incident Response"
+      difficulty: "HARD"
+      duration_minutes: 120
+      description: "Complete incident response from detection to remediation"
+      objectives:
+        - "Detect the intrusion"
+        - "Contain the threat"
+        - "Eradicate the attacker"
+        - "Recover to known good state"
+        - "Document lessons learned"
+      flags:
+        - name: "Intrusion Detected"
+          value: "FLAG{initial_detection}"
+          points: 100
+        - name: "Threat Contained"
+          value: "FLAG{quarantine_successful}"
+          points: 200
+        - name: "Attacker Eradicated"
+          value: "FLAG{persistence_removed}"
+          points: 300
+        - name: "State Recovered"
+          value: "FLAG{desired_state_restored}"
+          points: 400
+        - name: "Report Completed"
+          value: "FLAG{incident_documented}"
+          points: 500
+
+  # Antibody Configuration
+  antibody:
+    enabled: true
+    daemon_namespace: "antibody-system"
+    poll_interval_seconds: 5
+    
+    # Threat response policies
+    response_policies:
+      privilege_escalation:
+        severity: "CRITICAL"
+        actions: ["kill", "alert", "blacklist_image"]
+        escalate_to: "security-ops"
+        
+      crypto_miner:
+        severity: "HIGH"
+        actions: ["quarantine", "alert"]
+        escalate_to: "security-ops"
+        
+      reverse_shell:
+        severity: "CRITICAL"
+        actions: ["kill", "blacklist_image", "alert", "isolate_node"]
+        escalate_to: "incident-response"
+        
+      rbac_bypass:
+        severity: "HIGH"
+        actions: ["quarantine", "alert", "audit"]
+        escalate_to: "security-ops"
+        
+      network_violation:
+        severity: "MEDIUM"
+        actions: ["log", "alert"]
+        escalate_to: null
+        
+      suspicious_binary:
+        severity: "MEDIUM"
+        actions: ["alert", "audit"]
+        escalate_to: null
+        
+      supply_chain:
+        severity: "CRITICAL"
+        actions: ["kill", "blacklist_image", "alert", "pause_pipeline"]
+        escalate_to: "incident-response"
+        
+    # Immune memory configuration
+    immune_memory:
+      storage: "configmap"  # configmap, secret, or external
+      learning_enabled: true
+      pattern_retention_days: 90
+      
+    # Audit configuration
+    audit:
+      enabled: true
+      cryptographic_signing: true
+      storage: "loki"
+      retention_days: 365
+
+  # Sync Configuration
+  sync:
+    enabled: true
+    interval_seconds: 30
+    
+    # What to sync between clusters
+    sync_targets:
+      - type: "detection_rules"
+        source: "blue_team"
+        destination: "both"
+        
+      - type: "threat_intelligence"
+        source: "external"
+        destination: "blue_team"
+        
+      - type: "compliance_policies"
+        source: "governance"
+        destination: "both"
+        
+    # State drift detection
+    drift_detection:
+      enabled: true
+      check_interval_seconds: 60
+      auto_remediate: true
+      
+  # Metrics Configuration
+  metrics:
+    prometheus:
+      enabled: true
+      scrape_interval: "15s"
+      
+    exporters:
+      - name: "red_team_metrics"
+        port: 9090
+        path: "/metrics"
+        
+      - name: "blue_team_metrics"
+        port: 9091
+        path: "/metrics"
+        
+      - name: "battleground_metrics"
+        port: 9092
+        path: "/metrics"
+
+  # Alerting Configuration
+  alerting:
+    channels:
+      - name: "discord-security"
+        type: "discord"
+        webhook_url: "${DISCORD_SECURITY_WEBHOOK}"
+        
+      - name: "pagerduty"
+        type: "pagerduty"
+        routing_key: "${PAGERDUTY_ROUTING_KEY}"
+        
+      - name: "slack-security"
+        type: "slack"
+        webhook_url: "${SLACK_SECURITY_WEBHOOK}"
+        
+    routing:
+      critical:
+        channels: ["pagerduty", "discord-security", "slack-security"]
+        repeat_interval: "5m"
+        
+      high:
+        channels: ["discord-security", "slack-security"]
+        repeat_interval: "15m"
+        
+      medium:
+        channels: ["discord-security"]
+        repeat_interval: "1h"
+        
+      low:
+        channels: ["discord-security"]
+        repeat_interval: "4h"

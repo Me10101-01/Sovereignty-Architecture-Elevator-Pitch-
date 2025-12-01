@@ -1,0 +1,403 @@
+# OPA Gatekeeper Policies for Blue Team
+# Admission control policies
+# IDEA_101 - Red/Blue Kubernetes Battleground
+
+# Block privileged containers
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8spsprivilegedcontainer
+  labels:
+    team: blue
+    policy-category: pod-security
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPPrivilegedContainer
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spsprivilegedcontainer
+
+        violation[{"msg": msg}] {
+          c := input.review.object.spec.containers[_]
+          c.securityContext.privileged == true
+          msg := sprintf("Privileged container is not allowed: %v", [c.name])
+        }
+
+        violation[{"msg": msg}] {
+          c := input.review.object.spec.initContainers[_]
+          c.securityContext.privileged == true
+          msg := sprintf("Privileged init container is not allowed: %v", [c.name])
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPPrivilegedContainer
+metadata:
+  name: psp-privileged-container
+  labels:
+    team: blue
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces:
+      - kube-system
+      - gatekeeper-system
+      - falco-system
+
+---
+# Require allowed container registries
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sallowedrepos
+  labels:
+    team: blue
+    policy-category: supply-chain
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sAllowedRepos
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            repos:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sallowedrepos
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          satisfied := [good | repo = input.parameters.repos[_]; good = startswith(container.image, repo)]
+          not any(satisfied)
+          msg := sprintf("Container image %v is not from an allowed registry. Allowed: %v", [container.image, input.parameters.repos])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.initContainers[_]
+          satisfied := [good | repo = input.parameters.repos[_]; good = startswith(container.image, repo)]
+          not any(satisfied)
+          msg := sprintf("Init container image %v is not from an allowed registry. Allowed: %v", [container.image, input.parameters.repos])
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRepos
+metadata:
+  name: allowed-repos-production
+  labels:
+    team: blue
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - production
+      - staging
+  parameters:
+    # NOTE: In a real production environment, you should restrict to only 
+    # private registries. docker.io/library/ is included here for the 
+    # battleground lab training environment only.
+    repos:
+      - "gcr.io/strategickhaos/"
+      - "us-docker.pkg.dev/strategickhaos/"
+      - "registry.k8s.io/"
+      # - "docker.io/library/"  # Uncomment only for training environments
+
+---
+# Block hostNetwork
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8spsphostnetworkingports
+  labels:
+    team: blue
+    policy-category: pod-security
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPHostNetworkingPorts
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            hostNetwork:
+              type: boolean
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spsphostnetworkingports
+
+        violation[{"msg": msg}] {
+          input.parameters.hostNetwork == false
+          input.review.object.spec.hostNetwork == true
+          msg := "HostNetwork is not allowed"
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostNetworkingPorts
+metadata:
+  name: psp-host-network
+  labels:
+    team: blue
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces:
+      - kube-system
+      - istio-system
+  parameters:
+    hostNetwork: false
+
+---
+# Block hostPID
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8spsphostpid
+  labels:
+    team: blue
+    policy-category: pod-security
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPHostPID
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spsphostpid
+
+        violation[{"msg": msg}] {
+          input.review.object.spec.hostPID == true
+          msg := "HostPID is not allowed"
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostPID
+metadata:
+  name: psp-host-pid
+  labels:
+    team: blue
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces:
+      - kube-system
+      - falco-system
+
+---
+# Require resource limits
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8scontainerlimits
+  labels:
+    team: blue
+    policy-category: resource-management
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sContainerLimits
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            cpu:
+              type: string
+            memory:
+              type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8scontainerlimits
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.resources.limits.cpu
+          msg := sprintf("Container %v must have CPU limits", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.resources.limits.memory
+          msg := sprintf("Container %v must have memory limits", [container.name])
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sContainerLimits
+metadata:
+  name: container-must-have-limits
+  labels:
+    team: blue
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces:
+      - kube-system
+      - gatekeeper-system
+  parameters:
+    cpu: "2"
+    memory: "4Gi"
+
+---
+# Block hostPath volumes
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8spsphostpath
+  labels:
+    team: blue
+    policy-category: pod-security
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPHostPath
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spsphostpath
+
+        violation[{"msg": msg}] {
+          volume := input.review.object.spec.volumes[_]
+          volume.hostPath
+          msg := sprintf("HostPath volume %v is not allowed", [volume.name])
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostPath
+metadata:
+  name: psp-host-path
+  labels:
+    team: blue
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces:
+      - kube-system
+      - falco-system
+
+---
+# Require non-root user
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8spsprunasnonroot
+  labels:
+    team: blue
+    policy-category: pod-security
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPRunAsNonRoot
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spsprunasnonroot
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.securityContext.runAsNonRoot
+          msg := sprintf("Container %v must set runAsNonRoot: true", [container.name])
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPRunAsNonRoot
+metadata:
+  name: psp-run-as-nonroot
+  labels:
+    team: blue
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - production
+
+---
+# Block dangerous capabilities
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8spspcapabilities
+  labels:
+    team: blue
+    policy-category: pod-security
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPCapabilities
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            disallowedCapabilities:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spspcapabilities
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          cap := container.securityContext.capabilities.add[_]
+          disallowed := input.parameters.disallowedCapabilities[_]
+          cap == disallowed
+          msg := sprintf("Container %v uses disallowed capability: %v", [container.name, cap])
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPCapabilities
+metadata:
+  name: psp-dangerous-capabilities
+  labels:
+    team: blue
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces:
+      - kube-system
+  parameters:
+    disallowedCapabilities:
+      - SYS_ADMIN
+      - NET_ADMIN
+      - SYS_PTRACE
+      - SYS_MODULE
+      - DAC_OVERRIDE
+      - SETUID
+      - SETGID

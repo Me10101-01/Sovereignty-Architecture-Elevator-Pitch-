@@ -1,0 +1,268 @@
+# Network Policies for Blue Team Cluster
+# Defense-in-depth network segmentation
+# IDEA_101 - Red/Blue Kubernetes Battleground
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels:
+    team: blue
+    security-zone: production
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+
+---
+# Default deny all ingress and egress in production
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: production
+  labels:
+    policy-type: default-deny
+    team: blue
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+# Allow DNS queries to kube-dns
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: production
+  labels:
+    policy-type: allow-dns
+    team: blue
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+        - podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+---
+# Block access to cloud metadata services
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: block-metadata-service
+  namespace: production
+  labels:
+    policy-type: block-metadata
+    team: blue
+    security-control: critical
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              # GCP metadata service
+              - 169.254.169.254/32
+              # Azure IMDS
+              - 100.100.100.200/32
+              # AWS metadata service (link-local range)
+              - 169.254.0.0/16
+
+---
+# Allow internal cluster communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-same-namespace
+  namespace: production
+  labels:
+    policy-type: allow-internal
+    team: blue
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+  egress:
+    - to:
+        - podSelector: {}
+
+---
+# Allow ingress from Istio ingress gateway
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-istio-ingress
+  namespace: production
+  labels:
+    policy-type: allow-istio
+    team: blue
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: production-apps
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: istio-system
+        - podSelector:
+            matchLabels:
+              istio: ingressgateway
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8443
+
+---
+# Quarantine namespace - completely isolated
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: threat-quarantine
+  labels:
+    team: blue
+    security-zone: quarantine
+    pod-security.kubernetes.io/enforce: restricted
+
+---
+# Complete isolation for quarantined pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quarantine-isolation
+  namespace: threat-quarantine
+  labels:
+    policy-type: quarantine
+    team: blue
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  # Empty ingress and egress = deny all
+
+---
+# Falco system namespace policies
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: falco-egress
+  namespace: falco-system
+  labels:
+    policy-type: monitoring
+    team: blue
+spec:
+  podSelector:
+    matchLabels:
+      app: falco
+  policyTypes:
+    - Egress
+  egress:
+    # Allow Falco to send alerts to webhook destinations
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 169.254.169.254/32
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
+
+---
+# Antibody system namespace policies
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: antibody-system
+  labels:
+    team: blue
+    security-zone: security-operations
+    pod-security.kubernetes.io/enforce: baseline
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: antibody-egress
+  namespace: antibody-system
+  labels:
+    policy-type: security-ops
+    team: blue
+spec:
+  podSelector:
+    matchLabels:
+      app: antibody
+  policyTypes:
+    - Egress
+  egress:
+    # Allow API server access
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 6443
+    # Allow DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+
+---
+# Inter-namespace communication rules
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-monitoring-ingress
+  namespace: production
+  labels:
+    policy-type: monitoring
+    team: blue
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow Prometheus scraping
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+        - podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 9090
+        - protocol: TCP
+          port: 8080
