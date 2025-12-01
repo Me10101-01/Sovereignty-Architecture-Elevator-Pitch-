@@ -34,7 +34,7 @@ You just proved that.
 |-------|----------|--------|
 | Sovereign Control Deck | `C:\Users\Me10101\Downloads\sovereign-control-deck-v2\` | ✅ Ready |
 | Blue Team Cluster | `jarvis-swarm-personal-001` | ✅ Running |
-| Red Team Cluster | `red-team` | ✅ Running |
+| Red Team Cluster | `autopilot-cluster-1` | ✅ Running |
 | Ideas Catalog | 14 ideas catalogued | ✅ Saved |
 | IDEA_101 Package | `red-blue-battleground/` | ✅ Complete |
 | CPA Sentinel | `cpa-sentinel/` | ✅ Prototype |
