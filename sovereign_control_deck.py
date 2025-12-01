@@ -16,6 +16,7 @@ Access: http://127.0.0.1:8080
 """
 
 import hashlib
+import re
 import json
 import os
 import subprocess
@@ -32,6 +33,10 @@ from flask import Flask, jsonify, render_template_string, request
 
 BLUE_TEAM_CLUSTER = os.environ.get("BLUE_TEAM_CLUSTER", "jarvis-swarm-personal-001")
 RED_TEAM_CLUSTER = os.environ.get("RED_TEAM_CLUSTER", "red-team")
+DEBUG_MODE = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+
+# Allowed cluster names for security (whitelist)
+ALLOWED_CLUSTERS = frozenset([BLUE_TEAM_CLUSTER, RED_TEAM_CLUSTER])
 
 app = Flask(__name__)
 
@@ -71,6 +76,28 @@ class CommandResult:
 def get_cluster_info(cluster_name: str, role: str) -> ClusterStatus:
     """Get cluster information (simulated or real kubectl)."""
     now = datetime.now(timezone.utc).isoformat()
+
+    # Validate cluster_name against whitelist to prevent command injection
+    if cluster_name not in ALLOWED_CLUSTERS:
+        return ClusterStatus(
+            name=cluster_name,
+            role=role,
+            node_count=0,
+            pod_count=0,
+            status="INVALID_CLUSTER",
+            last_updated=now,
+        )
+
+    # Additional validation: cluster names should only contain alphanumeric, hyphen, underscore
+    if not re.match(r"^[a-zA-Z0-9_-]+$", cluster_name):
+        return ClusterStatus(
+            name=cluster_name,
+            role=role,
+            node_count=0,
+            pod_count=0,
+            status="INVALID_NAME",
+            last_updated=now,
+        )
 
     # Try to get real kubectl info, fallback to simulated
     try:
@@ -539,20 +566,18 @@ def execute_command(command: str) -> CommandResult:
     cmd = parts[0].lower()
     args = parts[1:] if len(parts) > 1 else []
 
-    # Route commands
-    commands = ReflexShellCommands()
-
+    # Route commands using static methods directly
     if cmd == "!status":
-        return commands.status()
+        return ReflexShellCommands.status()
     elif cmd == "!help":
-        return commands.help_command()
+        return ReflexShellCommands.help_command()
     elif cmd == "!antibody" and args and args[0] == "deploy":
-        return commands.antibody_deploy()
+        return ReflexShellCommands.antibody_deploy()
     elif cmd == "!redteam":
         if not args or args[0] == "status":
-            return commands.redteam_status()
+            return ReflexShellCommands.redteam_status()
         elif args[0] == "miner":
-            return commands.redteam_miner()
+            return ReflexShellCommands.redteam_miner()
         else:
             return CommandResult(
                 command=command,
@@ -562,9 +587,9 @@ def execute_command(command: str) -> CommandResult:
             )
     elif cmd == "!blueteam":
         if not args or args[0] == "status":
-            return commands.blueteam_status()
+            return ReflexShellCommands.blueteam_status()
         elif args[0] == "threats":
-            return commands.blueteam_threats()
+            return ReflexShellCommands.blueteam_threats()
         else:
             return CommandResult(
                 command=command,
@@ -574,11 +599,11 @@ def execute_command(command: str) -> CommandResult:
             )
     elif cmd == "!ctf":
         exercise_id = args[0] if args else "001"
-        return commands.ctf_start(exercise_id)
+        return ReflexShellCommands.ctf_start(exercise_id)
     elif cmd == "!mesh" and args and args[0] == "enable":
-        return commands.mesh_enable()
+        return ReflexShellCommands.mesh_enable()
     elif cmd == "!sovereign" and args and args[0] == "lock":
-        return commands.sovereign_lock()
+        return ReflexShellCommands.sovereign_lock()
     else:
         return CommandResult(
             command=command,
@@ -1032,4 +1057,6 @@ Blue Team: jarvis-swarm-personal-001
 Red Team: red-team
 """
     )
-    app.run(host="127.0.0.1", port=8080, debug=True)
+    # Debug mode is controlled via FLASK_DEBUG environment variable
+    # Default is False for security - set FLASK_DEBUG=true only for development
+    app.run(host="127.0.0.1", port=8080, debug=DEBUG_MODE)
