@@ -1,7 +1,7 @@
 # 🟥 RED TEAM PLAYBOOK
 
 > **StrategicKhaos DAO LLC — Internal Security Research**  
-> Cluster: `autopilot-cluster-1`
+> Cluster: `red-team` (GKE Autopilot, us-central1, jarvis-swarm-personal)
 
 ---
 
