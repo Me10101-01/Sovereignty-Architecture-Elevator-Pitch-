@@ -1,0 +1,188 @@
+<!doctype html>
+<html class="h-screen bg-slate-950 text-slate-100" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>Strategickhaos Sovereign Control Deck</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Google Sans', system-ui, sans-serif; }
+    .glow { box-shadow: 0 0 20px rgba(52, 211, 153, 0.4); }
+    .glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+    .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
+    .terminal {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+    .terminal-header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="max-w-7xl mx-auto p-8">
+    <!-- Header -->
+    <header class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-emerald-400 mb-2">⚡ Strategickhaos Sovereign Control Deck</h1>
+      <p class="text-lg text-slate-400">Dual-Cluster Kubernetes Cyber Lab • DAO Swarm</p>
+    </header>
+
+    <!-- Cluster Cards -->
+    <div class="grid md:grid-cols-2 gap-8 mb-12">
+      <!-- Blue Team Card -->
+      <div class="bg-slate-900 rounded-xl p-6 border border-blue-500/30 glow-blue">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-4 h-4 bg-blue-500 rounded-full animate-pulse"></div>
+          <h2 class="text-2xl font-bold text-blue-400">🟦 Blue Team</h2>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Cluster</span>
+            <span class="font-mono text-white">{{ state.clusters.blue_team.name if state.clusters else 'jarvis-swarm-personal-001' }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Role</span>
+            <span class="text-blue-300">Defender</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Status</span>
+            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-sm">RUNNING</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Nodes</span>
+            <span class="text-white">2</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Region</span>
+            <span class="text-slate-300">us-central1</span>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-700">
+          <span class="text-sm text-slate-500">Defense Layers:</span>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs">Falco</span>
+            <span class="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs">OPA</span>
+            <span class="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs">NetworkPolicy</span>
+            <span class="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs">Antibody</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Red Team Card -->
+      <div class="bg-slate-900 rounded-xl p-6 border border-red-500/30 glow-red">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+          <h2 class="text-2xl font-bold text-red-400">🟥 Red Team</h2>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Cluster</span>
+            <span class="font-mono text-white">{{ state.clusters.red_team.name if state.clusters else 'red-team' }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Role</span>
+            <span class="text-red-300">Attacker</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Status</span>
+            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-sm">RUNNING</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Nodes</span>
+            <span class="text-white">3</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Region</span>
+            <span class="text-slate-300">us-central1</span>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-700">
+          <span class="text-sm text-slate-500">Attack Capabilities:</span>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs">RBAC Bypass</span>
+            <span class="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs">NetworkPolicy</span>
+            <span class="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs">Supply Chain</span>
+            <span class="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs">Malware Sim</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ReflexShell Terminal -->
+    <div class="terminal mb-8">
+      <div class="terminal-header">
+        <div class="terminal-dot bg-red-500"></div>
+        <div class="terminal-dot bg-yellow-500"></div>
+        <div class="terminal-dot bg-green-500"></div>
+        <span class="text-slate-400 text-sm ml-2">ReflexShell v1.0</span>
+      </div>
+      <div class="p-4 text-sm">
+        <div class="text-green-400">$ reflexshell --cluster=all</div>
+        <div class="text-slate-300 mt-2">
+          <span class="text-blue-400">🟦 Blue Team:</span> jarvis-swarm-personal-001 <span class="text-green-400">[CONNECTED]</span>
+        </div>
+        <div class="text-slate-300">
+          <span class="text-red-400">🟥 Red Team:</span> red-team <span class="text-green-400">[CONNECTED]</span>
+        </div>
+        <div class="text-slate-500 mt-2">Type '!help' for available commands</div>
+        <div class="flex items-center mt-2">
+          <span class="text-emerald-400">sovereign@control-deck</span>
+          <span class="text-slate-500">:</span>
+          <span class="text-blue-400">~</span>
+          <span class="text-slate-500">$ </span>
+          <span class="animate-pulse">▊</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-slate-900 rounded-xl p-6 border border-slate-700">
+      <h3 class="text-xl font-bold text-emerald-400 mb-4">⚔️ Quick Actions</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button class="px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+          Deploy Antibody
+        </button>
+        <button class="px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
+          Launch Attack
+        </button>
+        <button class="px-4 py-3 bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors">
+          View Falco Logs
+        </button>
+        <button class="px-4 py-3 bg-slate-600 hover:bg-slate-700 rounded-lg transition-colors">
+          Sync STATE.yaml
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center mt-12 text-slate-500 text-sm">
+      <p>Sovereign Control Deck v2.0 • StrategicKhaos DAO LLC</p>
+      <p class="mt-1">No telemetry. No lock-in. Your infrastructure. Your empire.</p>
+    </footer>
+  </div>
+
+  <script>
+    // Auto-refresh status every 30 seconds
+    setInterval(() => {
+      fetch('/api/status')
+        .then(res => res.json())
+        .then(data => {
+          console.log('Status update:', data);
+        })
+        .catch(err => console.error('Status fetch failed:', err));
+    }, 30000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# STATE.yaml — Sovereign Control Deck Configuration
+# StrategicKhaos DAO LLC
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "2025-12-01"
+spec_version: "2.0"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLUSTER DEFINITIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+clusters:
+  blue_team:
+    name: "jarvis-swarm-personal-001"
+    role: "defender"
+    gcp_project: "jarvis-swarm-personal"
+    region: "us-central1"
+    type: "GKE Autopilot"
+    status: "running"
+    fleet_registered: true
+    purpose: |
+      Defensive operations cluster with full governance, monitoring,
+      and threat detection capabilities.
+    namespaces:
+      - name: "ns-security"
+        purpose: "Security operations"
+        security_level: "restricted"
+      - name: "falco-system"
+        purpose: "Falco runtime security"
+        security_level: "restricted"
+      - name: "gatekeeper-system"
+        purpose: "OPA/Gatekeeper admission control"
+        security_level: "restricted"
+    defense_layers:
+      - "Falco runtime monitoring"
+      - "OPA/Gatekeeper admission control"
+      - "PodSecurityStandards (restricted)"
+      - "NetworkPolicies (zero-trust)"
+      - "Service Mesh (Anthos/Istio)"
+      - "Antibody Department (self-healing)"
+      - "Workload Identity Federation"
+
+  red_team:
+    name: "red-team"
+    role: "attacker"
+    gcp_project: "jarvis-swarm-personal"
+    region: "us-central1"
+    type: "GKE Autopilot"
+    status: "running"
+    fleet_registered: true
+    purpose: |
+      Offensive security research cluster for attack simulations,
+      misconfiguration testing, and red team exercises.
+    namespaces:
+      - name: "red-team"
+        purpose: "Attack workloads"
+        security_level: "sandbox"
+    allowed_activities:
+      - "RBAC bypass testing"
+      - "NetworkPolicy bypass testing"
+      - "Container escape simulations"
+      - "Supply chain attack simulations"
+      - "Crypto miner detection training"
+      - "Reverse shell detection training"
+      - "Synthetic secret exfiltration"
+    prohibited_activities:
+      - "External network attacks"
+      - "Real malware deployment"
+      - "Production data access"
+      - "Cross-project attacks"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DASHBOARD CONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dashboard:
+  title: "Strategickhaos Sovereign Control Deck"
+  version: "2.0"
+  refresh_interval_seconds: 30
+  theme: "dark"
+  features:
+    - "cluster_status"
+    - "reflexshell"
+    - "quick_actions"
+    - "telemetry"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TELEMETRY
+# ═══════════════════════════════════════════════════════════════════════════════
+
+telemetry:
+  prometheus:
+    enabled: true
+    scrape_interval: "15s"
+  grafana:
+    enabled: true
+    dashboards:
+      - "red-blue-battleground"
+      - "antibody-department"
+      - "detection-metrics"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# METADATA
+# ═══════════════════════════════════════════════════════════════════════════════
+
+metadata:
+  created_at: "2025-12-01T06:00:00Z"
+  created_by: "Sovereign Control Deck Setup"
+  owner: "StrategicKhaos DAO LLC"
+  classification: "internal"
