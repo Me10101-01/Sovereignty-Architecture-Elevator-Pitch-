@@ -24,6 +24,7 @@ import argparse
 import json
 import subprocess
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -355,7 +356,6 @@ def mode_handshake(args: argparse.Namespace) -> int:
     syn_ack = handshake.syn_ack(capabilities=["code", "docs", "analysis"])
     
     print("  [3] ACK...")
-    import uuid
     ack = handshake.ack(session_id=str(uuid.uuid4()))
     
     print("  [4] DATA...")
