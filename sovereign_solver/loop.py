@@ -406,11 +406,17 @@ class AutonomousFeedbackLoop:
         iteration = self.complete_iteration()
 
         if iteration is None:
-            # Return a completed iteration even if complete_iteration returns None
+            # This shouldn't happen if begin_iteration was called, but handle gracefully
+            fallback_id = hashlib.sha256(
+                f"fallback:{datetime.now().isoformat()}".encode()
+            ).hexdigest()[:12]
+            start_time = datetime.now()
             return LoopIteration(
-                iteration_id="fallback",
-                started_at=datetime.now(),
-                completed_at=datetime.now()
+                iteration_id=fallback_id,
+                started_at=start_time,
+                completed_at=start_time,
+                phase=LoopPhase.IDLE,
+                metrics={"error": "iteration_not_started"}
             )
         return iteration
 

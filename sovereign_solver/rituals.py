@@ -357,10 +357,10 @@ class RitualGenerator:
             "success": False
         }
 
-        # Check condition
+        # Check condition - use safe evaluation (only simple boolean checks)
         if step.condition:
             try:
-                if not eval(step.condition, {"ctx": context}):
+                if not self._evaluate_condition(step.condition, context):
                     result["success"] = True
                     result["skipped"] = True
                     return result
@@ -383,6 +383,46 @@ class RitualGenerator:
             result["note"] = f"No handler for action '{step.action}'"
 
         return result
+
+    def _evaluate_condition(self, condition: str, context: dict[str, Any]) -> bool:
+        """
+        Safely evaluate a condition string.
+
+        Only supports simple boolean expressions like:
+        - "key" (checks if key exists and is truthy in context)
+        - "key == value" (equality check)
+        - "key != value" (inequality check)
+        - "key in list" (membership check)
+        """
+        condition = condition.strip()
+
+        # Check for equality
+        if "==" in condition:
+            parts = condition.split("==", 1)
+            if len(parts) == 2:
+                key = parts[0].strip()
+                value = parts[1].strip().strip("'\"")
+                return str(context.get(key, "")) == value
+
+        # Check for inequality
+        if "!=" in condition:
+            parts = condition.split("!=", 1)
+            if len(parts) == 2:
+                key = parts[0].strip()
+                value = parts[1].strip().strip("'\"")
+                return str(context.get(key, "")) != value
+
+        # Check for membership
+        if " in " in condition:
+            parts = condition.split(" in ", 1)
+            if len(parts) == 2:
+                key = parts[0].strip()
+                list_key = parts[1].strip()
+                list_val = context.get(list_key, [])
+                return context.get(key) in list_val
+
+        # Simple truthy check
+        return bool(context.get(condition))
 
     def evolve_ritual(
         self,

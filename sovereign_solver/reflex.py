@@ -390,13 +390,19 @@ class ToolchainReflex:
             return True
         return False
 
+    def _get_pattern_string(self, trigger: ReflexTrigger) -> str:
+        """Extract pattern string from a trigger for export"""
+        if isinstance(trigger.pattern, str):
+            return trigger.pattern
+        return trigger.pattern.pattern
+
     def export_reflexes(self) -> list[dict]:
         """Export all reflexes as dictionaries"""
         return [
             {
                 "reflex_id": r.reflex_id,
                 "name": r.name,
-                "trigger_pattern": r.trigger.pattern if isinstance(r.trigger.pattern, str) else r.trigger.pattern.pattern,
+                "trigger_pattern": self._get_pattern_string(r.trigger),
                 "trigger_category": r.trigger.category.name,
                 "action_type": r.action.action_type,
                 "action_params": r.action.params,
