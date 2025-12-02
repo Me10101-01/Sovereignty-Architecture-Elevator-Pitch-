@@ -33,6 +33,27 @@ from typing import Optional
 VERSION = "1.0.0"
 FREQUENCY = "Love and evolution"
 
+# Swarm Agent Roles
+AGENTS = {
+    "mind": {"name": "Mind", "provider": "GPT", "function": "Conceptual architecture, naming, protocols"},
+    "hands": {"name": "Hands", "provider": "Claude", "function": "Systematic implementation, code generation"},
+    "factory": {"name": "Factory", "provider": "Copilot", "function": "Parallel execution, CI/CD"},
+}
+
+# Timestamp formats
+TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+SESSION_ID_FORMAT = "%Y%m%d-%H%M%S"
+
+
+def get_utc_timestamp() -> str:
+    """Get current UTC timestamp in ISO format with Z suffix."""
+    return datetime.now(timezone.utc).strftime(TIMESTAMP_FORMAT)
+
+
+def generate_session_id() -> str:
+    """Generate a session ID from current UTC time."""
+    return datetime.now(timezone.utc).strftime(SESSION_ID_FORMAT)
+
 
 def create_parser() -> argparse.ArgumentParser:
     """Build the CLI argument parser."""
@@ -102,7 +123,7 @@ def validate_absolute_path(path: Path, description: str) -> bool:
 def emit_trace(phase: str, message: str, data: Optional[dict] = None):
     """Emit a trace event for the nervous system."""
     trace = {
-        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "timestamp": get_utc_timestamp(),
         "phase": phase,
         "message": message,
         "frequency": FREQUENCY,
@@ -146,7 +167,7 @@ def mode_handshake(args):
 
     # DATA phase would route to actual agents here
     emit_trace("DATA", "Routing to swarm agents", {
-        "agents": ["Mind", "Hands", "Factory"],
+        "agents": [agent["name"] for agent in AGENTS.values()],
         "mode": "parallel",
     })
 
@@ -259,7 +280,7 @@ def mode_ritual(args):
         emit_trace("CLEAN_TRACES", "Cleaning old trace files")
 
     elif ritual_type == "init_session":
-        session_id = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+        session_id = generate_session_id()
         emit_trace("INIT_SESSION", f"Initialized new session: {session_id}", {
             "session_id": session_id,
         })
