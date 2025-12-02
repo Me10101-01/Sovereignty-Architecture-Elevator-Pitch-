@@ -90,10 +90,17 @@ impl GkeAuditLogParser {
     }
 
     /// Parse a single log line
+    /// 
+    /// STUB: This method needs to be implemented by an AI agent.
+    /// See docs/BLACK_OPS_LAB.md for the SWARM-HS process.
+    /// 
+    /// Expected implementation:
+    /// 1. Parse JSON line using serde_json
+    /// 2. Extract AuditEvent fields from GKE audit log schema
+    /// 3. Handle parsing errors gracefully
     fn parse_line(&self, _line: &str) -> Result<Option<AuditEvent>, String> {
-        // TODO: Implement actual JSON parsing
-        // This is a stub that returns None
-        // Real implementation would use serde_json to parse GKE audit log format
+        // STUB: Returns None until implemented
+        // Use SWARM-HS to implement: send logs to an AI agent with clear intent
         Ok(None)
     }
 

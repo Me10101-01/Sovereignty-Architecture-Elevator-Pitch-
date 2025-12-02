@@ -126,6 +126,14 @@ impl LeaseChurnAnalyzer {
     }
 
     /// Detect high churn patterns (rapid acquire/release)
+    /// 
+    /// STUB: Sliding window algorithm needs proper implementation.
+    /// See docs/RITUALS/LOG_PARSER_RITUAL.md for expected behavior.
+    /// 
+    /// Expected implementation:
+    /// 1. Parse timestamps to calculate actual time windows
+    /// 2. Use sliding window over configured interval
+    /// 3. Count events per window and compare to threshold
     fn detect_high_churn(&self) -> Vec<ChurnAnomaly> {
         let mut anomalies = Vec::new();
         
@@ -133,13 +141,14 @@ impl LeaseChurnAnalyzer {
         let grouped = self.group_by_lease();
         
         for ((namespace, lease_name), events) in grouped {
-            // Sliding window analysis
+            // STUB: Simplified heuristic until proper sliding window is implemented
+            // Uses 10x threshold as placeholder for total events check
             let window_size = self.config.churn_window_secs;
             let threshold = self.config.churn_threshold;
+            let simplified_threshold = threshold.saturating_mul(10);
             
-            // TODO: Implement sliding window with actual timestamp parsing
-            // For now, check total events against threshold
-            if events.len() > threshold * 10 {
+            // STUB: This is a simplified check, not a proper sliding window
+            if events.len() > simplified_threshold {
                 anomalies.push(ChurnAnomaly {
                     anomaly_type: AnomalyType::HighChurn,
                     namespace: namespace.clone(),
