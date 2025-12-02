@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "tsx watch src/event-gateway.ts",
     "bot": "tsx watch src/bot.ts",
+    "differential": "node src/differential/orchestrator.js",
     "start": "node --enable-source-maps dist/event-gateway.js",
     "build": "tsc -p tsconfig.json",
     "lint": "eslint ."
@@ -16,7 +17,9 @@
     "@octokit/webhooks": "^13.3.0",
     "js-yaml": "^4.1.0",
     "zod": "^3.23.8",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "uuid": "^9.0.0",
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

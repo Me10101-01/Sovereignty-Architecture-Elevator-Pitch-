@@ -322,3 +322,37 @@ refinory:
       - "architecture_ready"
       - "build_passed"
       - "deploy_succeeded"
+
+# Sovereign Differential Engine - House M.D.-style thought refinement
+differential:
+  enabled: true
+  port: 8086
+  maxRounds: 3                                    # Maximum challenge/refinement rounds
+  convergenceThreshold: 0.8                       # Confidence threshold for convergence
+  minConfidence: 0.5                              # Minimum hypothesis confidence
+  agents:
+    team:
+      - name: "Structural Analyst"
+        role: "architect"
+        domain: "system_design"
+      - name: "Pattern Recognizer"
+        role: "analyst"
+        domain: "pattern_recognition"
+      - name: "Skeptic"
+        role: "critic"
+        domain: "critical_analysis"
+      - name: "Synthesizer"
+        role: "integrator"
+        domain: "synthesis"
+      - name: "Implementation Strategist"
+        role: "planner"
+        domain: "implementation"
+    orchestration:
+      strategy: "parallel_challenge_reduce"       # All agents challenge in parallel, then reduce
+      enable_evolution: true                      # Allow hypotheses to evolve
+  discord:
+    announce_channel: "#agents"
+    notify_events:
+      - "session_created"
+      - "differential_complete"
+      - "convergence_reached"
