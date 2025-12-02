@@ -61,11 +61,12 @@ impl SovereigntyMetrics {
         // Calculate time span
         let mut timestamps: Vec<_> = entries.iter().map(|e| e.timestamp).collect();
         timestamps.sort();
-        let time_span_minutes = if timestamps.len() > 1 {
-            let duration = timestamps.last().unwrap().signed_duration_since(*timestamps.first().unwrap());
-            duration.num_seconds() as f64 / 60.0
-        } else {
-            1.0 // Default to 1 minute if only one entry
+        let time_span_minutes = match (timestamps.first(), timestamps.last()) {
+            (Some(first), Some(last)) if timestamps.len() > 1 => {
+                let duration = last.signed_duration_since(*first);
+                duration.num_seconds() as f64 / 60.0
+            }
+            _ => 1.0, // Default to 1 minute if only one entry or empty
         };
 
         // Calculate operations per minute

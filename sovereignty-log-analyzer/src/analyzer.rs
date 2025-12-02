@@ -209,18 +209,17 @@ impl Analyzer {
                 .push(entry.timestamp);
         }
 
-        for (principal, timestamps) in principal_windows {
+        for (principal, mut timestamps) in principal_windows {
             if timestamps.len() < HIGH_FREQUENCY_THRESHOLD {
                 continue;
             }
 
             // Check for bursts exceeding threshold in any 1-minute window
-            let mut sorted_timestamps = timestamps.clone();
-            sorted_timestamps.sort();
+            timestamps.sort();
 
-            for window_start in &sorted_timestamps {
+            for window_start in &timestamps {
                 let window_end = *window_start + Duration::minutes(1);
-                let count = sorted_timestamps
+                let count = timestamps
                     .iter()
                     .filter(|t| **t >= *window_start && **t < window_end)
                     .count();
