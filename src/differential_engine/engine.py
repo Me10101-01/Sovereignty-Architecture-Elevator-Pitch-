@@ -135,7 +135,7 @@ class DifferentialEngine:
 
 ## Initial Observations
 - Input length: {len(raw_input)} characters
-- Input structure: {'Multi-paragraph' if raw_input.count('\\n\\n') > 1 else 'Single block'}
+- Input structure: {'Multi-paragraph' if raw_input.count('\n\n') > 1 else 'Single block'}
 - Key terms detected: [Automatic detection pending]
 
 ## Request for Diagnosis

@@ -20,8 +20,10 @@ import argparse
 import sys
 from pathlib import Path
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent))
+# Ensure the src directory is in the path for direct script execution
+_src_dir = Path(__file__).parent.absolute()
+if str(_src_dir) not in sys.path:
+    sys.path.insert(0, str(_src_dir))
 
 from differential_engine import DifferentialEngine
 from differential_engine.engine import mock_llm_callback
