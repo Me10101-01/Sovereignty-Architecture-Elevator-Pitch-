@@ -66,7 +66,7 @@ def analyze_logs(
     output_filename = f"analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     output_path = output_dir / output_filename
 
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(analysis_result, f, indent=2, default=str)
 
     logger.info(f"Analysis complete. Results saved to: {output_path}")
@@ -92,13 +92,13 @@ def _load_log_file(log_path: Path) -> List[Dict[str, Any]]:
     suffix = log_path.suffix.lower()
 
     if suffix == ".json":
-        with open(log_path, "r") as f:
+        with open(log_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             # Handle both single object and array
             return data if isinstance(data, list) else [data]
     elif suffix == ".jsonl":
         logs = []
-        with open(log_path, "r") as f:
+        with open(log_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:
@@ -106,7 +106,7 @@ def _load_log_file(log_path: Path) -> List[Dict[str, Any]]:
         return logs
     else:
         # Plain text: treat each line as a log entry
-        with open(log_path, "r") as f:
+        with open(log_path, "r", encoding="utf-8") as f:
             return [{"raw_line": line.strip(), "line_num": i}
                     for i, line in enumerate(f, 1) if line.strip()]
 

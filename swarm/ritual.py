@@ -85,7 +85,7 @@ def _render_single_ritual(
     ritual_path: Path,
 ) -> Dict[str, Any]:
     """Render a single ritual document."""
-    with open(ritual_path, "r") as f:
+    with open(ritual_path, "r", encoding="utf-8") as f:
         content = f.read()
 
     return {
@@ -135,7 +135,7 @@ This ritual defines...
 - {datetime.now().strftime('%Y-%m-%d')}: Initial creation by swarm
 """
 
-    with open(ritual_path, "w") as f:
+    with open(ritual_path, "w", encoding="utf-8") as f:
         f.write(template)
 
     logger.info(f"Created new ritual: {ritual_path}")
@@ -157,7 +157,7 @@ def _render_all_rituals(
     ritual_summaries = []
 
     for name, path in rituals.items():
-        with open(path, "r") as f:
+        with open(path, "r", encoding="utf-8") as f:
             content = f.read()
         ritual_summaries.append({
             "name": name,
@@ -218,7 +218,7 @@ Rituals integrate with the swarm module via:
 - `swarm.analyzer.analyze_logs()` - Analyze captured traces
 """
 
-    with open(index_path, "w") as f:
+    with open(index_path, "w", encoding="utf-8") as f:
         f.write(index_content)
 
     return True

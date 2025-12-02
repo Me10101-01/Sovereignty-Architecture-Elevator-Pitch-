@@ -71,7 +71,7 @@ def run_experiment(
         "results": results,
     }
 
-    with open(trace_path, "w") as f:
+    with open(trace_path, "w", encoding="utf-8") as f:
         json.dump(trace_data, f, indent=2, default=str)
 
     logger.info(f"Experiment complete. Trace saved to: {trace_path}")
@@ -95,11 +95,11 @@ def _load_input_data(input_path: Path) -> Dict[str, Any]:
     suffix = input_path.suffix.lower()
 
     if suffix == ".json":
-        with open(input_path, "r") as f:
+        with open(input_path, "r", encoding="utf-8") as f:
             return json.load(f)
     else:
         # Default: read as text
-        with open(input_path, "r") as f:
+        with open(input_path, "r", encoding="utf-8") as f:
             return {"raw_text": f.read()}
 
 
