@@ -1,0 +1,151 @@
+# RBAC configuration for the Black Ops Lab
+# Follows principle of least privilege for lab operators and agents.
+
+# ClusterRole for lab administrators
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: black-ops-admin
+  labels:
+    app.kubernetes.io/name: sovereign-black-ops-lab
+    app.kubernetes.io/component: rbac
+rules:
+  # Full access to the black-ops namespace
+  - apiGroups: [""]
+    resources: ["*"]
+    verbs: ["*"]
+  - apiGroups: ["apps"]
+    resources: ["*"]
+    verbs: ["*"]
+  - apiGroups: ["batch"]
+    resources: ["*"]
+    verbs: ["*"]
+---
+# Role for experiment operators (scoped to namespace)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: experiment-operator
+  namespace: black-ops
+  labels:
+    app.kubernetes.io/name: sovereign-black-ops-lab
+    app.kubernetes.io/component: rbac
+rules:
+  # Pod management for running experiments
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "pods/exec"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  # ConfigMaps and Secrets for experiment configuration
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "delete"]
+  # Jobs for batch experiments
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  # Read-only access to events
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+---
+# Role for AI agents (limited permissions)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: agent-executor
+  namespace: black-ops
+  labels:
+    app.kubernetes.io/name: sovereign-black-ops-lab
+    app.kubernetes.io/component: rbac
+rules:
+  # Read-only access to most resources
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "configmaps", "events"]
+    verbs: ["get", "list", "watch"]
+  # Can create and manage their own jobs
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create"]
+    resourceNames: []
+  # Can update specific agent configmaps
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["update", "patch"]
+    resourceNames: ["agent-state", "agent-output"]
+---
+# Role for read-only observers
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: lab-observer
+  namespace: black-ops
+  labels:
+    app.kubernetes.io/name: sovereign-black-ops-lab
+    app.kubernetes.io/component: rbac
+rules:
+  # Read-only access to all resources
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "configmaps", "events", "services"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch"]
+---
+# ServiceAccount for lab agents
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lab-agent
+  namespace: black-ops
+  labels:
+    app.kubernetes.io/name: sovereign-black-ops-lab
+    app.kubernetes.io/component: rbac
+---
+# Bind agent-executor role to lab-agent ServiceAccount
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: lab-agent-binding
+  namespace: black-ops
+  labels:
+    app.kubernetes.io/name: sovereign-black-ops-lab
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: agent-executor
+subjects:
+  - kind: ServiceAccount
+    name: lab-agent
+    namespace: black-ops
+---
+# ServiceAccount for human operators
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lab-operator
+  namespace: black-ops
+  labels:
+    app.kubernetes.io/name: sovereign-black-ops-lab
+    app.kubernetes.io/component: rbac
+---
+# Bind experiment-operator role to lab-operator ServiceAccount
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: lab-operator-binding
+  namespace: black-ops
+  labels:
+    app.kubernetes.io/name: sovereign-black-ops-lab
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: experiment-operator
+subjects:
+  - kind: ServiceAccount
+    name: lab-operator
+    namespace: black-ops
