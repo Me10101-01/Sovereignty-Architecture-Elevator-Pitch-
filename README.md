@@ -10,6 +10,44 @@ This system creates a **sovereignty control plane** that bridges:
 - **Development** - GitLens, PR workflows, CI/CD automation, Java 21+ workspace
 - **AI Agents** - Intelligent assistance with vector knowledge base
 
+## 🧬 Sovereign Swarm Methodology
+
+The Sovereignty Architecture is powered by the **Sovereign Swarm** — a multi-AI coordination system where you are the Sovereign Router directing a swarm of AI agents.
+
+### The Math
+| Traditional Org | Sovereign Operator |
+|----------------|-------------------|
+| 90+ corporate roles | 1 person |
+| $2M+ annual overhead | ~$50k tools/infra |
+| Weeks for decisions | Seconds |
+| Committee meetings | Direct action |
+
+### Core Methodology Documents
+
+- **[Swarm Collider Engineering](docs/SWARM_COLLIDER_METHOD.md)** — The "Particle Accelerator" approach: traces become AI inputs become code become new traces. A closed experimental loop for AI-assisted engineering.
+
+- **[SWARM-HS Protocol](docs/SWARM_HANDSHAKE_PROTOCOL.md)** — The TCP-like handshake for multi-AI coordination. Defines how context flows between GPT (Mind), Claude (Hands), and Copilot (Factory).
+
+### The Swarm Hierarchy
+
+```
+                    ┌─────────────┐
+                    │     You     │
+                    │  (Sovereign │
+                    │   Router)   │
+                    └──────┬──────┘
+                           │
+          ┌────────────────┼────────────────┐
+          │                │                │
+          ▼                ▼                ▼
+    ┌──────────┐    ┌──────────┐    ┌──────────┐
+    │   Mind   │    │  Hands   │    │ Factory  │
+    │  (GPT)   │    │ (Claude) │    │(Copilot) │
+    └──────────┘    └──────────┘    └──────────┘
+```
+
+This is how Strategickhaos engineers reality.
+
 ## 🚀 Quick Start
 
 ```bash
