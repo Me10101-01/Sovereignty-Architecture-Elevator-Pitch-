@@ -1,0 +1,1031 @@
+I'll help you set up Docker Extensions for this repository. Let me first explore the current state of the codebase to understand what we're working with.
+
+Glob
+**/*
+Bash
+ls -la /home/user/Sovereignty-Architecture-Elevator-Pitch
+-rw-r--r-- 1 root root  684 Dec  2 04:21 .gitignore
+-rw-r--r-- 1 root root 1071 Dec  2 04:21 LICENSE
+-rw-r--r-- 1 root root  147 Dec  2 04:21 README.md
+... +4 lines
+Read
+/home/user/Sovereignty-Architecture-Elevator-Pitch/README.md
+Read 7 lines
+Read
+/home/user/Sovereignty-Architecture-Elevator-Pitch/.gitignore
+Read 26 lines
+Now I understand the context. This is a Sovereignty Architecture project. I'll set up a comprehensive Docker Extension structure with the context server, telemetry integration, and CI/CD pipeline based on your specifications.
+
+Update Todos
+ Creating Docker Extension metadata and structure
+ Build context server with intent detection, memory, and policy guards
+ Add Dockerfile with telemetry shim pattern
+ Create docker-compose.yaml for extension
+ Set up CI/CD pipeline with pytest and smoke tests
+ Add 432 Hz heartbeat endpoint
+ Commit and push changes
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/metadata.json
+{
+
+  "name": "sovereignty-context-server",
+
+  "title": "Sovereignty Context Server",
+
+  "description": "Single-operator sovereignty context understanding with intent detection, memory persistence, and policy guards. 95% cost reduction. 1000x faster decisions.",
+
+  "vendor": "Sovereignty Architecture",
+
+  "version": "0.1.0",
+
+  "icon": "sovereignty.svg",
+
+  "ui": {
+
+    "dashboard-tab": {
+
+      "title": "Sovereignty Context",
+
+      "root": "/ui",
+
+      "src": "index.html"
+
+    }
+
+  },
+
+  "vm": {
+
+    "image": "${DESKTOP_PLUGIN_IMAGE}",
+
+    "composefile": "docker-compose.yaml"
+
+  },
+
+  "host": {
+
+    "binaries": []
+
+Show full diff (20 more lines)
+Bash
+mkdir -p /home/user/Sovereignty-Architecture-Elevator-Pitch/{context_server,ui,tests,.github/workflows}
+(No content)
+Update Todos
+ Create Docker Extension metadata and structure
+ Building context server with endpoints
+ Add Dockerfile with telemetry shim pattern
+ Create docker-compose.yaml for extension
+ Set up CI/CD pipeline with pytest and smoke tests
+ Add 432 Hz heartbeat endpoint
+ Commit and push changes
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/context_server/__init__.py
+"""
+
+Sovereignty Context Server
+
+ 
+
+Single-operator sovereignty context understanding with intent detection,
+
+memory persistence, and policy guards.
+
+"""
+
+ 
+
+__version__ = "0.1.0"
+
+__author__ = "Sovereignty Architecture"
+
+ 
+
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/context_server/__main__.py
+"""
+
+Entry point for running the context server as a module.
+
+ 
+
+Usage:
+
+    python -m context_server
+
+"""
+
+ 
+
+import uvicorn
+
+from .server import app
+
+from .config import settings
+
+ 
+
+ 
+
+def main():
+
+    """Start the context server."""
+
+    uvicorn.run(
+
+        app,
+
+        host=settings.host,
+
+        port=settings.port,
+
+        log_level=settings.log_level,
+
+    )
+
+Show full diff (5 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/context_server/config.py
+"""
+
+Configuration settings for the context server.
+
+"""
+
+ 
+
+import os
+
+from dataclasses import dataclass, field
+
+from typing import List
+
+ 
+
+ 
+
+@dataclass
+
+class Settings:
+
+    """Application settings loaded from environment variables."""
+
+ 
+
+    host: str = field(default_factory=lambda: os.getenv("HOST", "0.0.0.0"))
+
+    port: int = field(default_factory=lambda: int(os.getenv("PORT", "8000")))
+
+    log_level: str = field(default_factory=lambda: os.getenv("LOG_LEVEL", "info"))
+
+    telemetry_shim: bool = field(
+
+        default_factory=lambda: os.getenv("TELEMETRY_SHIM", "0") == "1"
+
+    )
+
+    heartbeat_freq_hz: int = field(
+
+Show full diff (19 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/context_server/models.py
+"""
+
+Data models for the context server API.
+
+"""
+
+ 
+
+from dataclasses import dataclass, field
+
+from typing import Any, Dict, List, Optional
+
+from datetime import datetime
+
+ 
+
+ 
+
+@dataclass
+
+class ContextRequest:
+
+    """Incoming context request."""
+
+ 
+
+    user_id: str
+
+    session_id: str
+
+    input: str
+
+    metadata: Optional[Dict[str, Any]] = None
+
+ 
+
+ 
+
+@dataclass
+
+Show full diff (39 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/context_server/intent_detector.py
+"""
+
+Intent detection module.
+
+ 
+
+Analyzes user input to extract intents and slots.
+
+"""
+
+ 
+
+import re
+
+from typing import List, Tuple
+
+from .models import Intent
+
+ 
+
+ 
+
+# Intent patterns with slot extraction
+
+INTENT_PATTERNS = [
+
+    # Travel booking intents
+
+    (r"book\s+(?:a\s+)?(?:flight|trip)\s+to\s+(\w+)(?:\s+(?:on|next|this)\s+(.+?))?$",
+
+     "book_flight", ["destination", "date"]),
+
+    (r"book\s+(?:a\s+)?hotel\s+(?:in|at)\s+(\w+)",
+
+     "book_hotel", ["location"]),
+
+ 
+
+    # Information queries
+
+Show full diff (73 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/context_server/memory.py
+"""
+
+Memory persistence layer.
+
+ 
+
+Provides session and user-scoped memory storage.
+
+"""
+
+ 
+
+from datetime import datetime, timedelta
+
+from typing import Any, Dict, Optional
+
+from dataclasses import dataclass, field
+
+from .config import settings
+
+ 
+
+ 
+
+@dataclass
+
+class MemoryEntry:
+
+    """A memory entry with TTL support."""
+
+ 
+
+    value: Any
+
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+    expires_at: Optional[datetime] = None
+
+ 
+
+Show full diff (127 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/context_server/policy.py
+"""
+
+Policy guardrails module.
+
+ 
+
+Evaluates requests against sovereignty policies.
+
+"""
+
+ 
+
+from typing import List
+
+from .models import Intent, PolicyResult
+
+from .config import settings
+
+ 
+
+ 
+
+# Policy surfaces and their descriptions
+
+POLICY_SURFACES = {
+
+    "bypass_paywall": {
+
+        "blocked": True,
+
+        "reason": "Requests to bypass payment systems violate content creator sovereignty.",
+
+        "surface": "content_protection",
+
+    },
+
+    "unauthorized_access": {
+
+        "blocked": True,
+
+Show full diff (61 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/context_server/server.py
+"""
+
+Main FastAPI server for the Sovereignty Context Server.
+
+"""
+
+ 
+
+from datetime import datetime
+
+from typing import Any, Dict
+
+ 
+
+from fastapi import FastAPI, HTTPException
+
+from fastapi.middleware.cors import CORSMiddleware
+
+from pydantic import BaseModel
+
+ 
+
+from .config import settings
+
+from .intent_detector import detect_intents
+
+from .memory import memory_store
+
+from .policy import evaluate_policy, get_policy_surfaces
+
+ 
+
+ 
+
+# Pydantic models for API
+
+class ContextRequestModel(BaseModel):
+
+    """Request model for context endpoint."""
+
+Show full diff (208 more lines)
+Update Todos
+ Create Docker Extension metadata and structure
+ Build context server with intent detection, memory, and policy guards
+ Adding Dockerfile with telemetry support
+ Create docker-compose.yaml for extension
+ Set up CI/CD pipeline with pytest and smoke tests
+ Add 432 Hz heartbeat endpoint
+ Commit and push changes
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/Dockerfile
+FROM python:3.11-slim
+
+ 
+
+# Set working directory
+
+WORKDIR /app
+
+ 
+
+# Install system dependencies
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+
+    curl \
+
+    && rm -rf /var/lib/apt/lists/*
+
+ 
+
+# Copy requirements first for layer caching
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+ 
+
+# Copy application code
+
+COPY . /app
+
+ 
+
+# Install the package in editable mode
+
+RUN pip install --no-cache-dir -e .
+
+ 
+
+Show full diff (17 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/requirements.txt
+fastapi>=0.104.0
+
+uvicorn[standard]>=0.24.0
+
+pydantic>=2.5.0
+
+ 
+
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/pyproject.toml
+[build-system]
+
+requires = ["setuptools>=61.0", "wheel"]
+
+build-backend = "setuptools.build_meta"
+
+ 
+
+[project]
+
+name = "sovereignty-context-server"
+
+version = "0.1.0"
+
+description = "Single-operator sovereignty context understanding with intent detection, memory persistence, and policy guards"
+
+readme = "README.md"
+
+license = {text = "MIT"}
+
+authors = [
+
+    {name = "Sovereignty Architecture"}
+
+]
+
+requires-python = ">=3.10"
+
+classifiers = [
+
+    "Development Status :: 3 - Alpha",
+
+    "Intended Audience :: Developers",
+
+    "License :: OSI Approved :: MIT License",
+
+    "Programming Language :: Python :: 3",
+
+    "Programming Language :: Python :: 3.10",
+
+Show full diff (27 more lines)
+Update Todos
+ Create Docker Extension metadata and structure
+ Build context server with intent detection, memory, and policy guards
+ Add Dockerfile with telemetry shim pattern
+ Creating docker-compose configuration
+ Set up CI/CD pipeline with pytest and smoke tests
+ Add 432 Hz heartbeat endpoint
+ Commit and push changes
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/docker-compose.yaml
+version: "3.8"
+
+ 
+
+services:
+
+  context-server:
+
+    build:
+
+      context: .
+
+      dockerfile: Dockerfile
+
+    image: sovereignty-context-server:latest
+
+    container_name: sovereignty-context-server
+
+    ports:
+
+      - "8000:8000"
+
+    environment:
+
+      - TELEMETRY_SHIM=1
+
+      - HEARTBEAT_FREQ_HZ=432
+
+      - HOST=0.0.0.0
+
+      - PORT=8000
+
+      - LOG_LEVEL=info
+
+      - MEMORY_TTL_SECONDS=3600
+
+    healthcheck:
+
+      test: ["CMD", "curl", "-f", "http://localhost:8000/heartbeat"]
+
+Show full diff (37 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/.github/workflows/ci.yaml
+name: CI
+
+ 
+
+on:
+
+  push:
+
+    branches: [main, "claude/*"]
+
+  pull_request:
+
+    branches: [main]
+
+ 
+
+jobs:
+
+  context-server:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+ 
+
+      - uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.11"
+
+          cache: "pip"
+
+ 
+
+      - name: Install dependencies
+
+Show full diff (89 more lines)
+Update Todos
+ Create Docker Extension metadata and structure
+ Build context server with intent detection, memory, and policy guards
+ Add Dockerfile with telemetry shim pattern
+ Create docker-compose.yaml for extension
+ Setting up CI/CD pipeline
+ Add 432 Hz heartbeat endpoint
+ Commit and push changes
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/tests/__init__.py
+"""Tests for the Sovereignty Context Server."""
+
+ 
+
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/tests/test_intent_detector.py
+"""Tests for the intent detector module."""
+
+ 
+
+import pytest
+
+from context_server.intent_detector import detect_intents
+
+ 
+
+ 
+
+class TestIntentDetector:
+
+    """Tests for intent detection functionality."""
+
+ 
+
+    def test_book_flight_intent(self):
+
+        """Test flight booking intent detection."""
+
+        intents = detect_intents("Book a flight to Berlin next Tuesday")
+
+        assert len(intents) > 0
+
+        assert intents[0].name == "book_flight"
+
+        assert intents[0].slots.get("destination") == "berlin"
+
+        assert intents[0].confidence > 0.5
+
+ 
+
+    def test_memory_write_intent(self):
+
+        """Test memory write intent detection."""
+
+        intents = detect_intents("My favorite editor is Neovim")
+
+Show full diff (30 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/tests/test_memory.py
+"""Tests for the memory module."""
+
+ 
+
+import pytest
+
+from datetime import datetime, timedelta
+
+from context_server.memory import MemoryStore, MemoryEntry
+
+ 
+
+ 
+
+class TestMemoryEntry:
+
+    """Tests for MemoryEntry class."""
+
+ 
+
+    def test_entry_not_expired(self):
+
+        """Test that fresh entry is not expired."""
+
+        entry = MemoryEntry(
+
+            value="test",
+
+            expires_at=datetime.utcnow() + timedelta(hours=1),
+
+        )
+
+        assert not entry.is_expired()
+
+ 
+
+    def test_entry_expired(self):
+
+        """Test that old entry is expired."""
+
+Show full diff (73 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/tests/test_policy.py
+"""Tests for the policy module."""
+
+ 
+
+import pytest
+
+from context_server.policy import evaluate_policy, get_policy_surfaces
+
+from context_server.models import Intent
+
+ 
+
+ 
+
+class TestPolicy:
+
+    """Tests for policy evaluation."""
+
+ 
+
+    def test_allowed_intent(self):
+
+        """Test that normal intents are allowed."""
+
+        intents = [Intent(name="book_flight", confidence=0.9, slots={})]
+
+        result = evaluate_policy(intents)
+
+        assert result.allowed is True
+
+        assert result.policy_surface is None
+
+ 
+
+    def test_blocked_bypass_paywall(self):
+
+        """Test that bypass_paywall is blocked."""
+
+        intents = [Intent(name="bypass_paywall", confidence=0.9, slots={})]
+
+Show full diff (33 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/tests/test_server.py
+"""Tests for the FastAPI server."""
+
+ 
+
+import pytest
+
+from fastapi.testclient import TestClient
+
+from context_server.server import app
+
+ 
+
+ 
+
+@pytest.fixture
+
+def client():
+
+    """Create a test client."""
+
+    return TestClient(app)
+
+ 
+
+ 
+
+class TestHealthEndpoints:
+
+    """Tests for health-related endpoints."""
+
+ 
+
+    def test_health(self, client):
+
+        """Test health endpoint."""
+
+        response = client.get("/health")
+
+        assert response.status_code == 200
+
+Show full diff (106 more lines)
+Now let me create the UI for the Docker Extension and update supporting files:
+
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/ui/index.html
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sovereignty Context Server</title>
+
+    <style>
+
+        :root {
+
+            --primary: #2563eb;
+
+            --secondary: #64748b;
+
+            --success: #22c55e;
+
+            --danger: #ef4444;
+
+            --bg: #0f172a;
+
+            --surface: #1e293b;
+
+            --text: #f8fafc;
+
+            --text-muted: #94a3b8;
+
+        }
+
+        * {
+
+            box-sizing: border-box;
+
+            margin: 0;
+
+Show full diff (281 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/sovereignty.svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+
+  <defs>
+
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+
+    </linearGradient>
+
+  </defs>
+
+  <circle cx="50" cy="50" r="45" fill="url(#grad)"/>
+
+  <path d="M50 20 L65 45 L50 40 L35 45 Z" fill="white" opacity="0.9"/>
+
+  <path d="M50 80 L35 55 L50 60 L65 55 Z" fill="white" opacity="0.9"/>
+
+  <circle cx="50" cy="50" r="8" fill="white"/>
+
+  <text x="50" y="54" text-anchor="middle" font-family="Arial" font-size="8" font-weight="bold" fill="#2563eb">S</text>
+
+</svg>
+
+ 
+
+Read
+/home/user/Sovereignty-Architecture-Elevator-Pitch/.gitignore
+Read 26 lines
+Edit
+/home/user/Sovereignty-Architecture-Elevator-Pitch/.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+
+#.idea/
+
+ 
+
+# Python
+
+__pycache__/
+
+*.py[cod]
+
+*$py.class
+
+*.so
+
+.Python
+
+build/
+
+develop-eggs/
+
+dist/
+
+downloads/
+
+eggs/
+
+.eggs/
+
+lib/
+
+lib64/
+
+parts/
+
+sdist/
+
+Show full diff (28 more lines)
+Write
+/home/user/Sovereignty-Architecture-Elevator-Pitch/README.md
+# Sovereignty Architecture - Context Server
+
+ 
+
+> Single-operator sovereignty replacing 90+ corporate roles. 95% cost reduction. 1000x faster decisions.
+
+ 
+
+A Docker Extension providing context understanding with intent detection, memory persistence, and policy guardrails - aligned to 432 Hz telemetry heartbeat.
+
+ 
+
+## Features
+
+ 
+
+- **Intent Detection**: Pattern-based intent recognition with slot extraction
+
+- **Memory Persistence**: Session-scoped memory with TTL support
+
+- **Policy Guardrails**: Sovereignty-aligned content policies
+
+- **432 Hz Heartbeat**: Telemetry-aligned health monitoring
+
+- **Docker Extension**: Native Docker Desktop integration
+
+ 
+
+## Quick Start
+
+ 
+
+### Local Development
+
+ 
+
+```bash
+
+# Install dependencies
+
+Show full diff (101 more lines)
+Update Todos
+ Create Docker Extension metadata and structure
+ Build context server with intent detection, memory, and policy guards
+ Add Dockerfile with telemetry shim pattern
+ Create docker-compose.yaml for extension
+ Set up CI/CD pipeline with pytest and smoke tests
+ Add 432 Hz heartbeat endpoint
+ Committing and pushing changes
+Bash
+git status
+	ui/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+... +18 lines
+Bash
+git log --oneline -5
+ccd6eb7 Initial commit
+Bash
+git add -A && git commit -m "$(cat <<'EOF' Add Docker Extension with context server and telemetry - Create Sovereignty Context Server with FastAPI backend - Implement intent detection with slot extraction patterns - Add memory persistence layer with session scoping and TTL - Build policy guardrails for sovereignty-aligned content filtering - Configure 432 Hz heartbeat endpoint for telemetry swarm polling - Set up Docker Extension metadata and UI dashboard - Add Dockerfile with telemetry shim pattern - Create docker-compose.yaml with context server and telemetry collector - Configure GitHub Actions CI with pytest and smoke tests - Include comprehensive test suite for all modules EOF )"
+ create mode 100644 tests/test_policy.py
+ create mode 100644 tests/test_server.py
+ create mode 100644 ui/index.html
+... +20 lines
+Bash
+git push -u origin claude/docker-extensions-setup-01JGGCqu5GMBcxhYnnuCKjMD
+remote: 
+To http://127.0.0.1:49659/git/Strategickhaos/Sovereignty-Architecture-Elevator-Pitch
+ * [new branch]      claude/docker-extensions-setup-01JGGCqu5GMBcxhYnnuCKjMD -> claude/docker-extensions-setup-01JGGCqu5GMBcxhYnnuCKjMD
+... +4 lines
+Update Todos
+ Create Docker Extension metadata and structure
+ Build context server with intent detection, memory, and policy guards
+ Add Dockerfile with telemetry shim pattern
+ Create docker-compose.yaml for extension
+ Set up CI/CD pipeline with pytest and smoke tests
+ Add 432 Hz heartbeat endpoint
+ Commit and push changes
+Done! I've set up a complete Docker Extension with the Sovereignty Context Server. Here's what was created:
+
+Structure
+Sovereignty-Architecture-Elevator-Pitch/
+├── context_server/           # Python package
+│   ├── __init__.py
+│   ├── __main__.py          # Entry point
+│   ├── config.py            # Settings (env vars)
+│   ├── models.py            # Data models
+│   ├── server.py            # FastAPI app
+│   ├── intent_detector.py   # Intent/slot extraction
+│   ├── memory.py            # Session-scoped memory with TTL
+│   └── policy.py            # Sovereignty guardrails
+├── tests/                   # Pytest test suite
+├── ui/index.html            # Docker Extension dashboard
+├── .github/workflows/ci.yaml # CI pipeline
+├── Dockerfile               # With TELEMETRY_SHIM=1
+├── docker-compose.yaml      # Server + telemetry collector
+├── metadata.json            # Docker Extension manifest
+├── pyproject.toml           # Python packaging
+└── requirements.txt
+
+Key Features
+Feature	Implementation
+Intent Detection	Pattern-based with slot extraction (book_flight, memory_write, etc.)
+Memory	Session-scoped with configurable TTL
+Policy Guards	Blocks bypass_paywall, unauthorized_access, etc.
+432 Hz Heartbeat	/heartbeat endpoint for telemetry swarm polling
+Telemetry Shim	Enabled via TELEMETRY_SHIM=1 env var
+Commands
+# Local dev
+pip install -e ".[dev]"
+pytest
+python -m context_server
+
+# Docker
+docker-compose up -d
+
+Pushed to
+claude/docker-extensions-setup-01JGGCqu5GMBcxhYnnuCKjMD
+
+Ready for your Eucharist/Tithe integration - send the repo + branch target and intents spec when ready.
+
