@@ -48,6 +48,55 @@ export PRS_CHANNEL="channel_id"
 - **Commit Graph**: Real-time development activity feeds
 - **Launchpad**: Integrated with GitLens Pro features
 
+### 🛡️ Console Error Handler (`src/web/`)
+The Refinory platform includes a comprehensive console error handling solution for autonomous debugging and self-healing capabilities:
+
+- **Console Error Capture**: Captures and logs all `console.error` and `console.warn` calls
+- **Unhandled Rejections**: Catches unhandled Promise rejections
+- **Window Error Events**: Intercepts global JavaScript errors
+- **Error Statistics**: Real-time tracking of error counts and types
+- **Export & Reporting**: JSON export and formatted error reports
+- **Configurable Ignore Patterns**: Filter out known/expected errors
+
+```html
+<!-- Include in your HTML pages -->
+<script src="src/web/sovereignty-error-handler.js"></script>
+<script>
+  // Access the error handler
+  console.log(SovereigntyErrorHandler.getStats());
+  
+  // Generate a formatted report
+  console.log(SovereigntyErrorHandler.generateReport());
+  
+  // Export errors as JSON
+  var json = SovereigntyErrorHandler.exportErrors();
+</script>
+```
+
+```typescript
+// TypeScript/Node.js usage
+import { ConsoleErrorHandler, autoInit } from './src/web/console-error-handler.js';
+
+// Auto-initialize with default settings
+const handler = autoInit();
+
+// Or create custom instance
+const customHandler = new ConsoleErrorHandler({
+  captureErrors: true,
+  captureWarnings: true,
+  maxErrors: 100,
+  verbose: true,
+  onError: (error) => {
+    // Send to external logging service
+    fetch('/api/logs', {
+      method: 'POST',
+      body: JSON.stringify(error)
+    });
+  }
+});
+customHandler.init();
+```
+
 ### ☕ Java Development Workspace (`jdk-workspace`)
 - **OpenJDK 21**: Latest LTS version with modern Java features
 - **Build Tools**: Maven 3.6.3 and Gradle 4.4.1 pre-installed
