@@ -35,3 +35,21 @@ target/
 
 # Workspace data
 workspace/
+
+# Sovereignty Architecture artifacts
+# Keep .gitkeep but ignore generated files
+data/experiments/*
+!data/experiments/.gitkeep
+logs/*.md
+!logs/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.eggs/
+*.egg-info/
+.venv/
+venv/
