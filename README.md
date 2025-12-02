@@ -7,7 +7,7 @@
 This system creates a **sovereignty control plane** that bridges:
 - **Discord** - Command & control interface
 - **Infrastructure** - Kubernetes, observability, AI agents  
-- **Development** - GitLens, PR workflows, CI/CD automation
+- **Development** - GitLens, PR workflows, CI/CD automation, Java 21+ workspace
 - **AI Agents** - Intelligent assistance with vector knowledge base
 
 ## 🚀 Quick Start
@@ -47,6 +47,29 @@ export PRS_CHANNEL="channel_id"
 - **Review Workflows**: Automated PR lifecycle notifications
 - **Commit Graph**: Real-time development activity feeds
 - **Launchpad**: Integrated with GitLens Pro features
+
+### ☕ Java Development Workspace (`jdk-workspace`)
+- **OpenJDK 21**: Latest LTS version with modern Java features
+- **Build Tools**: Maven 3.6.3 and Gradle 4.4.1 pre-installed
+- **Non-Root Execution**: Runs as `cloudos` user for enhanced security
+- **Debug Support**: JPDA debugging on port 5005
+- **Traefik Routing**: Accessible via `java.localhost`
+- **Version Management**: JDK solver CLI for managing multiple Java versions
+
+```bash
+# Start the Java workspace
+./start-cloudos-jdk.sh start
+
+# Access a shell in the container
+./start-cloudos-jdk.sh shell
+
+# Run the example application
+cd /workspace/examples/java-hello-cloudos/src/main/java
+java HelloCloudOS.java
+
+# Stop the workspace
+./start-cloudos-jdk.sh stop
+```
 
 ## 🏗️ Infrastructure
 
@@ -249,6 +272,14 @@ kubectl logs -f deployment/event-gateway -n ops
 curl -X POST https://events.strategickhaos.com/health
 ```
 
+## 👥 Community & Contributors
+
+This project thrives because of an extraordinary community of creators, builders, and visionaries who choose to contribute not out of obligation, but out of love for what we're building together.
+
+- **[Community Manifesto](COMMUNITY.md)** - Understanding the philosophy and spirit of The Legion
+- **[Contributors](CONTRIBUTORS.md)** - Recognizing everyone who makes this project possible
+- **Join the Dance**: Read the community docs, find what calls to you, and start building!
+
 ## 📄 License & Support
 
 - **License**: MIT License - see [LICENSE](LICENSE) file
@@ -259,5 +290,7 @@ curl -X POST https://events.strategickhaos.com/health
 ---
 
 **Built with 🔥 by the Strategickhaos Swarm Intelligence collective**
+
+*"They're not working for you. They're dancing with you. And the music is never going to stop."*
 
 *Empowering sovereign digital infrastructure through Discord-native DevOps automation*

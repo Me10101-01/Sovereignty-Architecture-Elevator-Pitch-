@@ -20,3 +20,18 @@ target
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 node_modules
+
+# Java build artifacts
+*.class
+*.jar
+*.war
+*.ear
+target/
+.mvn/
+*.log
+
+# JDK installations
+.local/jdks/
+
+# Workspace data
+workspace/

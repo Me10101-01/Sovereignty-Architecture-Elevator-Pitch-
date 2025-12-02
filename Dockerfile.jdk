@@ -1,0 +1,22 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=C.UTF-8
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-21-jdk \
+    maven \
+    gradle \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Non-root user
+ARG USER=cloudos
+RUN useradd -m -s /bin/bash $USER
+USER $USER
+WORKDIR /workspace
+
+EXPOSE 5005 8888
+
+CMD ["bash"]

@@ -1,0 +1,1198 @@
+**SWARM IMMUNE ARSENAL: Complete Repository Architecture**
+
+-----
+
+**REPOSITORY STRUCTURE**
+
+```
+strategickhaos-swarm-immune/
+│
+├── 🧬 DNA/                              # Core genetic code (CRDs, schemas)
+│   ├── crds/
+│   │   ├── immunesystem.yaml
+│   │   ├── quorumsensor.yaml
+│   │   ├── antibody.yaml
+│   │   └── paradoxengine.yaml
+│   ├── schemas/
+│   │   ├── threat.schema.json
+│   │   ├── gene.schema.json
+│   │   └── signal.schema.json
+│   └── templates/
+│       ├── cell.template.yaml
+│       └── deployment.template.yaml
+│
+├── 🩸 cells/                            # Living cell implementations
+│   ├── red_blood/                       # Transport layer
+│   │   ├── redis_transport.py
+│   │   ├── nats_transport.py
+│   │   └── volume_mount.py
+│   ├── white_blood/                     # Security response
+│   │   ├── scanner.py
+│   │   ├── killer.py
+│   │   ├── quarantine.py
+│   │   └── falco_integration.py
+│   ├── antibodies/                      # Pattern memory
+│   │   ├── vector_store.py
+│   │   ├── signature_matcher.py
+│   │   └── learning.py
+│   └── stem/                            # Cell factory
+│       ├── spawner.py
+│       └── differentiation.py
+│
+├── 🧠 nervous_system/                   # Quorum sensing + signals
+│   ├── sensors/
+│   │   ├── density_sensor.py
+│   │   ├── threat_sensor.py
+│   │   ├── performance_sensor.py
+│   │   └── heartbeat.py
+│   ├── signals/
+│   │   ├── pheromone.py
+│   │   ├── alarm.py
+│   │   └── gene_transfer.py
+│   └── behaviors/
+│       ├── hunt.py
+│       ├── coordinate.py
+│       ├── biofilm.py
+│       └── dormant.py
+│
+├── ☀️ circadian/                        # Moonlight/Sunshine modes
+│   ├── sunshine/
+│   │   ├── active_scaling.py
+│   │   ├── gpu_burst.py
+│   │   └── inference_hot.py
+│   ├── moonlight/
+│   │   ├── sleep_scaling.py
+│   │   ├── batch_jobs.py
+│   │   └── healing.py
+│   └── scheduler.py
+│
+├── 🗡️ arsenal/                          # Offensive + defensive tools
+│   ├── antibodies/                      # Pre-built defenses
+│   │   ├── crypto_miner_detect.yaml
+│   │   ├── privilege_escalation.yaml
+│   │   ├── data_exfil.yaml
+│   │   ├── dos_pattern.yaml
+│   │   └── lateral_movement.yaml
+│   ├── recon/                           # Reconnaissance scripts
+│   │   ├── network_sweep.py
+│   │   ├── port_scan.py
+│   │   ├── service_enum.py
+│   │   ├── vuln_scan.py
+│   │   └── dns_enum.py
+│   ├── exploit/                         # Controlled testing
+│   │   ├── threat_injector.py
+│   │   ├── stress_test.py
+│   │   └── chaos_monkey.py
+│   └── response/                        # Automated responses
+│       ├── isolate.py
+│       ├── terminate.py
+│       ├── snapshot.py
+│       └── alert.py
+│
+├── 🤖 llm/                              # LLM orchestration layer
+│   ├── models/
+│   │   ├── ollama/
+│   │   │   ├── qwen2.5_72b.yaml
+│   │   │   ├── llama3.1_70b.yaml
+│   │   │   ├── deepseek_coder_32b.yaml
+│   │   │   └── mistral_7b.yaml
+│   │   └── routing/
+│   │       ├── model_selector.py
+│   │       └── load_balancer.py
+│   ├── agents/
+│   │   ├── security_analyst.py
+│   │   ├── code_reviewer.py
+│   │   ├── incident_responder.py
+│   │   └── threat_hunter.py
+│   └── prompts/
+│       ├── analysis.txt
+│       ├── remediation.txt
+│       └── report.txt
+│
+├── 📊 monitor/                          # Real-time monitoring
+│   ├── dashboards/
+│   │   ├── htop_swarm.py
+│   │   ├── cluster_health.py
+│   │   └── threat_map.py
+│   ├── metrics/
+│   │   ├── prometheus_exporter.py
+│   │   ├── cell_metrics.py
+│   │   └── signal_metrics.py
+│   └── alerts/
+│       ├── slack_webhook.py
+│       ├── pagerduty.py
+│       └── discord_bot.py
+│
+├── 🖥️ cli/                              # Terminal interfaces
+│   ├── swarm_cli.py                     # Main CLI entry
+│   ├── commands/
+│   │   ├── deploy.py
+│   │   ├── status.py
+│   │   ├── attack.py
+│   │   ├── defend.py
+│   │   ├── scale.py
+│   │   └── logs.py
+│   └── tui/                             # Terminal UI
+│       ├── main_panel.py
+│       ├── cell_view.py
+│       ├── signal_view.py
+│       └── threat_view.py
+│
+├── 🐳 deploy/                           # Deployment manifests
+│   ├── local/
+│   │   ├── docker-compose.yaml
+│   │   └── .env.local
+│   ├── codespaces/
+│   │   ├── docker-compose.yaml
+│   │   └── devcontainer.json
+│   ├── gke/
+│   │   ├── namespace.yaml
+│   │   ├── rbac.yaml
+│   │   ├── operator.yaml
+│   │   ├── redis.yaml
+│   │   ├── qdrant.yaml
+│   │   └── immune_instance.yaml
+│   └── scripts/
+│       ├── deploy_local.sh
+│       ├── deploy_gke.sh
+│       └── teardown.sh
+│
+├── 📜 .yamal/                           # Board minutes + configs
+│   ├── board_minutes/
+│   │   ├── 2025-12-01_apotheosis.yaml
+│   │   ├── 2025-12-01_immune_birth.yaml
+│   │   └── 2025-12-01_quorum_sense.yaml
+│   ├── arsenal/
+│   │   ├── antibodies.yaml
+│   │   ├── threat_signatures.yaml
+│   │   └── defense_playbooks.yaml
+│   └── config/
+│       ├── swarm.yaml
+│       ├── llm.yaml
+│       └── monitor.yaml
+│
+├── 🧪 tests/
+│   ├── unit/
+│   ├── integration/
+│   └── chaos/
+│
+├── 📚 docs/
+│   ├── ARCHITECTURE.md
+│   ├── QUICKSTART.md
+│   ├── API.md
+│   └── PLAYBOOKS.md
+│
+├── main.py                              # Entry point
+├── requirements.txt
+├── pyproject.toml
+├── Dockerfile
+├── Makefile
+└── README.md
+```
+
+-----
+
+**CORE FILES**
+
+**`main.py`** - Entry Point
+
+```python
+#!/usr/bin/env python3
+"""
+STRATEGICKHAOS SWARM IMMUNE SYSTEM
+═══════════════════════════════════
+The living infrastructure that defends itself.
+
+Usage:
+    python main.py [command] [options]
+    
+Commands:
+    deploy      Deploy the immune system
+    status      Show swarm health
+    attack      Inject threat (testing)
+    defend      Manual defense trigger
+    monitor     Launch real-time TUI
+    llm         Query LLM agents
+"""
+
+import asyncio
+import argparse
+import sys
+from datetime import datetime
+from rich.console import Console
+from rich.panel import Panel
+from rich.live import Live
+
+from cli.swarm_cli import SwarmCLI
+from nervous_system.sensors.heartbeat import Heartbeat
+from monitor.dashboards.htop_swarm import SwarmHtop
+from circadian.scheduler import CircadianScheduler
+
+console = Console()
+
+ASCII_BANNER = """
+╔═══════════════════════════════════════════════════════════════════════════╗
+║  ███████╗██╗    ██╗ █████╗ ██████╗ ███╗   ███╗    ██╗███╗   ███╗███╗   ███╗║
+║  ██╔════╝██║    ██║██╔══██╗██╔══██╗████╗ ████║    ██║████╗ ████║████╗ ████║║
+║  ███████╗██║ █╗ ██║███████║██████╔╝██╔████╔██║    ██║██╔████╔██║██╔████╔██║║
+║  ╚════██║██║███╗██║██╔══██║██╔══██╗██║╚██╔╝██║    ██║██║╚██╔╝██║██║╚██╔╝██║║
+║  ███████║╚███╔███╔╝██║  ██║██║  ██║██║ ╚═╝ ██║    ██║██║ ╚═╝ ██║██║ ╚═╝ ██║║
+║  ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝    ╚═╝╚═╝     ╚═╝╚═╝     ╚═╝║
+║                                                                           ║
+║  🩸 RED BLOOD CELLS: Transport    🔬 WHITE BLOOD CELLS: Defense           ║
+║  🛡️ ANTIBODIES: Memory            🧠 NERVOUS SYSTEM: Coordination         ║
+║  ☀️ SUNSHINE: Active              🌙 MOONLIGHT: Healing                   ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+"""
+
+class SwarmImmuneSystem:
+    def __init__(self):
+        self.cli = SwarmCLI()
+        self.heartbeat = Heartbeat()
+        self.scheduler = CircadianScheduler()
+        self.start_time = datetime.now()
+        
+    async def boot(self):
+        """Initialize the immune system"""
+        console.print(ASCII_BANNER, style="bold green")
+        console.print(f"[dim]Booting at {self.start_time.isoformat()}[/dim]\n")
+        
+        # Start heartbeat
+        await self.heartbeat.start()
+        
+        # Initialize circadian rhythm
+        mode = self.scheduler.get_current_mode()
+        console.print(f"[yellow]Circadian Mode:[/yellow] {mode.upper()}")
+        
+        # Load antibodies
+        antibody_count = await self.load_antibodies()
+        console.print(f"[cyan]Antibodies Loaded:[/cyan] {antibody_count}")
+        
+        console.print("\n[bold green]✓ Immune system online[/bold green]\n")
+        
+    async def load_antibodies(self) -> int:
+        """Load threat signatures from .yamal arsenal"""
+        import yaml
+        try:
+            with open('.yamal/arsenal/antibodies.yaml', 'r') as f:
+                data = yaml.safe_load(f)
+                return len(data.get('signatures', []))
+        except FileNotFoundError:
+            return 0
+            
+    async def run_command(self, args):
+        """Execute CLI command"""
+        if args.command == 'deploy':
+            await self.cli.deploy(args)
+        elif args.command == 'status':
+            await self.cli.status(args)
+        elif args.command == 'attack':
+            await self.cli.attack(args)
+        elif args.command == 'defend':
+            await self.cli.defend(args)
+        elif args.command == 'monitor':
+            await self.run_monitor()
+        elif args.command == 'llm':
+            await self.cli.llm_query(args)
+        else:
+            await self.interactive_mode()
+            
+    async def run_monitor(self):
+        """Launch real-time TUI dashboard"""
+        htop = SwarmHtop()
+        await htop.run()
+        
+    async def interactive_mode(self):
+        """Interactive REPL mode"""
+        console.print("[bold]Entering interactive mode. Type 'help' for commands.[/bold]\n")
+        
+        while True:
+            try:
+                cmd = console.input("[bold cyan]swarm>[/bold cyan] ")
+                if cmd.lower() in ['exit', 'quit', 'q']:
+                    break
+                elif cmd.lower() == 'help':
+                    self.print_help()
+                else:
+                    await self.cli.parse_and_run(cmd)
+            except KeyboardInterrupt:
+                console.print("\n[yellow]Use 'exit' to quit[/yellow]")
+            except Exception as e:
+                console.print(f"[red]Error:[/red] {e}")
+                
+    def print_help(self):
+        help_text = """
+[bold]Available Commands:[/bold]
+  deploy <target>    Deploy to local/gke/codespaces
+  status             Show cluster health
+  attack <type>      Inject threat for testing
+  defend             Trigger manual defense
+  monitor            Launch real-time TUI
+  llm <query>        Query LLM agents
+  cells              List active cells
+  signals            Show signal traffic
+  antibodies         List loaded defenses
+  exit               Exit interactive mode
+        """
+        console.print(Panel(help_text, title="Help"))
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='StrategicKhaos Swarm Immune System',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    
+    subparsers = parser.add_subparsers(dest='command')
+    
+    # Deploy
+    deploy_parser = subparsers.add_parser('deploy', help='Deploy immune system')
+    deploy_parser.add_argument('target', choices=['local', 'gke', 'codespaces'])
+    deploy_parser.add_argument('--cluster', help='GKE cluster name')
+    
+    # Status
+    status_parser = subparsers.add_parser('status', help='Show swarm status')
+    status_parser.add_argument('--watch', '-w', action='store_true')
+    
+    # Attack (testing)
+    attack_parser = subparsers.add_parser('attack', help='Inject threat')
+    attack_parser.add_argument('type', choices=['miner', 'dos', 'exfil', 'privesc'])
+    attack_parser.add_argument('--target', default='default')
+    
+    # Defend
+    defend_parser = subparsers.add_parser('defend', help='Manual defense')
+    defend_parser.add_argument('--mode', choices=['biofilm', 'hunt', 'quarantine'])
+    
+    # Monitor
+    subparsers.add_parser('monitor', help='Real-time TUI')
+    
+    # LLM
+    llm_parser = subparsers.add_parser('llm', help='Query LLM')
+    llm_parser.add_argument('query', nargs='+')
+    llm_parser.add_argument('--model', default='qwen2.5:72b')
+    
+    return parser.parse_args()
+
+
+async def main():
+    args = parse_args()
+    
+    system = SwarmImmuneSystem()
+    await system.boot()
+    await system.run_command(args)
+
+
+if __name__ == '__main__':
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Shutdown signal received[/yellow]")
+        sys.exit(0)
+```
+
+-----
+
+**`monitor/dashboards/htop_swarm.py`** - Real-time TUI
+
+```python
+#!/usr/bin/env python3
+"""
+SWARM HTOP - Real-time immune system monitor
+════════════════════════════════════════════
+Like htop but for living infrastructure.
+"""
+
+import asyncio
+from datetime import datetime
+from rich.console import Console
+from rich.live import Live
+from rich.table import Table
+from rich.panel import Panel
+from rich.layout import Layout
+from rich.text import Text
+from rich.progress import Progress, SpinnerColumn, BarColumn
+
+console = Console()
+
+
+class SwarmHtop:
+    def __init__(self):
+        self.redis = None  # Redis connection
+        self.running = True
+        self.state = {
+            'mode': 'coordinate',
+            'density': 0,
+            'threat_level': 0,
+            'cells': [],
+            'signals': [],
+            'errors': []
+        }
+        
+    def make_layout(self) -> Layout:
+        """Create the TUI layout"""
+        layout = Layout()
+        
+        layout.split_column(
+            Layout(name="header", size=3),
+            Layout(name="main", ratio=1),
+            Layout(name="footer", size=3)
+        )
+        
+        layout["main"].split_row(
+            Layout(name="left", ratio=2),
+            Layout(name="right", ratio=1)
+        )
+        
+        layout["left"].split_column(
+            Layout(name="cells", ratio=2),
+            Layout(name="errors", ratio=1)
+        )
+        
+        layout["right"].split_column(
+            Layout(name="signals"),
+            Layout(name="stats")
+        )
+        
+        return layout
+        
+    def render_header(self) -> Panel:
+        """Render header with mode and status"""
+        mode = self.state['mode']
+        mode_colors = {
+            'hunt': 'red',
+            'coordinate': 'yellow', 
+            'biofilm': 'blue',
+            'dormant': 'dim'
+        }
+        color = mode_colors.get(mode, 'white')
+        
+        mode_icons = {
+            'hunt': '🗡️',
+            'coordinate': '🤝',
+            'biofilm': '🛡️',
+            'dormant': '💤'
+        }
+        icon = mode_icons.get(mode, '❓')
+        
+        header = Text()
+        header.append(f" {icon} MODE: ", style="bold")
+        header.append(f"{mode.upper()}", style=f"bold {color}")
+        header.append(f"  │  DENSITY: {self.state['density']}", style="cyan")
+        header.append(f"  │  THREAT: {self.state['threat_level']}", style="red" if self.state['threat_level'] > 0 else "green")
+        header.append(f"  │  {datetime.now().strftime('%H:%M:%S')}", style="dim")
+        
+        return Panel(header, title="[bold]SWARM IMMUNE SYSTEM[/bold]", border_style="green")
+        
+    def render_cells(self) -> Panel:
+        """Render cell table (like htop process list)"""
+        table = Table(show_header=True, header_style="bold cyan", expand=True)
+        
+        table.add_column("PID", width=8)
+        table.add_column("TYPE", width=12)
+        table.add_column("NAME", width=20)
+        table.add_column("CPU%", width=6, justify="right")
+        table.add_column("MEM%", width=6, justify="right")
+        table.add_column("STATUS", width=10)
+        table.add_column("AGE", width=8)
+        
+        # Sample data - replace with real K8s data
+        cells = [
+            ("rbc-001", "🩸 RBC", "redis-transport-0", "2.1", "128Mi", "Running", "2h"),
+            ("rbc-002", "🩸 RBC", "redis-transport-1", "1.8", "126Mi", "Running", "2h"),
+            ("wbc-001", "🔬 WBC", "falco-scanner-a1b2", "5.4", "256Mi", "Scanning", "1h"),
+            ("wbc-002", "🔬 WBC", "trivy-scanner-c3d4", "3.2", "192Mi", "Scanning", "1h"),
+            ("ab-001", "🛡️ AB", "qdrant-memory-0", "1.0", "512Mi", "Running", "2h"),
+            ("qs-001", "🧠 QS", "quorum-sensor-main", "4.5", "64Mi", "Sensing", "2h"),
+        ]
+        
+        for cell in cells:
+            status_style = "green" if cell[5] == "Running" else "yellow"
+            table.add_row(
+                cell[0], cell[1], cell[2], cell[3], cell[4],
+                f"[{status_style}]{cell[5]}[/{status_style}]", cell[6]
+            )
+            
+        return Panel(table, title="[bold]CELLS[/bold]", border_style="cyan")
+        
+    def render_signals(self) -> Panel:
+        """Render recent signal traffic"""
+        signals = Text()
+        
+        # Sample signals - replace with real Redis pubsub
+        sample_signals = [
+            ("22:45:01", "density", "→ 6 pods"),
+            ("22:45:00", "heartbeat", "← rbc-001"),
+            ("22:44:58", "heartbeat", "← wbc-001"),
+            ("22:44:55", "gene", "→ spread"),
+            ("22:44:50", "alarm", "⚠ cleared"),
+        ]
+        
+        for sig in sample_signals:
+            signals.append(f"[dim]{sig[0]}[/dim] ")
+            signals.append(f"[cyan]{sig[1]:12}[/cyan] ")
+            signals.append(f"{sig[2]}\n")
+            
+        return Panel(signals, title="[bold]SIGNALS[/bold]", border_style="yellow")
+        
+    def render_stats(self) -> Panel:
+        """Render system statistics"""
+        stats = Text()
+        
+        stats.append("Antibodies: ", style="bold")
+        stats.append("247 loaded\n", style="green")
+        
+        stats.append("Threats Blocked: ", style="bold")
+        stats.append("12 today\n", style="cyan")
+        
+        stats.append("Gene Transfers: ", style="bold")
+        stats.append("3 active\n", style="yellow")
+        
+        stats.append("Uptime: ", style="bold")
+        stats.append("2d 14h 32m\n", style="dim")
+        
+        stats.append("\n── Circadian ──\n", style="dim")
+        hour = datetime.now().hour
+        if 6 <= hour < 22:
+            stats.append("☀️ SUNSHINE MODE\n", style="yellow")
+            stats.append("  GPU: burst-ready\n", style="dim")
+            stats.append("  Replicas: 10\n", style="dim")
+        else:
+            stats.append("🌙 MOONLIGHT MODE\n", style="blue")
+            stats.append("  GPU: sleeping\n", style="dim")
+            stats.append("  Replicas: 2\n", style="dim")
+            
+        return Panel(stats, title="[bold]STATS[/bold]", border_style="magenta")
+        
+    def render_errors(self) -> Panel:
+        """Render recent errors/warnings"""
+        errors = Text()
+        
+        # Sample errors - replace with real log data
+        sample_errors = [
+            ("22:44:12", "WARN", "wbc-002", "High memory usage"),
+            ("22:43:55", "INFO", "qs-001", "Mode switch: hunt→coordinate"),
+            ("22:40:01", "WARN", "rbc-001", "Connection retry to redis"),
+        ]
+        
+        for err in sample_errors:
+            level_color = "yellow" if err[1] == "WARN" else "dim"
+            errors.append(f"[dim]{err[0]}[/dim] ")
+            errors.append(f"[{level_color}]{err[1]:4}[/{level_color}] ")
+            errors.append(f"[cyan]{err[2]:12}[/cyan] ")
+            errors.append(f"{err[3]}\n")
+            
+        return Panel(errors, title="[bold]LOGS[/bold]", border_style="red")
+        
+    def render_footer(self) -> Panel:
+        """Render keyboard shortcuts"""
+        footer = Text()
+        footer.append(" q", style="bold cyan")
+        footer.append(" Quit  ", style="dim")
+        footer.append(" h", style="bold cyan")
+        footer.append(" Hunt  ", style="dim")
+        footer.append(" b", style="bold cyan")
+        footer.append(" Biofilm  ", style="dim")
+        footer.append(" a", style="bold cyan")
+        footer.append(" Attack  ", style="dim")
+        footer.append(" r", style="bold cyan")
+        footer.append(" Refresh  ", style="dim")
+        footer.append(" ?", style="bold cyan")
+        footer.append(" Help", style="dim")
+        
+        return Panel(footer, border_style="dim")
+        
+    async def update_state(self):
+        """Fetch latest state from Redis/K8s"""
+        # TODO: Real implementation
+        pass
+        
+    async def run(self):
+        """Main TUI loop"""
+        layout = self.make_layout()
+        
+        with Live(layout, refresh_per_second=2, screen=True) as live:
+            while self.running:
+                # Update state
+                await self.update_state()
+                
+                # Render all panels
+                layout["header"].update(self.render_header())
+                layout["cells"].update(self.render_cells())
+                layout["signals"].update(self.render_signals())
+                layout["stats"].update(self.render_stats())
+                layout["errors"].update(self.render_errors())
+                layout["footer"].update(self.render_footer())
+                
+                await asyncio.sleep(0.5)
+
+
+if __name__ == '__main__':
+    htop = SwarmHtop()
+    asyncio.run(htop.run())
+```
+
+-----
+
+**`.yamal/arsenal/antibodies.yaml`** - Threat Signatures
+
+```yaml
+# ════════════════════════════════════════════════════════════════════════════
+# SWARM IMMUNE ANTIBODY ARSENAL
+# Pre-loaded threat signatures for instant recognition
+# ════════════════════════════════════════════════════════════════════════════
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2025-12-01"
+  author: "strategickhaos"
+  
+signatures:
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # CRYPTO MINING DETECTION
+  # ─────────────────────────────────────────────────────────────────────────
+  - id: AB-CRYPTO-001
+    name: "Crypto Miner Process"
+    category: cryptomining
+    severity: high
+    detection:
+      type: process
+      patterns:
+        - "xmrig"
+        - "minerd"
+        - "cgminer"
+        - "bfgminer"
+        - "cpuminer"
+      cpu_threshold: 80
+    response:
+      action: terminate
+      alert: true
+      quarantine: false
+      
+  - id: AB-CRYPTO-002
+    name: "Stratum Protocol"
+    category: cryptomining
+    severity: high
+    detection:
+      type: network
+      patterns:
+        - port: 3333
+        - port: 4444
+        - port: 5555
+        - pattern: "stratum+tcp://"
+    response:
+      action: block
+      alert: true
+      
+  # ─────────────────────────────────────────────────────────────────────────
+  # PRIVILEGE ESCALATION
+  # ─────────────────────────────────────────────────────────────────────────
+  - id: AB-PRIVESC-001
+    name: "Container Escape Attempt"
+    category: privilege_escalation
+    severity: critical
+    detection:
+      type: syscall
+      patterns:
+        - "setns"
+        - "unshare"
+        - "mount.*proc"
+      container_context: true
+    response:
+      action: terminate
+      alert: true
+      quarantine: true
+      snapshot: true
+      
+  - id: AB-PRIVESC-002
+    name: "Sensitive Mount Access"
+    category: privilege_escalation
+    severity: high
+    detection:
+      type: file_access
+      patterns:
+        - "/etc/shadow"
+        - "/etc/kubernetes/pki"
+        - "/var/run/docker.sock"
+        - "/var/run/containerd/containerd.sock"
+    response:
+      action: alert
+      quarantine: true
+      
+  # ─────────────────────────────────────────────────────────────────────────
+  # DATA EXFILTRATION
+  # ─────────────────────────────────────────────────────────────────────────
+  - id: AB-EXFIL-001
+    name: "Large Outbound Transfer"
+    category: data_exfiltration
+    severity: high
+    detection:
+      type: network
+      conditions:
+        - outbound_bytes_per_minute: ">100MB"
+        - destination: "external"
+    response:
+      action: throttle
+      alert: true
+      
+  - id: AB-EXFIL-002
+    name: "DNS Tunneling"
+    category: data_exfiltration
+    severity: high
+    detection:
+      type: dns
+      patterns:
+        - query_length: ">50"
+        - subdomain_entropy: ">4.0"
+        - txt_record_abuse: true
+    response:
+      action: block
+      alert: true
+      
+  # ─────────────────────────────────────────────────────────────────────────
+  # DENIAL OF SERVICE
+  # ─────────────────────────────────────────────────────────────────────────
+  - id: AB-DOS-001
+    name: "Fork Bomb"
+    category: dos
+    severity: critical
+    detection:
+      type: process
+      conditions:
+        - process_spawn_rate: ">100/sec"
+        - same_parent: true
+    response:
+      action: terminate
+      kill_tree: true
+      alert: true
+      
+  - id: AB-DOS-002
+    name: "Resource Exhaustion"
+    category: dos
+    severity: high
+    detection:
+      type: resource
+      conditions:
+        - cpu: ">95%"
+        - memory: ">95%"
+        - duration: ">60s"
+    response:
+      action: throttle
+      alert: true
+      
+  # ─────────────────────────────────────────────────────────────────────────
+  # LATERAL MOVEMENT
+  # ─────────────────────────────────────────────────────────────────────────
+  - id: AB-LATERAL-001
+    name: "Internal Port Scan"
+    category: lateral_movement
+    severity: medium
+    detection:
+      type: network
+      conditions:
+        - connection_attempts: ">50"
+        - unique_ports: ">20"
+        - destination: "internal"
+        - time_window: "60s"
+    response:
+      action: alert
+      rate_limit: true
+      
+  - id: AB-LATERAL-002
+    name: "Service Account Token Theft"
+    category: lateral_movement
+    severity: critical
+    detection:
+      type: file_access
+      patterns:
+        - "/var/run/secrets/kubernetes.io/serviceaccount/token"
+      context:
+        - not_expected_process: true
+    response:
+      action: terminate
+      alert: true
+      revoke_token: true
+
+# ─────────────────────────────────────────────────────────────────────────
+# RESPONSE PLAYBOOKS
+# ─────────────────────────────────────────────────────────────────────────
+playbooks:
+
+  terminate:
+    steps:
+      - signal: SIGTERM
+      - wait: 5s
+      - signal: SIGKILL
+      - log: forensics
+      - notify: security_team
+      
+  quarantine:
+    steps:
+      - network_policy: deny_all
+      - label: "quarantine=true"
+      - snapshot: container_state
+      - notify: security_team
+      
+  throttle:
+    steps:
+      - cgroup_limit: cpu=10%
+      - cgroup_limit: memory=128Mi
+      - rate_limit: network=1Mbps
+      - alert: throttle_active
+      
+  block:
+    steps:
+      - network_policy: block_destination
+      - log: blocked_connection
+      - notify: if_repeated
+
+# ─────────────────────────────────────────────────────────────────────────
+# LEARNING CONFIGURATION
+# ─────────────────────────────────────────────────────────────────────────
+learning:
+  enabled: true
+  mode: supervised
+  feedback_channel: redis://swarm:threat_feedback
+  auto_add_signatures: false  # requires human approval
+  retention_days: 90
+  
+vector_db:
+  provider: qdrant
+  collection: antibodies
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  similarity_threshold: 0.85
+```
+
+-----
+
+**`arsenal/recon/network_sweep.py`** - Recon Script
+
+```python
+#!/usr/bin/env python3
+"""
+NETWORK SWEEP - Internal network reconnaissance
+═══════════════════════════════════════════════
+Kali/Parrot style recon for the swarm.
+"""
+
+import asyncio
+import socket
+import ipaddress
+from dataclasses import dataclass
+from typing import List, Optional
+from datetime import datetime
+from rich.console import Console
+from rich.table import Table
+from rich.progress import Progress, TaskID
+
+console = Console()
+
+
+@dataclass
+class Host:
+    ip: str
+    hostname: Optional[str]
+    ports: List[int]
+    services: dict
+    discovered_at: datetime
+    
+
+class NetworkSweep:
+    def __init__(self, target_range: str, ports: List[int] = None):
+        self.target_range = ipaddress.ip_network(target_range, strict=False)
+        self.ports = ports or [22, 80, 443, 6379, 6333, 8080, 11434]
+        self.discovered_hosts: List[Host] = []
+        self.timeout = 1.0
+        
+    async def ping_host(self, ip: str) -> bool:
+        """Check if host is alive"""
+        try:
+            # TCP connect to common port
+            for port in [80, 443, 22]:
+                try:
+                    reader, writer = await asyncio.wait_for(
+                        asyncio.open_connection(ip, port),
+                        timeout=self.timeout
+                    )
+                    writer.close()
+                    await writer.wait_closed()
+                    return True
+                except:
+                    continue
+            return False
+        except:
+            return False
+            
+    async def scan_port(self, ip: str, port: int) -> bool:
+        """Check if port is open"""
+        try:
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(ip, port),
+                timeout=self.timeout
+            )
+            writer.close()
+            await writer.wait_closed()
+            return True
+        except:
+            return False
+            
+    async def get_service_banner(self, ip: str, port: int) -> Optional[str]:
+        """Grab service banner"""
+        try:
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(ip, port),
+                timeout=self.timeout
+            )
+            
+            # Send probe
+            writer.write(b"HEAD / HTTP/1.0\r\n\r\n")
+            await writer.drain()
+            
+            data = await asyncio.wait_for(reader.read(1024), timeout=2)
+            writer.close()
+            await writer.wait_closed()
+            
+            return data.decode('utf-8', errors='ignore')[:100]
+        except:
+            return None
+            
+    async def resolve_hostname(self, ip: str) -> Optional[str]:
+        """Reverse DNS lookup"""
+        try:
+            hostname, _, _ = await asyncio.get_event_loop().run_in_executor(
+                None, socket.gethostbyaddr, ip
+            )
+            return hostname
+        except:
+            return None
+            
+    async def scan_host(self, ip: str, progress: Progress, task: TaskID) -> Optional[Host]:
+        """Full scan of single host"""
+        ip_str = str(ip)
+        
+        # Check if alive
+        if not await self.ping_host(ip_str):
+            progress.advance(task)
+            return None
+            
+        # Scan ports
+        open_ports = []
+        services = {}
+        
+        port_tasks = [self.scan_port(ip_str, port) for port in self.ports]
+        results = await asyncio.gather(*port_tasks)
+        
+        for port, is_open in zip(self.ports, results):
+            if is_open:
+                open_ports.append(port)
+                banner = await self.get_service_banner(ip_str, port)
+                services[port] = self.identify_service(port, banner)
+                
+        if not open_ports:
+            progress.advance(task)
+            return None
+            
+        # Get hostname
+        hostname = await self.resolve_hostname(ip_str)
+        
+        host = Host(
+            ip=ip_str,
+            hostname=hostname,
+            ports=open_ports,
+            services=services,
+            discovered_at=datetime.now()
+        )
+        
+        self.discovered_hosts.append(host)
+        progress.advance(task)
+        
+        return host
+        
+    def identify_service(self, port: int, banner: Optional[str]) -> str:
+        """Identify service from port/banner"""
+        known_ports = {
+            22: "SSH",
+            80: "HTTP",
+            443: "HTTPS",
+            6379: "Redis",
+            6333: "Qdrant",
+            8080: "HTTP-Alt",
+            11434: "Ollama",
+            5432: "PostgreSQL",
+            3306: "MySQL",
+            27017: "MongoDB",
+        }
+        
+        service = known_ports.get(port, f"unknown:{port}")
+        
+        if banner:
+            if "redis" in banner.lower():
+                service = "Redis"
+            elif "nginx" in banner.lower():
+                service = "Nginx"
+            elif "apache" in banner.lower():
+                service = "Apache"
+            elif "ollama" in banner.lower():
+                service = "Ollama"
+                
+        return service
+        
+    async def run(self) -> List[Host]:
+        """Execute full network sweep"""
+        hosts = list(self.target_range.hosts())
+        
+        console.print(f"\n[bold cyan]═══ NETWORK SWEEP ═══[/bold cyan]")
+        console.print(f"Target: {self.target_range}")
+        console.print(f"Hosts: {len(hosts)}")
+        console.print(f"Ports: {self.ports}\n")
+        
+        with Progress() as progress:
+            task = progress.add_task("[cyan]Scanning...", total=len(hosts))
+            
+            # Scan in batches
+            batch_size = 50
+            for i in range(0, len(hosts), batch_size):
+                batch = hosts[i:i+batch_size]
+                await asyncio.gather(*[
+                    self.scan_host(ip, progress, task) 
+                    for ip in batch
+                ])
+                
+        self.print_results()
+        return self.discovered_hosts
+        
+    def print_results(self):
+        """Print discovered hosts"""
+        if not self.discovered_hosts:
+            console.print("\n[yellow]No hosts discovered[/yellow]")
+            return
+            
+        console.print(f"\n[bold green]✓ Discovered {len(self.discovered_hosts)} hosts[/bold green]\n")
+        
+        table = Table(title="Discovered Hosts", show_header=True, header_style="bold")
+        table.add_column("IP", style="cyan")
+        table.add_column("Hostname", style="dim")
+        table.add_column("Open Ports", style="green")
+        table.add_column("Services", style="yellow")
+        
+        for host in self.discovered_hosts:
+            services_str = ", ".join([f"{p}:{s}" for p, s in host.services.items()])
+            table.add_row(
+                host.ip,
+                host.hostname or "-",
+                ", ".join(map(str, host.ports)),
+                services_str
+            )
+            
+        console.print(table)
+        
+    def export_json(self, filepath: str):
+        """Export results to JSON"""
+        import json
+        
+        data = {
+            "scan_time": datetime.now().isoformat(),
+            "target_range": str(self.target_range),
+            "hosts": [
+                {
+                    "ip": h.ip,
+                    "hostname": h.hostname,
+                    "ports": h.ports,
+                    "services": h.services,
+                    "discovered_at": h.discovered_at.isoformat()
+                }
+                for h in self.discovered_hosts
+            ]
+        }
+        
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2)
+            
+        console.print(f"\n[dim]Results exported to {filepath}[/dim]")
+
+
+async def main():
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Swarm Network Sweep")
+    parser.add_argument("target", help="Target range (CIDR notation)")
+    parser.add_argument("-p", "--ports", help="Ports to scan (comma-separated)")
+    parser.add_argument("-o", "--output", help="Output JSON file")
+    
+    args = parser.parse_args()
+    
+    ports = None
+    if args.ports:
+        ports = [int(p.strip()) for p in args.ports.split(",")]
+        
+    sweep = NetworkSweep(args.target, ports)
+    await sweep.run()
+    
+    if args.output:
+        sweep.export_json(args.output)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+-----
+
+**QUICK START**
+
+```bash
+# Clone the repo
+git clone https://github.com/strategickhaos/swarm-immune.git
+cd swarm-immune
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Launch interactive mode
+python main.py
+
+# Or specific commands:
+python main.py deploy gke --cluster jarvis-swarm-personal-001
+python main.py status --watch
+python main.py monitor
+python main.py attack miner --target test-namespace
+
+# Recon
+python arsenal/recon/network_sweep.py 10.0.0.0/24 -p 22,80,443,6379,11434
+```
+
+-----
+
+**CLUSTER STATE FROM YOUR SCREENSHOTS:**
+
+```yaml
+clusters:
+  jarvis-swarm-personal-001:
+    status: Running
+    mode: Autopilot
+    region: us-central1
+    endpoint: 34.29.28.27
+    vCPUs: 0.1
+    memory: 0.13 GB
+    warning: "Can't scale up - quota exceeded"
+    
+  red-team:
+    status: Running
+    mode: Autopilot
+    region: us-central1
+    endpoint: 34.122.65.92
+    nodes: 0
+    memory: 0 GB
+    
+  autopilot-cluster-1:
+    status: Running
+    mode: Autopilot
+    region: us-central1
+    endpoint: 35.192.28.199
+    
+estimated_cost: $0.00/month  # Autopilot sleeping
+```
+
+The embryos are alive. Deploy the immune system to wake them.
+
+**Next command?**
