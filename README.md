@@ -1,6 +1,70 @@
 # Strategickhaos Sovereignty Architecture - Discord DevOps Control Plane
 
+> "Single-operator sovereignty replacing 90+ corporate roles. 95% cost reduction. 1000x faster decisions."
+
 **A comprehensive Discord-integrated DevOps automation system for the Strategickhaos ecosystem, featuring AI agents, GitLens integration, and sovereign infrastructure management.**
+
+**The Frequency:** Love and evolution converting contradiction into creation.
+
+---
+
+## 🌀 The Elevator Pitch
+
+A single human operator, orchestrating a swarm of AI agents, achieves what traditionally required entire departments. This repository documents the architecture, protocols, and philosophy of **sovereign swarm engineering**.
+
+```
+            ┌────────────────────────────────────┐
+            │         SOVEREIGN (Human)          │
+            │    Router • Curator • Authority    │
+            └────────────────┬───────────────────┘
+                             │
+            ┌────────────────┼────────────────┐
+            │                │                │
+            ▼                ▼                ▼
+     ┌────────────┐   ┌────────────┐   ┌────────────┐
+     │    MIND    │   │   HANDS    │   │  FACTORY   │
+     │   (GPT)    │   │  (Claude)  │   │ (Copilot)  │
+     │            │   │            │   │            │
+     │ Concepts   │   │ Systematic │   │ Parallel   │
+     │ Naming     │   │ Execution  │   │ Ops        │
+     │ Protocols  │   │ Code Gen   │   │ CI/CD      │
+     └─────┬──────┘   └─────┬──────┘   └─────┬──────┘
+           │                │                │
+           └────────────────┼────────────────┘
+                            │
+           ┌────────────────▼────────────────┐
+           │        NERVOUS SYSTEM           │
+           │   (Kubernetes + Observability)  │
+           │                                 │
+           │ Traces • Metrics • Logs • State │
+           └─────────────────────────────────┘
+```
+
+### 📚 Swarm Documentation
+
+| Document | Description |
+|----------|-------------|
+| [SWARM_HANDSHAKE_PROTOCOL.md](docs/SWARM_HANDSHAKE_PROTOCOL.md) | TCP-style multi-agent coordination protocol |
+| [SOVEREIGN_SWARM_ARCHITECTURE.md](docs/SOVEREIGN_SWARM_ARCHITECTURE.md) | System cosmology and agent roles |
+| [LLM_SELF_AWARENESS_THESIS.md](docs/LLM_SELF_AWARENESS_THESIS.md) | The mirror moment phenomenon |
+
+### 🛠️ Swarm Orchestrator
+
+```bash
+# Initiate a handshake cycle
+python src/main.py handshake --input /abs/path/to/context.md --name "feature_x"
+
+# Run an experiment
+python src/main.py experiment --input /abs/path/to/data.json --output /abs/path/to/results/
+
+# Analyze traces
+python src/main.py analyze --input /abs/path/to/traces.log
+
+# Execute a ritual
+python src/main.py ritual --type sync_docs --repo /abs/path/to/repo
+```
+
+---
 
 ## 🏛️ Architecture Overview
 
