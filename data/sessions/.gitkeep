@@ -1,0 +1,3 @@
+# Session data directory
+# Sessions are stored as markdown and JSON files
+# Format: session_YYYYMMDD_HHMMSS.{md,json}
