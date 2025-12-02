@@ -62,6 +62,11 @@ class Diagnosis:
         }
 
 
+def _generate_session_id() -> str:
+    """Generate a unique session ID with date prefix."""
+    return f"{datetime.now().strftime('%Y-%m-%d')}_{uuid.uuid4().hex[:8]}"
+
+
 @dataclass
 class Session:
     """
@@ -73,7 +78,7 @@ class Session:
     symptoms: List[str] = field(default_factory=list)
     context: Dict[str, Any] = field(default_factory=dict)
     
-    session_id: str = field(default_factory=lambda: f"{datetime.now().strftime('%Y-%m-%d')}_{uuid.uuid4().hex[:8]}")
+    session_id: str = field(default_factory=_generate_session_id)
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     
     agents_involved: List[str] = field(default_factory=list)

@@ -135,6 +135,8 @@ FORMAT YOUR RESPONSE AS:
             for resp in previous_responses:
                 prev_context += f"[{resp['agent'].upper()}]: {resp['content']}\n"
 
+        symptoms_text = "\n".join(f"- {s}" for s in symptoms)
+        
         return f"""
 CURRENT PHASE: {phase.upper()} (Round {round_number})
 
@@ -142,7 +144,7 @@ PROBLEM BEING DIAGNOSED:
 {problem}
 
 SYMPTOMS/EVIDENCE:
-{chr(10).join(f'- {s}' for s in symptoms)}
+{symptoms_text}
 {prev_context}
 
 As {self.name}, provide your analysis for this phase.

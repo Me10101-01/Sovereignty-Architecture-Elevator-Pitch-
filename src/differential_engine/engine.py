@@ -3,6 +3,7 @@ Differential Engine - Core debate engine for multi-agent diagnosis.
 Implements the House M.D. style debate system for architecture diagnosis.
 """
 
+import re
 import time
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any, Callable
@@ -11,6 +12,10 @@ import random
 
 from .agents import Agent, ALL_AGENTS, get_agent_by_name, HOUSE, WILSON, FOREMAN, CAMERON, CHASE, CUDDY
 from .session import Session, SessionManager, Diagnosis, DiagnosisRound
+
+
+# Number of rounds reserved for presentation and initial phases
+RESERVED_ROUNDS = 2
 
 
 class DebatePhase(Enum):
@@ -114,11 +119,11 @@ class DifferentialEngine:
             # Phase 2: Initial hypotheses
             self._run_hypothesis_phase(session)
             
-            # Phase 3: Challenge and debate rounds
-            for round_num in range(self.config.max_rounds - 2):
+            # Phase 3: Challenge and debate rounds (remaining rounds after presentation and hypothesis)
+            for round_num in range(self.config.max_rounds - RESERVED_ROUNDS):
                 if self._check_consensus(session):
                     break
-                self._run_challenge_phase(session, round_num + 2)
+                self._run_challenge_phase(session, round_num + RESERVED_ROUNDS)
             
             # Phase 4: Convergence
             self._run_convergence_phase(session)
@@ -272,7 +277,6 @@ class DifferentialEngine:
             if "confidence:" in line_lower:
                 try:
                     # Extract percentage
-                    import re
                     match = re.search(r'(\d+)%?', line)
                     if match:
                         result["confidence"] = int(match.group(1))

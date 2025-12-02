@@ -167,7 +167,7 @@ def list_sessions(
     
     for session in sessions:
         status_icon = "✅" if session.get("consensus_reached") else "⚠️"
-        confidence = session.get("confidence", 0) or 0
+        confidence = session.get("confidence") or 0
         print(f"  {status_icon} [{session['session_id']}]")
         print(f"     Domain: {session['domain']} | Confidence: {confidence*100:.0f}%")
         print(f"     Problem: {session['problem'][:60]}...")
