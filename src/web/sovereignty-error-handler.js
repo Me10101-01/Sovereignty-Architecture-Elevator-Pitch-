@@ -277,19 +277,33 @@
    */
   ConsoleErrorHandler.prototype.generateReport = function() {
     var stats = this.getStats();
+    var BOX_WIDTH = 64;
+    var CONTENT_WIDTH = BOX_WIDTH - 4; // Account for ║ and spaces
+
+    // Helper function to pad string to fit within box
+    function padLine(content) {
+      var str = String(content);
+      var padLength = CONTENT_WIDTH - str.length;
+      if (padLength < 0) {
+        str = str.substring(0, CONTENT_WIDTH - 3) + '...';
+        padLength = 0;
+      }
+      return str + new Array(padLength + 1).join(' ');
+    }
+
     var lines = [
       '╔══════════════════════════════════════════════════════════════╗',
       '║       SOVEREIGNTY ARCHITECTURE - ERROR REPORT                ║',
       '║           Refinory Console Error Handler                     ║',
       '╠══════════════════════════════════════════════════════════════╣',
-      '║ Generated: ' + new Date().toISOString().substring(0, 47) + '║',
-      '║ Total Errors: ' + String(stats.total).padEnd ? String(stats.total).padEnd(44) : String(stats.total) + '║',
+      '║ ' + padLine('Generated: ' + new Date().toISOString()) + '║',
+      '║ ' + padLine('Total Errors: ' + stats.total) + '║',
       '╠══════════════════════════════════════════════════════════════╣'
     ];
 
     for (var type in stats.byType) {
       if (stats.byType.hasOwnProperty(type)) {
-        lines.push('║ ' + type.toUpperCase() + ': ' + stats.byType[type] + '                                                     ║');
+        lines.push('║ ' + padLine(type.toUpperCase() + ': ' + stats.byType[type]) + '║');
       }
     }
 
@@ -300,10 +314,12 @@
     var recentErrors = this.errors.slice(-5);
     for (var i = 0; i < recentErrors.length; i++) {
       var error = recentErrors[i];
-      var truncatedMsg = error.message.length > 55
-        ? error.message.substring(0, 52) + '...'
+      var prefix = '[' + error.type.toUpperCase() + '] ';
+      var maxMsgLength = CONTENT_WIDTH - prefix.length;
+      var truncatedMsg = error.message.length > maxMsgLength
+        ? error.message.substring(0, maxMsgLength - 3) + '...'
         : error.message;
-      lines.push('║ [' + error.type.toUpperCase() + '] ' + truncatedMsg + '                                  ║');
+      lines.push('║ ' + padLine(prefix + truncatedMsg) + '║');
     }
 
     lines.push('╚══════════════════════════════════════════════════════════════╝');
