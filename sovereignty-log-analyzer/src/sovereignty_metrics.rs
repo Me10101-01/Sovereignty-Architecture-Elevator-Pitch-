@@ -7,6 +7,14 @@ use crate::log_parser::AuditLogEntry;
 use chrono::Utc;
 use colored::*;
 
+/// Estimated latency for human-initiated decisions in milliseconds.
+/// Based on typical response time for manual operations (approximately 1 minute).
+const HUMAN_LATENCY_MS: f64 = 60000.0;
+
+/// Estimated latency for automated decisions in milliseconds.
+/// Automated systems can respond much faster than humans (~1000x improvement).
+const AUTOMATED_LATENCY_MS: f64 = 60.0;
+
 /// Sovereignty metrics computed from audit logs
 #[derive(Debug, Clone)]
 pub struct SovereigntyMetrics {
@@ -67,14 +75,10 @@ impl SovereigntyMetrics {
             total_operations as f64
         };
 
-        // Estimate decision latency (automated decisions are ~1000x faster)
-        // Human decisions: ~60000ms (1 minute average)
-        // Automated decisions: ~60ms average
-        let human_latency = 60000.0;
-        let automated_latency = 60.0;
+        // Calculate decision latency using defined constants
         let decision_latency_ms = if total_operations > 0 {
-            (automated_operations as f64 * automated_latency
-                + human_operations as f64 * human_latency)
+            (automated_operations as f64 * AUTOMATED_LATENCY_MS
+                + human_operations as f64 * HUMAN_LATENCY_MS)
                 / total_operations as f64
         } else {
             0.0
@@ -86,7 +90,7 @@ impl SovereigntyMetrics {
         // Formula: base score * automation bonus * latency bonus
         let base_score = 50.0;
         let automation_bonus = 1.0 + automation_ratio;
-        let latency_factor = 1.0 - (decision_latency_ms / human_latency).min(1.0);
+        let latency_factor = 1.0 - (decision_latency_ms / HUMAN_LATENCY_MS).min(1.0);
         let cost_efficiency_score = (base_score * automation_bonus * (1.0 + latency_factor)).min(100.0);
 
         // Count unique clusters

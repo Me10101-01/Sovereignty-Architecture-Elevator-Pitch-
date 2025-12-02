@@ -239,8 +239,16 @@ fn run_metrics(input: &str, json_output: bool) -> Result<(), Box<dyn std::error:
     let metrics = SovereigntyMetrics::calculate(&entries);
 
     // Calculate per-cluster metrics
-    let analyzer = Analyzer::new(entries.clone());
-    let clusters = analyzer.get_clusters();
+    let clusters: Vec<String> = {
+        let mut c: Vec<String> = entries
+            .iter()
+            .map(|e| e.cluster.clone())
+            .collect::<std::collections::HashSet<_>>()
+            .into_iter()
+            .collect();
+        c.sort();
+        c
+    };
     let cluster_metrics: Vec<_> = clusters
         .iter()
         .map(|c| {
@@ -312,8 +320,16 @@ fn run_watch(input: &str, refresh: u64) -> Result<(), Box<dyn std::error::Error>
 
             if !all_entries.is_empty() {
                 let metrics = SovereigntyMetrics::calculate(&all_entries);
-                let analyzer = Analyzer::new(all_entries.clone());
-                let clusters = analyzer.get_clusters();
+                let clusters: Vec<String> = {
+                    let mut c: Vec<String> = all_entries
+                        .iter()
+                        .map(|e| e.cluster.clone())
+                        .collect::<std::collections::HashSet<_>>()
+                        .into_iter()
+                        .collect();
+                    c.sort();
+                    c
+                };
                 let cluster_metrics: Vec<_> = clusters
                     .iter()
                     .map(|c| {

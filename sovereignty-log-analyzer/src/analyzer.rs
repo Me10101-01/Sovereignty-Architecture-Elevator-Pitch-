@@ -5,6 +5,10 @@
 use crate::log_parser::AuditLogEntry;
 use chrono::{DateTime, Duration, Utc};
 
+/// Threshold for detecting high-frequency operations (operations per minute).
+/// Operations exceeding this threshold from a single principal trigger an anomaly.
+const HIGH_FREQUENCY_THRESHOLD: usize = 100;
+
 /// Anomaly detection results
 #[derive(Debug, Clone)]
 pub struct Anomaly {
@@ -206,11 +210,11 @@ impl Analyzer {
         }
 
         for (principal, timestamps) in principal_windows {
-            if timestamps.len() < 100 {
+            if timestamps.len() < HIGH_FREQUENCY_THRESHOLD {
                 continue;
             }
 
-            // Check for bursts (100+ operations in any 1-minute window)
+            // Check for bursts exceeding threshold in any 1-minute window
             let mut sorted_timestamps = timestamps.clone();
             sorted_timestamps.sort();
 
@@ -221,7 +225,7 @@ impl Analyzer {
                     .filter(|t| **t >= *window_start && **t < window_end)
                     .count();
 
-                if count >= 100 {
+                if count >= HIGH_FREQUENCY_THRESHOLD {
                     // Create a synthetic entry for the anomaly
                     if let Some(entry) = self.entries.iter().find(|e| e.principal == principal) {
                         anomalies.push(Anomaly {
