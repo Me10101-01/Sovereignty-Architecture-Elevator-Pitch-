@@ -35,3 +35,25 @@ target/
 
 # Workspace data
 workspace/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+*.egg
+.mypy_cache/
+.pytest_cache/
+.venv/
+venv/
+ENV/
+
+# Differential Engine session data
+# Keep the directory structure but ignore actual session files
+data/sessions/*.json
+data/sessions/*.md
+!data/sessions/.gitkeep
+!data/sessions/session_index.json

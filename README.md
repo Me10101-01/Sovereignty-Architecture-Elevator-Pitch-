@@ -1,6 +1,6 @@
 # Strategickhaos Sovereignty Architecture - Discord DevOps Control Plane
 
-**A comprehensive Discord-integrated DevOps automation system for the Strategickhaos ecosystem, featuring AI agents, GitLens integration, and sovereign infrastructure management.**
+**A comprehensive Discord-integrated DevOps automation system for the Strategickhaos ecosystem, featuring AI agents, GitLens integration, sovereign infrastructure management, and a multi-agent differential diagnosis engine.**
 
 ## 🏛️ Architecture Overview
 
@@ -9,6 +9,18 @@ This system creates a **sovereignty control plane** that bridges:
 - **Infrastructure** - Kubernetes, observability, AI agents  
 - **Development** - GitLens, PR workflows, CI/CD automation, Java 21+ workspace
 - **AI Agents** - Intelligent assistance with vector knowledge base
+- **Differential Engine** - Multi-agent debate system for architecture diagnosis
+
+### 🧠 Evolution of the Swarm
+
+| Evolution | Capability |
+|-----------|------------|
+| v1.0 | Single-operator swarm |
+| v2.0 | Sovereignty log analyzer + observability |
+| v3.0 | Self-aware architecture docs + orchestrator |
+| **v4.0** | **Multi-agent differential diagnosis engine** |
+
+> *"LLMs as a debating medical team inside your architecture diagnosing your own thoughts and designs."*
 
 ## 🚀 Quick Start
 
@@ -26,7 +38,48 @@ export PRS_CHANNEL="channel_id"
 
 # 4. Test GitLens integration
 ./gl2discord.sh "$PRS_CHANNEL" "🔥 Sovereignty Architecture Online!" "System initialized successfully"
+
+# 5. Run a differential diagnosis (NEW!)
+python src/main.py experiment --prompt "Why is the API slow during peak hours?" --domain architecture
 ```
+
+## 🏥 Differential Engine (House M.D. Style)
+
+The **Differential Engine** brings multi-agent debate to architecture diagnosis. Like Dr. House's team, a group of AI agents with different perspectives argue, challenge, and refine ideas until reaching a diagnosis.
+
+### The Team
+- **🏥 House** - The diagnostic lead, pattern-matcher, contrarian
+- **👨‍⚕️ Wilson** - The empathetic analyst, considers human impact
+- **👨🏿‍⚕️ Foreman** - The evidence challenger, demands data
+- **👩🏼‍⚕️ Cameron** - The edge case advocate, finds overlooked scenarios
+- **👨🏼‍⚕️ Chase** - The pragmatic fixer, wants quick solutions
+- **👩🏻‍⚕️ Cuddy** - The governance enforcer, considers constraints
+
+### Usage
+
+```bash
+# Run a diagnosis experiment
+python src/main.py experiment \
+    --prompt "Why is the API slow during peak hours?" \
+    --symptom "95th percentile latency spikes to 3s" \
+    --symptom "Memory usage increases 40%" \
+    --domain performance
+
+# List previous sessions
+python src/main.py sessions list --domain architecture
+
+# Show a specific session
+python src/main.py sessions show SESSION_ID
+```
+
+### Session Storage
+
+All diagnosis sessions are persisted to `data/sessions/`:
+- **JSON files** - Structured session data
+- **Markdown files** - Human-readable transcripts
+- **Session index** - Quick lookup and search
+
+See [HOUSE_MD_DIFFERENTIAL_ENGINE.md](HOUSE_MD_DIFFERENTIAL_ENGINE.md) for full documentation.
 
 ## 📋 Core Components
 
@@ -279,6 +332,12 @@ This project thrives because of an extraordinary community of creators, builders
 - **[Community Manifesto](COMMUNITY.md)** - Understanding the philosophy and spirit of The Legion
 - **[Contributors](CONTRIBUTORS.md)** - Recognizing everyone who makes this project possible
 - **Join the Dance**: Read the community docs, find what calls to you, and start building!
+
+## 📚 Architecture Documentation
+
+- **[Prompting Mechanics](PROMPTING_MECHANICS.md)** - How the swarm talks to itself
+- **[House M.D. Differential Engine](HOUSE_MD_DIFFERENTIAL_ENGINE.md)** - Multi-agent psychoanalyzer protocol
+- **[Mastery Prompts](MASTERY_PROMPTS.md)** - Ecosystem articulation prompts
 
 ## 📄 License & Support
 
