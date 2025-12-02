@@ -272,6 +272,54 @@ kubectl logs -f deployment/event-gateway -n ops
 curl -X POST https://events.strategickhaos.com/health
 ```
 
+## 🧠 Sovereign Swarm Orchestrator
+
+The **Sovereign Swarm Orchestrator** is the CLI entry point for managing autonomous agents under sovereignty constraints. It coordinates LLM agents, analyzers, and experiments using the SWARM-HS (Handshake) protocol.
+
+### Quick Start
+
+```bash
+# Analyze input and suggest which module should receive new code
+python src/main.py handshake --input my_idea.md
+
+# Analyze GKE audit logs and generate sovereignty metrics
+python src/main.py analyze --input /path/to/audit.json
+
+# Create a new Black Ops Lab experiment
+python src/main.py experiment --name "my-test" --context input.md
+
+# List all experiments
+python src/main.py experiment --list
+```
+
+### Architecture
+
+```
+src/
+├── main.py              # Sovereign Swarm Orchestrator CLI
+├── swarm/               # Agent coordination zone
+│   ├── __init__.py
+│   └── grammar.py       # Sovereign Pattern Language (SPL)
+├── analyzers/           # Log analysis zone
+│   └── __init__.py      # SovereigntyLogAnalyzer
+└── experiments/         # Experiment engine zone
+    └── __init__.py      # ParticleCollider
+```
+
+### Documentation
+
+- **[SWARM Handshake Protocol](docs/SWARM_HANDSHAKE_PROTOCOL.md)** - How agents establish trust and coordinate
+- **[Black Ops Lab](docs/BLACK_OPS_LAB.md)** - Experimentation framework
+- **[Sovereignty Doctrine](docs/SOVEREIGNTY_DOCTRINE.md)** - Core principles and architecture
+
+### Module Zones
+
+| Zone | Purpose | Code Types |
+|------|---------|------------|
+| `swarm/` | Agent coordination | Grammar, patterns, handshakes |
+| `analyzers/` | Log analysis | Metrics, reports, parsing |
+| `experiments/` | Black Ops Lab | Trials, collider, results |
+
 ## 👥 Community & Contributors
 
 This project thrives because of an extraordinary community of creators, builders, and visionaries who choose to contribute not out of obligation, but out of love for what we're building together.
