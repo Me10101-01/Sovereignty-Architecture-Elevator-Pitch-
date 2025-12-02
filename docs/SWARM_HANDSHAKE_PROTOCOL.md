@@ -189,7 +189,7 @@ The handshake protocol is invoked via:
 python src/main.py handshake \
     --input /abs/path/to/context.md \
     --name "swarm_sync" \
-    --agents "claude,copilot,gpt"
+    --agents "claude,copilot,gpt-4"
 ```
 
 ## Protocol Extensions

@@ -51,7 +51,10 @@ class SovereigntyLogAnalyzer:
     def detect_anomalies(self) -> List[Dict[str, Any]]:
         """Detect anomalies in log patterns."""
         # TODO: SWARM - Implement anomaly detection
-        return []
+        raise NotImplementedError(
+            "Anomaly detection not yet implemented. "
+            "LLM agents should populate this method."
+        )
 
 
 class GKEAuditParser:
@@ -67,12 +70,18 @@ class GKEAuditParser:
     def parse(self) -> List[Dict[str, Any]]:
         """Parse GKE audit logs."""
         # TODO: SWARM - Implement GKE audit parsing
-        return []
+        raise NotImplementedError(
+            "GKE audit parsing not yet implemented. "
+            "LLM agents should populate this method."
+        )
     
     def correlate_events(self) -> Dict[str, Any]:
         """Correlate related audit events."""
         # TODO: SWARM - Implement event correlation
-        return {}
+        raise NotImplementedError(
+            "Event correlation not yet implemented. "
+            "LLM agents should populate this method."
+        )
 
 
 class PodMetricsAnalyzer:
@@ -88,7 +97,10 @@ class PodMetricsAnalyzer:
     def analyze(self) -> Dict[str, Any]:
         """Analyze pod metrics."""
         # TODO: SWARM - Implement pod metrics analysis
-        return {}
+        raise NotImplementedError(
+            "Pod metrics analysis not yet implemented. "
+            "LLM agents should populate this method."
+        )
 
 
 class SwarmBehaviorDetector:
@@ -104,7 +116,10 @@ class SwarmBehaviorDetector:
     def detect_patterns(self) -> List[Dict[str, Any]]:
         """Detect behavioral patterns."""
         # TODO: SWARM - Implement pattern detection
-        return []
+        raise NotImplementedError(
+            "Pattern detection not yet implemented. "
+            "LLM agents should populate this method."
+        )
 
 
 class AnomalyDetector:
@@ -120,4 +135,7 @@ class AnomalyDetector:
     def detect(self) -> List[Dict[str, Any]]:
         """Detect anomalies and violations."""
         # TODO: SWARM - Implement anomaly detection
-        return []
+        raise NotImplementedError(
+            "Security anomaly detection not yet implemented. "
+            "LLM agents should populate this method."
+        )

@@ -24,8 +24,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-# Add the src directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent))
+# Ensure src directory is in path for direct script execution
+# This is needed when running as: python src/main.py (not as a package)
+_src_dir = Path(__file__).parent
+if str(_src_dir) not in sys.path:
+    sys.path.insert(0, str(_src_dir))
 
 from swarm import (
     run_experiment,
