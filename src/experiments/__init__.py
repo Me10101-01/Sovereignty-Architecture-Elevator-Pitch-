@@ -244,7 +244,7 @@ class ParticleCollider:
                 try:
                     with open(results_file) as f:
                         results = yaml.safe_load(f) or {}
-                except Exception:
+                except yaml.YAMLError:
                     results = {}
             else:
                 results = {}
@@ -279,7 +279,7 @@ class ParticleCollider:
             try:
                 with open(results_file) as f:
                     results = yaml.safe_load(f) or {}
-            except Exception:
+            except yaml.YAMLError:
                 results = {}
         else:
             results = {}
@@ -290,7 +290,7 @@ class ParticleCollider:
         if log_file.exists():
             content = log_file.read_text()
             for phase in ["SYN", "SYN-ACK", "ACK", "DATA", "APPLY", "TRACE"]:
-                if f"- {phase}" in content or f"### " in content and phase in content:
+                if f"- {phase}" in content or (f"### " in content and phase in content):
                     phases_completed += 1
         
         return {
@@ -325,7 +325,7 @@ class ParticleCollider:
             try:
                 with open(results_file) as f:
                     results = yaml.safe_load(f) or {}
-            except Exception:
+            except yaml.YAMLError:
                 results = {}
         else:
             results = {}

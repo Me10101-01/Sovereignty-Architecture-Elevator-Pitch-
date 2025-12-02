@@ -71,7 +71,7 @@ class SovereignPattern:
             return 0.0
         
         text_lower = text.lower()
-        matches = sum(1 for token in self.token_examples if token.lower() in text_lower)
+        matches = sum(token.lower() in text_lower for token in self.token_examples)
         
         return min(1.0, matches / len(self.token_examples))
 
@@ -180,7 +180,7 @@ class SwarmGrammar:
                 content = md_file.read_text()
                 extracted = cls._extract_patterns_from_markdown(content, md_file)
                 patterns.extend(extracted)
-            except Exception:
+            except (OSError, UnicodeDecodeError, PermissionError):
                 # Skip files we can't read
                 continue
         

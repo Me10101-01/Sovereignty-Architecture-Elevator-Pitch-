@@ -127,15 +127,20 @@ class SovereigntyLogAnalyzer:
         "../sovereignty-log-analyzer/target/release/sovereignty-log-analyzer",  # Sibling project
     ]
     
-    def __init__(self, binary_path: Optional[str] = None):
+    # Default timeout for Rust binary execution (seconds)
+    DEFAULT_TIMEOUT = 60
+    
+    def __init__(self, binary_path: Optional[str] = None, timeout: int = DEFAULT_TIMEOUT):
         """
         Initialize the analyzer.
         
         Args:
             binary_path: Optional explicit path to Rust binary.
                         If None, searches common locations.
+            timeout: Timeout in seconds for Rust binary execution (default: 60)
         """
         self._binary_path = binary_path or self._find_binary()
+        self._timeout = timeout
     
     def _find_binary(self) -> Optional[str]:
         """Find the sovereignty-log-analyzer binary."""
@@ -180,7 +185,7 @@ class SovereigntyLogAnalyzer:
                 [self._binary_path, "metrics", "--input", str(input_path)],
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=self._timeout
             )
             
             if result.returncode != 0:
