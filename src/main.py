@@ -20,7 +20,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Dict, List, Optional
 
 
 class AgentState(Enum):
@@ -125,7 +125,7 @@ class SwarmOrchestrator:
     
     def __init__(self, state_file: str = ".swarm_state.json"):
         self.state_file = Path(state_file)
-        self.agents: dict[str, SovereignAgent] = {}
+        self.agents: Dict[str, SovereignAgent] = {}
         self._load_state()
     
     def _load_state(self) -> None:
@@ -163,7 +163,7 @@ class SwarmOrchestrator:
         with open(self.state_file, 'w') as f:
             json.dump(data, f, indent=2)
     
-    def spawn_agent(self, name: str, capabilities: Optional[list[str]] = None) -> SovereignAgent:
+    def spawn_agent(self, name: str, capabilities: Optional[List[str]] = None) -> SovereignAgent:
         """
         Spawn a new sovereign agent in the swarm.
         
@@ -191,7 +191,7 @@ class SwarmOrchestrator:
         
         return agent
     
-    def list_agents(self) -> list[SovereignAgent]:
+    def list_agents(self) -> List[SovereignAgent]:
         """List all agents in the swarm."""
         return list(self.agents.values())
     
@@ -204,16 +204,16 @@ class SwarmOrchestrator:
             "capabilities": self._aggregate_capabilities()
         }
     
-    def _aggregate_capabilities(self) -> dict[str, int]:
+    def _aggregate_capabilities(self) -> Dict[str, int]:
         """Aggregate capabilities across all active agents."""
-        caps: dict[str, int] = {}
+        caps: Dict[str, int] = {}
         for agent in self.agents.values():
             if agent.state == AgentState.ACTIVE:
                 for cap in agent.capabilities:
                     caps[cap.name] = caps.get(cap.name, 0) + 1
         return caps
     
-    def discover(self, capability: str) -> list[SovereignAgent]:
+    def discover(self, capability: str) -> List[SovereignAgent]:
         """
         Discover agents with a specific capability.
         

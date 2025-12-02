@@ -245,7 +245,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Dict, List, Optional
 
 
 class AgentState(Enum):
@@ -305,7 +305,7 @@ class SovereignAgent:
 class SwarmOrchestrator:
     def __init__(self, state_file: str = ".swarm_state.json"):
         self.state_file = Path(state_file)
-        self.agents: dict[str, SovereignAgent] = {}
+        self.agents: Dict[str, SovereignAgent] = {}
         self._load_state()
     
     def _load_state(self) -> None:
@@ -337,7 +337,7 @@ class SwarmOrchestrator:
         with open(self.state_file, 'w') as f:
             json.dump(data, f, indent=2)
     
-    def spawn_agent(self, name: str, capabilities: Optional[list[str]] = None) -> SovereignAgent:
+    def spawn_agent(self, name: str, capabilities: Optional[List[str]] = None) -> SovereignAgent:
         caps = [Capability(name=c) for c in (capabilities or [])]
         agent = SovereignAgent(name=name, capabilities=caps)
         agent.state = AgentState.ACTIVE
@@ -345,12 +345,12 @@ class SwarmOrchestrator:
         self._save_state()
         return agent
     
-    def list_agents(self) -> list[SovereignAgent]:
+    def list_agents(self) -> List[SovereignAgent]:
         return list(self.agents.values())
     
     def get_status(self) -> dict:
         active = sum(1 for a in self.agents.values() if a.state == AgentState.ACTIVE)
-        caps: dict[str, int] = {}
+        caps: Dict[str, int] = {}
         for agent in self.agents.values():
             if agent.state == AgentState.ACTIVE:
                 for cap in agent.capabilities:
