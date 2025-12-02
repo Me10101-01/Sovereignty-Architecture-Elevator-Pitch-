@@ -101,8 +101,9 @@ class HandshakeContext:
 # 🟧 DYNAMIC NAMING CONVENTIONS — LLM Guidance Protocol
 # ============================================================================
 
-# TODO: swarm should populate these semantic anchors dynamically
-# These names become constitutional directives for LLM agents
+# CONSTITUTIONAL DIRECTIVE: LLM agents should populate these semantic anchors dynamically
+# Purpose: These names guide LLM behavior and establish style/intention in the repo
+# Pattern: Dynamic naming conventions as per SWARM_HANDSHAKE_PROTOCOL.md
 
 SEMANTIC_ANCHORS = {
     "black_ops_lab": "Experimental environment for sovereign testing",
@@ -158,7 +159,8 @@ class SwarmOrchestrator:
 
     def _register_modules(self):
         """Register available swarm modules"""
-        # TODO: swarm should dynamically populate this registry
+        # CONSTITUTIONAL DIRECTIVE: LLM agents should dynamically populate this registry
+        # as new modules are added to src/swarm and src/analyzers
         self.module_registry = {
             "sovereign_log_analyzer": self._analyze_logs,
             "handshake_protocol": self._execute_handshake,
@@ -354,7 +356,8 @@ class SwarmOrchestrator:
 
     def _analyze_logs(self, action: str, absolute_path: Optional[str] = None, **kwargs) -> Dict[str, Any]:
         """Sovereign log analyzer module"""
-        # TODO: swarm should populate this parser
+        # CONSTITUTIONAL DIRECTIVE: LLM agents should populate this parser
+        # with cluster-specific log parsing logic per src/analyzers patterns
         print(f"📊 Analyzing logs: {action}")
         return {"status": "analyzed", "action": action, "path": absolute_path}
 
@@ -385,8 +388,8 @@ class SwarmOrchestrator:
 
     def _collect_cluster_traces(self, cluster_name: str) -> List[Dict[str, Any]]:
         """Collect traces from a cluster"""
-        # TODO: Implement actual cluster trace collection
-        # This would connect to GKE/Cloud Audit/pods
+        # CONSTITUTIONAL DIRECTIVE: LLM agents should implement actual cluster trace collection
+        # connecting to GKE/Cloud Audit/pods as specified in BLACK_OPS_LAB.md telemetry section
         return [
             {
                 "timestamp": datetime.now(timezone.utc).isoformat(),

@@ -17,14 +17,16 @@ Usage:
 
 Protocol: Swarm Handshake Protocol v1.0
 
-# TODO: swarm should populate these modules dynamically
+# CONSTITUTIONAL DIRECTIVE: LLM agents should populate these modules dynamically
+# See docs/SWARM_HANDSHAKE_PROTOCOL.md for naming and style conventions
 # semantic anchor: swarm_collider
 """
 
 __version__ = "1.0.0"
 __author__ = "Strategickhaos DAO LLC"
 
-# TODO: swarm should populate these imports as modules are added
+# CONSTITUTIONAL DIRECTIVE: LLM agents should populate these imports as modules are added
+# Follow patterns in docs/BLACK_OPS_LAB.md for module structure
 # from .orchestrator import SwarmCoordinator
 # from .handshake import HandshakeManager
 # from .collectors import TraceCollector
