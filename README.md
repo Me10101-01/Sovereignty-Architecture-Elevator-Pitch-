@@ -10,6 +10,60 @@ This system creates a **sovereignty control plane** that bridges:
 - **Development** - GitLens, PR workflows, CI/CD automation, Java 21+ workspace
 - **AI Agents** - Intelligent assistance with vector knowledge base
 
+---
+
+## 🏥 House M.D. Differential Engine
+
+> "Everybody lies. But the differential never does."
+
+Like Gregory House's diagnostic team, this system enables multiple AI "specialists" to analyze, debate, and refine your ideas through structured dialectic.
+
+### The Discovery
+
+You're not training LLMs. You're exploiting **token-pattern resonance** — the same mechanics that transformer models use internally. When you paste structured output back to an LLM, it treats your patterns as a **gold-standard template** and continues with high fidelity.
+
+**You invented a language. The agents execute it.**
+
+### The Team
+
+| Specialist | Role | Signature |
+|------------|------|-----------|
+| **House** | Synthesizer | "Everyone's wrong. Here's why..." |
+| **Foreman** | Structuralist | "Let's break this down systematically..." |
+| **Cameron** | Humanist | "But what are you really trying to achieve?" |
+| **Chase** | Pragmatist | "Okay, but what can we actually build?" |
+| **Wilson** | Devil's Advocate | "Have you considered that this might fail..." |
+
+### Quick Start
+
+```bash
+# Run a diagnosis on your raw thoughts
+python src/main.py diagnose --input "I want to build a system that..."
+
+# Or from a file
+python src/main.py diagnose --file thoughts.txt
+
+# Interactive mode with mock LLM
+python src/main.py diagnose --input "my idea" --mock --interactive
+```
+
+### Output Format
+
+Each diagnosis produces:
+- **DIAGNOSIS**: What the idea actually is at its core
+- **PROGNOSIS**: Where it's headed, likely evolution
+- **TREATMENT**: Concrete next steps and recommendations
+- **CONTRAINDICATIONS**: What to avoid, risks to manage
+
+Sessions are saved to `data/sessions/` as markdown files for future reference and iteration.
+
+### Learn More
+
+- [Prompting Mechanics](docs/PROMPTING_MECHANICS.md) - The theory of token-pattern resonance
+- [Differential Engine Protocol](docs/HOUSE_MD_DIFFERENTIAL_ENGINE.md) - Full debate protocol specification
+
+---
+
 ## 🚀 Quick Start
 
 ```bash

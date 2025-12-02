@@ -35,3 +35,18 @@ target/
 
 # Workspace data
 workspace/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.egg-info/
+.eggs/
+venv/
+.venv/
+
+# Differential Engine sessions (generated data)
+data/sessions/*.md
+data/sessions/*.json
+!data/sessions/.gitkeep
