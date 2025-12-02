@@ -1,0 +1,255 @@
+# Falco Configuration for Blue Team Cluster
+# Runtime security monitoring with custom rules
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-config
+  namespace: monitoring
+  labels:
+    app: falco
+    team: blue-team
+data:
+  falco.yaml: |
+    # Falco configuration for Blue Team defense
+    rules_file:
+      - /etc/falco/falco_rules.yaml
+      - /etc/falco/falco_rules.local.yaml
+      - /etc/falco/k8s_audit_rules.yaml
+      - /etc/falco/custom_rules.yaml
+    
+    json_output: true
+    json_include_output_property: true
+    
+    log_stderr: true
+    log_syslog: false
+    log_level: info
+    
+    priority: debug
+    
+    buffered_outputs: false
+    
+    outputs:
+      rate: 1
+      max_burst: 1000
+    
+    syslog_output:
+      enabled: false
+    
+    file_output:
+      enabled: true
+      keep_alive: false
+      filename: /var/log/falco/falco.log
+    
+    stdout_output:
+      enabled: true
+    
+    webserver:
+      enabled: true
+      listen_port: 8765
+      k8s_audit_endpoint: /k8s-audit
+      ssl_enabled: false
+    
+    grpc:
+      enabled: true
+      bind_address: "unix:///var/run/falco/falco.sock"
+      threadiness: 8
+    
+    grpc_output:
+      enabled: true
+  
+  custom_rules.yaml: |
+    # Custom Falco rules for Strategickhaos Blue Team
+    
+    # Detect container breakout attempts
+    - rule: Container Breakout Attempt
+      desc: Detect potential container breakout attempts
+      condition: >
+        spawned_process and container and
+        (proc.name in (nsenter, unshare, mount) or
+         fd.name startswith /proc/1 or
+         fd.name startswith /host)
+      output: >
+        Container breakout attempt detected
+        (user=%user.name command=%proc.cmdline container=%container.name)
+      priority: CRITICAL
+      tags: [container, breakout, red-team-simulation]
+    
+    # Detect privilege escalation
+    - rule: Privilege Escalation Attempt
+      desc: Detect privilege escalation attempts in containers
+      condition: >
+        spawned_process and container and
+        (proc.name in (sudo, su, chmod, chown) or
+         proc.args contains "0" and proc.name = chmod)
+      output: >
+        Privilege escalation attempt detected
+        (user=%user.name command=%proc.cmdline container=%container.name)
+      priority: WARNING
+      tags: [privilege, escalation, red-team-simulation]
+    
+    # Detect sensitive file access
+    - rule: Sensitive File Access
+      desc: Detect access to sensitive files
+      condition: >
+        open_read and container and
+        (fd.name in (/etc/shadow, /etc/passwd, /etc/hosts) or
+         fd.name startswith /etc/kubernetes or
+         fd.name startswith /var/run/secrets)
+      output: >
+        Sensitive file accessed
+        (user=%user.name file=%fd.name container=%container.name)
+      priority: WARNING
+      tags: [file, sensitive, red-team-simulation]
+    
+    # Detect network scanning
+    - rule: Network Scanning Activity
+      desc: Detect network scanning tools being used
+      condition: >
+        spawned_process and container and
+        proc.name in (nmap, masscan, zmap, nc, netcat)
+      output: >
+        Network scanning detected
+        (user=%user.name command=%proc.cmdline container=%container.name)
+      priority: WARNING
+      tags: [network, scanning, red-team-simulation]
+    
+    # Detect crypto mining
+    - rule: Crypto Mining Activity
+      desc: Detect crypto mining processes
+      condition: >
+        spawned_process and container and
+        (proc.name in (xmrig, cpuminer, minerd) or
+         proc.args contains "stratum+tcp")
+      output: >
+        Crypto mining detected
+        (user=%user.name command=%proc.cmdline container=%container.name)
+      priority: CRITICAL
+      tags: [crypto, mining, malware]
+    
+    # Detect reverse shell
+    - rule: Reverse Shell Attempt
+      desc: Detect reverse shell connections
+      condition: >
+        spawned_process and container and
+        ((proc.name in (bash, sh, zsh) and
+          fd.l4proto = tcp and
+          fd.sip != "127.0.0.1") or
+         proc.args contains "/dev/tcp")
+      output: >
+        Reverse shell attempt detected
+        (user=%user.name command=%proc.cmdline container=%container.name)
+      priority: CRITICAL
+      tags: [shell, reverse, red-team-simulation]
+    
+    # Detect RBAC policy changes
+    - rule: RBAC Policy Change
+      desc: Detect changes to RBAC policies
+      condition: >
+        ka.verb in (create, update, patch, delete) and
+        ka.target.resource in (roles, rolebindings, clusterroles, clusterrolebindings)
+      output: >
+        RBAC policy changed
+        (user=%ka.user.name verb=%ka.verb resource=%ka.target.resource name=%ka.target.name)
+      priority: WARNING
+      tags: [rbac, policy, kubernetes]
+    
+    # Detect secret access
+    - rule: Secret Access
+      desc: Detect access to Kubernetes secrets
+      condition: >
+        ka.verb = get and
+        ka.target.resource = secrets and
+        not ka.user.name startswith "system:"
+      output: >
+        Secret accessed
+        (user=%ka.user.name secret=%ka.target.name namespace=%ka.target.namespace)
+      priority: NOTICE
+      tags: [secret, access, kubernetes]
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: falco
+  namespace: monitoring
+  labels:
+    app: falco
+    team: blue-team
+spec:
+  selector:
+    matchLabels:
+      app: falco
+  template:
+    metadata:
+      labels:
+        app: falco
+        team: blue-team
+    spec:
+      serviceAccountName: falco
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: falco
+        image: falcosecurity/falco-no-driver:0.37.0
+        args:
+          - /usr/bin/falco
+          - -K
+          - /var/run/secrets/kubernetes.io/serviceaccount/token
+          - -k
+          - https://kubernetes.default.svc
+          - --modern-bpf
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: config
+          mountPath: /etc/falco
+        - name: grpc-socket-dir
+          mountPath: /var/run/falco
+        - name: logs
+          mountPath: /var/log/falco
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: config
+        configMap:
+          name: falco-config
+      - name: grpc-socket-dir
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: falco
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: falco
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "namespaces", "pods", "events"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: falco
+subjects:
+- kind: ServiceAccount
+  name: falco
+  namespace: monitoring
+roleRef:
+  kind: ClusterRole
+  name: falco
+  apiGroup: rbac.authorization.k8s.io

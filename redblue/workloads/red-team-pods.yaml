@@ -1,0 +1,280 @@
+# Red Team Synthetic Workloads
+# Safe test workloads for security testing - NO REAL MALWARE
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rbac-scanner
+  namespace: attack-simulation
+  labels:
+    app: rbac-scanner
+    team: red-team
+    type: scanner
+spec:
+  serviceAccountName: redteam-operator
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  containers:
+  - name: scanner
+    image: busybox:1.36
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        echo "RBAC Scanner - Synthetic Test Tool"
+        echo "Scanning for RBAC misconfigurations..."
+        while true; do
+          echo "[$(date)] Simulating RBAC audit..."
+          echo "- Checking overly permissive roles..."
+          echo "- Checking service account permissions..."
+          echo "- Checking cluster role bindings..."
+          sleep 60
+        done
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+      limits:
+        memory: "64Mi"
+        cpu: "100m"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: netpol-test
+  namespace: attack-simulation
+  labels:
+    app: netpol-test
+    team: red-team
+    type: network-test
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  containers:
+  - name: tester
+    image: busybox:1.36
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        echo "Network Policy Tester - Synthetic Test Tool"
+        echo "Testing network policy effectiveness..."
+        while true; do
+          echo "[$(date)] Testing network connectivity..."
+          echo "- Testing internal cluster DNS..."
+          echo "- Testing pod-to-pod communication..."
+          echo "- Verifying egress restrictions..."
+          sleep 60
+        done
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+      limits:
+        memory: "64Mi"
+        cpu: "100m"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: privesc-test
+  namespace: attack-simulation
+  labels:
+    app: privesc-test
+    team: red-team
+    type: privilege-test
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  containers:
+  - name: tester
+    image: busybox:1.36
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        echo "Privilege Escalation Tester - Synthetic Test Tool"
+        echo "Testing privilege escalation prevention..."
+        while true; do
+          echo "[$(date)] Simulating privilege escalation attempts..."
+          echo "- Testing setuid binaries..."
+          echo "- Testing capability escalation..."
+          echo "- Testing container breakout prevention..."
+          sleep 60
+        done
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+      limits:
+        memory: "64Mi"
+        cpu: "100m"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: synthetic-malware
+  namespace: synthetic-malware
+  labels:
+    app: synthetic-malware
+    team: red-team
+    type: synthetic-test
+  annotations:
+    description: "SAFE SYNTHETIC TEST - NOT REAL MALWARE"
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  containers:
+  - name: synthetic
+    image: busybox:1.36
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        echo "========================================"
+        echo "SYNTHETIC MALWARE SIMULATION"
+        echo "THIS IS NOT REAL MALWARE"
+        echo "FOR DETECTION TESTING ONLY"
+        echo "========================================"
+        echo ""
+        echo "Simulating malware behavior patterns..."
+        while true; do
+          echo "[$(date)] Simulating suspicious activity..."
+          echo "- Pattern: File system scanning"
+          echo "- Pattern: Process spawning"
+          echo "- Pattern: Network connection attempts"
+          echo "- All activities are SYNTHETIC and SAFE"
+          sleep 30
+        done
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+      limits:
+        memory: "64Mi"
+        cpu: "100m"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: breakout-sim
+  namespace: breakout-lab
+  labels:
+    app: breakout-sim
+    team: red-team
+    type: breakout-test
+  annotations:
+    description: "SAFE BREAKOUT SIMULATION - Tests container isolation"
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  containers:
+  - name: simulator
+    image: busybox:1.36
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        echo "========================================"
+        echo "CONTAINER BREAKOUT SIMULATION"
+        echo "FOR DETECTION TESTING ONLY"
+        echo "========================================"
+        echo ""
+        echo "Simulating container escape patterns..."
+        while true; do
+          echo "[$(date)] Simulating breakout patterns..."
+          echo "- Testing: /proc filesystem access"
+          echo "- Testing: Host path access attempts"
+          echo "- Testing: Namespace escape patterns"
+          echo "- All attempts are BLOCKED by security controls"
+          sleep 60
+        done
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+      limits:
+        memory: "64Mi"
+        cpu: "100m"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: supply-chain-test
+  namespace: supply-chain-lab
+  labels:
+    app: supply-chain-test
+    team: red-team
+    type: supply-chain
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  containers:
+  - name: tester
+    image: busybox:1.36
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        echo "========================================"
+        echo "SUPPLY CHAIN SECURITY TEST"
+        echo "FOR VULNERABILITY DETECTION ONLY"
+        echo "========================================"
+        echo ""
+        echo "Testing supply chain security..."
+        while true; do
+          echo "[$(date)] Scanning for vulnerabilities..."
+          echo "- Checking image signatures..."
+          echo "- Verifying SBOM compliance..."
+          echo "- Testing dependency scanning..."
+          sleep 120
+        done
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+      limits:
+        memory: "64Mi"
+        cpu: "100m"
