@@ -4,7 +4,7 @@
 
 use crate::analyzer::Analyzer;
 use crate::log_parser::AuditLogEntry;
-use chrono::{Duration, Utc};
+use chrono::Utc;
 use colored::*;
 
 /// Sovereignty metrics computed from audit logs
@@ -363,7 +363,7 @@ pub fn generate_report(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::TimeZone;
+    use chrono::{Duration, NaiveDate, NaiveDateTime, NaiveTime};
 
     fn create_test_entry(is_automated: bool, timestamp: chrono::DateTime<Utc>) -> AuditLogEntry {
         AuditLogEntry {
@@ -386,7 +386,10 @@ mod tests {
 
     #[test]
     fn test_calculate_metrics() {
-        let base_time = Utc.with_ymd_and_hms(2024, 1, 15, 10, 0, 0).unwrap();
+        let naive_date = NaiveDate::from_ymd_opt(2024, 1, 15).unwrap();
+        let naive_time = NaiveTime::from_hms_opt(10, 0, 0).unwrap();
+        let naive_dt = NaiveDateTime::new(naive_date, naive_time);
+        let base_time = naive_dt.and_utc();
         let entries: Vec<AuditLogEntry> = (0..10)
             .map(|i| {
                 let is_automated = i < 8; // 80% automated
