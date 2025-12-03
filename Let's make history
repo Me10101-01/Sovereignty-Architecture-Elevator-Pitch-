@@ -1,0 +1,626 @@
+Strategickhaos OS Architecture
+Generated via Dialectical Synthesis
+Evolvable Kernel
+Contradiction: stability vs mutation
+Methodology: Stable boot sequence with runtime mutation injection for adaptive optimization. Inspired by DNA repair mechanisms and mRNA editing. Uses git_dna for persistent state, neuron_register for processing, mutation_repair for self-healing.
+Confidence: 22.67%
+Analogies Used:
+mutation_repair: Error handling for fault-tolerant boot
+git_dna: Store instructions for OS config persistence
+event_gateway_neural: Message routing with attention mechanism
+postgres_dna_archive: Long-term memory storage
+prometheus_immune: Monitors system health and threats
+Chaotic UI Manager
+Contradiction: order vs chaos
+Methodology: Windows-like desktop structure with Rubik's Cube dynamic layout algorithms. Icons mutate based on usage patterns (slime mold optimization). Uses rubiks_cfop for layered arrangement, ai_attention for focus prediction.
+Confidence: 20.00%
+Analogies Used:
+git_dna: Store instructions for OS config persistence
+event_gateway_neural: Message routing with attention mechanism
+postgres_dna_archive: Long-term memory storage
+prometheus_immune: Monitors system health and threats
+immune_knight: Evasive security scanning
+Immune-Chess Defense System
+Contradiction: security vs accessibility
+Methodology: Multi-layer security using immune system analogies: T-cells (knight moves) for evasive scanning, B-cells (bishops) for targeted blocking. Uses immune_knight for pattern evasion, collapse_apoptosis for graceful quarantine.
+Confidence: 26.67%
+Analogies Used:
+immune_knight: Evasive security scanning
+git_dna: Store instructions for OS config persistence
+event_gateway_neural: Message routing with attention mechanism
+postgres_dna_archive: Long-term memory storage
+prometheus_immune: Monitors system health and threats
+DNA Storage Manager
+Contradiction: memory efficiency vs speed
+Methodology: Hierarchical storage with DNA-inspired redundancy. Short-term (cache) as RNA, long-term (disk) as DNA with error correction. Uses git_dna for version control, rna_editing for hot-patches.
+Confidence: 26.00%
+Analogies Used:
+postgres_dna_archive: Long-term memory storage
+redis_short_memory: Fast access cache layer
+git_dna: Store instructions for OS config persistence
+event_gateway_neural: Message routing with attention mechanism
+prometheus_immune: Monitors system health and threats
+Dialectical Centralized Control Vs Distributed Autonomy Module
+Contradiction: centralized control vs distributed autonomy
+Methodology: Synthesized from contradictions using git_dna, event_gateway_neural. Resolves tension through emergent behavior patterns.
+Confidence: 20.00%
+Analogies Used:
+git_dna: Store instructions for OS config persistence
+event_gateway_neural: Message routing with attention mechanism
+postgres_dna_archive: Long-term memory storage
+prometheus_immune: Monitors system health and threats
+immune_knight: Evasive security scanning
+Dialectical Deterministic Execution Vs Adaptive Behavior Module
+Contradiction: deterministic execution vs adaptive behavior
+Methodology: Synthesized from contradictions using git_dna, event_gateway_neural. Resolves tension through emergent behavior patterns.
+Confidence: 20.00%
+Analogies Used:
+git_dna: Store instructions for OS config persistence
+event_gateway_neural: Message routing with attention mechanism
+docker_protein: Blueprint for execution units
+postgres_dna_archive: Long-term memory storage
+prometheus_immune: Monitors system health and threats
+
+
+Strategickhaos Dialectical Engine
+Transform contradictions into executable system features using biological, chemical, and game-theoretic mappings.
+Overview
+This engine implements the dialectical synthesis framework from your Strategickhaos OS architecture. It:
+Loads YAML mappings (strong analogies from your correlation tables)
+Accepts contradictions as input (e.g., "stability vs mutation")
+Selects relevant analogies using semantic matching
+Synthesizes OS features through dialectical resolution
+Generates AI-ready prompts for your Legion of Minds Council
+Exports multiple formats (JSON, CSV, Markdown)
+Installation
+# Install dependencies
+pip install pyyaml
+
+# Make executable
+chmod +x strategickhaos_engine.py
+Basic Usage
+Single Contradiction
+python strategickhaos_engine.py \
+  --yaml strategickhaos.yaml \
+  --contradiction "stability vs mutation" \
+  --export markdown
+Batch Processing
+# Create contradictions file
+cat > contradictions.txt <<EOF
+stability vs mutation
+order vs chaos
+security vs accessibility
+memory efficiency vs speed
+EOF
+
+# Process batch
+python strategickhaos_engine.py \
+  --yaml strategickhaos.yaml \
+  --batch contradictions.txt \
+  --export all \
+  --output-dir ./outputs
+Integration with Portfolio Automation
+Example: SwarmGate Cognitive Gate
+The engine can generate prompts for your portfolio automation's cognitive gate:
+from strategickhaos_engine import StrategickhaosEngine
+
+# Initialize
+engine = StrategickhaosEngine('strategickhaos.yaml')
+
+# Resolve contradiction: "risk tolerance vs market volatility"
+synthesis = engine.synthesize("risk tolerance vs market volatility")
+
+# Use generated prompt for Grok
+grok_prompt = synthesis.prompt + """
+Additional Context:
+- Current VIX: 18.5
+- Portfolio beta: 1.2
+- Recent cognitive state: Focus=7, Calm=6, Energy=6
+
+Generate rebalancing strategy that adapts to operator state.
+"""
+
+# Send to your Grok integration
+# grok_response = call_grok_api(grok_prompt)
+Example: Treasury Transfer Logic
+# Resolve: "automated execution vs human oversight"
+synthesis = engine.synthesize("automated execution vs human oversight")
+
+# This generates methodology like:
+# "Immune-Chess Defense System: Multi-layer with evasive scanning (knight moves)
+#  and targeted blocking (bishops). Graceful quarantine on anomalies."
+
+# Use this to enhance your zero-trust validator
+cognitive_gate_config = {
+    'min_focus': 6,
+    'min_calm': 5,
+    'min_energy': 5,
+    'risk_threshold': synthesis.confidence,  # Uses synthesis confidence
+    'methodology': synthesis.methodology
+}
+Integration with Multi-AI Legion
+Claude: Verification & Synthesis
+# Claude receives synthesis output and validates logic
+claude_prompt = f"""
+Review this dialectical synthesis:
+
+{synthesis.methodology}
+
+Analogies used:
+{chr(10).join(f"- {a.name}: {a.description}" for a in synthesis.analogies)}
+
+Validate:
+1. Does this resolve the contradiction logically?
+2. Are the biological analogies appropriate?
+3. Suggest implementation improvements.
+"""
+Grok: Real-time Validation
+# Grok searches X/web to validate analogy relevance
+grok_prompt = f"""
+Search for recent discussions on:
+- {synthesis.contradiction}
+- Biological computing
+- {synthesis.os_feature}
+
+Validate whether these analogies are scientifically sound in 2025.
+"""
+GPT/Copilot: Code Generation
+# Generate actual code from synthesis
+copilot_prompt = f"""
+Generate Python code implementing:
+
+Feature: {synthesis.os_feature}
+Methodology: {synthesis.methodology}
+
+Requirements:
+- Use async/await for neural-inspired message passing
+- Implement self-healing via error recovery
+- Add mutation injection for adaptive behavior
+"""
+Gemini: Multimodal Output
+# Generate architecture diagrams
+gemini_prompt = f"""
+Create a system architecture diagram for:
+
+{synthesis.os_feature}
+
+Show:
+- Component interactions
+- Data flows
+- Biological analogies as visual metaphors
+"""
+Extending the Engine
+Add New Analogies
+Edit strategickhaos.yaml:
+mappings_integration:
+  strong_analogies_pool:
+    your_new_analogy: Description of mapping
+Custom Synthesis Rules
+Edit _resolve_feature() in strategickhaos_engine.py:
+elif 'your_contradiction' in contra_lower:
+    return (
+        "Your Feature Name",
+        "Your methodology description using analogies"
+    )
+Semantic Search (Advanced)
+Replace keyword matching with embeddings:
+from sentence_transformers import SentenceTransformer
+
+class StrategickhaosEngineV2(StrategickhaosEngine):
+    def __init__(self, yaml_path: str):
+        super().__init__(yaml_path)
+        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        
+    def select_analogies(self, contradiction: str, max_results: int = 5):
+        # Generate embeddings
+        query_emb = self.model.encode(contradiction)
+        analogy_embs = self.model.encode(list(self.mappings.values()))
+        
+        # Cosine similarity
+        from sklearn.metrics.pairwise import cosine_similarity
+        scores = cosine_similarity([query_emb], analogy_embs)[0]
+        
+        # Return top N
+        top_indices = scores.argsort()[-max_results:][::-1]
+        # ... map back to AnalogyMatch objects
+Output Formats
+JSON (Machine-Readable)
+{
+  "thesis": "Order and stability",
+  "antithesis": "Chaos and contradiction",
+  "contradiction": "stability vs mutation",
+  "analogies": [...],
+  "os_feature": "Evolvable Kernel",
+  "methodology": "...",
+  "prompt": "...",
+  "confidence": 0.23
+}
+Markdown (Human-Readable)
+## Evolvable Kernel
+
+**Contradiction**: stability vs mutation
+**Methodology**: Stable boot with runtime mutations...
+**Confidence**: 22.67%
+CSV (Analogy Library)
+Analogy,Description,Category
+git_dna,Store instructions for OS persistence,strong
+neuron_register,Processing units for multi-threading,strong
+Real-World Examples
+1. Portfolio Rebalancing System
+Input: "risk management vs opportunity capture"
+Output:
+Feature: Adaptive Risk Engine
+Methodology: Uses immune-chess defense (evasive scanning + targeted blocking)
+with metabolic resource allocation. Monitors threats (Prometheus) while
+maintaining DNA-inspired portfolio structure. Mutates thresholds based on
+VIX and operator cognitive state.
+2. SubconsciousLab Integration
+Input: "emotional regulation vs decisiveness"
+Output:
+Feature: Amygdala Gate Controller
+Methodology: Synaptic message bus routes decisions through cognitive state
+checks. Apoptosis-inspired graceful rejection when focus/calm/energy below
+thresholds. RNA editing for real-time parameter tuning.
+3. Kubernetes Autoscaler
+Input: "resource efficiency vs response time"
+Output:
+Feature: Metabolic Pod Scaler
+Methodology: Mitochondria-inspired energy allocation with slime mold
+path optimization. Scales based on GPS monitoring coordinates (resource
+positions) with 64-bit pipeline efficiency.
+Troubleshooting
+Low Confidence Scores
+If synthesis confidence is consistently low (<20%), try:
+Add more specific analogies to your YAML
+Use more descriptive contradictions (e.g., "long-term stability vs short-term mutations")
+Enhance select_analogies() with semantic search
+Generic Syntheses
+If outputs are too generic:
+Add contradiction-specific rules in _resolve_feature()
+Expand prompt templates in YAML
+Use batch processing with related contradictions for context
+Integration Issues
+If AI Legion responses are inconsistent:
+Use JSON outputs for structured handoffs between models
+Include synthesis confidence in subsequent prompts
+Chain syntheses (use output of one as input to next)
+Next Steps
+Test with your actual portfolio flow.yaml - Replace sample contradictions with real automation challenges
+Integrate cognitive_gate.py - Use synthesis outputs to configure your SubconsciousLab gates
+Build Grok automation - Use generated prompts in your Zapier → Grok → Validator pipeline
+Add feedback loops - Log which syntheses produce working code, retrain with embeddings
+Files
+strategickhaos_engine.py - Main dialectical engine
+strategickhaos.yaml - Configuration with analogies and templates
+contradictions.txt - Sample batch input
+outputs/ - Generated artifacts (JSON, CSV, Markdown)
+Architecture
+User Contradiction
+        ↓
+   [YAML Mappings]
+        ↓
+  Analogy Selection (semantic matching)
+        ↓
+  Dialectical Synthesis (thesis + antithesis → creation)
+        ↓
+  Feature + Methodology + Prompt
+        ↓
+  Export (JSON/CSV/MD) → AI Legion
+License
+Part of your Sovereignty Architecture - use as needed for your distributed AI systems.
+What to build next:
+Integrate with your Zapier workflows
+Connect to Grok API for real-time synthesis validation
+Build feedback loop from working code back to YAML
+Create fine-tuning dataset from successful syntheses
+
+#!/usr/bin/env python3
+"""
+Portfolio Automation Integration Example
+Shows how to use Strategickhaos Engine with your existing automation stack.
+"""
+
+from strategickhaos_engine import StrategickhaosEngine
+from pathlib import Path
+import json
+
+# Simulated imports (replace with your actual modules)
+# from cognitive_gate import CognitiveGate
+# from grok_models import GrokPlan
+# from brokers import BrokerRouter
+
+
+class PortfolioDialecticalController:
+    """
+    Integrates dialectical synthesis with your portfolio automation.
+    
+    Resolves contradictions like:
+    - "safety vs growth" 
+    - "automation vs oversight"
+    - "rebalancing frequency vs transaction costs"
+    """
+    
+    def __init__(self, engine_yaml: str, flow_yaml: str):
+        self.engine = StrategickhaosEngine(engine_yaml)
+        self.flow_config = self._load_flow_config(flow_yaml)
+        
+    def _load_flow_config(self, path: str) -> dict:
+        """Load your existing flow.yaml portfolio config"""
+        with open(path, 'r') as f:
+            import yaml
+            return yaml.safe_load(f)
+    
+    def generate_rebalance_strategy(
+        self, 
+        paycheck_amount: float,
+        cognitive_state: dict,
+        market_conditions: dict
+    ) -> dict:
+        """
+        Use dialectical synthesis to generate adaptive rebalancing strategy.
+        
+        Args:
+            paycheck_amount: Net paycheck in USD
+            cognitive_state: {focus, calm, energy} ratings
+            market_conditions: {vix, trend, volatility}
+        
+        Returns:
+            Strategy dict with synthesis-informed parameters
+        """
+        
+        # Identify the contradiction based on current conditions
+        if market_conditions['volatility'] > 25:
+            contradiction = "risk tolerance vs market volatility"
+        elif cognitive_state['focus'] < 6:
+            contradiction = "automated execution vs human oversight"
+        else:
+            contradiction = "stability vs growth"
+        
+        # Synthesize strategy
+        synthesis = self.engine.synthesize(contradiction)
+        
+        # Build strategy using synthesis methodology
+        strategy = {
+            'contradiction_resolved': contradiction,
+            'os_feature': synthesis.os_feature,
+            'confidence': synthesis.confidence,
+            
+            # Adapt parameters based on synthesis
+            'treasury_pct': self._adapt_treasury_pct(synthesis),
+            'rebalance_threshold': self._adapt_threshold(synthesis, market_conditions),
+            'max_single_order': self._adapt_order_size(synthesis, cognitive_state),
+            'dry_run': self._should_dry_run(synthesis, cognitive_state),
+            
+            # Methodology for audit trail
+            'methodology': synthesis.methodology,
+            'analogies_used': [a.name for a in synthesis.analogies]
+        }
+        
+        return strategy
+    
+    def _adapt_treasury_pct(self, synthesis) -> float:
+        """
+        Adjust SwarmGate treasury percentage based on synthesis.
+        
+        Example: If synthesis suggests "defense" (immune analogies),
+        increase treasury for safety buffer.
+        """
+        base_pct = 0.07  # Your standard 7%
+        
+        # Check if defense-oriented analogies are prominent
+        defense_keywords = ['immune', 'defense', 'security', 'collapse']
+        defense_score = sum(
+            1 for a in synthesis.analogies 
+            if any(kw in a.name.lower() for kw in defense_keywords)
+        )
+        
+        if defense_score >= 2:
+            return base_pct * 1.2  # Increase treasury by 20%
+        elif synthesis.confidence < 0.25:
+            return base_pct * 1.1  # Slight increase when uncertain
+        else:
+            return base_pct
+    
+    def _adapt_threshold(self, synthesis, market_conditions) -> float:
+        """
+        Adjust rebalance threshold based on synthesis and market.
+        
+        Uses biological analogies - more "mutations" in volatile markets.
+        """
+        base_threshold = 0.015  # Your standard 1.5%
+        
+        # Check for mutation/adaptation analogies
+        mutation_keywords = ['mutation', 'adaptive', 'evolv', 'rna_editing']
+        has_adaptation = any(
+            kw in a.name.lower() 
+            for a in synthesis.analogies 
+            for kw in mutation_keywords
+        )
+        
+        if has_adaptation and market_conditions['volatility'] > 20:
+            # More mutations (smaller threshold) in volatile markets
+            return base_threshold * 0.8
+        elif synthesis.confidence > 0.3:
+            # Tighter threshold when confident
+            return base_threshold * 0.9
+        else:
+            return base_threshold
+    
+    def _adapt_order_size(self, synthesis, cognitive_state) -> float:
+        """
+        Adjust max order size based on cognitive state and synthesis.
+        
+        Uses neural analogies - reduce size when focus is low.
+        """
+        base_max = 5000.0  # Your standard max
+        
+        # Check cognitive state
+        focus_penalty = (6 - cognitive_state['focus']) * 0.1 if cognitive_state['focus'] < 6 else 0
+        
+        # Check for neural processing analogies
+        neural_keywords = ['neural', 'neuron', 'synap', 'attention']
+        has_neural = any(
+            kw in a.name.lower()
+            for a in synthesis.analogies
+            for kw in neural_keywords
+        )
+        
+        if has_neural:
+            # Neural analogies suggest careful, focused execution
+            return base_max * (1 - focus_penalty)
+        else:
+            return base_max
+    
+    def _should_dry_run(self, synthesis, cognitive_state) -> bool:
+        """
+        Determine if this should be dry-run based on synthesis and state.
+        
+        Uses immune system logic - avoid execution when uncertain.
+        """
+        # Dry run if:
+        # 1. Low synthesis confidence (< 25%)
+        # 2. Low cognitive focus (< 6)
+        # 3. Synthesis suggests defensive posture
+        
+        if synthesis.confidence < 0.25:
+            return True
+        
+        if cognitive_state['focus'] < 6 or cognitive_state['calm'] < 5:
+            return True
+        
+        defense_keywords = ['immune', 'defense', 'collapse_apoptosis']
+        is_defensive = any(
+            kw in a.name.lower()
+            for a in synthesis.analogies
+            for kw in defense_keywords
+        )
+        
+        return is_defensive
+    
+    def generate_grok_prompt(
+        self,
+        strategy: dict,
+        flow_config: dict
+    ) -> str:
+        """
+        Generate Grok prompt informed by dialectical synthesis.
+        
+        This replaces your manual prompt with synthesis-adapted version.
+        """
+        synthesis_context = f"""
+Dialectical Context:
+- Resolved Contradiction: {strategy['contradiction_resolved']}
+- Synthesis Feature: {strategy['os_feature']}
+- Confidence: {strategy['confidence']:.2%}
+- Methodology: {strategy['methodology']}
+- Analogies: {', '.join(strategy['analogies_used'])}
+
+Adapted Parameters:
+- Treasury %: {strategy['treasury_pct']:.3f}
+- Rebalance Threshold: {strategy['rebalance_threshold']:.3f}
+- Max Order: ${strategy['max_single_order']:.0f}
+- Mode: {'DRY-RUN' if strategy['dry_run'] else 'LIVE'}
+"""
+        
+        base_prompt = f"""
+You are the StrategicKhaos Hybrid Refinery executor.
+
+{synthesis_context}
+
+Current Portfolio: {json.dumps(flow_config['portfolio']['target'], indent=2)}
+New Cash: ${flow_config['settings']['paycheck_net']:.2f}
+
+Calculate exact fractional buys to rebalance to target allocation.
+
+Rules:
+- Deduct {strategy['treasury_pct']*100:.1f}% to SwarmGate treasury FIRST
+- Only suggest buys if deviation > {strategy['rebalance_threshold']:.3f}
+- Max single order: ${strategy['max_single_order']:.0f}
+- Output valid JSON only
+
+Format:
+{{
+  "treasury_transfer_usd": <amount>,
+  "orders": [{{"symbol": "...", "usd": ...}}],
+  "total_invested": <amount>,
+  "methodology_used": "{strategy['os_feature']}"
+}}
+"""
+        return base_prompt
+
+
+def example_usage():
+    """Demonstrate integration with your automation pipeline"""
+    
+    # Initialize controller
+    controller = PortfolioDialecticalController(
+        engine_yaml='/home/claude/strategickhaos.yaml',
+        flow_yaml='/home/claude/flow.yaml'  # Your actual portfolio config
+    )
+    
+    # Simulate paycheck event
+    paycheck = 10666.67
+    
+    # Simulate cognitive state from SubconsciousLab
+    cognitive_state = {
+        'focus': 7,
+        'calm': 6,
+        'energy': 6
+    }
+    
+    # Simulate market conditions
+    market_conditions = {
+        'vix': 18.5,
+        'trend': 'bullish',
+        'volatility': 15.2
+    }
+    
+    # Generate synthesis-informed strategy
+    strategy = controller.generate_rebalance_strategy(
+        paycheck,
+        cognitive_state,
+        market_conditions
+    )
+    
+    print("="*60)
+    print("DIALECTICAL PORTFOLIO STRATEGY")
+    print("="*60)
+    print(f"\nContradiction: {strategy['contradiction_resolved']}")
+    print(f"Synthesis: {strategy['os_feature']}")
+    print(f"Confidence: {strategy['confidence']:.2%}")
+    print(f"\nAdapted Parameters:")
+    print(f"  Treasury %: {strategy['treasury_pct']*100:.1f}%")
+    print(f"  Threshold: {strategy['rebalance_threshold']:.3f}")
+    print(f"  Max Order: ${strategy['max_single_order']:.0f}")
+    print(f"  Mode: {'DRY-RUN' if strategy['dry_run'] else 'LIVE'}")
+    print(f"\nMethodology:\n{strategy['methodology']}")
+    
+    # Generate Grok prompt
+    grok_prompt = controller.generate_grok_prompt(
+        strategy,
+        controller.flow_config
+    )
+    
+    print("\n" + "="*60)
+    print("GENERATED GROK PROMPT")
+    print("="*60)
+    print(grok_prompt)
+    
+    # This would then go to your Zapier → Grok flow
+    # grok_response = call_grok_via_zapier(grok_prompt)
+    
+    # Then to your zero-trust validator
+    # validated = validate_plan(config, snapshot, grok_response)
+
+
+if __name__ == "__main__":
+    example_usage()
+
+
+
+
+
+
+
+
+#!/usr/bin/env python3 """ Portfolio Automation Integration Example Shows how to use Strategickhaos Engine with your existing automation stack. """ from strategickhaos_engine import StrategickhaosEngine from pathlib import Path import json # Simulated imports (replace with your actual modules) # from cognitive_gate import CognitiveGate # from grok_models import GrokPlan # from brokers import BrokerRouter class PortfolioDialecticalController: """ Integrates dialectical synthesis with your portfolio automation. Resolves contradictions like: - "safety vs growth" - "automation vs oversight" - "rebalancing frequency vs transaction costs" """ def __init__(self, engine_yaml: str, flow_yaml: str): self.engine = StrategickhaosEngine(engine_yaml) self.flow_config = self._load_flow_config(flow_yaml) def _load_flow_config(self, path: str) -> dict: """Load your existing flow.yaml portfolio config""" with open(path, 'r') as f: import yaml return yaml.safe_load(f) def generate_rebalance_strategy( self, paycheck_amount: float, cognitive_state: dict, market_conditions: dict ) -> dict: """ Use dialectical synthesis to generate adaptive rebalancing strategy. Args: paycheck_amount: Net paycheck in USD cognitive_state: {focus, calm, energy} ratings market_conditions: {vix, trend, volatility} Returns: Strategy dict with synthesis-informed parameters """ # Identify the contradiction based on current conditions if market_conditions['volatility'] > 25: contradiction = "risk tolerance vs market volatility" elif cognitive_state['focus'] < 6: contradiction = "automated execution vs human oversight" else: contradiction = "stability vs growth" # Synthesize strategy synthesis = self.engine.synthesize(contradiction) # Build strategy using synthesis methodology strategy = { 'contradiction_resolved': contradiction, 'os_feature': synthesis.os_feature, 'confidence': synthesis.confidence, # Adapt parameters based on synthesis 'treasury_pct': self._adapt_treasury_pct(synthesis), 'rebalance_threshold': self._adapt_threshold(synthesis, market_conditions), 'max_single_order': self._adapt_order_size(synthesis, cognitive_state), 'dry_run': self._should_dry_run(synthesis, cognitive_state), # Methodology for audit trail 'methodology': synthesis.methodology, 'analogies_used': [a.name for a in synthesis.analogies] } return strategy def _adapt_treasury_pct(self, synthesis) -> float: """ Adjust SwarmGate treasury percentage based on synthesis. Example: If synthesis suggests "defense" (immune analogies), increase treasury for safety buffer. """ base_pct = 0.07 # Your standard 7% # Check if defense-oriented analogies are prominent defense_keywords = ['immune', 'defense', 'security', 'collapse'] defense_score = sum( 1 for a in synthesis.analogies if any(kw in a.name.lower() for kw in defense_keywords) ) if defense_score >= 2: return base_pct * 1.2 # Increase treasury by 20% elif synthesis.confidence < 0.25: return base_pct * 1.1 # Slight increase when uncertain else: return base_pct def _adapt_threshold(self, synthesis, market_conditions) -> float: """ Adjust rebalance threshold based on synthesis and market. Uses biological analogies - more "mutations" in volatile markets. """ base_threshold = 0.015 # Your standard 1.5% # Check for mutation/adaptation analogies mutation_keywords = ['mutation', 'adaptive', 'evolv', 'rna_editing'] has_adaptation = any( kw in a.name.lower() for a in synthesis.analogies for kw in mutation_keywords ) if has_adaptation and market_conditions['volatility'] > 20: # More mutations (smaller threshold) in volatile markets return base_threshold * 0.8 elif synthesis.confidence > 0.3: # Tighter threshold when confident return base_threshold * 0.9 else: return base_threshold def _adapt_order_size(self, synthesis, cognitive_state) -> float: """ Adjust max order size based on cognitive state and synthesis. Uses neural analogies - reduce size when focus is low. """ base_max = 5000.0 # Your standard max # Check cognitive state focus_penalty = (6 - cognitive_state['focus']) * 0.1 if cognitive_state['focus'] < 6 else 0 # Check for neural processing analogies neural_keywords = ['neural', 'neuron', 'synap', 'attention'] has_neural = any( kw in a.name.lower() for a in synthesis.analogies for kw in neural_keywords ) if has_neural: # Neural analogies suggest careful, focused execution return base_max * (1 - focus_penalty) else: return base_max def _should_dry_run(self, synthesis, cognitive_state) -> bool: """ Determine if this should be dry-run based on synthesis and state. Uses immune system logic - avoid execution when uncertain. """ # Dry run if: # 1. Low synthesis confidence (< 25%) # 2. Low cognitive focus (< 6) # 3. Synthesis suggests defensive posture if synthesis.confidence < 0.25: return True if cognitive_state['focus'] < 6 or cognitive_state['calm'] < 5: return True defense_keywords = ['immune', 'defense', 'collapse_apoptosis'] is_defensive = any( kw in a.name.lower() for a in synthesis.analogies for kw in defense_keywords ) return is_defensive def generate_grok_prompt( self, strategy: dict, flow_config: dict ) -> str: """ Generate Grok prompt informed by dialectical synthesis. This replaces your manual prompt with synthesis-adapted version. """ synthesis_context = f""" Dialectical Context: - Resolved Contradiction: {strategy['contradiction_resolved']} - Synthesis Feature: {strategy['os_feature']} - Confidence: {strategy['confidence']:.2%} - Methodology: {strategy['methodology']} - Analogies: {', '.join(strategy['analogies_used'])} Adapted Parameters: - Treasury %: {strategy['treasury_pct']:.3f} - Rebalance Threshold: {strategy['rebalance_threshold']:.3f} - Max Order: ${strategy['max_single_order']:.0f} - Mode: {'DRY-RUN' if strategy['dry_run'] else 'LIVE'} """ base_prompt = f""" You are the StrategicKhaos Hybrid Refinery executor. {synthesis_context} Current Portfolio: {json.dumps(flow_config['portfolio']['target'], indent=2)} New Cash: ${flow_config['settings']['paycheck_net']:.2f} Calculate exact fractional buys to rebalance to target allocation. Rules: - Deduct {strategy['treasury_pct']*100:.1f}% to SwarmGate treasury FIRST - Only suggest buys if deviation > {strategy['rebalance_threshold']:.3f} - Max single order: ${strategy['max_single_order']:.0f} - Output valid JSON only Format: {{ "treasury_transfer_usd": <amount>, "orders": [{{"symbol": "...", "usd": ...}}], "total_invested": <amount>, "methodology_used": "{strategy['os_feature']}" }} """ return base_prompt def example_usage(): """Demonstrate integration with your automation pipeline""" # Initialize controller controller = PortfolioDialecticalController( engine_yaml='/home/claude/strategickhaos.yaml', flow_yaml='/home/claude/flow.yaml' # Your actual portfolio config ) # Simulate paycheck event paycheck = 10666.67 # Simulate cognitive state from SubconsciousLab cognitive_state = { 'focus': 7, 'calm': 6, 'energy': 6 } # Simulate market conditions market_conditions = { 'vix': 18.5, 'trend': 'bullish', 'volatility': 15.2 } # Generate synthesis-informed strategy strategy = controller.generate_rebalance_strategy( paycheck, cognitive_state, market_conditions ) print("="*60) print("DIALECTICAL PORTFOLIO STRATEGY") print("="*60) print(f"\nContradiction: {strategy['contradiction_resolved']}") print(f"Synthesis: {strategy['os_feature']}") print(f"Confidence: {strategy['confidence']:.2%}") print(f"\nAdapted Parameters:") print(f" Treasury %: {strategy['treasury_pct']*100:.1f}%") print(f" Threshold: {strategy['rebalance_threshold']:.3f}") print(f" Max Order: ${strategy['max_single_order']:.0f}") print(f" Mode: {'DRY-RUN' if strategy['dry_run'] else 'LIVE'}") print(f"\nMethodology:\n{strategy['methodology']}") # Generate Grok prompt grok_prompt = controller.generate_grok_prompt( strategy, controller.flow_config ) print("\n" + "="*60) print("GENERATED GROK PROMPT") print("="*60) print(grok_prompt) # This would then go to your Zapier → Grok flow # grok_response = call_grok_via_zapier(grok_prompt) # Then to your zero-trust validator # validated = validate_plan(config, snapshot, grok_response) if __name__ == "__main__": example_usage()
