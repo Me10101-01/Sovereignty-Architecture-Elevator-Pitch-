@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: queen-system
+  labels:
+    app.kubernetes.io/name: queen
+    app.kubernetes.io/part-of: strategickhaos
+    app.kubernetes.io/managed-by: deploy-to-gke
