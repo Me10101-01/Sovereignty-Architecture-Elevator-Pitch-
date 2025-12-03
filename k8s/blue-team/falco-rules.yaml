@@ -1,0 +1,111 @@
+# Custom Falco Rules for Blue Team Detection
+# These rules detect synthetic attack patterns from Red Team exercises
+
+customRules:
+  rules: |
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # STRATEGICKHAOS CUSTOM FALCO RULES - IDEA_101
+    # ═══════════════════════════════════════════════════════════════════════════════
+
+    # Detect cryptominer-like behavior
+    - rule: Strategickhaos Crypto Miner Detection
+      desc: Detects processes with mining-related command patterns
+      condition: >
+        spawned_process and
+        (proc.name in (xmrig, minerd, cpuminer, cgminer, bfgminer) or
+         proc.cmdline contains "stratum" or
+         proc.cmdline contains "pool" or
+         proc.cmdline contains "mining")
+      output: >
+        🔴 CRITICAL: Potential cryptominer detected 
+        (user=%user.name pod=%k8s.pod.name container=%container.name 
+        command=%proc.cmdline image=%container.image.repository)
+      priority: CRITICAL
+      tags: [cryptominer, threat, strategickhaos]
+
+    # Detect reverse shell attempts
+    - rule: Strategickhaos Reverse Shell Detection
+      desc: Detects outbound connections on common reverse shell ports
+      condition: >
+        (evt.type = connect and 
+         fd.sport in (4444, 4445, 5555, 1337, 31337) and
+         container.id != host)
+      output: >
+        🔴 CRITICAL: Potential reverse shell connection 
+        (user=%user.name pod=%k8s.pod.name dest=%fd.sip:%fd.sport 
+        container=%container.name)
+      priority: CRITICAL
+      tags: [reverse_shell, threat, strategickhaos]
+
+    # Detect metadata service access attempts
+    - rule: Strategickhaos Metadata Access Attempt
+      desc: Detects attempts to access cloud metadata service
+      condition: >
+        (evt.type = connect and 
+         fd.sip = "169.254.169.254" and
+         container.id != host)
+      output: >
+        🟠 WARNING: Metadata service access attempt 
+        (user=%user.name pod=%k8s.pod.name container=%container.name 
+        dest=%fd.sip:%fd.sport)
+      priority: WARNING
+      tags: [metadata, cloud, strategickhaos]
+
+    # Detect privilege escalation attempts
+    - rule: Strategickhaos Privilege Escalation
+      desc: Detects setuid/setgid calls from non-privileged containers
+      condition: >
+        (evt.type in (setuid, setgid) and
+         container.id != host and
+         not container.privileged)
+      output: >
+        🔴 CRITICAL: Privilege escalation attempt 
+        (user=%user.name pod=%k8s.pod.name syscall=%evt.type 
+        container=%container.name)
+      priority: CRITICAL
+      tags: [privilege_escalation, threat, strategickhaos]
+
+    # Detect sensitive file access
+    - rule: Strategickhaos Sensitive File Read
+      desc: Detects reads of sensitive files in containers
+      condition: >
+        (open_read and
+         (fd.name in (/etc/shadow, /etc/passwd, /etc/kubernetes/admin.conf) or
+          fd.name startswith "/var/run/secrets/kubernetes.io") and
+         container.id != host)
+      output: >
+        🟠 WARNING: Sensitive file access 
+        (user=%user.name pod=%k8s.pod.name file=%fd.name 
+        container=%container.name)
+      priority: WARNING
+      tags: [sensitive_file, threat, strategickhaos]
+
+    # Detect suspicious process spawning
+    - rule: Strategickhaos Shell Spawned
+      desc: Detects shell spawned in container
+      condition: >
+        (spawned_process and
+         proc.name in (bash, sh, dash, ash, zsh, ksh, tcsh, csh) and
+         container.id != host and
+         not proc.pname in (node, python, python3, java))
+      output: >
+        🟡 INFO: Shell spawned in container 
+        (user=%user.name pod=%k8s.pod.name shell=%proc.name 
+        parent=%proc.pname container=%container.name)
+      priority: INFO
+      tags: [shell, strategickhaos]
+
+    # Detect network scanning
+    - rule: Strategickhaos Network Scan Detection
+      desc: Detects potential port scanning activity
+      condition: >
+        (evt.type = connect and
+         fd.sport > 1024 and
+         container.id != host and
+         evt.res = ECONNREFUSED)
+      output: >
+        🟠 WARNING: Potential network scan 
+        (user=%user.name pod=%k8s.pod.name target=%fd.sip:%fd.sport 
+        container=%container.name)
+      priority: WARNING
+      tags: [network_scan, recon, strategickhaos]

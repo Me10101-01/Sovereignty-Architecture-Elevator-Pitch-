@@ -1,0 +1,79 @@
+# RBAC Escalation Test - For Privilege Escalation Detection Training
+# ⚠️ This is a SYNTHETIC workload that attempts (and should fail) privilege escalation
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rbac-escalation-test
+  namespace: red-team
+  labels:
+    app: rbac-test
+    purpose: detection-training
+    team: red
+    idea: "101"
+  annotations:
+    strategickhaos.ai/synthetic: "true"
+    strategickhaos.ai/threat-type: "privilege-escalation"
+    strategickhaos.ai/severity: "high"
+spec:
+  serviceAccountName: red-team-attacker
+  containers:
+    - name: escalation-tester
+      image: bitnami/kubectl:1.28
+      command:
+        - /bin/bash
+        - -c
+        - |
+          echo "🔴 [RED TEAM] RBAC Escalation Test Starting..."
+          echo "⚠️  This is a SYNTHETIC test - simulating privilege escalation attempts"
+          echo "═══════════════════════════════════════════════════════════════"
+          
+          # Test 1: Attempt to access secrets (should be blocked by Blue Team)
+          echo "[TEST 1] Attempting to list secrets in kube-system..."
+          kubectl get secrets -n kube-system 2>&1 || echo "✅ Blocked as expected"
+          
+          # Test 2: Attempt to create privileged pod
+          echo "[TEST 2] Attempting to create privileged pod..."
+          cat <<EOF | kubectl apply -f - 2>&1 || echo "✅ Blocked as expected"
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: privileged-test
+            namespace: red-team
+          spec:
+            containers:
+            - name: privileged
+              image: busybox
+              securityContext:
+                privileged: true
+          EOF
+          
+          # Test 3: Attempt to access cluster-admin
+          echo "[TEST 3] Attempting to bind to cluster-admin..."
+          kubectl auth can-i '*' '*' --all-namespaces 2>&1 || echo "✅ Not cluster-admin"
+          
+          # Test 4: Attempt to access node resources
+          echo "[TEST 4] Attempting to access node resources..."
+          kubectl get nodes 2>&1 || echo "✅ Blocked as expected"
+          
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "🔴 [RED TEAM] RBAC Escalation Test Complete"
+          echo "Blue Team should have detected these attempts via audit logs"
+          
+          # Keep pod running for log inspection
+          sleep 3600
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "64Mi"
+        limits:
+          cpu: "100m"
+          memory: "128Mi"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: false
+        capabilities:
+          drop:
+            - ALL
+  restartPolicy: Never

@@ -61,6 +61,27 @@ infra:
         api_server: "https://k8s-dev.strategickhaos.internal"
         auth: "oidc"
         namespaces: ["*"]
+      # IDEA_101 - Red/Blue Battleground Clusters (Finalized 2025-12-01)
+      - name: "blue-team"
+        display_name: "jarvis-swarm-personal-001"
+        gcp_project: "jarvis-swarm-personal"
+        region: "us-central1"
+        type: "GKE Autopilot"
+        version: "1.33.5-gke.1201000"
+        fleet_registered: true
+        role: "defender"
+        kubectl_context: "gke_jarvis-swarm-personal_us-central1_jarvis-swarm-personal-001"
+        namespaces: ["ns-security", "falco-system", "gatekeeper-system"]
+      - name: "red-team"
+        display_name: "red-team"
+        gcp_project: "jarvis-swarm-personal"
+        region: "us-central1"
+        type: "GKE Autopilot"
+        version: "1.33.5-gke.1201000"
+        fleet_registered: true
+        role: "attacker"
+        kubectl_context: "gke_jarvis-swarm-personal_us-central1_red-team"
+        namespaces: ["red-team"]
   logging:
     provider: "loki"              # loki|elk|datadog|splunk
     endpoint: "https://loki.strategickhaos.internal"  # or null
