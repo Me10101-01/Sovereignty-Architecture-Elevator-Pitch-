@@ -84,20 +84,43 @@ app.all('/route/:service/*', async (req, res) => {
   }
   
   const serviceInfo = serviceRegistry.get(service);
-  const targetUrl = `${serviceInfo.url}/${servicePath}`;
+  
+  // Construct URL properly to avoid double slashes
+  const baseUrl = serviceInfo.url.replace(/\/+$/, '');
+  const path = servicePath.replace(/^\/+/, '');
+  const targetUrl = path ? `${baseUrl}/${path}` : baseUrl;
   
   try {
+    // Prepare headers, preserving original Content-Type if present
+    const forwardHeaders = { ...req.headers };
+    delete forwardHeaders.host; // Don't forward host header
+    
+    // Prepare body for methods that support it
+    let body;
+    if (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body) {
+      const contentType = req.headers['content-type'] || 'application/json';
+      if (contentType.includes('application/json') && typeof req.body === 'object') {
+        body = JSON.stringify(req.body);
+      } else if (typeof req.body === 'string') {
+        body = req.body;
+      }
+    }
+    
     const response = await fetch(targetUrl, {
       method: req.method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...req.headers
-      },
-      body: ['POST', 'PUT', 'PATCH'].includes(req.method) ? JSON.stringify(req.body) : undefined
+      headers: forwardHeaders,
+      body
     });
     
-    const data = await response.json();
-    res.status(response.status).json(data);
+    // Check Content-Type and handle response accordingly
+    const responseContentType = response.headers.get('content-type') || '';
+    if (responseContentType.includes('application/json')) {
+      const data = await response.json();
+      res.status(response.status).json(data);
+    } else {
+      const text = await response.text();
+      res.status(response.status).type(responseContentType || 'text/plain').send(text);
+    }
   } catch (error) {
     console.error(`[Queen] Route error to ${service}:`, error.message);
     res.status(502).json({ error: `Failed to route to ${service}`, details: error.message });
