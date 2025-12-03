@@ -1,5 +1,16 @@
 # Queen Deployment Configuration
 # Deploys Queen orchestrator to GKE jarvis-swarm-personal-001
+#
+# ⚠️ PRODUCTION NOTE:
+# This deployment uses a placeholder Node.js image with an inline health check server.
+# For production use, replace the image with your actual Queen application:
+#   image: ghcr.io/strategickhaos-swarm-intelligence/queen:latest
+#
+# The inline server is provided for initial deployment verification only.
+# Build and push your production image:
+#   docker build -t ghcr.io/strategickhaos-swarm-intelligence/queen:v1.0.0 .
+#   docker push ghcr.io/strategickhaos-swarm-intelligence/queen:v1.0.0
+#
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -9,6 +20,8 @@ metadata:
     app: strategickhaos-queen
     component: orchestrator
     tier: control-plane
+  annotations:
+    description: "Queen Orchestrator - Central control plane for Strategickhaos Sovereign Mesh"
 spec:
   replicas: 2
   strategy:
@@ -40,11 +53,13 @@ spec:
       # GKE Autopilot-compatible resource requests
       containers:
         - name: queen
+          # ⚠️ PLACEHOLDER IMAGE - Replace with production image:
+          # image: ghcr.io/strategickhaos-swarm-intelligence/queen:latest
           image: node:18-alpine
           imagePullPolicy: IfNotPresent
           
-          # Override entrypoint for initial deployment
-          # Replace with actual Queen application image later
+          # Inline health check server for deployment verification
+          # ⚠️ REMOVE this command block when using production image
           command:
             - /bin/sh
             - -c

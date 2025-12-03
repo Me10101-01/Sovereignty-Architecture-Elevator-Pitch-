@@ -1,5 +1,9 @@
 # Queen Ingress Configuration
 # Configures ingress for queen.strategickhaos.ai
+#
+# ⚠️ DEPLOYMENT ORDER:
+# The ManagedCertificate must be created before or with the Ingress.
+# Use: kubectl apply -f ingress.yaml (applies all resources in order)
 ---
 # GKE Ingress for queen.strategickhaos.ai
 apiVersion: networking.k8s.io/v1
@@ -16,6 +20,7 @@ metadata:
     kubernetes.io/ingress.global-static-ip-name: "queen-static-ip"
     
     # Enable Google-managed SSL certificate
+    # Note: ManagedCertificate 'queen-ssl-cert' is defined below and will be created first
     networking.gke.io/managed-certificates: "queen-ssl-cert"
     
     # HTTP to HTTPS redirect

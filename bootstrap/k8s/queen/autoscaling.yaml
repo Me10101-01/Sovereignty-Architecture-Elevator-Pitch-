@@ -91,14 +91,14 @@ spec:
     - Egress
   
   ingress:
-    # Allow traffic from ingress controller
+    # Allow traffic from GKE Ingress controller (gce class)
     - from:
         - namespaceSelector:
             matchLabels:
-              name: ingress-nginx
+              name: gke-system
         - namespaceSelector:
             matchLabels:
-              name: gke-system
+              name: kube-system
       ports:
         - protocol: TCP
           port: 3000
