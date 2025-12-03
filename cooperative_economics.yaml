@@ -1,0 +1,333 @@
+# cooperative_economics.yaml
+# Strategickhaos DAO LLC / Valoryield Engine
+# Dividend Logic and Revenue Distribution Model
+# Version: 1.0
+# Date: 2025-12-03
+
+version: "1.0"
+created: "2025-12-03"
+document_type: "cooperative_economics"
+
+# Core Economic Philosophy
+philosophy:
+  summary: |
+    Let the system earn.
+    Use all revenue to pay people's bills.
+    I just need my bills covered so I can build.
+  
+  principles:
+    - name: "System Earns"
+      description: "AI and automation generate revenue, not exploited labor"
+    - name: "Revenue to Bills"
+      description: "All surplus goes to member bill assistance"
+    - name: "Builder Sustainability"
+      description: "Core team gets survival stipend, not profit extraction"
+  
+  differentiation:
+    from_charity: "Members participate and contribute, not just receive"
+    from_corporation: "No shareholder extraction, mission-locked distribution"
+    from_bank: "No predatory lending, no hidden fees, no middlemen"
+
+# Cooperative Model Type
+cooperative_model:
+  type: "hybrid_dao_cooperative"
+  influences:
+    - model: "Credit Union"
+      adopted: ["member ownership", "democratic governance", "surplus distribution"]
+    - model: "Worker Cooperative"
+      adopted: ["worker participation", "profit sharing"]
+    - model: "DAO"
+      adopted: ["code-enforced rules", "transparent treasury", "token governance"]
+    - model: "B-Corp"
+      adopted: ["mission lock", "benefit stakeholders", "accountability"]
+
+# Revenue Streams
+revenue_streams:
+  primary:
+    - source: "SovereignMesh Compute Services"
+      description: "AI and compute services for external clients"
+      allocation: "general_fund"
+      
+    - source: "Cooperative Membership Fees"
+      description: "Voluntary tiered membership contributions"
+      allocation: "operating_fund"
+      
+    - source: "Educational Programs"
+      description: "Paid courses and certifications"
+      allocation: "education_fund"
+      
+    - source: "Consulting Services"
+      description: "Cybersecurity and AI consulting"
+      allocation: "general_fund"
+  
+  secondary:
+    - source: "Grants"
+      description: "Public benefit and social impact grants"
+      allocation: "benefit_fund"
+      
+    - source: "Donations"
+      description: "Individual and corporate donations"
+      allocation: "benefit_fund"
+      
+    - source: "Investment Returns"
+      description: "Conservative treasury investment"
+      allocation: "reserve_fund"
+
+# Dividend Engine Rules
+dividend_engine:
+  rule_name: "40% Direct Benefit Allocation"
+  description: "40% of gross revenue allocated to direct member benefits (minimum 7% guaranteed even in low-revenue periods)"
+  minimum_guarantee: "7%"
+  minimum_guarantee_note: "Even if revenue is low, at least 7% of all income goes directly to member benefits"
+  
+  # Allocation tiers total 100% of revenue
+  # 30% + 15% + 40% + 10% + 5% = 100%
+  allocation_tiers:
+    tier_1:
+      name: "Operating Costs"
+      percentage: 30
+      priority: 1
+      components:
+        - "Infrastructure maintenance"
+        - "Security and compliance"
+        - "Platform development"
+        
+    tier_2:
+      name: "Builder Sustainability"
+      percentage: 15
+      priority: 2
+      description: "Core team survival stipends (not profit)"
+      cap: "Cost of living + 10% buffer"
+      
+    tier_3:
+      name: "Direct Member Benefits"
+      percentage: 40
+      priority: 3
+      sub_allocations:
+        utility_assistance:
+          percentage: 50
+          description: "Direct utility bill payments"
+        emergency_fund:
+          percentage: 30
+          description: "Emergency financial assistance"
+        education_grants:
+          percentage: 20
+          description: "Skill building and certification"
+          
+    tier_4:
+      name: "Reserve Fund"
+      percentage: 10
+      priority: 4
+      description: "Emergency reserves and stability"
+      
+    tier_5:
+      name: "Community Reinvestment"
+      percentage: 5
+      priority: 5
+      description: "New member onboarding and expansion"
+
+# Bill Payment Automation
+bill_payment_system:
+  name: "Direct Bill-Pay Automation"
+  description: "AI-powered automatic bill payment for qualifying members"
+  
+  eligibility_criteria:
+    - criterion: "Active membership"
+      required: true
+    - criterion: "Need verification"
+      method: "Income documentation or self-attestation"
+      required: true
+    - criterion: "Participation"
+      description: "Contribution to cooperative (work, time, or resources)"
+      required: "encouraged but not mandatory"
+  
+  payment_flow:
+    step_1:
+      action: "Member submits utility bill"
+      method: "Upload or API integration"
+    step_2:
+      action: "AI verifies legitimacy"
+      method: "OCR and provider verification"
+    step_3:
+      action: "Need assessment"
+      method: "Income-based priority scoring"
+    step_4:
+      action: "Payment queue"
+      method: "FIFO with priority override for emergencies"
+    step_5:
+      action: "Direct payment"
+      method: "ACH or provider payment portal"
+    step_6:
+      action: "Confirmation and logging"
+      method: "Member notification and public ledger"
+  
+  supported_bills:
+    - type: "electricity"
+      priority: "high"
+    - type: "gas"
+      priority: "high"
+    - type: "water"
+      priority: "high"
+    - type: "internet"
+      priority: "medium"
+      rationale: "Essential for remote work and education"
+    - type: "phone"
+      priority: "medium"
+    - type: "rent_assistance"
+      priority: "emergency_only"
+      cap: "Limited pool allocation"
+
+# Membership Tiers
+membership:
+  principle: "Anyone can join the fun"
+  
+  tiers:
+    tier_free:
+      name: "Community Member"
+      fee: 0
+      access:
+        - "Public resources"
+        - "Community forums"
+        - "Basic educational content"
+      voting_weight: 1
+      
+    tier_contributing:
+      name: "Contributing Member"
+      fee: "What you can afford ($1-$50/month)"
+      access:
+        - "All community member benefits"
+        - "Priority support channels"
+        - "Advanced educational content"
+        - "Bill assistance eligibility"
+      voting_weight: 1
+      
+    tier_sustaining:
+      name: "Sustaining Member"
+      fee: "$51-$200/month"
+      access:
+        - "All contributing member benefits"
+        - "Direct mentorship"
+        - "Compute credits"
+        - "Higher bill assistance priority"
+      voting_weight: 1
+      
+    tier_builder:
+      name: "Builder Member"
+      fee: "Contribution of work/code/time (in lieu of money)"
+      access:
+        - "All sustaining member benefits"
+        - "Builder stipend eligibility"
+        - "Infrastructure access"
+        - "Governance participation"
+      voting_weight: 1
+  
+  equality_clause: |
+    All members have equal voting rights regardless of contribution level.
+    Money does not buy power. Participation does not buy power.
+    One member = one vote.
+
+# Transparency Requirements
+transparency:
+  public_ledger:
+    enabled: true
+    includes:
+      - "All revenue sources and amounts"
+      - "All expenditures by category"
+      - "Bill payments (anonymized recipient)"
+      - "Reserve fund balance"
+      - "Member count by tier"
+    excludes:
+      - "Individual member identities"
+      - "Specific bill details"
+      - "Private member information"
+  
+  reporting:
+    frequency: "monthly"
+    format: "Public markdown report"
+    location: "Repository + website"
+    audit: "Annual third-party audit"
+  
+  real_time_dashboard:
+    enabled: true
+    metrics:
+      - "Total members"
+      - "Bills paid this month"
+      - "Total value distributed"
+      - "Treasury balance"
+      - "Revenue by source"
+
+# Anti-Extraction Rules
+anti_extraction:
+  rules:
+    - rule: "No private profit distribution"
+      description: "Surplus goes to members and public benefit, never to investors"
+      enforcement: "Smart contract lock"
+      
+    - rule: "Founder salary cap"
+      description: "Core team compensation capped at cost of living + 10%"
+      enforcement: "Public accountability"
+      
+    - rule: "No equity sales"
+      description: "Cannot sell ownership stake to outside investors"
+      enforcement: "Operating agreement"
+      
+    - rule: "Mission lock"
+      description: "Cannot change public benefit mission without supermajority member vote"
+      enforcement: "Wyoming PBC law + operating agreement"
+      
+    - rule: "No hidden fees"
+      description: "All costs transparent and documented"
+      enforcement: "Public ledger"
+
+# Sustainability Model
+sustainability:
+  revenue_targets:
+    minimum_operating: "Cover infrastructure + security + one builder"
+    growth_phase: "Cover full team + 50% to member benefits"
+    mature_phase: "80% of surplus to member benefits"
+  
+  builder_sustainability:
+    philosophy: "Just cover my bills so I can build"
+    implementation:
+      - "Housing costs covered"
+      - "Utilities covered"
+      - "Health insurance covered"
+      - "Basic living expenses covered"
+      - "No luxury extraction"
+      - "No profit accumulation"
+    
+  emergency_reserves:
+    target: "6 months operating costs"
+    usage: "Only for existential threats to cooperative"
+    governance: "Supermajority vote required for access"
+
+# Governance Integration
+governance:
+  decision_making:
+    operational: "AI Council + Builder Team"
+    strategic: "Full member vote"
+    mission_changes: "Supermajority (66%) member vote"
+    emergency: "Builder team with 48-hour member notification"
+  
+  ai_council_role:
+    - "Prioritize bill payment queue"
+    - "Verify eligibility claims"
+    - "Optimize resource allocation"
+    - "Flag anomalies for human review"
+  
+  human_override:
+    enabled: true
+    trigger: "Any member can request human review"
+    response_time: "24 hours"
+
+# Document Metadata
+metadata:
+  version: "1.0"
+  created: "2025-12-03"
+  author: "Strategickhaos AI Council"
+  classification: "public"
+  license: "MIT"
+  related_documents:
+    - "public_benefit_framework.yaml"
+    - "MEMBERSHIP_CHARTER.md"
+    - "ai_constitution.yaml"
