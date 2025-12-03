@@ -239,4 +239,15 @@ The result is a **self-improving DevOps ecosystem** that generates revenue while
 
 ---
 
+## 🜂 The Dialectical Path
+
+For the philosophical foundation of this system, see:
+
+- **[The Dialectical Path (Option F)](DIALECTICAL_PATH.md)** — The Sovereign Path methodology
+- **[F-Roadmap](F_ROADMAP.md)** — Dream-to-Reality implementation phases
+
+> *"We never pick only options. We create and convert contradiction into creation."*
+
+---
+
 *"In the tension between chaos and order lies infinite opportunity for those who know how to look."*
