@@ -303,9 +303,10 @@ delete_deployment() {
     echo_banner
     echo_step "Deleting Queen deployment..."
     
-    read -p "Are you sure you want to delete the Queen deployment? [y/N] " -n 1 -r
+    local reply
+    read -p "Are you sure you want to delete the Queen deployment? [y/N] " -n 1 -r reply
     echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    if [[ ! $reply =~ ^[Yy]$ ]]; then
         echo "Aborted."
         exit 0
     fi

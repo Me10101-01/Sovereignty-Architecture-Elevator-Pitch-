@@ -378,7 +378,10 @@ function escapeHtml(text) {
 const server = http.createServer((req, res) => {
   handleRequest(req, res).catch(err => {
     log.error('Unhandled error:', err);
-    sendJSON(res, 500, { error: 'Internal server error' });
+    // Only send error response if headers haven't been sent yet
+    if (!res.headersSent) {
+      sendJSON(res, 500, { error: 'Internal server error' });
+    }
   });
 });
 

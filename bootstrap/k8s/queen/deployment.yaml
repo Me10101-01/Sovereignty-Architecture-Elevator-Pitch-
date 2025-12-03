@@ -369,7 +369,10 @@ data:
     const server = http.createServer((req, res) => {
       handleRequest(req, res).catch(err => {
         console.error('[ERROR] Unhandled error:', err);
-        sendJSON(res, 500, { error: 'Internal server error' });
+        // Only send error response if headers haven't been sent yet
+        if (!res.headersSent) {
+          sendJSON(res, 500, { error: 'Internal server error' });
+        }
       });
     });
 
@@ -378,10 +381,10 @@ data:
     ╔══════════════════════════════════════════════╗
     ║               👑 QUEEN ONLINE 👑              ║
     ╠══════════════════════════════════════════════╣
-    ║  Port: ${PORT}                                   ║
-    ║  Domain: ${QUEEN_DOMAIN || 'localhost'}
-    ║  GitHub App: ${GITHUB_APP_ID}
-    ║  Installation: ${GITHUB_APP_INSTALLATION_ID}
+    ║  Port: ${String(PORT).padEnd(37)}║
+    ║  Domain: ${(QUEEN_DOMAIN || 'localhost').padEnd(35)}║
+    ║  GitHub App: ${(GITHUB_APP_ID || 'N/A').padEnd(31)}║
+    ║  Installation: ${(GITHUB_APP_INSTALLATION_ID || 'N/A').padEnd(28)}║
     ╚══════════════════════════════════════════════╝
       `);
     });
