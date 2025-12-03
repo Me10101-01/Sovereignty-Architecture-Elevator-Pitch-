@@ -272,6 +272,33 @@ kubectl logs -f deployment/event-gateway -n ops
 curl -X POST https://events.strategickhaos.com/health
 ```
 
+## ❤️ Public Benefit Mission
+
+This project operates as a **Public Benefit Corporation + DAO Hybrid**, built on three founding principles:
+
+> "People are getting ripped off. I can build something better."  
+> "I only need enough to survive so I can keep building."  
+> "Anyone can join the fun."
+
+### Core Documents
+
+- **[Public Benefit Mission](PUBLIC_BENEFIT_MISSION.md)** - Our founding philosophy and mission statement
+- **[Membership Charter](MEMBERSHIP_CHARTER.md)** - How anyone can join the cooperative
+- **[Cooperative Economics](cooperative_economics.yaml)** - Dividend logic and revenue distribution
+- **[Public Benefit Framework](public_benefit_framework.yaml)** - Structured benefit categories
+
+### The Five Pillars
+
+| Pillar | Focus |
+|--------|-------|
+| **A) Help the Exploited** | Utility bills, debt traps, scam protection |
+| **B) Support the Underserved** | Single parents, disabled, veterans |
+| **C) Empower the Builders** | Cover bills so minds are free to create |
+| **D) Cooperative Financial OS** | Anyone can join, democratic governance |
+| **E) Full Values-Aligned Launch** | ALL OF THE ABOVE ✅ |
+
+*Just code → public good. No middlemen. No banks. No predatory loops.*
+
 ## 👥 Community & Contributors
 
 This project thrives because of an extraordinary community of creators, builders, and visionaries who choose to contribute not out of obligation, but out of love for what we're building together.
