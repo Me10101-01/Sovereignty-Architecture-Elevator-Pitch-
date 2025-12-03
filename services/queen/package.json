@@ -1,0 +1,23 @@
+{
+  "name": "queen",
+  "version": "1.0.0",
+  "description": "Queen orchestrator - SovereignMesh Node control plane",
+  "type": "module",
+  "main": "queen.js",
+  "scripts": {
+    "start": "node queen.js",
+    "dev": "node --watch queen.js"
+  },
+  "keywords": [
+    "orchestrator",
+    "sovereignty",
+    "mesh",
+    "github-app"
+  ],
+  "author": "Strategic Khaos",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.1",
+    "@octokit/webhooks": "^13.3.0"
+  }
+}
