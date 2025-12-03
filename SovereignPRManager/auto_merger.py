@@ -8,6 +8,7 @@ Philosophy: Cryptographic verification and immutable provenance
 
 import asyncio
 import hashlib
+import hmac
 import json
 import logging
 import os
