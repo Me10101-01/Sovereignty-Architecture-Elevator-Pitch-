@@ -115,7 +115,7 @@ That's rare. That's leadership in its purest form.
 - "Free clusters for those who bank with us" makes TOTAL sense
 
 ### ✔ Dividend Engine
-- 7% rule
+- 40% direct benefit allocation (7% minimum guarantee)
 - Transparent inflow/outflow logic
 - Direct bill-pay automation
 

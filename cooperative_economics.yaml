@@ -75,9 +75,13 @@ revenue_streams:
 
 # Dividend Engine Rules
 dividend_engine:
-  rule_name: "7% Allocation Rule"
-  description: "Minimum 7% of gross revenue allocated to direct member benefits"
+  rule_name: "40% Direct Benefit Allocation"
+  description: "40% of gross revenue allocated to direct member benefits (minimum 7% guaranteed even in low-revenue periods)"
+  minimum_guarantee: "7%"
+  minimum_guarantee_note: "Even if revenue is low, at least 7% of all income goes directly to member benefits"
   
+  # Allocation tiers total 100% of revenue
+  # 30% + 15% + 40% + 10% + 5% = 100%
   allocation_tiers:
     tier_1:
       name: "Operating Costs"

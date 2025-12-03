@@ -207,7 +207,7 @@ legal_stack:
     
   dividend_engine:
     enabled: true
-    rule: "7% allocation rule"
+    rule: "40% direct benefit allocation (7% minimum guarantee)"
     features:
       - "Transparent inflow/outflow logic"
       - "Direct bill-pay automation"
