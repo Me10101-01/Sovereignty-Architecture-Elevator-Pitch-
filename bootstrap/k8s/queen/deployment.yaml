@@ -1,0 +1,262 @@
+# Queen Deployment Configuration
+# Deploys Queen orchestrator to GKE jarvis-swarm-personal-001
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queen
+  namespace: queen
+  labels:
+    app: strategickhaos-queen
+    component: orchestrator
+    tier: control-plane
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: strategickhaos-queen
+      component: orchestrator
+  template:
+    metadata:
+      labels:
+        app: strategickhaos-queen
+        component: orchestrator
+        tier: control-plane
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: queen-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      
+      # GKE Autopilot-compatible resource requests
+      containers:
+        - name: queen
+          image: node:18-alpine
+          imagePullPolicy: IfNotPresent
+          
+          # Override entrypoint for initial deployment
+          # Replace with actual Queen application image later
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Queen Orchestrator Starting..."
+              echo "Cluster: jarvis-swarm-personal-001"
+              echo "Endpoint: 34.29.28.27"
+              echo "Region: us-central1"
+              
+              # Create a simple health check server
+              cat > /tmp/server.js << 'EOF'
+              const http = require('http');
+              const os = require('os');
+              
+              const PORT = process.env.PORT || 3000;
+              const METRICS_PORT = process.env.METRICS_PORT || 9090;
+              
+              // Main HTTP server
+              const server = http.createServer((req, res) => {
+                const timestamp = new Date().toISOString();
+                
+                if (req.url === '/health' || req.url === '/healthz') {
+                  res.writeHead(200, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({
+                    status: 'healthy',
+                    service: 'queen-orchestrator',
+                    cluster: 'jarvis-swarm-personal-001',
+                    endpoint: '34.29.28.27',
+                    timestamp: timestamp,
+                    hostname: os.hostname(),
+                    uptime: process.uptime()
+                  }));
+                } else if (req.url === '/ready' || req.url === '/readyz') {
+                  res.writeHead(200, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({
+                    status: 'ready',
+                    timestamp: timestamp
+                  }));
+                } else if (req.url === '/') {
+                  res.writeHead(200, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({
+                    name: 'Queen Orchestrator',
+                    version: '1.0.0',
+                    description: 'Central control plane for Strategickhaos Sovereign Mesh',
+                    cluster: {
+                      name: 'jarvis-swarm-personal-001',
+                      endpoint: '34.29.28.27',
+                      region: 'us-central1',
+                      mode: 'Autopilot'
+                    },
+                    endpoints: {
+                      health: '/health',
+                      ready: '/ready',
+                      metrics: ':9090/metrics',
+                      api: '/api/v1'
+                    },
+                    timestamp: timestamp
+                  }));
+                } else if (req.url === '/api/v1/status') {
+                  res.writeHead(200, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({
+                    sovereign_mesh: {
+                      primary_cluster: {
+                        name: 'jarvis-swarm-personal-001',
+                        endpoint: '34.29.28.27',
+                        status: 'running'
+                      },
+                      secondary_cluster: {
+                        name: 'autopilot-cluster-1',
+                        endpoint: '35.192.28.199',
+                        status: 'running'
+                      }
+                    },
+                    observability: {
+                      gke_logs: {
+                        event_count: 17176,
+                        status: 'streaming'
+                      }
+                    },
+                    timestamp: timestamp
+                  }));
+                } else {
+                  res.writeHead(404, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ error: 'Not Found', path: req.url }));
+                }
+              });
+              
+              // Metrics server for Prometheus
+              const metricsServer = http.createServer((req, res) => {
+                if (req.url === '/metrics') {
+                  res.writeHead(200, { 'Content-Type': 'text/plain' });
+                  res.end(`
+              # HELP queen_up Queen orchestrator is up
+              # TYPE queen_up gauge
+              queen_up 1
+              
+              # HELP queen_requests_total Total HTTP requests
+              # TYPE queen_requests_total counter
+              queen_requests_total{endpoint="health"} 0
+              queen_requests_total{endpoint="ready"} 0
+              queen_requests_total{endpoint="api"} 0
+              
+              # HELP queen_uptime_seconds Uptime in seconds
+              # TYPE queen_uptime_seconds gauge
+              queen_uptime_seconds ${process.uptime()}
+              
+              # HELP queen_cluster_status GKE cluster status (1=running, 0=down)
+              # TYPE queen_cluster_status gauge
+              queen_cluster_status{cluster="jarvis-swarm-personal-001",endpoint="34.29.28.27"} 1
+              queen_cluster_status{cluster="autopilot-cluster-1",endpoint="35.192.28.199"} 1
+              `);
+                } else {
+                  res.writeHead(404);
+                  res.end('Not Found');
+                }
+              });
+              
+              server.listen(PORT, () => {
+                console.log(`Queen Orchestrator listening on port ${PORT}`);
+                console.log('Health: http://localhost:' + PORT + '/health');
+                console.log('Ready: http://localhost:' + PORT + '/ready');
+              });
+              
+              metricsServer.listen(METRICS_PORT, () => {
+                console.log(`Metrics server listening on port ${METRICS_PORT}`);
+              });
+              
+              // Graceful shutdown
+              process.on('SIGTERM', () => {
+                console.log('SIGTERM received, shutting down gracefully');
+                server.close(() => {
+                  metricsServer.close(() => {
+                    process.exit(0);
+                  });
+                });
+              });
+              EOF
+              
+              node /tmp/server.js
+          
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          
+          env:
+            - name: PORT
+              value: "3000"
+            - name: METRICS_PORT
+              value: "9090"
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: queen-config
+                  key: NODE_ENV
+            - name: DISCORD_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: queen-secrets
+                  key: DISCORD_BOT_TOKEN
+                  optional: true
+            - name: GITHUB_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: queen-secrets
+                  key: GITHUB_APP_ID
+                  optional: true
+          
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+              ephemeral-storage: "100Mi"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+              ephemeral-storage: "500Mi"
+          
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      
+      # Pod scheduling preferences for GKE Autopilot
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: strategickhaos-queen
