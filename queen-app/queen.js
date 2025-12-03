@@ -64,6 +64,13 @@ const signalQueue = {
 };
 
 const MAX_QUEUE_SIZE = 1000;
+const MAX_BODY_SIZE = 1024 * 1024; // 1MB
+
+// Helper function to get the last signal ID from a queue
+function getLastSignalId(queueType) {
+  const queue = signalQueue[queueType];
+  return queue.length > 0 ? queue[queue.length - 1]?.id : undefined;
+}
 
 function enqueueSignal(type, signal) {
   if (!signalQueue[type]) {
@@ -109,8 +116,8 @@ function verifyGitHubSignature(payload, signature) {
 // Verify X-Queen-Secret header for Zapier/outer-ring
 function verifyQueenSecret(providedSecret) {
   if (!config.zapierWebhookSecret) {
-    log('WARN', 'ZAPIER_WEBHOOK_SECRET not configured, skipping verification');
-    return true;
+    log('ERROR', 'ZAPIER_WEBHOOK_SECRET not configured - rejecting request for security');
+    return false;
   }
   
   return providedSecret === config.zapierWebhookSecret;
@@ -122,8 +129,8 @@ function parseBody(req) {
     let body = '';
     req.on('data', chunk => {
       body += chunk.toString();
-      // Limit body size to 1MB
-      if (body.length > 1024 * 1024) {
+      // Limit body size
+      if (body.length > MAX_BODY_SIZE) {
         reject(new Error('Request body too large'));
       }
     });
@@ -194,7 +201,7 @@ const routes = {
       sendJSON(res, 200, { 
         status: 'accepted', 
         message: 'Academic signal received',
-        signalId: signalQueue.academic[signalQueue.academic.length - 1]?.id
+        signalId: getLastSignalId('academic')
       });
     } catch (e) {
       log('ERROR', 'Failed to process academic signal', { error: e.message });
@@ -220,7 +227,7 @@ const routes = {
       sendJSON(res, 200, { 
         status: 'accepted', 
         message: 'Financial signal received',
-        signalId: signalQueue.financial[signalQueue.financial.length - 1]?.id
+        signalId: getLastSignalId('financial')
       });
     } catch (e) {
       log('ERROR', 'Failed to process financial signal', { error: e.message });
@@ -246,7 +253,7 @@ const routes = {
       sendJSON(res, 200, { 
         status: 'accepted', 
         message: 'Security signal received',
-        signalId: signalQueue.security[signalQueue.security.length - 1]?.id
+        signalId: getLastSignalId('security')
       });
     } catch (e) {
       log('ERROR', 'Failed to process security signal', { error: e.message });
