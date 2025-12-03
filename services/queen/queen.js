@@ -7,6 +7,7 @@
 
 import express from 'express';
 import { Webhooks } from '@octokit/webhooks';
+import rateLimit from 'express-rate-limit';
 
 const PORT = process.env.PORT || 3000;
 const GITHUB_APP_ID = process.env.GITHUB_APP_ID;
@@ -14,12 +15,22 @@ const GITHUB_WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET || '';
 
 const app = express();
 
-// Parse raw body for webhook signature verification
+// Parse raw body for webhook signature verification with size limit
 app.use(express.json({
+  limit: '1mb', // Limit payload size to prevent memory exhaustion
   verify: (req, _res, buf) => {
     req.rawBody = buf.toString();
   }
 }));
+
+// Rate limiting for webhook endpoint
+const webhookLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute window
+  max: 100, // Max 100 requests per minute per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later' }
+});
 
 // Health endpoint for monitoring and verification
 app.get('/health', (_req, res) => {
@@ -78,12 +89,17 @@ webhooks.onError((error) => {
   console.error('QUEEN: Webhook error:', error.message);
 });
 
-// GitHub webhook endpoint
-app.post('/webhooks/github', async (req, res) => {
+// GitHub webhook endpoint with rate limiting
+app.post('/webhooks/github', webhookLimiter, async (req, res) => {
   try {
-    const signature = req.headers['x-hub-signature-256'] || '';
-    const event = req.headers['x-github-event'] || '';
-    const id = req.headers['x-github-delivery'] || '';
+    const signature = req.headers['x-hub-signature-256'];
+    const event = req.headers['x-github-event'];
+    const id = req.headers['x-github-delivery'];
+
+    // Validate required headers
+    if (!signature || !event || !id) {
+      return res.status(400).json({ error: 'Missing required webhook headers' });
+    }
 
     console.log(`QUEEN: Received webhook - event: ${event}, id: ${id}`);
 
@@ -108,6 +124,5 @@ app.listen(PORT, () => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(`QUEEN: listening on port ${PORT}`);
   console.log(`QUEEN: GitHub App ID: ${GITHUB_APP_ID || 'not configured'}`);
-  console.log(`QUEEN: Webhook secret: ${GITHUB_WEBHOOK_SECRET ? 'configured' : 'not configured'}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 });
