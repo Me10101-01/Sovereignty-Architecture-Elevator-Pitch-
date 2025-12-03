@@ -174,13 +174,28 @@ EOF
 configure_rate_limiting() {
     info "Configuring rate limiting..."
     
-    # Note: Rate limiting is enterprise feature, skip for OSS
-    if vault version 2>/dev/null | grep -q "Enterprise"; then
+    # Check if vault command is available
+    if ! command -v vault >/dev/null 2>&1; then
+        warn "Vault CLI not available - skipping rate limiting configuration"
+        return 0
+    fi
+    
+    # Note: Rate limiting is an enterprise feature, skip for OSS
+    local vault_version_output
+    vault_version_output=$(vault version 2>&1) || {
+        warn "Could not determine Vault version - skipping rate limiting"
+        return 0
+    }
+    
+    if echo "$vault_version_output" | grep -qi "enterprise"; then
         info "Enterprise version detected, configuring rate limits..."
         # Enterprise-specific rate limiting would go here
+        # Example: vault write sys/quotas/rate-limit/global-limit rate=100
         success "Rate limiting configured"
     else
-        info "OSS version - rate limiting not available (enterprise feature)"
+        info "Vault OSS version detected - rate limiting is an enterprise-only feature"
+        info "Consider upgrading to Vault Enterprise for rate limiting capabilities"
+        info "Alternative: Use network-level rate limiting (e.g., Traefik, nginx)"
     fi
 }
 

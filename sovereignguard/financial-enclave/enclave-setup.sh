@@ -290,13 +290,34 @@ class ProtectedTradingClient:
         """
         Retrieve credentials from Vault.
         Credentials are never stored in plaintext.
+        
+        IMPORTANT: This is a STUB implementation requiring actual Vault integration
+        before production use. In production, this should:
+        1. Authenticate to Vault using AppRole
+        2. Retrieve the encrypted credentials
+        3. Decrypt only in memory for the API call
+        4. Never log or persist the credentials
+        
+        See sovereignguard/vault/vault-init.sh for Vault setup.
+        
+        Example production implementation:
+            import hvac
+            client = hvac.Client(url=self.vault_addr)
+            client.auth.approle.login(role_id=role_id, secret_id=secret_id)
+            secret = client.secrets.kv.v2.read_secret_version(path=f'trading/{broker}')
+            return secret['data']['data']
         """
-        # This would integrate with Vault in production
-        # For now, return placeholder indicating Vault integration needed
-        logger.info(f"Retrieving encrypted credentials for {broker} from Vault")
+        # STUB: Raise error to prevent accidental production use without Vault
+        if os.environ.get('SOVEREIGNGUARD_PRODUCTION', 'false').lower() == 'true':
+            raise NotImplementedError(
+                f"Vault integration required for production. "
+                f"Set up Vault and implement credential retrieval for broker: {broker}"
+            )
+        
+        logger.warning(f"STUB: Using placeholder credentials for {broker} - NOT FOR PRODUCTION")
         return {
-            "api_key": "VAULT_ENCRYPTED",
-            "api_secret": "VAULT_ENCRYPTED"
+            "api_key": "STUB_NOT_FOR_PRODUCTION",
+            "api_secret": "STUB_NOT_FOR_PRODUCTION"
         }
         
     def _log_transaction(self, tx: TransactionRequest, result: str) -> None:

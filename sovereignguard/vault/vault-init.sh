@@ -403,38 +403,68 @@ setup_auth() {
 store_initial_secrets() {
     info "Storing initial secrets..."
     
-    # Discord secrets
+    # Validate required environment variables
+    local has_placeholders=false
+    
+    # Discord secrets - validate or warn about placeholders
+    if [[ -z "${DISCORD_TOKEN:-}" ]]; then
+        warn "DISCORD_TOKEN not set - storing placeholder value"
+        has_placeholders=true
+    fi
+    
     vault kv put secret/discord/bot \
-        token="${DISCORD_TOKEN:-placeholder_change_me}" \
-        client_id="${DISCORD_CLIENT_ID:-placeholder_change_me}" \
-        guild_id="${DISCORD_GUILD_ID:-placeholder_change_me}"
+        token="${DISCORD_TOKEN:-PLACEHOLDER_CHANGE_ME_DISCORD_TOKEN}" \
+        client_id="${DISCORD_CLIENT_ID:-PLACEHOLDER_CHANGE_ME_CLIENT_ID}" \
+        guild_id="${DISCORD_GUILD_ID:-PLACEHOLDER_CHANGE_ME_GUILD_ID}"
     success "Discord secrets stored"
     
-    # GitHub secrets
+    # GitHub secrets - validate or warn about placeholders
+    if [[ -z "${GITHUB_TOKEN:-}" ]]; then
+        warn "GITHUB_TOKEN not set - storing placeholder value"
+        has_placeholders=true
+    fi
+    
     vault kv put secret/github/webhook \
         secret="${GITHUB_WEBHOOK_SECRET:-$(openssl rand -hex 32)}" \
-        token="${GITHUB_TOKEN:-placeholder_change_me}"
+        token="${GITHUB_TOKEN:-PLACEHOLDER_CHANGE_ME_GITHUB_TOKEN}"
     success "GitHub secrets stored"
     
-    # Shared HMAC secrets
+    # Shared HMAC secrets - auto-generated for security
     vault kv put secret/shared/hmac \
         key="$(openssl rand -hex 32)" \
         events_key="$(openssl rand -hex 32)"
-    success "HMAC secrets stored"
+    success "HMAC secrets stored (auto-generated)"
     
-    # JWT secrets
+    # JWT secrets - auto-generated for security
     vault kv put secret/shared/jwt \
         secret="$(openssl rand -hex 64)"
-    success "JWT secrets stored"
+    success "JWT secrets stored (auto-generated)"
     
-    # Trading API secrets (placeholders)
+    # Trading API secrets - require explicit configuration
+    warn "Trading API secrets require manual configuration"
     vault kv put secret/trading/ninjatrader \
-        api_key="placeholder_change_me" \
-        api_secret="placeholder_change_me"
+        api_key="PLACEHOLDER_CHANGE_ME_NINJATRADER_API_KEY" \
+        api_secret="PLACEHOLDER_CHANGE_ME_NINJATRADER_API_SECRET"
     vault kv put secret/trading/kraken \
-        api_key="placeholder_change_me" \
-        api_secret="placeholder_change_me"
+        api_key="PLACEHOLDER_CHANGE_ME_KRAKEN_API_KEY" \
+        api_secret="PLACEHOLDER_CHANGE_ME_KRAKEN_API_SECRET"
     success "Trading API secrets stored (placeholders)"
+    
+    # Report placeholder status
+    if [[ "$has_placeholders" == "true" ]]; then
+        echo ""
+        warn "=========================================="
+        warn "SECURITY WARNING: Placeholder secrets detected!"
+        warn "=========================================="
+        warn "Before production use, update the following secrets:"
+        warn "  - secret/discord/bot (DISCORD_TOKEN, CLIENT_ID, GUILD_ID)"
+        warn "  - secret/github/webhook (GITHUB_TOKEN)"
+        warn "  - secret/trading/ninjatrader (API credentials)"
+        warn "  - secret/trading/kraken (API credentials)"
+        warn ""
+        warn "Update with: vault kv put secret/<path> key=value"
+        warn "=========================================="
+    fi
     
     warn "Remember to update placeholder secrets with real values!"
 }

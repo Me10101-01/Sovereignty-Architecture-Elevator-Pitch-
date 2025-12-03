@@ -651,21 +651,42 @@ class AuditLogger:
         return f"{self.index_prefix}-{datetime.now().strftime('%Y.%m.%d')}"
         
     def _send_to_elasticsearch(self, event: AuditEvent) -> bool:
-        """Send event to Elasticsearch"""
+        """
+        Send event to Elasticsearch with explicit SSL configuration.
+        
+        Security note: In production, configure proper CA certificates.
+        Set ES_CA_CERT environment variable to CA certificate path.
+        """
         try:
+            # Determine SSL verification settings
+            es_ca_cert = os.environ.get('ES_CA_CERT')
+            verify_ssl = es_ca_cert if es_ca_cert else True
+            
+            # Use HTTPS if configured, otherwise HTTP for local development
+            protocol = "https" if os.environ.get('ES_USE_SSL', 'false').lower() == 'true' else "http"
+            
             response = requests.post(
-                f"http://{self.es_host}/{self._get_index_name()}/_doc",
+                f"{protocol}://{self.es_host}/{self._get_index_name()}/_doc",
                 json=asdict(event),
                 headers={"Content-Type": "application/json"},
-                timeout=5
+                timeout=5,
+                verify=verify_ssl
             )
             return response.status_code in [200, 201]
+        except requests.exceptions.SSLError as e:
+            logger.error(f"SSL verification failed for Elasticsearch: {e}")
+            return False
         except Exception as e:
             logger.error(f"Failed to send to Elasticsearch: {e}")
             return False
             
     def _send_discord_alert(self, event: AuditEvent) -> None:
-        """Send critical events to Discord"""
+        """
+        Send critical events to Discord with SSL verification.
+        
+        Security note: Discord webhooks use HTTPS by default with proper
+        certificate verification enabled.
+        """
         if not self.discord_webhook:
             return
             

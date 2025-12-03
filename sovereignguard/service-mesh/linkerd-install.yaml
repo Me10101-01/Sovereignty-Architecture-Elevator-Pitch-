@@ -11,6 +11,22 @@ metadata:
     linkerd.io/control-plane-ns: linkerd
 ---
 # Trust Anchor Certificate
+# IMPORTANT: Before deploying, generate certificates using one of these methods:
+#
+# Option 1 - Using step CLI:
+#   step certificate create root.linkerd.cluster.local ca.crt ca.key \
+#     --profile root-ca --no-password --insecure --not-after 87600h
+#   kubectl create secret tls linkerd-trust-anchor \
+#     --cert=ca.crt --key=ca.key -n linkerd
+#
+# Option 2 - Using linkerd CLI:
+#   linkerd install --crds | kubectl apply -f -
+#   linkerd install | kubectl apply -f -
+#
+# Option 3 - Using cert-manager (recommended for production):
+#   See: https://linkerd.io/2/tasks/automatically-rotating-control-plane-tls-credentials/
+#
+# DO NOT deploy with empty certificates - this will cause identity verification to fail
 apiVersion: v1
 kind: Secret
 metadata:
@@ -19,12 +35,15 @@ metadata:
   labels:
     linkerd.io/control-plane-component: identity
     linkerd.io/control-plane-ns: linkerd
+  annotations:
+    sovereignguard.io/note: "PLACEHOLDER - Generate certificates before deployment"
 type: kubernetes.io/tls
 data:
-  # Replace with your generated certificates
-  # Generate with: step certificate create root.linkerd.cluster.local ca.crt ca.key --profile root-ca --no-password --insecure
-  tls.crt: ""  # Base64 encoded trust anchor certificate
-  tls.key: ""  # Base64 encoded trust anchor key
+  # SECURITY WARNING: These are placeholder values that MUST be replaced
+  # before production deployment. See certificate generation instructions above.
+  # The deployment will fail without valid certificates.
+  tls.crt: "UExBQ0VIT0xERVItR0VORVJBVEUtQ0VSVElGSUNBVEU="  # PLACEHOLDER-GENERATE-CERTIFICATE
+  tls.key: "UExBQ0VIT0xERVItR0VORVJBVEUtUFJJVkFURS1LRVk="  # PLACEHOLDER-GENERATE-PRIVATE-KEY
 ---
 # Linkerd ConfigMap for SovereignGuard
 apiVersion: v1
