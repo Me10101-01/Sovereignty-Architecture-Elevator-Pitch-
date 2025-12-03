@@ -1,0 +1,342 @@
+# SovereignGuard Service Mesh - Linkerd Installation
+# Phase 2: Service Mesh Deployment
+# Addresses exposures: #7, #8, #19, #20, #21, #24
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: linkerd
+  labels:
+    linkerd.io/is-control-plane: "true"
+    config.linkerd.io/admission-webhooks: disabled
+    linkerd.io/control-plane-ns: linkerd
+---
+# Trust Anchor Certificate
+apiVersion: v1
+kind: Secret
+metadata:
+  name: linkerd-trust-anchor
+  namespace: linkerd
+  labels:
+    linkerd.io/control-plane-component: identity
+    linkerd.io/control-plane-ns: linkerd
+type: kubernetes.io/tls
+data:
+  # Replace with your generated certificates
+  # Generate with: step certificate create root.linkerd.cluster.local ca.crt ca.key --profile root-ca --no-password --insecure
+  tls.crt: ""  # Base64 encoded trust anchor certificate
+  tls.key: ""  # Base64 encoded trust anchor key
+---
+# Linkerd ConfigMap for SovereignGuard
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sovereignguard-linkerd-config
+  namespace: linkerd
+  labels:
+    app: sovereignguard
+    component: service-mesh
+data:
+  # Linkerd proxy configuration
+  proxy-log-level: "warn"
+  proxy-log-format: "json"
+  
+  # Identity settings
+  identity-trust-domain: "cluster.local"
+  identity-token-service: "token.kubernetes.io/bound"
+  
+  # mTLS settings
+  mtls-min-tls-version: "TLSv1.2"
+  
+  # Tap settings (for debugging)
+  tap-enabled: "true"
+  
+  # SovereignGuard specific settings
+  sovereignguard-mesh-enabled: "true"
+  sovereignguard-zero-trust: "true"
+  sovereignguard-audit-connections: "true"
+---
+# Network Policies - Default Deny All
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sovereignguard-default-deny
+  namespace: ops
+  labels:
+    app: sovereignguard
+    component: network-policy
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+# Network Policy - Allow Linkerd Control Plane
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sovereignguard-allow-linkerd
+  namespace: ops
+  labels:
+    app: sovereignguard
+    component: network-policy
+spec:
+  podSelector:
+    matchLabels:
+      linkerd.io/control-plane-ns: linkerd
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              linkerd.io/is-control-plane: "true"
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              linkerd.io/is-control-plane: "true"
+---
+# Network Policy - Discord Bot
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sovereignguard-discord-bot
+  namespace: ops
+  labels:
+    app: sovereignguard
+    component: network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: discord-ops-bot
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: event-gateway
+      ports:
+        - protocol: TCP
+          port: 3000
+  egress:
+    # Allow Discord API
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow Vault
+    - to:
+        - podSelector:
+            matchLabels:
+              app: vault
+      ports:
+        - protocol: TCP
+          port: 8200
+    # Allow DNS
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+---
+# Network Policy - Event Gateway
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sovereignguard-event-gateway
+  namespace: ops
+  labels:
+    app: sovereignguard
+    component: network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: event-gateway
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow ingress from Traefik/Ingress
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: traefik
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    # Allow Discord Bot
+    - to:
+        - podSelector:
+            matchLabels:
+              app: discord-ops-bot
+      ports:
+        - protocol: TCP
+          port: 3000
+    # Allow Vault
+    - to:
+        - podSelector:
+            matchLabels:
+              app: vault
+      ports:
+        - protocol: TCP
+          port: 8200
+    # Allow GitHub API
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow DNS
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+---
+# Network Policy - Financial Enclave (SwarmGate)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sovereignguard-financial-enclave
+  namespace: ops
+  labels:
+    app: sovereignguard
+    component: network-policy
+    security: critical
+spec:
+  podSelector:
+    matchLabels:
+      app: swarmgate
+      security: financial
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Only allow from approved internal services
+    - from:
+        - podSelector:
+            matchLabels:
+              app: treasury-controller
+      ports:
+        - protocol: TCP
+          port: 8443
+  egress:
+    # Allow Vault only
+    - to:
+        - podSelector:
+            matchLabels:
+              app: vault
+      ports:
+        - protocol: TCP
+          port: 8200
+    # Allow trading APIs (restricted)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow DNS
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+---
+# Network Policy - Audit Log Service
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sovereignguard-audit-log
+  namespace: ops
+  labels:
+    app: sovereignguard
+    component: network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: audit-log
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Accept from all SovereignGuard services
+    - from:
+        - podSelector:
+            matchLabels:
+              sovereignguard: "true"
+      ports:
+        - protocol: TCP
+          port: 9200
+  egress:
+    # Allow Elasticsearch
+    - to:
+        - podSelector:
+            matchLabels:
+              app: elasticsearch
+      ports:
+        - protocol: TCP
+          port: 9200
+    # Allow Vault
+    - to:
+        - podSelector:
+            matchLabels:
+              app: vault
+      ports:
+        - protocol: TCP
+          port: 8200
+    # Allow DNS
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+---
+# Service Account for SovereignGuard services
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sovereignguard-sa
+  namespace: ops
+  labels:
+    app: sovereignguard
+---
+# RBAC - ClusterRole for SovereignGuard
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sovereignguard-role
+  labels:
+    app: sovereignguard
+rules:
+  # Read-only access to pods for service mesh
+  - apiGroups: [""]
+    resources: ["pods", "services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+  # Read-only access to configmaps
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch"]
+  # Access to network policies
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies"]
+    verbs: ["get", "list", "watch"]
+---
+# RBAC - ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sovereignguard-binding
+  labels:
+    app: sovereignguard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sovereignguard-role
+subjects:
+  - kind: ServiceAccount
+    name: sovereignguard-sa
+    namespace: ops
