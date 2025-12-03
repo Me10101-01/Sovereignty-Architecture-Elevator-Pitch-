@@ -10,6 +10,46 @@ This system creates a **sovereignty control plane** that bridges:
 - **Development** - GitLens, PR workflows, CI/CD automation, Java 21+ workspace
 - **AI Agents** - Intelligent assistance with vector knowledge base
 
+## 🌐 SovereignMesh Node Architecture
+
+This repository serves as the **control plane** for SovereignMesh - a Codespace-based distributed compute architecture.
+
+```
+Sovereignty-Architecture-Elevator-Pitch/
+├── README.md                    # Elevator pitch docs
+├── governance/                  # Trust Declaration, etc.
+├── services/
+│   ├── queen/                   # 👑 Orchestrator
+│   │   ├── queen.js
+│   │   └── package.json
+│   ├── swarmgate/               # 💰 Financial (future)
+│   ├── knowledge-node/          # 🧠 Obsidian sync (future)
+│   └── sentinel/                # 🛡️ Security (future)
+├── .github/
+│   └── workflows/               # CI/CD automation
+└── docker-compose.yml           # Local multi-service
+```
+
+**Each Codespace = One SovereignMesh Node**  
+**Each `services/` folder = One Microservice**  
+**Queen = The Router**
+
+### 👑 Quick Start - Queen Orchestrator
+
+```bash
+cd services/queen
+npm install
+npm start
+```
+
+The Queen orchestrator provides:
+- Service registry and discovery
+- Request routing to microservices
+- Health monitoring
+- Node metadata
+
+See [services/README.md](services/README.md) for full documentation.
+
 ## 🚀 Quick Start
 
 ```bash

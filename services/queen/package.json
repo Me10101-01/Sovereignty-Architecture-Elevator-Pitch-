@@ -1,0 +1,25 @@
+{
+  "name": "@sovereignmesh/queen",
+  "version": "1.0.0",
+  "description": "Queen Orchestrator - The central router and orchestration service for SovereignMesh",
+  "type": "module",
+  "main": "queen.js",
+  "scripts": {
+    "start": "node queen.js",
+    "dev": "node --watch queen.js"
+  },
+  "keywords": [
+    "sovereignmesh",
+    "orchestrator",
+    "microservices",
+    "queen"
+  ],
+  "author": "Strategickhaos DAO",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
