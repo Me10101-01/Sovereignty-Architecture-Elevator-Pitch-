@@ -1,0 +1,174 @@
+digraph SovereignMesh_Architecture {
+    rankdir=TB;
+    bgcolor="#0d1117";
+    fontname="Courier New";
+    fontsize=16;
+    label="SovereignMesh Multi-AI Agent Architecture\n\"Many agents, many nodes, one conductor\"";
+    labelloc=t;
+    fontcolor=white;
+    node [fontname="Courier New", fontsize=11, style=filled, penwidth=2];
+    edge [penwidth=2, arrowsize=1.0];
+
+    // ==== HUMAN CONDUCTOR (Central Control) ====
+    subgraph cluster_conductor {
+        label="SOVEREIGN CONDUCTOR"; 
+        color="#ff0066"; 
+        fontcolor=white; 
+        style="filled,rounded";
+        fillcolor="#1a0011";
+        
+        Human [label="🎯 HUMAN OPERATOR\nContext Orchestrator\n16-core Neural Processor", 
+               fillcolor="#ff0066", fontcolor=white, shape=ellipse, width=3.5, height=1.2];
+    }
+
+    // ==== GOOGLE CLOUD TIER ====
+    subgraph cluster_google {
+        label="GOOGLE CLOUD TIER"; 
+        color="#4285f4"; 
+        fontcolor=white; 
+        style="filled,rounded";
+        fillcolor="#0a1628";
+        
+        CloudShell [label="☁️ Cloud Shell\nBrowser Terminal", fillcolor="#4285f4", fontcolor=white];
+        GeminiCLI [label="🤖 Gemini CLI\nMCP Protocol\nReAct Loops", fillcolor="#8ab4f8", fontcolor=black];
+        GKE [label="🚀 GKE Cluster\njarvis-swarm-personal-001\nus-central1", fillcolor="#34a853", fontcolor=white];
+    }
+
+    // ==== AWS TIER ====
+    subgraph cluster_aws {
+        label="AWS TIER"; 
+        color="#ff9900"; 
+        fontcolor=white; 
+        style="filled,rounded";
+        fillcolor="#1a1100";
+        
+        AmazonQ [label="🟠 Amazon Q\nVSCode Extension", fillcolor="#ff9900", fontcolor=black];
+        Kiro [label="⚡ Kiro.dev\nAgent Runtime", fillcolor="#ffcc00", fontcolor=black];
+    }
+
+    // ==== GITHUB TIER ====
+    subgraph cluster_github {
+        label="GITHUB TIER"; 
+        color="#6e5494"; 
+        fontcolor=white; 
+        style="filled,rounded";
+        fillcolor="#150f1c";
+        
+        Codespaces [label="💻 Codespaces\nCloud IDE", fillcolor="#6e5494", fontcolor=white];
+        Copilot [label="🤖 GitHub Copilot\nPR Review", fillcolor="#7c3aed", fontcolor=white];
+        Actions [label="📦 GitHub Actions\nCI/CD Pipeline", fillcolor="#2088ff", fontcolor=white];
+    }
+
+    // ==== ANTHROPIC TIER ====
+    subgraph cluster_anthropic {
+        label="ANTHROPIC TIER"; 
+        color="#d4a574"; 
+        fontcolor=white; 
+        style="filled,rounded";
+        fillcolor="#1a150f";
+        
+        Claude [label="🟣 Claude\nArchitecture Advisor\nMobile + API", fillcolor="#d4a574", fontcolor=black];
+    }
+
+    // ==== XAI TIER ====
+    subgraph cluster_xai {
+        label="XAI TIER"; 
+        color="#1d9bf0"; 
+        fontcolor=white; 
+        style="filled,rounded";
+        fillcolor="#0a1520";
+        
+        Grok [label="🔴 Grok API\nReal-time Analysis\nCurrent Events", fillcolor="#1d9bf0", fontcolor=white];
+    }
+
+    // ==== LOCAL TIER ====
+    subgraph cluster_local {
+        label="LOCAL SOVEREIGN TIER"; 
+        color="#00ff00"; 
+        fontcolor=white; 
+        style="filled,rounded";
+        fillcolor="#001a00";
+        
+        Qwen [label="🧠 Qwen2.5:72b\nLocal Inference\nNo External API", fillcolor="#00cc00", fontcolor=white];
+        Ollama [label="🦙 Ollama\nModel Runtime", fillcolor="#009900", fontcolor=white];
+        Qdrant [label="📊 Qdrant\nVector Database", fillcolor="#006600", fontcolor=white];
+    }
+
+    // ==== INTEGRATION MESH ====
+    subgraph cluster_integration {
+        label="INTEGRATION MESH"; 
+        color="#ff3399"; 
+        fontcolor=white; 
+        style="filled,rounded";
+        fillcolor="#1a0022";
+        
+        Zapier [label="⚡ Zapier\nWebhook Pipeline", fillcolor="#ff4a00", fontcolor=white];
+        QueenJS [label="👑 Queen.js\nEvent Handler", fillcolor="#ff3399", fontcolor=white];
+        Discord [label="💬 Discord Bot\nCommand Interface", fillcolor="#5865f2", fontcolor=white];
+        Refinory [label="🔮 Refinory AI\nExpert Orchestration", fillcolor="#ff66cc", fontcolor=black];
+    }
+
+    // ==== EXECUTION CLUSTER ====
+    subgraph cluster_execution {
+        label="EXECUTION CLUSTER\n130+ Containers"; 
+        color="#00ffff"; 
+        fontcolor=white; 
+        style="filled,rounded";
+        fillcolor="#001a1a";
+        
+        Prometheus [label="📈 Prometheus\nMetrics", fillcolor="#e6522c", fontcolor=white];
+        Grafana [label="📊 Grafana\nDashboards", fillcolor="#f46800", fontcolor=white];
+        Vault [label="🔐 Vault\nSecrets", fillcolor="#000000", fontcolor=white];
+        Traefik [label="🌐 Traefik\nProxy", fillcolor="#24a1c1", fontcolor=white];
+    }
+
+    // ==== CONNECTIONS - Conductor to All Agents ====
+    Human -> CloudShell [color="#4285f4", label="GCP Ops"];
+    Human -> AmazonQ [color="#ff9900", label="AWS Ops"];
+    Human -> Codespaces [color="#6e5494", label="Dev"];
+    Human -> Claude [color="#d4a574", label="Arch"];
+    Human -> Grok [color="#1d9bf0", label="RT"];
+    Human -> Qwen [color="#00ff00", label="Local"];
+
+    // ==== Cloud Shell Internal ====
+    CloudShell -> GeminiCLI [color="#8ab4f8"];
+    CloudShell -> GKE [color="#34a853"];
+    GeminiCLI -> GKE [color="#34a853", style=dashed];
+
+    // ==== AWS to Cloud Shell (Tri-Cloud) ====
+    Kiro -> CloudShell [color="#ffcc00", label="VSCode Ext", style=dashed];
+    AmazonQ -> Kiro [color="#ff9900"];
+
+    // ==== GitHub Flow ====
+    Codespaces -> Copilot [color="#7c3aed"];
+    Copilot -> Actions [color="#2088ff"];
+
+    // ==== Integration Layer ====
+    Zapier -> QueenJS [color="#ff4a00"];
+    QueenJS -> Discord [color="#5865f2"];
+    Discord -> Refinory [color="#ff66cc"];
+    Grok -> QueenJS [color="#1d9bf0", style=dashed];
+
+    // ==== Local Stack ====
+    Ollama -> Qwen [color="#00cc00"];
+    Qdrant -> Refinory [color="#ff66cc", style=dashed];
+
+    // ==== GKE to Execution ====
+    GKE -> Prometheus [color="#e6522c"];
+    GKE -> Grafana [color="#f46800"];
+    GKE -> Vault [color="#ffffff"];
+    GKE -> Traefik [color="#24a1c1"];
+    GKE -> Discord [color="#5865f2", style=dashed];
+
+    // ==== Cross-Agent Collaboration ====
+    GeminiCLI -> Claude [color="#d4a574", style=dotted, label="MCP"];
+    Claude -> Copilot [color="#7c3aed", style=dotted, label="Design"];
+    Refinory -> Claude [color="#d4a574", style=dotted];
+
+    // ==== RANKING ====
+    {rank=same; Human}
+    {rank=same; CloudShell AmazonQ Codespaces Claude Grok Qwen}
+    {rank=same; GeminiCLI GKE Kiro Copilot Actions Ollama}
+    {rank=same; Zapier QueenJS Discord Refinory Qdrant}
+    {rank=same; Prometheus Grafana Vault Traefik}
+}
