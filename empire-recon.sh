@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # empire-recon.sh - SovereignMesh Empire Reconnaissance Script
 # Maps your entire multi-cloud AI agent infrastructure
 #
@@ -269,28 +269,65 @@ print_summary() {
 # JSON Output Mode
 json_output() {
     local timestamp gcp_project k8s_context aws_account docker_count pod_count node_count
+    local docker_output pod_output node_output
     
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     gcp_project=$(gcloud config get-value project 2>/dev/null || echo "")
     k8s_context=$(kubectl config current-context 2>/dev/null || echo "")
     aws_account=$(aws sts get-caller-identity --query Account --output text 2>/dev/null || echo "")
-    docker_count=$(docker ps -q 2>/dev/null | wc -l | tr -d ' ' || echo "0")
-    pod_count=$(kubectl get pods -A --no-headers 2>/dev/null | wc -l | tr -d ' ' || echo "0")
-    node_count=$(kubectl get nodes --no-headers 2>/dev/null | wc -l | tr -d ' ' || echo "0")
     
-    # Handle empty strings
-    [ -z "$gcp_project" ] && gcp_project="null"
-    [ -z "$k8s_context" ] && k8s_context="null"
-    [ -z "$aws_account" ] && aws_account="null"
-    [ -z "$docker_count" ] && docker_count="0"
-    [ -z "$pod_count" ] && pod_count="0"
-    [ -z "$node_count" ] && node_count="0"
+    # Properly count by capturing output first, then counting non-empty lines
+    docker_output=$(docker ps -q 2>/dev/null || echo "")
+    pod_output=$(kubectl get pods -A --no-headers 2>/dev/null || echo "")
+    node_output=$(kubectl get nodes --no-headers 2>/dev/null || echo "")
+    
+    if [ -n "$docker_output" ]; then
+        docker_count=$(echo "$docker_output" | wc -l | tr -d ' ')
+    else
+        docker_count="0"
+    fi
+    
+    if [ -n "$pod_output" ]; then
+        pod_count=$(echo "$pod_output" | wc -l | tr -d ' ')
+    else
+        pod_count="0"
+    fi
+    
+    if [ -n "$node_output" ]; then
+        node_count=$(echo "$node_output" | wc -l | tr -d ' ')
+    else
+        node_count="0"
+    fi
+    
+    # Escape special characters in strings to prevent JSON injection
+    gcp_project=$(echo "$gcp_project" | sed 's/\\/\\\\/g; s/"/\\"/g')
+    k8s_context=$(echo "$k8s_context" | sed 's/\\/\\\\/g; s/"/\\"/g')
+    aws_account=$(echo "$aws_account" | sed 's/\\/\\\\/g; s/"/\\"/g')
+    
+    # Use proper JSON null for empty values
+    if [ -z "$gcp_project" ]; then
+        gcp_project_json="null"
+    else
+        gcp_project_json="\"${gcp_project}\""
+    fi
+    
+    if [ -z "$k8s_context" ]; then
+        k8s_context_json="null"
+    else
+        k8s_context_json="\"${k8s_context}\""
+    fi
+    
+    if [ -z "$aws_account" ]; then
+        aws_account_json="null"
+    else
+        aws_account_json="\"${aws_account}\""
+    fi
     
     echo "{"
     echo "  \"timestamp\": \"${timestamp}\","
-    echo "  \"gcp_project\": \"${gcp_project}\","
-    echo "  \"k8s_context\": \"${k8s_context}\","
-    echo "  \"aws_account\": \"${aws_account}\","
+    echo "  \"gcp_project\": ${gcp_project_json},"
+    echo "  \"k8s_context\": ${k8s_context_json},"
+    echo "  \"aws_account\": ${aws_account_json},"
     echo "  \"docker_containers\": ${docker_count},"
     echo "  \"k8s_pods\": ${pod_count},"
     echo "  \"k8s_nodes\": ${node_count}"

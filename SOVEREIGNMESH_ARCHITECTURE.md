@@ -226,7 +226,12 @@ echo ""
 
 # All Pods
 echo "🐳 Pod Inventory (All Namespaces):"
-kubectl get pods -A --no-headers 2>/dev/null | wc -l | xargs echo "  Total pods:"
+POD_OUTPUT=$(kubectl get pods -A --no-headers 2>/dev/null || echo "")
+if [ -n "$POD_OUTPUT" ]; then
+    echo "$POD_OUTPUT" | wc -l | xargs echo "  Total pods:"
+else
+    echo "  Total pods: 0"
+fi
 kubectl get pods -A -o wide 2>/dev/null | head -20 || echo "  ⚠️ Cannot reach cluster"
 echo ""
 
