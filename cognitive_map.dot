@@ -23,8 +23,8 @@ digraph Cognitive_Architecture {
         label="SUBCONSCIOUS LAYER"; color="#ff6600"; fontcolor=white; style=filled;
         GPT_Node [label="GPT\nParallel Pattern\nMatching", fillcolor="#ff9900", fontcolor=black];
         Grok_Node [label="Grok\nChaos\nIntegration", fillcolor="#ffcc00", fontcolor=black];
-        AmazonQ_Node [label="Amazon Q\nInfrastructure\nAwareness", fillcolor="#ff6600", fontcolor=white];
-        Gemini_Node [label="Gemini\nContext\nExpansion", fillcolor="#ff3300", fontcolor=white];
+        AmazonQ_Node [label="Amazon Q\nInfrastructure\nAwareness", fillcolor="#ff6600", fontcolor=black];
+        Gemini_Node [label="Gemini\nContext\nExpansion", fillcolor="#ff3300", fontcolor=black];
         Obsidian_Memory [label="Obsidian Vault\nLong-term\nMemory", fillcolor="#cc3300", fontcolor=white];
         GKE_Autonomic [label="GKE Clusters\nAutonomic\nNervous System", fillcolor="#993300", fontcolor=white];
         GitHub_Reflexes [label="GitHub Actions\nReflexes", fillcolor="#663300", fontcolor=white];
