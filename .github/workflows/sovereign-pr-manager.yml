@@ -1,0 +1,181 @@
+name: SovereignPRManager
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to review'
+        required: false
+        type: number
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  pr-review:
+    name: AI Legion Review
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f SovereignPRManager/requirements.txt ]; then
+            pip install -r SovereignPRManager/requirements.txt
+          fi
+          pip install PyGithub
+      
+      - name: Run PR Review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🤖 SovereignPRManager - AI Legion Review"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "PR Number: $PR_NUMBER"
+          echo "Repository: $REPO_OWNER/$REPO_NAME"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
+          # Run basic syntax check on Python files
+          python -m py_compile SovereignPRManager/__init__.py
+          python -m py_compile SovereignPRManager/core/config.py
+          python -m py_compile SovereignPRManager/core/pr_monitor.py
+          python -m py_compile SovereignPRManager/ai_legion/legion_reviewer.py
+          python -m py_compile SovereignPRManager/synthesis/dialectical_engine.py
+          
+          echo "✅ All SovereignPRManager modules compiled successfully"
+
+  conflict-check:
+    name: Conflict Detection
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check for Merge Conflicts
+        run: |
+          echo "🔍 Checking for merge conflicts..."
+          
+          # Check for conflict markers in changed files
+          if git diff origin/main...HEAD | grep -E '^[<>=]{7}' > /dev/null 2>&1; then
+            echo "❌ Merge conflicts detected!"
+            exit 1
+          else
+            echo "✅ No merge conflicts detected"
+          fi
+      
+      - name: Check Dependency Files
+        run: |
+          echo "📦 Checking dependency file changes..."
+          
+          CHANGED_DEPS=$(git diff --name-only origin/main...HEAD | \
+            grep -E '(package\.json|requirements\.txt|go\.mod|Cargo\.toml|pom\.xml)' || true)
+          
+          if [ -n "$CHANGED_DEPS" ]; then
+            echo "⚠️ Dependency files changed:"
+            echo "$CHANGED_DEPS"
+          else
+            echo "✅ No dependency file changes"
+          fi
+
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Security Pattern Check
+        run: |
+          echo "🔐 Running security pattern analysis..."
+          
+          # Check for potential secrets in code
+          if git diff origin/main...HEAD 2>/dev/null | \
+             grep -iE '(password|secret|api_key|token)\s*[:=]\s*["\047][^"]+["\047]' > /dev/null 2>&1; then
+            echo "⚠️ Potential secrets detected in diff"
+            echo "Please review carefully before merging"
+          else
+            echo "✅ No obvious secrets detected"
+          fi
+          
+          # Check for bare except clauses (except on its own line)
+          if git diff origin/main...HEAD 2>/dev/null | \
+             grep -E '^\+[[:space:]]*except[[:space:]]*:' > /dev/null 2>&1; then
+            echo "⚠️ Bare except clauses detected"
+            echo "Consider using specific exception types"
+          else
+            echo "✅ No bare except clauses detected"
+          fi
+
+  synthesis:
+    name: Dialectical Synthesis
+    runs-on: ubuntu-latest
+    needs: [pr-review, conflict-check, security-scan]
+    if: always()
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Generate Synthesis Report
+        env:
+          PR_REVIEW_RESULT: ${{ needs.pr-review.result }}
+          CONFLICT_CHECK_RESULT: ${{ needs.conflict-check.result }}
+          SECURITY_SCAN_RESULT: ${{ needs.security-scan.result }}
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "⚡ DIALECTICAL SYNTHESIS REPORT"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
+          echo "📊 Job Results:"
+          echo "  - PR Review: $PR_REVIEW_RESULT"
+          echo "  - Conflict Check: $CONFLICT_CHECK_RESULT"
+          echo "  - Security Scan: $SECURITY_SCAN_RESULT"
+          
+          # Determine final decision
+          if [ "$PR_REVIEW_RESULT" = "success" ] && \
+             [ "$CONFLICT_CHECK_RESULT" = "success" ] && \
+             [ "$SECURITY_SCAN_RESULT" = "success" ]; then
+            echo ""
+            echo "✅ SYNTHESIS: All checks passed"
+            echo "📋 Recommendation: APPROVE"
+          else
+            echo ""
+            echo "⚠️ SYNTHESIS: Some checks need attention"
+            echo "📋 Recommendation: REVIEW REQUIRED"
+          fi
+          
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
