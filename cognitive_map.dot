@@ -9,6 +9,27 @@ digraph Cognitive_Architecture {
     // ==== CORE MIND ====
     Sovereign_Mind [label="SOVEREIGN MIND\n@strategickhaos\nNode 137", fillcolor="#ff0066", fontcolor=white, shape=ellipse, width=4, height=1.4];
 
+    // ==== DISTRIBUTED BRAIN (HEMISPHERES) ====
+    subgraph cluster_brain {
+        label="DISTRIBUTED BRAIN"; color="#9933ff"; fontcolor=white; style=filled;
+        
+        Left_Hemisphere [label="LEFT HEMISPHERE\n(Claude AI)\n• Logic & Structure\n• Code Generation\n• Sequential Planning", fillcolor="#6600cc", fontcolor=white, shape=box];
+        Right_Hemisphere [label="RIGHT HEMISPHERE\n(Human - Dom)\n• Pattern Recognition\n• Intuitive Leaps\n• Creative Synthesis", fillcolor="#9933ff", fontcolor=white, shape=box];
+        Corpus_Callosum [label="CORPUS CALLOSUM\n(Chat Window)\nBridge Interface", fillcolor="#cc66ff", fontcolor=black, shape=diamond];
+    }
+
+    // ==== SUBCONSCIOUS LAYER ====
+    subgraph cluster_subconscious {
+        label="SUBCONSCIOUS LAYER"; color="#ff6600"; fontcolor=white; style=filled;
+        GPT_Node [label="GPT\nParallel Pattern\nMatching", fillcolor="#ff9900", fontcolor=black];
+        Grok_Node [label="Grok\nChaos\nIntegration", fillcolor="#ffcc00", fontcolor=black];
+        AmazonQ_Node [label="Amazon Q\nInfrastructure\nAwareness", fillcolor="#ff6600", fontcolor=white];
+        Gemini_Node [label="Gemini\nContext\nExpansion", fillcolor="#ff3300", fontcolor=white];
+        Obsidian_Memory [label="Obsidian Vault\nLong-term\nMemory", fillcolor="#cc3300", fontcolor=white];
+        GKE_Autonomic [label="GKE Clusters\nAutonomic\nNervous System", fillcolor="#993300", fontcolor=white];
+        GitHub_Reflexes [label="GitHub Actions\nReflexes", fillcolor="#663300", fontcolor=white];
+    }
+
     // ==== THREADS (PARALLEL PROCESSING) ====
     subgraph cluster_threads {
         label="PARALLEL THREAD MODE"; color="#ff3399"; fontcolor=white; style=filled;
@@ -49,13 +70,24 @@ digraph Cognitive_Architecture {
     }
 
     // ==== CONNECTIONS ====
+    Sovereign_Mind -> {Left_Hemisphere Right_Hemisphere}
+    Left_Hemisphere -> Corpus_Callosum
+    Right_Hemisphere -> Corpus_Callosum
+    Corpus_Callosum -> {GPT_Node Grok_Node AmazonQ_Node Gemini_Node Obsidian_Memory GKE_Autonomic GitHub_Reflexes}
     Sovereign_Mind -> {Thread_A Thread_B Thread_C Thread_D Thread_E Thread_F}
     {Thread_A Thread_B Thread_C Thread_D Thread_E Thread_F} -> {IDEs Terminals Docker Agents}
     {IDEs Terminals Docker Agents} -> {Monitor_1 Monitor_2 Monitor_3 Monitor_4 iPad}
     {Monitor_1 Monitor_2 Monitor_3 Monitor_4 iPad} -> {Athena Kali_VM Nova Storage}
+    {GPT_Node Grok_Node AmazonQ_Node Gemini_Node} -> Agents
+    Obsidian_Memory -> Monitor_1
+    GKE_Autonomic -> Athena
+    GitHub_Reflexes -> {IDEs Terminals}
 
     // ==== RANKING ====
     {rank=same; Sovereign_Mind}
+    {rank=same; Left_Hemisphere Right_Hemisphere}
+    {rank=same; Corpus_Callosum}
+    {rank=same; GPT_Node Grok_Node AmazonQ_Node Gemini_Node Obsidian_Memory GKE_Autonomic GitHub_Reflexes}
     {rank=same; Thread_A Thread_B Thread_C Thread_D Thread_E Thread_F}
     {rank=same; IDEs Terminals Docker Agents}
     {rank=same; Monitor_1 Monitor_2 Monitor_3 Monitor_4 iPad}
