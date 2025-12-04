@@ -152,7 +152,7 @@ class AutoMerger:
         )
 
         signature = hashlib.sha256(data.encode()).hexdigest()
-        return signature[:32]  # First 32 chars for readability
+        return signature  # Full SHA-256 hash for cryptographic integrity
 
     def _build_commit_message(
         self, decision: MergeDecision, provenance: MergeProvenance

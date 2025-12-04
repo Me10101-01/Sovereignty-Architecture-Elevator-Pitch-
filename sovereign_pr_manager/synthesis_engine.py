@@ -20,6 +20,11 @@ from .models import (
 
 logger = logging.getLogger(__name__)
 
+# Synthesis constants
+SOVEREIGNTY_BONUS_THRESHOLD = 0.80  # Minimum sovereignty confidence for bonus
+SOVEREIGNTY_BONUS_VALUE = 0.1  # Bonus added for high sovereignty compliance
+CONFLICT_PENALTY_VALUE = 0.2  # Penalty for detected conflicts
+
 
 class SynthesisEngine:
     """
@@ -138,15 +143,15 @@ class SynthesisEngine:
         # Penalty for conflicts
         conflict_penalty = 0.0
         if conflicts and conflicts.has_conflicts:
-            conflict_penalty = 0.2
+            conflict_penalty = CONFLICT_PENALTY_VALUE
 
         # Bonus for sovereignty alignment
         sovereignty_review = self._get_review_by_type(
             reviews, ReviewType.SOVEREIGNTY
         )
         sovereignty_bonus = 0.0
-        if sovereignty_review and sovereignty_review.confidence > 0.8:
-            sovereignty_bonus = 0.1
+        if sovereignty_review and sovereignty_review.confidence > SOVEREIGNTY_BONUS_THRESHOLD:
+            sovereignty_bonus = SOVEREIGNTY_BONUS_VALUE
 
         final_confidence = avg_confidence - conflict_penalty + sovereignty_bonus
         return max(0.0, min(1.0, final_confidence))

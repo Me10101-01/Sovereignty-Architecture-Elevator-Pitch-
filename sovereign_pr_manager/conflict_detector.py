@@ -14,6 +14,9 @@ from .models import ConflictResult
 
 logger = logging.getLogger(__name__)
 
+# Configuration constants
+REFACTORING_OVERLAP_THRESHOLD = 3  # Max items both added and removed before flagging
+
 
 class ConflictDetector:
     """Detect merge conflicts and architectural contradictions."""
@@ -94,7 +97,7 @@ class ConflictDetector:
 
         # Items both added and deleted might indicate refactoring conflicts
         overlap = additions & deletions
-        if len(overlap) > 3:
+        if len(overlap) > REFACTORING_OVERLAP_THRESHOLD:
             conflicts.append(
                 f"Potential refactoring conflict: {len(overlap)} items "
                 "both added and removed"

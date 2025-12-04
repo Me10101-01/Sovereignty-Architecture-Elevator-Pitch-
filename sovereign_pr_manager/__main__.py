@@ -16,12 +16,11 @@ import argparse
 import asyncio
 import logging
 import sys
-from datetime import datetime
 
 from .auto_merger import AutoMerger
 from .config import Config
 from .conflict_detector import ConflictDetector
-from .models import MergeAction, PRData
+from .models import MergeAction, PRData, utcnow
 from .pr_monitor import PRMonitor
 from .reviewer import CodeReviewer
 from .synthesis_engine import SynthesisEngine
@@ -158,7 +157,7 @@ class SovereignPRManager:
             "auto_merged": merged_count,
             "requires_review": review_required_count,
             "blocked": blocked_count,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": utcnow().isoformat(),
             "dry_run": self.config.dry_run,
         }
 

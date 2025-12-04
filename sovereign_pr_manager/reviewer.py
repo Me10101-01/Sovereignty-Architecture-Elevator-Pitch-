@@ -130,8 +130,10 @@ class CodeReviewer:
             issues.append(f"Large PR with {file_count} files changed")
             recommendations.append("Consider breaking into smaller PRs")
 
-        # Check for missing error handling
-        if "except:" in diff and "except Exception" not in diff:
+        # Check for missing error handling (only match lines starting with +)
+        # Pattern matches: except: at end of line (not except Exception:, except ValueError:, etc.)
+        bare_except_pattern = r"^\+.*\bexcept\s*:\s*$"
+        if re.search(bare_except_pattern, diff, re.MULTILINE):
             issues.append("Bare except clause detected")
             recommendations.append("Use specific exception types")
 

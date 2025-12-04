@@ -4,11 +4,10 @@ PR Monitor: Detects new PRs and processes them through the review pipeline.
 
 import asyncio
 import logging
-from datetime import datetime
 from typing import Optional
 
 from .config import Config
-from .models import PRData
+from .models import PRData, utcnow
 
 try:
     from github import Github
@@ -83,7 +82,7 @@ class PRMonitor:
             number=pr.number,
             title=pr.title,
             author=pr.user.login if pr.user else "unknown",
-            created_at=pr.created_at or datetime.utcnow(),
+            created_at=pr.created_at or utcnow(),
             url=pr.html_url,
             diff_url=pr.diff_url,
             head_sha=pr.head.sha if pr.head else "",
