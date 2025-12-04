@@ -4,12 +4,5 @@
 # GitHub API
 PyGithub>=2.1.1
 
-# Async HTTP client
-aiohttp>=3.11.11
-
-# AI SDKs (optional - used when API keys are provided)
-# anthropic>=0.39.0
-# openai>=1.0.0
-
 # Typing extensions for Python 3.11+
 typing_extensions>=4.12.0

@@ -13,12 +13,6 @@ from ..core.config import SovereignPRManagerConfig
 logger = logging.getLogger(__name__)
 
 
-# Named constants
-THESIS_WEIGHT = 0.4
-ANTITHESIS_WEIGHT = 0.3
-SYNTHESIS_WEIGHT = 0.3
-
-
 class DialecticalEngine:
     """
     Synthesizes multiple review perspectives using dialectical reasoning.

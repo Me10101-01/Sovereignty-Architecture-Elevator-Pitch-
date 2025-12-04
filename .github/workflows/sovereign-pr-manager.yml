@@ -41,7 +41,6 @@ jobs:
           if [ -f SovereignPRManager/requirements.txt ]; then
             pip install -r SovereignPRManager/requirements.txt
           fi
-          pip install PyGithub
       
       - name: Run PR Review
         env:
