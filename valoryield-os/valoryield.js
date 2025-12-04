@@ -648,9 +648,59 @@ class ValorYieldOS extends EventEmitter {
 // EXPRESS API SERVER
 // ============================================================================
 
+// Simple in-memory rate limiter
+class RateLimiter {
+  constructor(windowMs = 60000, maxRequests = 100) {
+    this.windowMs = windowMs;
+    this.maxRequests = maxRequests;
+    this.requests = new Map();
+  }
+
+  isAllowed(ip) {
+    const now = Date.now();
+    const windowStart = now - this.windowMs;
+    
+    // Clean old entries
+    for (const [key, timestamps] of this.requests.entries()) {
+      const filtered = timestamps.filter(t => t > windowStart);
+      if (filtered.length === 0) {
+        this.requests.delete(key);
+      } else {
+        this.requests.set(key, filtered);
+      }
+    }
+    
+    const timestamps = this.requests.get(ip) || [];
+    if (timestamps.length >= this.maxRequests) {
+      return false;
+    }
+    
+    timestamps.push(now);
+    this.requests.set(ip, timestamps);
+    return true;
+  }
+
+  middleware() {
+    return (req, res, next) => {
+      const ip = req.ip || req.socket.remoteAddress || 'unknown';
+      if (!this.isAllowed(ip)) {
+        return res.status(429).json({ 
+          error: 'Too many requests', 
+          retryAfter: Math.ceil(this.windowMs / 1000) 
+        });
+      }
+      next();
+    };
+  }
+}
+
 function createServer(os) {
   const app = express();
   app.use(express.json());
+
+  // Rate limiting: 100 requests per minute per IP
+  const rateLimiter = new RateLimiter(60000, 100);
+  app.use(rateLimiter.middleware());
 
   // CORS headers
   app.use((req, res, next) => {

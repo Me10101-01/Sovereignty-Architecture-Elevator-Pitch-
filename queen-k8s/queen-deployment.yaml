@@ -76,7 +76,9 @@ spec:
     spec:
       containers:
         - name: valoryield
-          image: node:20-alpine
+          # Using specific LTS version for reproducible builds
+          # Node 20.x LTS includes native fetch API
+          image: node:20.18-alpine
           workingDir: /app
           command: ["node", "valoryield.js"]
           ports:
@@ -115,17 +117,20 @@ spec:
       volumes:
         - name: app-code
           emptyDir: {}
+      # NOTE: In production, replace with a pre-built container image
+      # or use a git-sync sidecar with verified commit hashes
       initContainers:
         - name: init-code
-          image: alpine/git
+          image: node:20.18-alpine
           command:
             - /bin/sh
             - -c
             - |
               cd /app && \
+              apk add --no-cache wget && \
               wget -q https://raw.githubusercontent.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture/main/valoryield-os/valoryield.js && \
               wget -q https://raw.githubusercontent.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture/main/valoryield-os/package.json && \
-              npm install --production
+              npm install --omit=dev
           volumeMounts:
             - name: app-code
               mountPath: /app
@@ -153,7 +158,9 @@ spec:
     spec:
       containers:
         - name: queen
-          image: node:20-alpine
+          # Using specific LTS version for reproducible builds
+          # Node 20.x LTS includes native fetch API
+          image: node:20.18-alpine
           workingDir: /app
           command: ["node", "queen.js"]
           ports:
@@ -194,17 +201,20 @@ spec:
       volumes:
         - name: app-code
           emptyDir: {}
+      # NOTE: In production, replace with a pre-built container image
+      # or use a git-sync sidecar with verified commit hashes
       initContainers:
         - name: init-code
-          image: alpine/git
+          image: node:20.18-alpine
           command:
             - /bin/sh
             - -c
             - |
               cd /app && \
+              apk add --no-cache wget && \
               wget -q https://raw.githubusercontent.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture/main/queen-app/queen.js && \
               wget -q https://raw.githubusercontent.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture/main/queen-app/package.json && \
-              npm install --production
+              npm install --omit=dev
           volumeMounts:
             - name: app-code
               mountPath: /app

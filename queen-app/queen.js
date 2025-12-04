@@ -9,6 +9,7 @@
  * - Development systems (GitHub Events)
  * - Treasury operations (Dividend Distribution)
  * 
+ * @requires Node.js 18+ (uses native fetch API)
  * @author Domenic Garza <domenic.garza@snhu.edu>
  * @license MIT
  */
@@ -16,6 +17,13 @@
 import express from 'express';
 import crypto from 'crypto';
 import { EventEmitter } from 'events';
+
+// Check Node.js version for native fetch support
+const nodeVersion = parseInt(process.versions.node.split('.')[0], 10);
+if (nodeVersion < 18) {
+  console.error('Error: Node.js 18 or higher is required for native fetch API support');
+  process.exit(1);
+}
 
 // ============================================================================
 // CONFIGURATION
