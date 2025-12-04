@@ -113,13 +113,14 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 MODEL
 
+  digit=${llm#llama}
   cat << COMPOSE > llm-council/$llm/docker-compose.yml
 version: '3.8'
 services:
   $llm:
     build: .
     ports:
-      - "500\${llm: -1}:5000"
+      - "500${digit}:5000"
     environment:
       - MODEL_NAME=$llm
 COMPOSE
