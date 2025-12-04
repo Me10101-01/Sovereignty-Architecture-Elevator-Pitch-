@@ -9,6 +9,14 @@ This system creates a **sovereignty control plane** that bridges:
 - **Infrastructure** - Kubernetes, observability, AI agents  
 - **Development** - GitLens, PR workflows, CI/CD automation, Java 21+ workspace
 - **AI Agents** - Intelligent assistance with vector knowledge base
+- **SovereignMesh** - Multi-AI agent orchestration across cloud providers
+
+### 🧠 SovereignMesh Multi-AI Architecture
+
+For operating across multiple AI agents (Gemini, Amazon Q, Claude, Grok, Copilot, Qwen):
+- **[SovereignMesh Architecture Guide](./SOVEREIGNMESH_ARCHITECTURE.md)** - Complete multi-AI orchestration documentation
+- **[Empire Recon Script](./empire-recon.sh)** - Map your entire infrastructure with `./empire-recon.sh`
+- **[Visual Architecture](./sovereign_mesh_architecture.dot)** - DOT graph of the multi-cloud AI topology
 
 ## 🚀 Quick Start
 
