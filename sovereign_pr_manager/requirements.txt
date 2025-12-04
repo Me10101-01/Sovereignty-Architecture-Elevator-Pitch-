@@ -1,0 +1,14 @@
+# SovereignPRManager Dependencies
+# Zero-button autonomous PR orchestration
+
+# GitHub API
+PyGithub>=2.1.0
+
+# Async HTTP (for Discord notifications)
+aiohttp>=3.9.0
+
+# YAML processing (for configuration)
+PyYAML>=6.0
+
+# Environment variable handling
+python-dotenv>=1.0.0
