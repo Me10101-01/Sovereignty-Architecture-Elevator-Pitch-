@@ -30,6 +30,17 @@ target/
 .mvn/
 *.log
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.env.local
+.venv/
+env/
+venv/
+
 # JDK installations
 .local/jdks/
 
