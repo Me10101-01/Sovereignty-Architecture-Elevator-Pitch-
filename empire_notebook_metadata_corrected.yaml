@@ -1,0 +1,493 @@
+metadata_version: "0.2"
+source: "handwritten_notebook_gpt_decode_v0.1_claude_corrections"
+last_updated: "2025-12-03"
+notes:
+  - "Original decode by GPT from notebook photo batches 1-5"
+  - "Cross-referenced and corrected by Claude from same photos + additional batches"
+  - "Corrections marked with # CORRECTED comments"
+  - "Pages processed: 24 of ~51 estimated"
+
+# =============================================================================
+# LEGAL ENTITIES
+# =============================================================================
+
+entities:
+
+  strategickhaos_dao_llc:
+    name: "Strategickhaos DAO LLC"
+    type: "decentralized_autonomous_organization_llc"
+    jurisdiction: "Wyoming"
+    governing_statute: "W.S. §17-31-101 et seq."
+    filed_datetime_local: "2025-06-25T14:08"
+    effective_date: "2025-07-04"
+    entity_id: "2025-001708194"  # CORRECTED: was 2025-00708194
+    ein: "39-2900295"            # CORRECTED: GPT had ValorYield's EIN here
+    irs:
+      form: "SS-4"
+      notice_type: "CP 575 G"
+      notice_date: "2025-06-26"
+    duration: "perpetual"
+    status: "active"
+    dba: "ValorYield Engine"
+    registered_agent:
+      name: "Northwest Registered Agent LLC"
+      address:
+        street: "30 N Gould St Ste N"
+        city: "Sheridan"
+        state: "WY"
+        postal_code: "82801"
+    principal_address:
+      street: "1216 S Fredonia St"
+      city: "Longview"
+      state: "TX"
+      postal_code: "75602"
+    management_type: "algorithmic"
+    research_questions:
+      - "What is 'organizer' for a decentralized autonomous organization?"
+      - "Can an existing business be converted into a nonprofit?"
+      - "Can GitHub Enterprise be a registered agent? (likely no)"
+    page_hint: "Batch 5 page 3,6; Pages 13-14"
+
+  valor_yield_engine:
+    name: "ValorYield Engine"
+    type: "public_benefit_nonprofit_corporation"
+    jurisdiction: "Wyoming"
+    filed_datetime_local: "2025-06-25T15:49"  # CORRECTED: was 2025-06-27T15:54
+    entity_id: "2025-001708312"               # CORRECTED: was 2025-0070832
+    ein: "39-2923503"                         # CORRECTED: was 39-2823503
+    irs:
+      form: "SS-4"
+      notice_type: "CP 575 E"
+      notice_date: "2025-06-27"
+    filer_name: "Domenic Gabriel Garza"       # CORRECTED: was Gabriel Garcia
+    membership_structure: "no_members"
+    has_members: false
+    status: "active"
+    mission: "AI-driven dividend allocation for veteran housing and vehicle expenses"
+    pending_actions:
+      - "File Form 1023/1023-EZ for 501(c)(3) determination"
+    notes:
+      - "Explicitly noted: 'This corporation will not have members.'"
+    page_hint: "Batch 5 page 4; Pages 15-17"
+
+  skyline_strategies_llc:
+    name: "Skyline Strategies Rope Access & Rescue Production LLC"
+    type: "llc"
+    jurisdiction: "Louisiana"    # CORRECTED: was Texas
+    ein: "99-2899134"            # CORRECTED: was 99-8881374
+    irs:
+      form: "SS-4"
+      notice_type: "CP 575 G"
+      notice_date: "2024-05-07"  # CORRECTED: was 2025-05-07
+    address:
+      street: "702 E School St Ste B103"  # CORRECTED: was 709
+      city: "Lake Charles"                 # CORRECTED: was Longview
+      state: "LA"                          # CORRECTED: was TX
+      postal_code: "70607"                 # CORRECTED: was 75602
+    status: "active"
+    industry: "Industrial rope access, rescue, services"
+    page_hint: "Batch 5 business EIN page; Page 12"
+
+  garzas_organic_greens_llc:
+    name: "Garza's Happy Healthy Organic Greens and More LLC"  # CORRECTED name
+    type: "llc"
+    jurisdiction: "Texas"
+    ein: "92-1288715"
+    irs:
+      form: "SS-4"
+      notice_type: "CP 575 G"
+    filing:
+      state_file_number: "804827477"
+      document_number: "1202609460002"
+      filed_date: "2022-12-02"
+    address:
+      street: "440 Louisiana St"   # CORRECTED: was 420
+      suite: "900"
+      city: "Houston"
+      state: "TX"
+      postal_code: "77002"
+    registered_agent:
+      address: "1060 Clarence Dr Suite 250, Frisco, TX 75033"
+    preparer: "Tamara Schoonmaker"
+    status: "active"
+    industry: "Agriculture, microgreens"
+    page_hint: "page 10 / Batch 4; Page 12"
+
+  open_block_clean:
+    label: "Open Blockchain Token"
+    type: "utility_token_filing"
+    jurisdiction: "Wyoming"
+    filing_status: "notice_of_intent"
+    statutory_refs:
+      - "W.S. §34-29-106(j)"    # CORRECTED format
+      - "W.S. §17-4-206"        # CORRECTED format
+    phone: "307-777-7370"       # CORRECTED: was 307-771-1370
+    economics:
+      par_value_usd: 1000       # From notebook: "$1,000"
+      codes:
+        - "P = SaS"             # Software as a Service classification?
+        - "D99.1d.nc25"
+    verification:
+      website: "wyo.gov"
+      action: "Compare @ wyo.gov"
+    related_filings:
+      - "USPTO"
+      - "VAS"
+    page_hint: "Page 24 (rotated)"
+    uncertain: true
+
+  # GPT's other entities retained with uncertainty flags
+  healthy_organic_farms_llc:
+    name: "Healthy Organic Farms LLC"
+    type: "llc"
+    jurisdiction: "Texas"
+    filing_number: "804882477"
+    filed_date: "2020-12-01"
+    effective_date: "2020-12-02"
+    industry: "Senior & aging research context"
+    registered_agent:
+      name: "Angel Lopez"
+      address: "410 Louisiana St Ste 900, Houston TX 77002"
+    research_questions:
+      - "How to convert LLC to nonprofit / 501(c)?"
+      - "How many EINs did you research with?"
+      - "How to become a registered agent?"
+    page_hint: "Batch 4 (8,9 pages)"
+    uncertain: true
+    note: "May be research entity, not owned by founder"
+
+# =============================================================================
+# FOUNDER
+# =============================================================================
+
+founder:
+  full_name: "Domenic Gabriel Garza"
+  role: "Sole Organizer, Managing Member, Core Architect"
+  orcid: "0000-0005-2996-3526"
+  cognitive_architecture: "Quadrilateral Collapse Learning + Mixed Dominance + Distributed Parallel Intent Engine"
+  
+  education:
+    current:
+      institution: "Southern New Hampshire University"
+      program: "BS Computer Science + Cybersecurity (Dual Major)"
+      concentration: "Software Engineering"
+      student_id: "3413281"
+      gpa: 3.732
+      progress: "45/120 credits"
+      status: "active"
+    previous:
+      institution: "San Jacinto College"
+      email: "garza.d678936@stu.sanjac.edu"  # CORRECTED: was garca.667883
+      status: "verify"
+      password_reset_url: "https://www.sanjac.edu/password"
+      it_helpdesk_phone: "281-998-6137"
+      it_site: "https://www.sanjacits.org"
+
+# =============================================================================
+# CLOUD INFRASTRUCTURE
+# =============================================================================
+
+cloud:
+
+  google_cloud:
+    projects:
+      - name: "My First Project"
+        project_id: "central-achy-463919-r1"
+        project_number: "331015150353"  # CORRECTED: was 5310155633
+      - name: "Jarvis Swarm Personal"
+        project_id: "jarvis-swarm-personal"
+        project_number: "451173083E"    # CORRECTED: was 451728083
+    
+    clusters:
+      - name: "jarvis-swarm-personal-001"
+        type: "GKE Autopilot"
+        region: "us-central1"
+        endpoint: "34.89.88.27"         # CORRECTED: GPT had this IP on wrong cluster
+        role: "PRIMARY_SWARM"
+        status: "running"
+      - name: "autopilot-cluster-1"
+        type: "GKE Autopilot"
+        region: "us-central1"
+        endpoint: "35.192.28.199"       # CORRECTED: was 34.89.89.27
+        role: "RED_TEAM"
+        status: "running"
+
+  azure_devops:
+    organization: "at-strategickhaos"
+    platform: "Azure DevOps"
+    url: "https://dev.azure.com/at-strategickhaos"
+    active_until: "2025-12-29"
+    access_level: "full"
+    features:
+      - "Codespaces"
+      - "CLI access"
+    page_hint: "Batch 2 Azure notes; Page 23"
+
+# =============================================================================
+# PLATFORM IDENTITIES
+# =============================================================================
+
+platforms:
+
+  github:
+    enterprise_org: "Strategickhaos Swarm Intelligence"
+    personal_handles:
+      - "Strategickhaos"
+      - "Me10101-01"
+    github_app: "StrategickhaosControlAI"
+    repositories:
+      compliance: "https://github.com/Strategickhaos/DAO_Compliance"
+      uplink: "https://github.com/Me10101-01/Node137_Uplink_Receipt"
+
+  ai_platforms:
+    claude:
+      accounts: 2
+      workspaces:
+        - "domenic.garza@snhu.edu's Organization"
+        - "Legends Of Minds OS"
+        - "Strategickhaos"
+    openai:
+      plan: "Pro"
+      assistants:
+        - "Baby"
+        - "Legion Node Advisor"
+    grok:
+      status: "active"
+
+  security:
+    bugcrowd:
+      url: "https://bugcrowd.com/h/Strategickhaos"
+      status: "active"
+    ngrok:
+      license_type: "Personal"
+      invoice: "UTNCEV-00003"
+      status: "paid"
+
+  academic:
+    orcid:
+      id: "0000-0005-2996-3526"
+      url: "https://orcid.org/0000-0005-2996-3526"
+    uidp:
+      type: "Community Partner"
+      status: "registered"
+
+# =============================================================================
+# CRYPTOGRAPHY
+# =============================================================================
+
+cryptography:
+  
+  openpgp:
+    key_server: "keys.openpgp.org"
+    fingerprint_segments:  # CORRECTED multiple errors
+      - "CEB"
+      - "E55"       # CORRECTED: was F55
+      - "C8FA"
+      - "7880"      # CORRECTED: removed spurious 808
+      - "E19769"
+      - "B0B"       # ADDED: missing from GPT
+      - "CB3464"    # CORRECTED: was CB3644
+      - "7214"
+      - "E15F9"     # CORRECTED: was E1579
+    full_fingerprint: "CEBE55C8FA7880E19769B0BCB34647214E15F9"
+    page_hint: "Batch 2 PGP page; Page 21"
+
+  timestamping:
+    method: "OpenTimestamps"
+    blockchain: "Bitcoin"
+
+  content_addressing:
+    method: "IPFS"
+
+# =============================================================================
+# DEVICES & TELECOM
+# =============================================================================
+
+devices:
+
+  domenics_ipad:
+    name: "Domenics-iPad"
+    type: "iPad"
+    local_ip: "192.168.1.131"    # CORRECTED: was 192.168.1.63
+    mac_address: "0E:31:E4:DA:CB:2A:B"
+    page_hint: "Page 22"
+
+  verizon_5g_device:
+    sku: "R5262-L5W2"            # CORRECTED format
+    model: "R562L5"
+    fcc_id: "2AB6H-R5262L5"
+    certifications:
+      - "5G capable"
+    sim_iccid: "8914800001052109529"  # Reconstructed from fragments
+    imei: "357600960387088"           # From page 23
+    page_hint: "Pages 22-23"
+
+# =============================================================================
+# NETWORK OBSERVATIONS
+# =============================================================================
+
+network:
+
+  discord_observation:
+    ip: "31.204.133.214"         # CORRECTED: was 31.204.133.244
+    location: "Atlanta, Georgia, United States"
+    timestamp: "2025-11-30 02:07 AM"
+    context: "Discord login/security observation"
+    related_project: "Email notification tracking system"
+    page_hint: "Page 18"
+
+# =============================================================================
+# LOCAL INFRASTRUCTURE
+# =============================================================================
+
+local_infrastructure:
+
+  cluster_nodes:
+    - "Athena"
+    - "Lyra"
+    - "Nova"
+    - "iPower"
+  
+  routers:
+    count: 8
+    role: "SOC-level inference nodes and sovereign off-grid compute"
+  
+  screens: 10
+  
+  software_stack:
+    llm_gateway: "Ollama"
+    models:
+      - "Qwen2.5"
+      - "Llama"
+      - "Mistral"
+    vector_db: "Qdrant"
+    memory_mesh: "Redis"
+
+# =============================================================================
+# HARDWARE INVENTORY (Tax Write-offs)
+# =============================================================================
+
+hardware_inventory:
+
+  ram:
+    total_planned: "32GB+"
+    breakdown: "64 + 64 + 32 + 128 = 288GB aggregate"
+  
+  storage:
+    ssds: "Multiple (noted as 'format SSDs')"
+  
+  categories:
+    - "GPUs"
+    - "Routers (8)"
+    - "Monitors (10)"
+    - "Battery/UPS"
+    - "Wiring"
+  
+  service_subscriptions:
+    - "Business Starlink Internet"
+    - "Verizon Business Internet + Phone"
+  
+  context: "Hardware planning + tax write-off considerations"
+  page_hint: "Pages 20-21"
+
+# =============================================================================
+# FINANCE
+# =============================================================================
+
+finance:
+
+  ein_registry:
+    - entity: "strategickhaos_dao_llc"
+      ein: "39-2900295"
+      notice_type: "CP 575 G"
+    - entity: "valor_yield_engine"
+      ein: "39-2923503"
+      notice_type: "CP 575 E"
+    - entity: "skyline_strategies_llc"
+      ein: "99-2899134"
+      notice_type: "CP 575 G"
+    - entity: "garzas_organic_greens_llc"
+      ein: "92-1288715"
+      notice_type: "CP 575 G"
+
+  accounting_stack:
+    preferred_services:
+      - "Square"
+      - "QuickBooks"
+      - "Xero"
+      - "FreshBooks"
+    integration_urls:
+      - "https://go.getsquare.io/business-owners"
+    goals:
+      - "Full integration with 10+ systems"
+      - "Eventually build custom books/payroll software"
+
+  payroll_notes:
+    fica_withholding_code: "157103"
+    year_reference: "2025"
+    notes:
+      - "Values may be placeholders or rough calculations"
+    uncertain: true
+
+# =============================================================================
+# DOMAINS
+# =============================================================================
+
+domains:
+  - domain: "strategickhaos.com"
+    status: "owned"
+  - domain: "swarm.strategickhaos.com"
+    status: "pending"
+    action: "Configure A record → GKE ingress LB"
+
+# =============================================================================
+# LEGAL RESEARCH QUESTIONS
+# =============================================================================
+
+legal_questions:
+
+  dissolution_and_mismatch:
+    - "Did a referenced dissolution apply to the correct entity?"
+    - "If dissolution was issued on mismatched data, is original filing valid?"
+  
+  structuring:
+    - "Can a for-profit be converted to nonprofit (state + IRS)?"
+    - "Can a nonprofit own or convert an existing business?"
+    - "How to become your own registered agent?"
+    - "How to convert LLC to nonprofit/PBC structures?"
+  
+  dao_specific:
+    - "What is legally 'organizer' of a DAO?"
+    - "Can GitHub Enterprise be a registered agent? (almost certainly no)"
+
+# =============================================================================
+# VERIFICATION CONTACTS
+# =============================================================================
+
+verification:
+
+  wyoming_sos:
+    url: "https://wyobiz.wyo.gov"
+    phone: "307-777-7370"
+  
+  texas_sos:
+    url: "https://www.sos.texas.gov"
+    phone: "512-463-5555"
+  
+  irs:
+    general: "1-800-829-3676"
+    tty_tdd: "1-800-829-4059"
+
+# =============================================================================
+# METADATA
+# =============================================================================
+
+processing_stats:
+  notebook_pages_processed: 24
+  notebook_pages_estimated: 51
+  completion_percentage: 47
+  batches_decoded_by_gpt: 5
+  additional_pages_by_claude: 6
+  corrections_applied: 15
+  entities_verified: 4
+  entities_uncertain: 2

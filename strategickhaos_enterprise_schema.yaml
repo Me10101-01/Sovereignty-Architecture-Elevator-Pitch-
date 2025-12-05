@@ -1,0 +1,628 @@
+# ============================================================================
+# STRATEGICKHAOS ENTERPRISE MANAGEMENT SYSTEM
+# Master Schema v1.0
+# Generated: 2025-12-03
+# Source: Handwritten notebook capture (50+ pages)
+# ============================================================================
+
+schema_version: "1.0.0"
+schema_name: "strategickhaos-enterprise"
+generated_at: "2025-12-03T00:00:00Z"
+owner: "Domenic Gabriel Garza"
+
+# ============================================================================
+# SECTION 1: LEGAL ENTITIES
+# ============================================================================
+entities:
+  
+  # Entity 1: Skyline Strategies (Louisiana LLC)
+  skyline_strategies:
+    legal_name: "Skyline Strategies Rope Access & Rescue Production L.L.C."
+    type: "LLC"
+    state: "Louisiana"
+    status: "active"
+    formation_date: "2024-05-07"
+    addresses:
+      registered:
+        street: "702 E School St"
+        suite: "Ste B103"
+        city: "Lake Charles"
+        state: "LA"
+        zip: "70607"
+    tax:
+      ein: "99-2899134"
+      name_control: "SKYL"
+      cp575_notice: "CP 575 G"
+      notice_date: "2024-05-07"
+    responsible_party:
+      name: "Domenic Gabriel Garza"
+      role: "Sole Member"
+    industry: "Rope Access & Rescue, Industrial Services"
+
+  # Entity 2: Strategickhaos DAO LLC (Wyoming DAO)
+  strategickhaos_dao:
+    legal_name: "Strategickhaos DAO LLC"
+    dba: "ValorYield Engine"
+    type: "DAO LLC"
+    statute: "W.S. 17-31-101"
+    state: "Wyoming"
+    status: "active"
+    formation_date: "2025-06-25"
+    effective_date: "2025-07-04"
+    duration: "perpetual"
+    filing:
+      original_id: "2025-001708194"
+      filed_datetime: "2025-06-25T14:08:00"
+      secretary_of_state: "Chuck Gray"
+    addresses:
+      registered_agent:
+        name: "Northwest Registered Agent LLC"
+        street: "30 N Gould St"
+        suite: "Ste N"
+        city: "Sheridan"
+        state: "WY"
+        zip: "82801"
+      mailing:
+        street: "1216 S Fredonia St"
+        city: "Longview"
+        state: "TX"
+        zip: "75602"
+    tax:
+      ein: "39-2900295"
+      name_control: "STRA"
+      cp575_notice: "CP 575 G"
+      notice_date: "2025-06-26"
+    responsible_party:
+      name: "Domenic Gabriel Garza"
+      role: "Sole Member / Organizer"
+    governance:
+      management_type: "algorithmic"
+      description: "Managed by decentralized autonomous system with AI-based agents"
+      smart_contracts: "pending_deployment"
+      human_override: "emergency_only"
+
+  # Entity 3: ValorYield Engine (Wyoming Public Benefit Nonprofit)
+  valoryield_engine:
+    legal_name: "ValorYield Engine"
+    type: "Public Benefit Nonprofit Corporation"
+    state: "Wyoming"
+    status: "active"
+    formation_date: "2025-06-25"
+    filing:
+      original_id: "2025-001708312"
+      filed_datetime: "2025-06-25T15:49:00"
+    has_members: false
+    addresses:
+      registered_agent:
+        name: "Northwest Registered Agent Service Inc"
+        street: "30 N Gould St"
+        suite: "Ste N"
+        city: "Sheridan"
+        state: "WY"
+        zip: "82801"
+      mailing:
+        street: "1216 S Fredonia St"
+        city: "Longview"
+        state: "TX"
+        zip: "75602"
+    tax:
+      ein: "39-2923503"
+      name_control: "VALO"
+      cp575_notice: "CP 575 E"
+      notice_date: "2025-06-27"
+      tax_exempt_status: "pending_501c3"
+    responsible_party:
+      name: "Domenic Gabriel Garza"
+      role: "Incorporator / Founder"
+    mission: |
+      AI-driven dividend allocation system for veterans and underserved communities.
+      Pays vehicle and housing expenses. Credit defense tools, promissory notes,
+      notary integration. 7% irrevocable charity allocation.
+    dissolution_beneficiaries:
+      - "501(c)(3) organizations supporting veterans"
+      - "Underserved community programs"
+      - "Financial literacy organizations"
+
+  # Entity 4: Texas LLC (pending/form stage)
+  garzas_organic_greens:
+    legal_name: "Garza's Happy Healthy Organic Greens and More L.L.C."
+    type: "LLC"
+    state: "Texas"
+    status: "formation_pending"
+    addresses:
+      principal:
+        street: "440 Louisiana St"
+        suite: "Ste 900"
+        city: "Houston"
+        state: "TX"
+        zip: "77002"
+    tax:
+      ein: "pending"
+    responsible_party:
+      name: "Domenic G Garza"
+    industry: "Agriculture, Microgreens"
+    third_party_designee:
+      name: "Cheyenne Moseley"
+      phone: "800-773-0888 x5208"
+      address: "101 N. Brand Ave., 10th Floor, Glendale, CA 91203"
+
+# ============================================================================
+# SECTION 2: INFRASTRUCTURE
+# ============================================================================
+infrastructure:
+  
+  cloud_platforms:
+    
+    github_enterprise:
+      name: "Strategickhaos Swarm Intelligence"
+      type: "GitHub Enterprise Cloud"
+      owner: "Strategickhaos"
+      organizations:
+        - name: "Strategickhaos-Swarm-Intelligence"
+          status: "active"
+          role: "Primary enterprise org"
+        - name: "LegendsOfMinds-OS"
+          status: "planned"
+          role: "Legion Console, swarm coordination"
+        - name: "Jarvis-Swarm"
+          status: "planned"
+          role: "Autonomous agent workflows"
+      apps:
+        - name: "StrategickhaosControlAI"
+          status: "active"
+          purpose: "Autonomous offline AI bridge"
+      key_repos:
+        - "Sovereignty-Architecture-Elevator-Pitch-"
+        - "Moonlight-Sunshine-Matrix"
+        - "rope-access-evaluation"
+        - "starlink-exporter"
+        - "StrategickhaosControlAI"
+        - "cloud-swarm"
+
+    google_cloud:
+      project_id: "jarvis-swarm-personal"
+      region: "us-central1"
+      clusters:
+        - name: "jarvis-swarm-personal-001"
+          type: "GKE Autopilot"
+          status: "running"
+          role: "Primary swarm execution"
+          connection_command: "gcloud container clusters get-credentials jarvis-swarm-personal-001 --region us-central1 --project jarvis-swarm-personal"
+        - name: "red-team"
+          type: "GKE"
+          status: "running"
+          role: "Simulation / offensive research"
+      integrations:
+        - "discord-integration"
+        - "RCON reconnaissance"
+        - "Intelligence gathering"
+
+    azure_devops:
+      organization: "garzadomenic101"
+      url: "dev.azure.com/garzadomenic101"
+      projects:
+        - name: "LegionOfMinds"
+          status: "planned"
+      features:
+        - "Enterprise archives"
+        - "Repos"
+        - "Boards"
+        - "Pipelines"
+
+  local_infrastructure:
+    cluster_nodes:
+      - "Athena"
+      - "Lyra"
+      - "Nova"
+      - "iPower"
+    kubernetes_nodes: 4
+    routers: 8
+    screens: 10
+    llm_stack:
+      models:
+        - "Qwen2.5"
+        - "Llama"
+        - "Mistral"
+      runtime: "Ollama"
+      ports:
+        ollama: 11434
+        qdrant: 6333
+        redis: 6379
+
+  domains:
+    - name: "strategickhaos.com"
+      status: "owned"
+      subdomains:
+        - name: "swarm.strategickhaos.com"
+          status: "pending_dns"
+          needs: "Ingress/LB + A record"
+
+# ============================================================================
+# SECTION 3: FINANCIAL TRACKING
+# ============================================================================
+financial:
+  
+  employment:
+    employer: "Industrial/Rope Access"
+    rate_hourly: 48
+    hours_per_period: 40
+    
+  pay_periods:
+    # Template for tracking - populate from notebook pages
+    - period_id: "2025-11-17_2025-11-23"
+      period_start: "2025-11-17"
+      period_end: "2025-11-23"
+      advice_date: "2025-11-28"
+      advice_number: "00353022 46"
+      batch_number: "2025 11 260637"
+      
+      earnings:
+        gross_this_period: 1920.00
+        ytd_gross: 155747.00
+        per_diem_this_period: 700.00
+        per_diem_ytd: 5600.00
+        per_diem_pay_total: 21375.00
+        holiday_pay: 2016.00
+        vacation_pay: 2688.00
+        overtime_1_5: 38628.00
+        per_diem_year_total: 81600.00
+        
+      deductions:
+        tax_this_period: 189.40
+        tax_ytd: 10083.81
+        fica_this_period: 157.03
+        fica_ytd: 7865.30
+        medicare_this_period: 36.72
+        medicare_ytd: 18939.51
+        other_deductions: 87.30
+        other_ytd: 4393.94
+        other_deduct_07: 193.75
+        
+      net:
+        net_pay: 1643.24
+        ytd_net: 141269.25
+        
+      distribution:
+        checking_primary: 676.00
+        checking_additional: 500.00
+        tdecu_1: 6574.00
+        tdecu_2: 114304.00
+
+  accounts:
+    - name: "Primary Checking"
+      institution: "Unknown"
+      purpose: "Operating"
+    - name: "TDECU"
+      institution: "TDECU"
+      purpose: "Savings/Reserve"
+    - name: "NFCU"
+      institution: "Navy Federal Credit Union"
+      purpose: "DAO Treasury"
+
+  tools:
+    accounting:
+      - name: "Sequence.io"
+        url: "https://go.getsequence.io"
+        start_date: "2025-01-03"
+        current_date: "2025-11-28"
+        year: 2025
+        entries: 79
+        purpose: "Business owners accounting"
+      - name: "QuickBooks"
+        status: "evaluation"
+      - name: "Xero"
+        status: "evaluation"
+      - name: "FreshBooks"
+        status: "evaluation"
+    custom:
+      - name: "Make Own Screen Software"
+        status: "planned"
+        purpose: "Custom financial dashboard"
+
+# ============================================================================
+# SECTION 4: DAILY OPERATIONS LOG SCHEMA
+# ============================================================================
+daily_ops_schema:
+  
+  # Template for daily entries
+  entry_template:
+    date: "YYYY-MM-DD"
+    day_of_week: "string"
+    habit_tracker: true
+    
+    timeline:
+      - timestamp: "HH:MM"
+        event: "string"
+        location:
+          lat: "decimal"
+          lon: "decimal"
+          address: "string"
+        notes: "string"
+    
+    tasks_completed:
+      - category: "string"
+        task: "string"
+        status: "completed|pending|deferred"
+    
+    reviews:
+      emails: "boolean"
+      grok_tasks: "boolean"
+      bills_status: "boolean"
+      snhu_algorithm: "boolean"
+      github_pr: "boolean"
+      subscriptions: "boolean"
+    
+    coordinates_log:
+      - label: "string"
+        lat: "decimal"
+        lon: "decimal"
+        timestamp: "ISO8601"
+        type: "arrival|departure|waypoint"
+
+  # Sample entry from notebook (Wed Dec 3)
+  sample_entry:
+    date: "2025-12-03"
+    day_of_week: "Wednesday"
+    habit_tracker: true
+    
+    timeline:
+      - timestamp: "05:05"
+        event: "Arouse/bottle up"
+      - timestamp: "05:32"
+        event: "Depart"
+      - timestamp: "05:44"
+        event: "Arrive P1 Bash"
+      - timestamp: "05:57"
+        event: "Arrival"
+        location:
+          lat: 30.183056
+          lon: -93.323278
+          raw: "30°10'59.3\"N 93°19'23.8\"W"
+      - timestamp: "11:09"
+        event: "Clomuke"
+    
+    departure_location:
+      lat: 30.228750
+      lon: -93.323806
+      raw: "30°13'43.5\"N 93°19'25.7\"W"
+      address: "4120 Tracy Cir"
+    
+    reviews:
+      emails: true
+      grok_tasks: true
+      bills_status: true
+      finance_dept_ratio: "PO# Algorithm"
+      snhu_algorithm: true
+      github_pr_enterprise: true
+      subscription_license: "ceased"
+    
+    tasks:
+      - "Zipline Instagram"
+      - "Condole Ram Gate"
+
+# ============================================================================
+# SECTION 5: EDUCATION & CREDENTIALS
+# ============================================================================
+education:
+  
+  current:
+    institution: "Southern New Hampshire University"
+    student_id: "3413281"
+    email: "domenic.garza@snhu.edu"
+    degree: "Bachelor of Science"
+    majors:
+      - "Computer Science"
+      - "Cybersecurity"
+    concentration: "Software Engineering"
+    gpa: 3.732
+    credits_required: 120
+    credits_completed: 45
+    progress_percent: 38
+    catalog_year: "2025 C-1 (JAN - MAR)"
+    status: "in_progress"
+    
+    current_courses:
+      - course: "MAT 243"
+        title: "Applied Statistics for STEM"
+        term: "2025 C-6 (Oct - Dec)"
+        status: "IP"
+      - course: "IT 145"
+        title: "Found in App Development"
+        term: "2026 C-1 (Jan - Mar)"
+        status: "IP"
+      - course: "PHY 150"
+        title: "Intro Physics: Mechanics"
+        term: "2026 C-2 (Mar - Apr)"
+        status: "IP"
+
+# ============================================================================
+# SECTION 6: RESEARCH QUESTIONS (from notebook)
+# ============================================================================
+research_questions:
+  legal:
+    - "Can your GitHub Enterprise be Registered Agent?"
+    - "What is organizer of decentralized autonomous organization?"
+    - "Can one non-profit convert a business into a non-profit?"
+    - "Corporation Address vs Business Address?"
+  
+  technical:
+    - "What is a CRD (Custom Resource Definition)?"
+    - "Multi-cloud enterprise infrastructure across GitHub/GKE/Azure?"
+  
+  financial:
+    - "CO paid deductions?"
+    - "Finance/Dept Ratio Percentage PO# Algorithm?"
+
+# ============================================================================
+# SECTION 7: INTEGRATIONS & TOOLS
+# ============================================================================
+integrations:
+  
+  ai_platforms:
+    - name: "Claude"
+      provider: "Anthropic"
+      accounts:
+        - email: "domenic.garza@snhu.edu"
+          workspaces:
+            - "domenic.garza@snhu.edu's Organization"
+            - "Legends Of Minds OS"
+        - email: "personal"
+          workspaces:
+            - "Strategickhaos"
+    - name: "GPT"
+      provider: "OpenAI"
+      plan: "Pro"
+      custom_assistants:
+        - "Baby"
+        - "Legion Node Advisor"
+    - name: "Grok"
+      provider: "xAI"
+      status: "active"
+
+  social:
+    - platform: "Instagram"
+      handle: "Zipline"
+      status: "active"
+    - platform: "Twitter/X"
+      handle: "@strategickhaos"
+      status: "active"
+
+  productivity:
+    - name: "Sequence.io"
+      purpose: "Accounting/Business management"
+    - name: "Obsidian"
+      purpose: "Knowledge management"
+    - name: "Unity Engine"
+      purpose: "Visualization/Simulation"
+    - name: "OBS"
+      purpose: "Graph visualization"
+
+# ============================================================================
+# SECTION 8: NOTEBOOK INGESTION TRACKER
+# ============================================================================
+notebook_ingestion:
+  total_pages_estimated: 51
+  pages_processed: 8
+  pages_remaining: 43
+  
+  processed_pages:
+    - page: 1
+      content_type: "infrastructure_architecture"
+      status: "transcribed"
+    - page: 2
+      content_type: "daily_ops_log"
+      status: "transcribed"
+    - page: 3
+      content_type: "pay_statement"
+      status: "transcribed"
+    - page: 4
+      content_type: "tax_financial"
+      status: "transcribed"
+    - page: 5
+      content_type: "business_ein_registry"
+      status: "transcribed"
+    - page: 6
+      content_type: "dao_llc_details"
+      status: "transcribed"
+    - page: 7
+      content_type: "nonprofit_details"
+      status: "transcribed"
+    - page: 8
+      content_type: "questions_summary"
+      status: "transcribed"
+
+  ingestion_workflow:
+    - step: 1
+      action: "Photograph page"
+      tool: "Phone camera"
+    - step: 2
+      action: "Upload to Claude"
+      tool: "Claude.ai"
+    - step: 3
+      action: "AI transcription + categorization"
+      tool: "Claude"
+    - step: 4
+      action: "Append to master YAML"
+      tool: "Automated"
+    - step: 5
+      action: "Validate schema"
+      tool: "yamllint"
+    - step: 6
+      action: "Commit to repo"
+      tool: "git"
+
+# ============================================================================
+# SECTION 9: APPLICATION REQUIREMENTS
+# ============================================================================
+app_requirements:
+  
+  name: "Strategickhaos Enterprise Manager"
+  type: "Web Application / Progressive Web App"
+  
+  core_modules:
+    - name: "Entity Manager"
+      features:
+        - "View/edit all business entities"
+        - "Track filing deadlines"
+        - "Store compliance documents"
+        - "EIN/tax status dashboard"
+    
+    - name: "Financial Tracker"
+      features:
+        - "Pay statement ingestion"
+        - "Tax withholding calculations"
+        - "Per diem tracking"
+        - "Multi-account distribution"
+        - "YTD summaries"
+    
+    - name: "Infrastructure Dashboard"
+      features:
+        - "Cloud resource status (GKE, Azure, GitHub)"
+        - "Cluster health monitoring"
+        - "Cost tracking"
+        - "Deployment pipeline status"
+    
+    - name: "Daily Ops Logger"
+      features:
+        - "GPS coordinate logging"
+        - "Timeline entries"
+        - "Task checklists"
+        - "Habit tracking"
+    
+    - name: "Notebook Digitizer"
+      features:
+        - "Image upload"
+        - "AI-powered transcription"
+        - "Auto-categorization"
+        - "YAML append"
+    
+    - name: "Compliance Vault"
+      features:
+        - "Document storage"
+        - "Filing deadline alerts"
+        - "OpenTimestamps anchoring"
+        - "GPG signature verification"
+
+  tech_stack:
+    frontend:
+      - "React"
+      - "Tailwind CSS"
+      - "shadcn/ui"
+    backend:
+      - "FastAPI (Python)"
+      - "PostgreSQL"
+      - "Redis"
+    deployment:
+      - "Docker"
+      - "Kubernetes (GKE)"
+      - "GitHub Actions CI/CD"
+    integrations:
+      - "Anthropic API (Claude)"
+      - "OpenAI API (GPT)"
+      - "Google Cloud Vision (OCR)"
+      - "Plaid (banking)"
+      - "Sequence.io API"
+
+# ============================================================================
+# END OF SCHEMA
+# ============================================================================

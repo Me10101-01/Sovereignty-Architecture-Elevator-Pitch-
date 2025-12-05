@@ -1,0 +1,207 @@
+# ============================================================================
+# STRATEGICKHAOS ZAPIER WEBHOOK CONFIGURATION
+# Routes Azure DevOps CI/CD notifications to sovereign automation stack
+# Entity: StrategicKhaos DAO LLC (2025-001708194)
+# ============================================================================
+
+webhook_config:
+  name: "StrategicKhaos CI/CD Notifications"
+  description: "Routes pipeline events to Slack, Sheets, Airtable, and trading systems"
+  
+  # Step 1: Catch webhook from Azure DevOps
+  trigger:
+    type: "webhooks_catch_hook"
+    description: "Receives POST from Azure pipeline Notify stage"
+    expected_payload:
+      pipeline: "string"
+      status: "string"  # success | failed
+      commit: "string"
+      branch: "string"
+      build_id: "string"
+      timestamp: "string"  # ISO 8601
+      message: "string"
+      entity: "string"
+      entity_id: "string"
+
+  # Step 2: Slack notification
+  actions:
+    - step: 2
+      name: "Slack Alert"
+      app: "slack"
+      action: "send_channel_message"
+      config:
+        channel: "#trading-alerts"
+        message_template: |
+          {{status_emoji}} *{{pipeline}}*
+          
+          Status: {{status}}
+          Branch: {{branch}}
+          Commit: `{{commit}}`
+          Time: {{timestamp}}
+          
+          {{message}}
+          
+          Entity: {{entity}} ({{entity_id}})
+        status_emoji_map:
+          success: "✅"
+          failed: "❌"
+          
+    # Step 3: Google Sheets logging
+    - step: 3
+      name: "Google Sheets Log"
+      app: "google_sheets"
+      action: "create_spreadsheet_row"
+      config:
+        spreadsheet: "Trade Logs Sovereign"
+        worksheet: "CI_CD_Logs"
+        columns:
+          - field: "timestamp"
+            source: "{{timestamp}}"
+          - field: "pipeline"
+            source: "{{pipeline}}"
+          - field: "status"
+            source: "{{status}}"
+          - field: "branch"
+            source: "{{branch}}"
+          - field: "commit"
+            source: "{{commit}}"
+          - field: "build_id"
+            source: "{{build_id}}"
+          - field: "message"
+            source: "{{message}}"
+          - field: "entity_id"
+            source: "{{entity_id}}"
+
+    # Step 4: Airtable record
+    - step: 4
+      name: "Airtable Deployment Record"
+      app: "airtable"
+      action: "create_record"
+      config:
+        base: "Strategickhaos CRM"
+        table: "Deployments"
+        fields:
+          - name: "Timestamp"
+            value: "{{timestamp}}"
+          - name: "Pipeline"
+            value: "{{pipeline}}"
+          - name: "Status"
+            value: "{{status}}"
+          - name: "Commit"
+            value: "{{commit}}"
+          - name: "Branch"
+            value: "{{branch}}"
+          - name: "Build ID"
+            value: "{{build_id}}"
+          - name: "Message"
+            value: "{{message}}"
+          - name: "Entity"
+            value: "{{entity}}"
+
+    # Step 5: Filter for successful deployments only
+    - step: 5
+      name: "Filter Success Only"
+      app: "filter"
+      action: "only_continue_if"
+      config:
+        condition:
+          field: "status"
+          operator: "equals"
+          value: "success"
+
+    # Step 6: Trigger trading signal (on success)
+    - step: 6
+      name: "Trading Signal Trigger"
+      app: "webhooks"
+      action: "post"
+      config:
+        url: "{{QUEEN_WEBHOOK_URL}}"  # Your Queen.js endpoint
+        payload_type: "json"
+        data:
+          signal_type: "deployment_complete"
+          source: "azure_devops"
+          commit: "{{commit}}"
+          branch: "{{branch}}"
+          timestamp: "{{timestamp}}"
+          action: "check_rebalance"
+        headers:
+          Content-Type: "application/json"
+          X-Source: "strategickhaos-zapier"
+
+# ============================================================================
+# SETUP INSTRUCTIONS
+# ============================================================================
+#
+# 1. Create new Zap in Zapier
+#
+# 2. Step 1 - Trigger: Webhooks by Zapier → Catch Hook
+#    - Copy the webhook URL
+#    - Add to Azure DevOps pipeline variables as ZAPIER_WEBHOOK_URL
+#
+# 3. Step 2 - Slack: Send Channel Message
+#    - Connect your Slack workspace
+#    - Channel: #trading-alerts
+#    - Message: Use template above
+#
+# 4. Step 3 - Google Sheets: Create Spreadsheet Row
+#    - Connect Google account
+#    - Spreadsheet: "Trade Logs Sovereign"
+#    - Worksheet: "CI_CD_Logs"
+#    - Map columns from webhook data
+#
+# 5. Step 4 - Airtable: Create Record
+#    - Connect Airtable account
+#    - Base: "Strategickhaos CRM"
+#    - Table: "Deployments"
+#    - Map fields from webhook data
+#
+# 6. Step 5 - Filter by Zapier: Only Continue If
+#    - Field: status
+#    - Condition: Text exactly matches
+#    - Value: success
+#
+# 7. Step 6 - Webhooks by Zapier: POST
+#    - URL: Your Queen.js webhook endpoint
+#    - Payload Type: JSON
+#    - Data: Signal payload
+#
+# 8. Test the Zap with sample payload:
+#    curl -X POST YOUR_ZAPIER_WEBHOOK_URL \
+#      -H "Content-Type: application/json" \
+#      -d '{
+#        "pipeline": "StrategicKhaos CI/CD",
+#        "status": "success",
+#        "commit": "abc123def",
+#        "branch": "main",
+#        "build_id": "12345",
+#        "timestamp": "2025-12-05T12:00:00Z",
+#        "message": "✅ Pipeline succeeded",
+#        "entity": "StrategicKhaos DAO LLC",
+#        "entity_id": "2025-001708194"
+#      }'
+#
+# ============================================================================
+
+# Environment variables needed in Azure DevOps:
+azure_devops_variables:
+  - name: "ZAPIER_WEBHOOK_URL"
+    description: "Webhook URL from Zapier Step 1"
+    secret: false
+    example: "https://hooks.zapier.com/hooks/catch/12345/abcdef/"
+    
+  - name: "QUEEN_WEBHOOK_URL"
+    description: "Your Queen.js endpoint for trading signals"
+    secret: false
+    example: "https://queen.strategickhaos.ai/signals/deployment"
+
+# Test payload for manual testing:
+test_payload:
+  pipeline: "StrategicKhaos CI/CD"
+  status: "success"
+  commit: "a1b2c3d4e5f6g7h8"
+  branch: "main"
+  build_id: "2025120500001"
+  timestamp: "2025-12-05T13:00:00Z"
+  message: "✅ Pipeline success - Trading bots deployed to paper environment"
+  entity: "StrategicKhaos DAO LLC"
+  entity_id: "2025-001708194"
