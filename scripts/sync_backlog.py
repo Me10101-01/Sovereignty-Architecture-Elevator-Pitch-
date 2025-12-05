@@ -26,13 +26,20 @@ def find_board_meeting_yaml(repo_root: Path) -> Path | None:
 
 
 def extract_incomplete_tasks(checkboxes: list[str]) -> list[str]:
-    """Extract incomplete tasks ([ ]) from a checkbox list."""
+    """Extract incomplete tasks ([ ]) from a checkbox list.
+    
+    Matches checkbox patterns like:
+    - [ ] Task description
+    - "[ ] Task description"
+    - '[ ] Task description'
+    """
     incomplete = []
+    # Pattern: optional quotes, opening bracket, optional space, closing bracket
+    unchecked_pattern = r'^\s*[\"\']?\[\s*\]'
     for item in checkboxes:
-        # Match unchecked items: [ ] or "[ ]"
-        if re.match(r'^\s*[\"\']?\[\s*\]', item):
-            # Clean up the task text
-            task = re.sub(r'^\s*[\"\']?\[\s*\]\s*', '', item)
+        if re.match(unchecked_pattern, item):
+            # Remove the checkbox prefix and clean up
+            task = re.sub(unchecked_pattern + r'\s*', '', item)
             task = task.strip('"\'')
             incomplete.append(task)
     return incomplete
@@ -40,7 +47,7 @@ def extract_incomplete_tasks(checkboxes: list[str]) -> list[str]:
 
 def load_board_meeting(yaml_path: Path) -> dict:
     """Load and parse the board meeting YAML."""
-    with open(yaml_path, 'r') as f:
+    with open(yaml_path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
 
 
@@ -159,11 +166,12 @@ def print_focus_view(yaml_path: Path, max_tasks: int = 2):
             "owner": action["owner"]
         })
     
-    # If we need more, pull from hemispheres (alternating)
+    # If we need more, pull from hemispheres (alternating left/right)
     if len(focus_tasks) < max_tasks:
         remaining = max_tasks - len(focus_tasks)
         combined = []
-        for i in range(max(len(left_tasks), len(right_tasks))):
+        # Interleave tasks from left and right hemispheres, limit iterations
+        for i in range(min(remaining, max(len(left_tasks), len(right_tasks)))):
             if i < len(left_tasks):
                 combined.append(("🔷 LEFT", left_tasks[i]))
             if i < len(right_tasks):
@@ -193,7 +201,8 @@ def print_focus_view(yaml_path: Path, max_tasks: int = 2):
     for key in ["left", "right"]:
         h = hemispheres[key]
         emoji = "🔷" if key == "left" else "🔶"
-        pct = int(h["status_pct"] * 100)
+        # Clamp percentage between 0 and 100 to prevent bar overflow
+        pct = min(100, max(0, int(h["status_pct"] * 100)))
         bar = "█" * (pct // 5) + "░" * (20 - pct // 5)
         print(f"  {emoji} {h['name']}")
         print(f"     {h['label']}")
@@ -270,7 +279,7 @@ def main():
     else:
         yaml_path = find_board_meeting_yaml(args.repo_root)
     
-    if not yaml_path or not yaml_path.exists():
+    if yaml_path is None or not yaml_path.exists():
         print("❌ No board_meeting*.yaml found!")
         print("   Provide one with --yaml or run from the repo root.")
         sys.exit(1)
