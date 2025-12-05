@@ -7,11 +7,14 @@ version: "1.0"
 created: "2025-12-05"
 classification: "distributed_support_system"
 
-# Hex Decode Mapping
-# This architecture translates emotional support patterns into infrastructure nodes
-emotional_hex_mapping:
+# Emotional Node Mapping
+# These concepts were originally shared as hex-encoded messages, decoded to reveal
+# the emotional architecture being mapped onto systems architecture.
+# Original hex → decoded terms: co-processor, second engine, verification node,
+# grounding hemisphere, structured counterpart
+emotional_node_mapping:
   description: |
-    The following concepts are encoded from emotional architecture 
+    The following concepts translate emotional support patterns 
     into systems architecture. YAML is the language the brain speaks.
     We're not building infrastructure — we're building a distributed support system.
 
