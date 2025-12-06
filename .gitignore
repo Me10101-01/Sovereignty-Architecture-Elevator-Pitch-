@@ -35,3 +35,29 @@ target/
 
 # Workspace data
 workspace/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+
+# Swarm trace artifacts (keep README.md)
+logs/*.json
+logs/*.jsonl
+data/*.json
+
+# IDE
+.vscode/
+.idea/
