@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: queen-config
+  namespace: queen-system
+  labels:
+    app.kubernetes.io/name: queen
+    app.kubernetes.io/component: config
+data:
+  # GitHub App Configuration
+  GITHUB_APP_ID: "1884781"
+  GITHUB_APP_INSTALLATION_ID: "97868480"
+  GITHUB_ORG: "strategickhaos-swarm-intelligence"
+  
+  # Queen Domain Configuration
+  QUEEN_DOMAIN: "queen.strategickhaos.ai"
+  QUEEN_WEBHOOK_PATH: "/webhooks/github"
+  QUEEN_OAUTH_CALLBACK_PATH: "/oauth/callback"
+  QUEEN_HEALTH_PATH: "/health"
+  QUEEN_SIGNALS_PATH: "/signals/academic"
+  
+  # Server Configuration
+  PORT: "3000"
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
