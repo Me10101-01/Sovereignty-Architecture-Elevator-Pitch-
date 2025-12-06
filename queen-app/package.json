@@ -1,0 +1,31 @@
+{
+  "name": "queen-orchestrator",
+  "version": "1.0.0",
+  "description": "Queen Orchestrator - Central coordination hub for Strategickhaos sovereign infrastructure",
+  "type": "module",
+  "main": "queen.js",
+  "scripts": {
+    "start": "node queen.js",
+    "dev": "node --watch queen.js"
+  },
+  "keywords": [
+    "orchestrator",
+    "dao",
+    "signals",
+    "webhook",
+    "governance",
+    "ai-council"
+  ],
+  "author": "Domenic Garza <domenic.garza@snhu.edu>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture.git"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "name": "valoryield-sovereign-os",
+  "version": "1.0.0",
+  "description": "ValorYield Sovereign Financial OS - Banking for the People, by the Code",
+  "type": "module",
+  "main": "valoryield.js",
+  "scripts": {
+    "start": "node valoryield.js",
+    "dev": "node --watch valoryield.js",
+    "test": "node --test test/"
+  },
+  "keywords": [
+    "dao",
+    "treasury",
+    "governance",
+    "dividend",
+    "financial-os",
+    "sovereign",
+    "wyoming-dao"
+  ],
+  "author": "Domenic Garza <domenic.garza@snhu.edu>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "legal": {
+    "entities": {
+      "dao": {
+        "name": "Strategickhaos DAO LLC",
+        "ein": "39-2900295",
+        "jurisdiction": "Wyoming",
+        "statute": "Wyoming DAO Statute",
+        "role": "Autonomous Operations"
+      },
+      "pbc": {
+        "name": "ValorYield Engine PBC",
+        "ein": "39-2923503",
+        "jurisdiction": "Wyoming",
+        "type": "Public Benefit Corporation",
+        "role": "Mission-Locked Financial Operations"
+      }
+    },
+    "compliance": {
+      "wyoming_dao_statute": true,
+      "public_benefit_corporation": true,
+      "irs_ein_integrated": true,
+      "transparent_by_design": true,
+      "ai_operated_human_supervised": true
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture.git"
+  }
+}
