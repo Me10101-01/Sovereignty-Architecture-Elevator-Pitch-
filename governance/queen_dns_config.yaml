@@ -1,0 +1,248 @@
+# Queen DNS Configuration — Cloudflare/Route53 Setup
+# Domain: queen.strategickhaos.ai → GKE LoadBalancer IP
+# Last Updated: 2025-12-03
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLOUDFLARE CONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# After deploying Queen to GKE, get the LoadBalancer IP:
+# kubectl get svc queen -n queen -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+
+cloudflare:
+  zone: strategickhaos.ai
+  account_id: "YOUR_CLOUDFLARE_ACCOUNT_ID"
+  
+  dns_records:
+    # Primary Queen endpoint
+    - name: queen
+      type: A
+      content: "${LOADBALANCER_IP}"  # Replace with actual IP after deployment
+      ttl: 300
+      proxied: true  # Enable Cloudflare proxy for DDoS protection
+      comment: "Queen Orchestrator - GKE jarvis-swarm-personal-001"
+    
+    # API endpoint
+    - name: api
+      type: CNAME
+      content: queen.strategickhaos.ai
+      ttl: 300
+      proxied: true
+      comment: "API gateway via Queen"
+    
+    # Events/Webhooks endpoint
+    - name: events
+      type: CNAME
+      content: queen.strategickhaos.ai
+      ttl: 300
+      proxied: true
+      comment: "Event gateway for webhooks"
+    
+    # Grafana dashboard
+    - name: grafana
+      type: CNAME
+      content: queen.strategickhaos.ai
+      ttl: 300
+      proxied: true
+      comment: "Grafana dashboards"
+    
+    # Metrics endpoint
+    - name: metrics
+      type: CNAME
+      content: queen.strategickhaos.ai
+      ttl: 300
+      proxied: false  # Direct access for Prometheus scraping
+      comment: "Prometheus metrics"
+  
+  ssl_settings:
+    mode: full_strict  # End-to-end encryption
+    min_version: "1.2"
+    
+  security:
+    # Cloudflare WAF rules
+    waf_enabled: true
+    ddos_protection: true
+    bot_management: true
+    
+    # Rate limiting
+    rate_limiting:
+      - rule: "Queen API Rate Limit"
+        expression: "(http.host eq \"queen.strategickhaos.ai\" and http.request.uri.path contains \"/api\")"
+        action: challenge
+        period: 60
+        requests_per_period: 100
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AWS ROUTE53 CONFIGURATION (Alternative)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+route53:
+  hosted_zone_id: "YOUR_HOSTED_ZONE_ID"
+  domain: strategickhaos.ai
+  
+  record_sets:
+    # Primary Queen A record
+    - name: queen.strategickhaos.ai
+      type: A
+      ttl: 300
+      resource_records:
+        - "${LOADBALANCER_IP}"  # Replace with actual IP
+    
+    # API CNAME
+    - name: api.strategickhaos.ai
+      type: CNAME
+      ttl: 300
+      resource_records:
+        - queen.strategickhaos.ai
+    
+    # Events CNAME
+    - name: events.strategickhaos.ai
+      type: CNAME
+      ttl: 300
+      resource_records:
+        - queen.strategickhaos.ai
+    
+    # Grafana CNAME
+    - name: grafana.strategickhaos.ai
+      type: CNAME
+      ttl: 300
+      resource_records:
+        - queen.strategickhaos.ai
+  
+  # Health check for DNS failover
+  health_checks:
+    - name: queen-health-check
+      type: HTTPS
+      fqdn: queen.strategickhaos.ai
+      port: 443
+      resource_path: /health
+      request_interval: 30
+      failure_threshold: 3
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# GOOGLE CLOUD DNS CONFIGURATION (Alternative)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+google_cloud_dns:
+  project: jarvis-swarm-personal
+  managed_zone: strategickhaos-zone
+  dns_name: strategickhaos.ai.
+  
+  record_sets:
+    - name: queen.strategickhaos.ai.
+      type: A
+      ttl: 300
+      rrdatas:
+        - "${LOADBALANCER_IP}"
+    
+    - name: api.strategickhaos.ai.
+      type: CNAME
+      ttl: 300
+      rrdatas:
+        - queen.strategickhaos.ai.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DEPLOYMENT COMMANDS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Step 1: Deploy Queen to GKE
+deployment_commands:
+  connect_to_cluster: |
+    gcloud container clusters get-credentials jarvis-swarm-personal-001 \
+      --region us-central1 \
+      --project jarvis-swarm-personal
+  
+  deploy_queen: |
+    # Apply all Queen manifests
+    kubectl apply -f bootstrap/k8s/queen/namespace.yaml
+    kubectl apply -f bootstrap/k8s/queen/secrets.yaml
+    kubectl apply -f bootstrap/k8s/queen/rbac.yaml
+    kubectl apply -f bootstrap/k8s/queen/deployment.yaml
+    kubectl apply -f bootstrap/k8s/queen/service.yaml
+    kubectl apply -f bootstrap/k8s/queen/ingress.yaml
+    kubectl apply -f bootstrap/k8s/queen/autoscaling.yaml
+  
+  get_loadbalancer_ip: |
+    # Wait for LoadBalancer IP to be assigned
+    kubectl get svc queen -n queen -w
+    
+    # Get the IP once assigned
+    QUEEN_IP=$(kubectl get svc queen -n queen -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+    echo "Queen LoadBalancer IP: $QUEEN_IP"
+  
+  verify_deployment: |
+    # Check pod status
+    kubectl get pods -n queen
+    
+    # Check services
+    kubectl get svc -n queen
+    
+    # Check ingress
+    kubectl get ingress -n queen
+    
+    # Health check
+    curl -k https://${QUEEN_IP}/health
+  
+  # Cloudflare API commands
+  update_cloudflare_dns: |
+    # Using Cloudflare CLI (wrangler) or API
+    curl -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records" \
+      -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+      -H "Content-Type: application/json" \
+      --data '{
+        "type": "A",
+        "name": "queen",
+        "content": "${QUEEN_IP}",
+        "ttl": 300,
+        "proxied": true
+      }'
+  
+  # Route53 commands
+  update_route53_dns: |
+    aws route53 change-resource-record-sets \
+      --hosted-zone-id ${HOSTED_ZONE_ID} \
+      --change-batch '{
+        "Changes": [{
+          "Action": "UPSERT",
+          "ResourceRecordSet": {
+            "Name": "queen.strategickhaos.ai",
+            "Type": "A",
+            "TTL": 300,
+            "ResourceRecords": [{"Value": "${QUEEN_IP}"}]
+          }
+        }]
+      }'
+  
+  # Google Cloud DNS commands
+  update_gcloud_dns: |
+    gcloud dns record-sets create queen.strategickhaos.ai. \
+      --rrdatas="${QUEEN_IP}" \
+      --ttl=300 \
+      --type=A \
+      --zone=strategickhaos-zone \
+      --project=jarvis-swarm-personal
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# VERIFICATION CHECKLIST
+# ═══════════════════════════════════════════════════════════════════════════════
+
+verification:
+  - step: "DNS Propagation"
+    command: "dig queen.strategickhaos.ai +short"
+    expected: "${LOADBALANCER_IP}"
+  
+  - step: "HTTPS Connectivity"
+    command: "curl -I https://queen.strategickhaos.ai/health"
+    expected: "HTTP/2 200"
+  
+  - step: "TLS Certificate"
+    command: "openssl s_client -connect queen.strategickhaos.ai:443 -servername queen.strategickhaos.ai"
+    expected: "Verify return code: 0 (ok)"
+  
+  - step: "API Endpoint"
+    command: "curl https://queen.strategickhaos.ai/api/v1/status"
+    expected: "JSON response with cluster status"
+  
+  - step: "Metrics Endpoint"
+    command: "curl http://${LOADBALANCER_IP}:9090/metrics"
+    expected: "Prometheus metrics format"

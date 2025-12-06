@@ -1,0 +1,99 @@
+# Queen RBAC Configuration
+# Service Account, Role, and RoleBinding for Queen orchestrator
+---
+# Service Account for Queen pods
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: queen-service-account
+  namespace: queen
+  labels:
+    app: strategickhaos-queen
+    component: rbac
+  annotations:
+    # For GKE Workload Identity (recommended for production)
+    # iam.gke.io/gcp-service-account: queen-sa@jarvis-swarm-personal.iam.gserviceaccount.com
+---
+# Role with minimal permissions for Queen
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: queen-role
+  namespace: queen
+  labels:
+    app: strategickhaos-queen
+    component: rbac
+rules:
+  # Allow reading config maps and secrets
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list", "watch"]
+  
+  # Allow reading pod information for self-discovery
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+  
+  # Allow reading service information
+  - apiGroups: [""]
+    resources: ["services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+  
+  # Allow creating events for logging
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+---
+# RoleBinding to attach Role to ServiceAccount
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: queen-role-binding
+  namespace: queen
+  labels:
+    app: strategickhaos-queen
+    component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: queen-role
+subjects:
+  - kind: ServiceAccount
+    name: queen-service-account
+    namespace: queen
+---
+# ClusterRole for cross-namespace visibility (optional - for cluster-wide monitoring)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: queen-cluster-viewer
+  labels:
+    app: strategickhaos-queen
+    component: rbac
+rules:
+  # Read-only access to namespaces and nodes for cluster overview
+  - apiGroups: [""]
+    resources: ["namespaces", "nodes"]
+    verbs: ["get", "list", "watch"]
+  
+  # Read deployments across cluster for status monitoring
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch"]
+---
+# ClusterRoleBinding for cluster-wide visibility
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: queen-cluster-viewer-binding
+  labels:
+    app: strategickhaos-queen
+    component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: queen-cluster-viewer
+subjects:
+  - kind: ServiceAccount
+    name: queen-service-account
+    namespace: queen

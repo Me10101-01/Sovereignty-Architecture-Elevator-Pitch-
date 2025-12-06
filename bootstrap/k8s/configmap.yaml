@@ -49,7 +49,7 @@ data:
     infra:
       environments: ["dev", "staging", "prod"]
       control_api:
-        base_url: "https://control.internal.strategickhaos"
+        base_url: "https://queen.strategickhaos.ai"
         auth:
           type: "bearer"
           token_secret_ref: "vault://kv/ctrl/api_token"
@@ -63,14 +63,27 @@ data:
       nodes:
         orchestrator: "kubernetes"
         clusters:
-          - name: "prod-us"
-            api_server: "https://k8s-prod.strategickhaos.internal"
-            auth: "oidc"
-            namespaces: ["quantum-symbolic","valoryield","agents"]
-          - name: "dev"
-            api_server: "https://k8s-dev.strategickhaos.internal"
-            auth: "oidc"
-            namespaces: ["*"]
+          # Primary GKE cluster - Production workloads
+          - name: "jarvis-swarm-personal-001"
+            api_server: "https://34.29.28.27"
+            region: "us-central1"
+            mode: "autopilot"
+            version: "1.33.5-gke.1201000"
+            auth: "gcloud"
+            namespaces: ["ops", "queen", "agents", "observability"]
+          # Secondary GKE cluster - Development/Staging
+          - name: "autopilot-cluster-1"
+            api_server: "https://35.192.28.199"
+            region: "us-central1"
+            mode: "autopilot"
+            version: "1.33.5-gke.1201000"
+            auth: "gcloud"
+            namespaces: ["dev", "staging", "testing"]
+      gcp:
+        project: "jarvis-swarm-personal"
+        logs:
+          event_count: 17176
+          status: "streaming"
       logging:
         provider: "loki"
         endpoint: "https://loki.strategickhaos.internal"
@@ -110,7 +123,7 @@ data:
       provider: "github"
       org: "Strategickhaos-Swarm-Intelligence"
       app:
-        id: null
+        id: 1884781
         webhook_secret_ref: "vault://kv/git/webhook_secret"
         private_key_secret_ref: "vault://kv/git/app_private_key"
       repos:
