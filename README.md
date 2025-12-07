@@ -10,6 +10,7 @@ This directory contains the foundational governance documents for **Strategickha
 |------|-------------|--------|
 | `TRUST_DECLARATION.md` | Foundational trust instrument defining principles, governance, and infrastructure | v2.1.0 |
 | `NON_AGGRESSION_CLAUSE.md` | Immutable ethical constraints (cannot be amended) | v2.1.0 IMMUTABLE |
+| `ZERO_VENDOR_LOCK_IN_PRINCIPLES.md` | Zero vendor lock-in sovereignty guarantee with 12 principles | v1.0 |
 | `public-identifier-registry.md` | Verified credentials, EINs, platforms, infrastructure | v2.1.0 |
 
 ## Related Files
@@ -63,6 +64,7 @@ IMMUTABLE (cannot be amended):
 │
 FOUNDATIONAL (amendment requires ratification):
 ├── TRUST_DECLARATION.md (except Article I.1.1, II.4, V.3)
+├── ZERO_VENDOR_LOCK_IN_PRINCIPLES.md
 │
 OPERATIONAL (update as needed):
 ├── public-identifier-registry.md
@@ -77,4 +79,4 @@ OPERATIONAL (update as needed):
 
 ---
 
-*Last Updated: December 3, 2025*
+*Last Updated: December 7, 2025*
