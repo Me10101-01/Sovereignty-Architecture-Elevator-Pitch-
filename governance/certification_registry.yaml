@@ -69,8 +69,8 @@ certifications:
       - model: "claude-3.5-sonnet"
         vote: "approved"
         timestamp: "2025-12-07T22:00:00Z"
-    hash_sha256: "[PENDING_COMPUTATION]"
-    notes: "Founding document of DCO - self-certified during establishment"
+    hash_sha256: "[TO_BE_COMPUTED_ON_NEXT_COMMIT]"
+    notes: "Founding document of DCO - self-certified during establishment. Hash will be computed post-commit."
   
   - id: "DCO-2025-0002"
     document_title: "Strategickhaos Trademark NFT Stamp"
@@ -89,8 +89,8 @@ certifications:
       - "Toruk sovereignty symbol"
       - "Node 137 satellite"
       - "Circuit traces"
-    hash_sha256: "[PENDING_COMPUTATION]"
-    notes: "Official trademark file - represents DAO sovereign identity"
+    hash_sha256: "[TO_BE_COMPUTED_ON_NEXT_COMMIT]"
+    notes: "Official trademark file - represents DAO sovereign identity. Hash will be computed post-commit."
 
 # Future certifications will be appended below
 # Format:

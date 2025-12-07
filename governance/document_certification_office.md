@@ -48,7 +48,7 @@ trademark:
   name: "Ratio Ex Nihilo Emblem"
   entity: "Strategickhaos DAO LLC"
   motto: "Ratio Ex Nihilo" # Reason from Nothing
-  ein: "39-2923503"
+  ein: "39-2900295"
   wyoming_filing: "2025-001708194"
   node: "Orbiting Node 137"
   file: "governance/strategickhaos-trademark-nft-stamp.html"
@@ -489,6 +489,8 @@ systems:
   verification_api:
     endpoint: "https://verify.strategickhaos.ai/certification"
     function: "Public verification of stamp authenticity"
+    status: "PLANNED - Implementation in DCO Phase 3"
+    timeline: "Month 2 deployment"
     
   registry_database:
     type: "Git-backed YAML files"
@@ -523,10 +525,10 @@ annual_budget:
 tasks:
   - "✓ DCO Charter drafted and approved"
   - "✓ NFT stamp trademark file created"
-  - "[ ] Certification templates developed"
-  - "[ ] Registry system initialized"
-  - "[ ] CCO and Deputy appointed"
-  - "[ ] Access matrix updated"
+  - "✓ Certification templates directory initialized"
+  - "✓ Registry system initialized"
+  - "[ ] CCO and Deputy appointed (pending formal designation)"
+  - "✓ Access matrix updated"
 ```
 
 ### 9.2 — Phase 2: Pilot Program (Weeks 3-4)
@@ -595,13 +597,20 @@ attestation:
   effective_date: "2025-12-07"
   
   approvals:
-    managing_member: "[SIGNATURE REQUIRED]"
-    chief_certification_officer: "[SIGNATURE REQUIRED]"
+    managing_member: "[SIGNATURE PENDING - To be completed in Phase 2 deployment]"
+    chief_certification_officer: "[SIGNATURE PENDING - To be completed upon formal CCO appointment]"
     
   verification:
     sha256: "[COMPUTED_ON_COMMIT]"
-    gpg_signature: "[PENDING]"
-    ots_proof: "[PENDING]"
+    gpg_signature: "[PENDING - Requires formal attestation ceremony]"
+    ots_proof: "[PENDING - Will be anchored after attestation]"
+  
+  attestation_process:
+    step_1: "Charter approved by Managing Member"
+    step_2: "CCO formally appointed"
+    step_3: "GPG signatures applied"
+    step_4: "OpenTimestamps blockchain anchoring"
+    step_5: "Update registry with attestation metadata"
 ```
 
 ---
