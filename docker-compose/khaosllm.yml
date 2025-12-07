@@ -108,30 +108,40 @@ services:
       - "com.strategickhaos.service=khaosllm-proxy"
 
   # Model initialization - runs once to pull models
-  ollama-init:
-    image: ollama/ollama:latest
-    container_name: khaosllm-init
-    volumes:
-      - ollama-models:/root/.ollama
-    environment:
-      - OLLAMA_HOST=ollama:11434
-    networks:
-      - khaosnet
-    depends_on:
-      - ollama
-    entrypoint: /bin/sh
-    command: |
-      -c "
-      sleep 10 &&
-      ollama pull qwen2.5:72b &&
-      ollama pull llama3.2:70b &&
-      ollama pull codellama:34b &&
-      ollama pull mistral:7b &&
-      echo 'Models initialized successfully'
-      "
-    restart: "no"
-    labels:
-      - "com.strategickhaos.service=khaosllm-init"
+  # NOTE: This init container is disabled by default to avoid automatic large downloads
+  # To manually pull models after deployment, run:
+  #   docker exec khaosllm-ollama ollama pull mistral:7b
+  #   docker exec khaosllm-ollama ollama pull qwen2.5:72b
+  #   docker exec khaosllm-ollama ollama pull llama3.2:70b
+  # 
+  # Uncomment below to enable automatic model pulling on first start
+  # ollama-init:
+  #   image: ollama/ollama:latest
+  #   container_name: khaosllm-init
+  #   volumes:
+  #     - ollama-models:/root/.ollama
+  #   environment:
+  #     - OLLAMA_HOST=ollama:11434
+  #   networks:
+  #     - khaosnet
+  #   depends_on:
+  #     - ollama
+  #   entrypoint: /bin/sh
+  #   command: |
+  #     -c "
+  #     echo 'Waiting for Ollama to be ready...' &&
+  #     sleep 15 &&
+  #     echo 'Pulling mistral:7b (~4GB)...' &&
+  #     (ollama pull mistral:7b || echo 'Failed to pull mistral:7b') &&
+  #     echo 'Pulling qwen2.5:72b (~40GB)...' &&
+  #     (ollama pull qwen2.5:72b || echo 'Failed to pull qwen2.5:72b') &&
+  #     echo 'Pulling llama3.2:70b (~38GB)...' &&
+  #     (ollama pull llama3.2:70b || echo 'Failed to pull llama3.2:70b') &&
+  #     echo 'Model initialization complete. Check status with: docker exec khaosllm-ollama ollama list'
+  #     "
+  #   restart: "no"
+  #   labels:
+  #     - "com.strategickhaos.service=khaosllm-init"
 
 volumes:
   ollama-models:

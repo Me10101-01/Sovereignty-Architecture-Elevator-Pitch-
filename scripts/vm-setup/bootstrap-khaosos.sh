@@ -75,7 +75,18 @@ read -p "Enter username for KhaosOS operator [khaos]: " USERNAME
 USERNAME=${USERNAME:-khaos}
 
 echo "Enter password for user $USERNAME:"
-PASSWORD_HASH=$(mkpasswd -m sha-512)
+read -s PASSWORD1
+echo ""
+echo "Confirm password:"
+read -s PASSWORD2
+echo ""
+
+if [ "$PASSWORD1" != "$PASSWORD2" ]; then
+    echo -e "${RED}[ERROR]${NC} Passwords do not match!"
+    exit 1
+fi
+
+PASSWORD_HASH=$(echo "$PASSWORD1" | mkpasswd -m sha-512 -s)
 
 # Update configuration with password hash
 sed -i "s|hashedPassword = null;|hashedPassword = \"$PASSWORD_HASH\";|g" /etc/nixos/configuration.nix
@@ -102,18 +113,29 @@ echo -e "${YELLOW}[INFO]${NC} Pulling Ollama models (this may take a while)..."
 systemctl start ollama
 sleep 5
 
-ollama pull qwen2.5:72b &
-QWEN_PID=$!
+echo -e "${YELLOW}[INFO]${NC} Downloading AI models sequentially to avoid network overload..."
+echo -e "${YELLOW}[INFO]${NC} Model 1/3: qwen2.5:72b (largest, ~40GB)..."
+if ollama pull qwen2.5:72b; then
+    echo -e "${GREEN}[SUCCESS]${NC} qwen2.5:72b downloaded."
+else
+    echo -e "${YELLOW}[WARN]${NC} Failed to download qwen2.5:72b. You can pull it manually later."
+fi
 
-ollama pull llama3.2:70b &
-LLAMA_PID=$!
+echo -e "${YELLOW}[INFO]${NC} Model 2/3: llama3.2:70b (~38GB)..."
+if ollama pull llama3.2:70b; then
+    echo -e "${GREEN}[SUCCESS]${NC} llama3.2:70b downloaded."
+else
+    echo -e "${YELLOW}[WARN]${NC} Failed to download llama3.2:70b. You can pull it manually later."
+fi
 
-ollama pull mistral:7b &
-MISTRAL_PID=$!
+echo -e "${YELLOW}[INFO]${NC} Model 3/3: mistral:7b (smallest, ~4GB)..."
+if ollama pull mistral:7b; then
+    echo -e "${GREEN}[SUCCESS]${NC} mistral:7b downloaded."
+else
+    echo -e "${YELLOW}[WARN]${NC} Failed to download mistral:7b. You can pull it manually later."
+fi
 
-# Wait for model downloads
-echo -e "${YELLOW}[INFO]${NC} Downloading AI models in background..."
-echo -e "${YELLOW}[INFO]${NC} You can check progress with: ollama list"
+echo -e "${GREEN}[INFO]${NC} Model downloads complete. Check status with: ollama list"
 
 # Enable and start services
 echo -e "${YELLOW}[INFO]${NC} Enabling services..."
