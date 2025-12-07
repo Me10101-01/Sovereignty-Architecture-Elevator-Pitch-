@@ -1,4 +1,4 @@
-# ZERO VENDOR LOCK-IN PRINCIPALS
+# ZERO VENDOR LOCK-IN PRINCIPLES
 
 ## StrategicKhaos Sovereignty Guarantee
 
@@ -11,11 +11,11 @@
 
 ## PURPOSE
 
-This document establishes the **Zero Vendor Lock-in Principals** that govern all systems, software, and services developed under the StrategicKhaos ecosystem. These principals ensure that clients, partners, and the operator maintain complete control over their data, infrastructure, and operations—regardless of any vendor relationship changes.
+This document establishes the **Zero Vendor Lock-in Principles** that govern all systems, software, and services developed under the StrategicKhaos ecosystem. These principles ensure that clients, partners, and the operator maintain complete control over their data, infrastructure, and operations—regardless of any vendor relationship changes.
 
 ---
 
-## THE 12 SOVEREIGNTY PRINCIPALS
+## THE 12 SOVEREIGNTY PRINCIPLES
 
 ### Principal 1: DATA PORTABILITY
 
@@ -247,7 +247,7 @@ Systems receive certification levels based on verified escape capabilities:
 
 ## CLIENT RIGHTS
 
-Under these principals, clients are guaranteed:
+Under these principles, clients are guaranteed:
 
 1. **Right to Export** - Complete data export on request
 2. **Right to Migrate** - Assistance moving to any platform
@@ -261,7 +261,7 @@ Under these principals, clients are guaranteed:
 
 ### For Attorneys
 
-To verify compliance with these principals:
+To verify compliance with these principles:
 
 1. Request export of any system's data → Must complete in <24 hours
 2. Request migration plan for any system → Must exist and be tested
@@ -308,6 +308,6 @@ Date: ____________
 
 ---
 
-*These principals are non-negotiable. Sovereignty is not a feature—it's the foundation.*
+*These principles are non-negotiable. Sovereignty is not a feature—it's the foundation.*
 
 **Document Hash:** [Generated on GPG signing]
