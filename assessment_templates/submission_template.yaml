@@ -231,8 +231,9 @@ system_metadata:
   nft_minted: false
   nft_token_id: null
 
----
+# ==============================================================================
 # GPG SIGNATURE BLOCK
+# ==============================================================================
 # After filling out this file, sign it with:
 # gpg --clearsign submission.yaml
 # 
