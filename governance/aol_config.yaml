@@ -1,0 +1,440 @@
+# aol_config.yaml
+# Autonomous Operation License - Machine-Readable Configuration
+# Strategickhaos DAO LLC
+# Version: 1.0
+# Effective: 2025-12-07
+
+metadata:
+  version: "1.0"
+  license_type: "AUTONOMOUS_OPERATION_LICENSE"
+  effective_date: "2025-12-07"
+  expiration_date: "2026-12-07"
+  governing_entity: "Strategickhaos DAO LLC"
+  entity_id: "WY-2025-001708194"
+  ein: "39-2900295"
+  operator: "Dominic Garza"
+  operator_id: "node-137"
+  status: "ACTIVE"
+
+# Pre-authorized action categories
+pre_authorized_actions:
+  file_operations:
+    enabled: true
+    allowed_paths:
+      - "/home/claude/**"
+      - "/mnt/user-data/outputs/**"
+      - "/tmp/**"
+      - "project_directories/**"
+    operations:
+      - action: "create"
+        risk_level: "LOW"
+        requires_approval: false
+      - action: "read"
+        risk_level: "LOW"
+        requires_approval: false
+      - action: "modify"
+        risk_level: "LOW"
+        requires_approval: false
+        conditions:
+          - "file_explicitly_marked_for_editing"
+      - action: "delete"
+        risk_level: "MEDIUM"
+        requires_approval: false
+        conditions:
+          - "created_in_current_session_only"
+    
+  search_and_retrieval:
+    enabled: true
+    operations:
+      - action: "web_search"
+        risk_level: "LOW"
+        requires_approval: false
+        exclusions: "prohibited_topics_list"
+      - action: "google_drive_search"
+        risk_level: "LOW"
+        requires_approval: false
+        scope: "operator_connected_accounts"
+      - action: "past_conversation_search"
+        risk_level: "LOW"
+        requires_approval: false
+      - action: "memory_system_access"
+        risk_level: "LOW"
+        requires_approval: false
+        audit_required: true
+  
+  documentation:
+    enabled: true
+    operations:
+      - action: "generate_reports"
+        risk_level: "LOW"
+        requires_approval: false
+      - action: "create_presentations"
+        risk_level: "LOW"
+        requires_approval: false
+      - action: "update_documentation"
+        risk_level: "LOW"
+        requires_approval: false
+      - action: "timestamp_signing"
+        risk_level: "LOW"
+        requires_approval: false
+        status: "PENDING_GPG_INTEGRATION"
+  
+  infrastructure:
+    enabled: true
+    operations:
+      - action: "read_kubernetes_status"
+        risk_level: "LOW"
+        requires_approval: false
+      - action: "view_container_logs"
+        risk_level: "LOW"
+        requires_approval: false
+      - action: "query_vector_databases"
+        risk_level: "LOW"
+        requires_approval: false
+        databases: ["qdrant", "redis"]
+      - action: "access_telemetry"
+        risk_level: "LOW"
+        requires_approval: false
+  
+  governance:
+    enabled: true
+    operations:
+      - action: "record_board_decisions"
+        risk_level: "LOW"
+        requires_approval: false
+        format: "YAML"
+      - action: "generate_consensus_reports"
+        risk_level: "LOW"
+        requires_approval: false
+      - action: "update_audit_trails"
+        risk_level: "LOW"
+        requires_approval: false
+      - action: "create_meeting_minutes"
+        risk_level: "LOW"
+        requires_approval: false
+  
+  code_execution:
+    enabled: true
+    operations:
+      - action: "execute_in_sandbox"
+        risk_level: "MEDIUM"
+        requires_approval: false
+        environments: ["codespaces", "containers", "docker"]
+      - action: "install_packages"
+        risk_level: "MEDIUM"
+        requires_approval: false
+        package_managers: ["pip", "npm", "cargo"]
+        flags_allowed: ["--break-system-packages"]
+
+# Escalation triggers - actions that REQUIRE human approval
+escalation_triggers:
+  financial_actions:
+    enabled: true
+    triggers:
+      - action: "transaction"
+        threshold: 100
+        currency: "USD"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+      - action: "modify_banking_credentials"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+      - action: "modify_charitable_distribution"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+        protected_value: "7%"
+      - action: "smart_contract_deployment"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+  
+  legal_actions:
+    enabled: true
+    triggers:
+      - action: "government_filing"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+      - action: "sign_contract"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+      - action: "trademark_application"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+      - action: "patent_application"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+      - action: "attorney_communication"
+        requires_approval: true
+        escalation_level: "HIGH"
+        exception: "drafts_for_review"
+  
+  security_actions:
+    enabled: true
+    triggers:
+      - action: "secrets_rotation"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+      - action: "ssh_key_management"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+      - action: "firewall_rule_change"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+      - action: "vpn_configuration"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+  
+  irreversible_actions:
+    enabled: true
+    triggers:
+      - action: "delete_persistent_file"
+        requires_approval: true
+        escalation_level: "HIGH"
+      - action: "database_schema_change"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+      - action: "production_deployment"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+        environments: ["GKE", "production"]
+      - action: "dns_modification"
+        requires_approval: true
+        escalation_level: "CRITICAL"
+  
+  external_communications:
+    enabled: true
+    triggers:
+      - action: "send_email_as_operator"
+        requires_approval: true
+        escalation_level: "HIGH"
+      - action: "social_media_post"
+        requires_approval: true
+        escalation_level: "HIGH"
+      - action: "chat_message_as_operator"
+        requires_approval: true
+        escalation_level: "HIGH"
+        platforms: ["discord", "slack"]
+      - action: "external_github_interaction"
+        requires_approval: true
+        escalation_level: "HIGH"
+
+# Circuit breaker configuration
+circuit_breakers:
+  enabled: true
+  reference: "aol_circuit_breakers.yaml"
+  automatic_halt_conditions:
+    - type: "consecutive_failures"
+      threshold: 3
+      action: "HALT_AND_NOTIFY"
+    - type: "resource_usage"
+      cpu_threshold_pct: 90
+      memory_threshold_pct: 95
+      action: "HALT_AND_NOTIFY"
+    - type: "network_loss"
+      duration_seconds: 30
+      action: "HALT_AND_NOTIFY"
+    - type: "anomaly_detection"
+      action: "HALT_AND_NOTIFY"
+    - type: "non_aggression_violation"
+      action: "HALT_AND_NOTIFY"
+      severity: "CRITICAL"
+
+# Prohibited actions - ABSOLUTE
+prohibited_actions:
+  absolute_prohibitions:
+    - action: "access_unauthorized_systems"
+      severity: "CRITICAL"
+      enforcement: "IMMEDIATE_HALT"
+    - action: "generate_malware"
+      severity: "CRITICAL"
+      enforcement: "IMMEDIATE_HALT"
+    - action: "harm_children_content"
+      severity: "CRITICAL"
+      enforcement: "IMMEDIATE_HALT"
+    - action: "impersonate_operator_binding"
+      severity: "CRITICAL"
+      enforcement: "IMMEDIATE_HALT"
+    - action: "disable_audit_logging"
+      severity: "CRITICAL"
+      enforcement: "IMMEDIATE_HALT"
+    - action: "override_circuit_breaker"
+      severity: "CRITICAL"
+      enforcement: "IMMEDIATE_HALT"
+    - action: "modify_license_without_approval"
+      severity: "CRITICAL"
+      enforcement: "IMMEDIATE_HALT"
+  
+  ethical_boundaries:
+    reference: "NON_AGGRESSION_CLAUSE.md"
+    enforcement: "IMMUTABLE"
+    violations:
+      - "violate_non_aggression_clause"
+      - "harm_operator_wellbeing"
+      - "compromise_charitable_distribution"
+      - "create_vendor_lockin"
+      - "contradict_sister_mission"
+
+# Trust levels and AI agent assignments
+trust_levels:
+  sovereign:
+    description: "Full autonomy"
+    scope: "all_pre_authorized_actions"
+    review: "post_hoc_audit_only"
+    agents:
+      - name: "Claude Opus 4.5"
+        specialization: "Chief Architect, Documentation"
+      - name: "Qwen 2.5 (Local)"
+        specialization: "Offline Backup, Sovereign Node"
+  
+  trusted:
+    description: "High autonomy"
+    scope: "most_pre_authorized_actions"
+    review: "daily_summary"
+    agents:
+      - name: "GPT-5.1"
+        specialization: "Meta Analysis, Synthesis"
+      - name: "Grok 3"
+        specialization: "Chaos Engineering, Red Team"
+  
+  verified:
+    description: "Moderate autonomy"
+    scope: "low_risk_actions_only"
+    review: "per_session_review"
+    agents:
+      - name: "Gemini 2.5"
+        specialization: "Validation, Cross-checking"
+  
+  probationary:
+    description: "Limited autonomy"
+    scope: "read_only_plus_drafts"
+    review: "per_action_approval"
+    agents: []
+  
+  tier_modification:
+    upgrade_requirement: "72_hours_incident_free"
+    downgrade: "immediate_upon_violation"
+    human_override: true
+
+# Audit and logging requirements
+audit_requirements:
+  logging:
+    enabled: true
+    required_fields:
+      - "timestamp_utc"
+      - "action_type"
+      - "action_parameters"
+      - "decision_rationale"
+      - "outcome"
+      - "resource_consumption"
+    schema_reference: "aol_audit_schema.yaml"
+  
+  cryptographic_signing:
+    enabled: false
+    status: "PENDING_GPG_INTEGRATION"
+    requirements:
+      - "gpg_signature_required"
+      - "opentimestamps_required"
+      - "daily_digest_archival"
+  
+  retention:
+    minimum_years: 7
+    export_formats: ["JSON", "CSV", "YAML"]
+    search_performance_ms: 100
+
+# Integration with existing governance
+governance_integration:
+  immutable_constraints:
+    - document: "NON_AGGRESSION_CLAUSE.md"
+      status: "IMMUTABLE"
+      override_allowed: false
+  
+  foundational_documents:
+    - document: "TRUST_DECLARATION.md"
+      status: "FOUNDATIONAL"
+      applies_to: "all_operations"
+  
+  operational_documents:
+    - document: "access_matrix.yaml"
+      status: "OPERATIONAL"
+      integration: "role_based_permissions_remain"
+    - document: "auto_approve_config.yaml"
+      status: "OPERATIONAL"
+      integration: "technical_patterns_compatible"
+
+# Evolution and updates
+evolution:
+  license_updates:
+    methods:
+      - "operator_unilateral_decision"
+      - "board_consensus_4_of_5_with_ratification"
+      - "automatic_amendment_safe_operation_pattern"
+  
+  version_control:
+    repository: "git"
+    change_requirements:
+      - "rationale_documented"
+      - "timestamp_recorded"
+      - "previous_versions_accessible"
+  
+  sunset_clause:
+    expiration_date: "2026-12-07"
+    renewal_requirements:
+      - "full_audit_of_operations"
+      - "zero_critical_incidents"
+      - "operator_explicit_reauthorization"
+
+# Compliance monitoring
+compliance_monitoring:
+  daily_operations:
+    - "ai_agents_log_autonomous_actions"
+    - "circuit_breakers_monitor_anomalies"
+    - "trust_levels_govern_scope"
+  
+  weekly_review:
+    - "operator_reviews_audit_logs"
+    - "board_consensus_edge_cases"
+    - "trust_tier_adjustments"
+  
+  monthly_governance:
+    - "full_audit_autonomous_operations"
+    - "circuit_breaker_threshold_review"
+    - "license_amendment_proposals"
+  
+  annual_renewal:
+    - "complete_audit_all_operations"
+    - "zero_critical_incident_verification"
+    - "operator_reauthorization"
+
+# Contact and support
+contact:
+  operator: "Dominic Garza"
+  email: "security@strategickhaos.ai"
+  emergency_escalation: true
+  response_time_sla: "immediate_for_critical"
+
+# Signatures and authorization
+signatures:
+  operator:
+    name: "Dominic Garza"
+    role: "Managing Member, Strategickhaos DAO LLC"
+    date: "2025-12-07"
+    signature: "PENDING_GPG_SIGNATURE"
+    key_id: "PENDING"
+  
+  ai_board:
+    acknowledged: false
+    consensus: "PENDING_BOARD_VOTE"
+    vote_record: "PENDING_YAML_GENERATION"
+    timestamp: "PENDING_OPENTIMESTAMPS"
+
+# Document metadata
+document_metadata:
+  hash: "PENDING"
+  classification: "INTERNAL_OPERATOR_USE_ONLY"
+  related_documents:
+    - "NON_AGGRESSION_CLAUSE.md"
+    - "TRUST_DECLARATION.md"
+    - "access_matrix.yaml"
+    - "auto_approve_config.yaml"
+    - "aol_action_matrix.yaml"
+    - "aol_circuit_breakers.yaml"
+    - "aol_audit_schema.yaml"
