@@ -481,6 +481,7 @@ autistic_audit_dna:
       - "Accept 'I don't know' as valid if reasoning is sound"
 
     evaluation_criteria:
+      # Weights represent percentage contribution to overall score (must sum to 100)
       first_principles_thinking:
         weight: 40
         indicators:
