@@ -215,7 +215,7 @@ class MoonlightAgent:
         """Generate unique session ID"""
         timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
         node = socket.gethostname()[:8]
-        random_suffix = hashlib.md5(f"{timestamp}{node}{os.getpid()}".encode()).hexdigest()[:8]
+        random_suffix = hashlib.sha256(f"{timestamp}{node}{os.getpid()}".encode()).hexdigest()[:8]
         return f"moonlight_{timestamp}_{node}_{random_suffix}"
         
     def _init_session_metadata(self) -> SessionMetadata:

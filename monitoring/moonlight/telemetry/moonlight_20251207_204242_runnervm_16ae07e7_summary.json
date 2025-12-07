@@ -1,0 +1,20 @@
+{
+  "session_id": "moonlight_20251207_204242_runnervm_16ae07e7",
+  "duration_seconds": 0.0009529590606689453,
+  "total_events": 4,
+  "event_breakdown": {
+    "command": 1,
+    "file_change": 1,
+    "ai_query": 1,
+    "knowledge_update": 1
+  },
+  "files_modified": [
+    "/path/to/file.ts"
+  ],
+  "ai_interactions": 1,
+  "knowledge_contributions": 1,
+  "cpu_avg": 0,
+  "memory_avg_mb": 0,
+  "network_bytes_sent": 0,
+  "network_bytes_recv": 0
+}
