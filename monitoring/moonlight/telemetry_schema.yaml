@@ -1,0 +1,412 @@
+# Moonlight Telemetry Schema for KhaosBase
+# Defines the data model for session telemetry storage
+# Version: 1.0.0
+
+schema_version: "1.0.0"
+namespace: "moonlight.telemetry"
+
+# Main telemetry collections
+collections:
+  
+  # Session metadata collection
+  sessions:
+    description: "Stores session-level metadata and summaries"
+    indexes:
+      - field: session_id
+        type: unique
+      - field: start_time
+        type: timestamp
+      - field: node_name
+        type: string
+      - field: vault_name
+        type: string
+      - field: board_member
+        type: string
+        
+    schema:
+      session_id:
+        type: string
+        required: true
+        description: "Unique session identifier"
+        
+      start_time:
+        type: timestamp
+        required: true
+        description: "Session start time (ISO 8601 UTC)"
+        
+      end_time:
+        type: timestamp
+        required: false
+        description: "Session end time (ISO 8601 UTC)"
+        
+      user:
+        type: string
+        required: true
+        description: "User/operator identifier"
+        
+      node_name:
+        type: string
+        required: true
+        description: "Node/machine name (Athena, Nova, Lyra)"
+        
+      vault_name:
+        type: string
+        required: true
+        description: "Obsidian vault name"
+        
+      board_member:
+        type: string
+        required: true
+        description: "AI board member identifier"
+        enum:
+          - "Claude Opus 4.5"
+          - "GPT-5.1"
+          - "Grok 3"
+          - "Gemini 2.5"
+          - "Domenic Garza"
+          
+      session_type:
+        type: string
+        required: true
+        description: "Session environment type"
+        enum:
+          - "codespace"
+          - "local"
+          - "remote"
+          
+      duration_seconds:
+        type: float
+        required: false
+        description: "Total session duration"
+        
+      total_events:
+        type: integer
+        required: false
+        description: "Total telemetry events recorded"
+        
+  # Individual telemetry events
+  events:
+    description: "Stores individual telemetry events"
+    indexes:
+      - field: event_id
+        type: unique
+      - field: session_id
+        type: string
+      - field: timestamp
+        type: timestamp
+      - field: event_type
+        type: string
+        
+    schema:
+      event_id:
+        type: string
+        required: true
+        description: "Unique event identifier"
+        
+      session_id:
+        type: string
+        required: true
+        description: "Parent session identifier"
+        foreign_key: sessions.session_id
+        
+      timestamp:
+        type: timestamp
+        required: true
+        description: "Event timestamp (ISO 8601 UTC)"
+        
+      event_type:
+        type: string
+        required: true
+        description: "Event category"
+        enum:
+          - "command"
+          - "file_change"
+          - "ai_query"
+          - "knowledge_update"
+          - "system_metric"
+          - "network_activity"
+          - "error"
+          - "warning"
+          
+      payload:
+        type: object
+        required: true
+        description: "Event-specific data payload"
+        
+      metadata:
+        type: object
+        required: false
+        description: "Additional event metadata"
+        
+      signature:
+        type: string
+        required: false
+        description: "GPG signature for event verification"
+        pattern: "^[a-f0-9]{64}$"
+        
+  # Session summaries
+  summaries:
+    description: "Aggregated session statistics and analytics"
+    indexes:
+      - field: session_id
+        type: unique
+      - field: timestamp
+        type: timestamp
+        
+    schema:
+      session_id:
+        type: string
+        required: true
+        description: "Parent session identifier"
+        foreign_key: sessions.session_id
+        
+      timestamp:
+        type: timestamp
+        required: true
+        description: "Summary generation time"
+        
+      duration_seconds:
+        type: float
+        required: true
+        description: "Session duration"
+        
+      event_breakdown:
+        type: object
+        required: true
+        description: "Event counts by type"
+        
+      files_modified:
+        type: array
+        items:
+          type: string
+        description: "List of modified file paths"
+        
+      ai_interactions:
+        type: integer
+        required: true
+        description: "Count of AI query events"
+        
+      knowledge_contributions:
+        type: integer
+        required: true
+        description: "Count of knowledge graph updates"
+        
+      system_metrics:
+        type: object
+        required: true
+        schema:
+          cpu_avg:
+            type: float
+            description: "Average CPU usage percentage"
+            
+          memory_avg_mb:
+            type: float
+            description: "Average memory usage in MB"
+            
+          network_bytes_sent:
+            type: integer
+            description: "Total bytes sent"
+            
+          network_bytes_recv:
+            type: integer
+            description: "Total bytes received"
+            
+  # Knowledge graph evolution tracking
+  knowledge_graph:
+    description: "Tracks knowledge graph evolution over time"
+    indexes:
+      - field: vault_name
+        type: string
+      - field: timestamp
+        type: timestamp
+      - field: note_path
+        type: string
+        
+    schema:
+      event_id:
+        type: string
+        required: true
+        description: "Parent event identifier"
+        foreign_key: events.event_id
+        
+      vault_name:
+        type: string
+        required: true
+        description: "Obsidian vault identifier"
+        
+      note_path:
+        type: string
+        required: true
+        description: "Path to note within vault"
+        
+      update_type:
+        type: string
+        required: true
+        enum:
+          - "create"
+          - "modify"
+          - "delete"
+          - "link_add"
+          - "link_remove"
+          
+      timestamp:
+        type: timestamp
+        required: true
+        description: "Update timestamp"
+        
+      content_hash:
+        type: string
+        required: false
+        description: "SHA256 hash of note content"
+        
+      links_added:
+        type: array
+        items:
+          type: string
+        description: "New links added to graph"
+        
+      links_removed:
+        type: array
+        items:
+          type: string
+        description: "Links removed from graph"
+        
+  # Board member contributions
+  board_contributions:
+    description: "Tracks individual board member contributions"
+    indexes:
+      - field: board_member
+        type: string
+      - field: timestamp
+        type: timestamp
+      - field: contribution_type
+        type: string
+        
+    schema:
+      contribution_id:
+        type: string
+        required: true
+        description: "Unique contribution identifier"
+        
+      session_id:
+        type: string
+        required: true
+        description: "Parent session identifier"
+        foreign_key: sessions.session_id
+        
+      board_member:
+        type: string
+        required: true
+        description: "Board member identifier"
+        
+      timestamp:
+        type: timestamp
+        required: true
+        description: "Contribution timestamp"
+        
+      contribution_type:
+        type: string
+        required: true
+        enum:
+          - "code_generation"
+          - "code_review"
+          - "architecture_design"
+          - "documentation"
+          - "problem_solving"
+          - "knowledge_synthesis"
+          
+      artifacts:
+        type: array
+        items:
+          type: string
+        description: "Artifacts produced (file paths, URLs)"
+        
+      impact_score:
+        type: float
+        required: false
+        description: "Calculated impact score (0.0 - 1.0)"
+        minimum: 0.0
+        maximum: 1.0
+        
+      gpg_signature:
+        type: string
+        required: false
+        description: "GPG signature (AE5519579584DEF5)"
+        
+# Data retention policies
+retention:
+  sessions:
+    policy: "keep_forever"
+    description: "Session metadata is permanent record"
+    
+  events:
+    policy: "90_days"
+    description: "Individual events kept for 90 days, then archived"
+    archive_location: "s3://khaosbase-archive/events/"
+    
+  summaries:
+    policy: "keep_forever"
+    description: "Session summaries are permanent"
+    
+  knowledge_graph:
+    policy: "keep_forever"
+    description: "Knowledge graph evolution is permanent record"
+    
+  board_contributions:
+    policy: "keep_forever"
+    description: "Board member DNA must be preserved"
+
+# Access control
+access_control:
+  read:
+    - role: "board_member"
+      scope: "all"
+    - role: "observer"
+      scope: "summaries_only"
+      
+  write:
+    - role: "moonlight_agent"
+      scope: "all"
+    - role: "board_member"
+      scope: "contributions_only"
+      
+  admin:
+    - role: "dao_admin"
+      scope: "all"
+
+# Export formats
+export_formats:
+  - format: "json"
+    description: "Standard JSON export"
+    
+  - format: "csv"
+    description: "CSV export for analytics"
+    
+  - format: "parquet"
+    description: "Parquet for data warehouse integration"
+    
+  - format: "ndjson"
+    description: "Newline-delimited JSON for streaming"
+
+# Integration endpoints
+integrations:
+  prometheus:
+    enabled: true
+    metrics_endpoint: "/metrics"
+    scrape_interval: "30s"
+    
+  grafana:
+    enabled: true
+    dashboard_id: "moonlight-telemetry"
+    
+  elasticsearch:
+    enabled: false
+    index_pattern: "moonlight-*"
+    
+  webhook:
+    enabled: false
+    url: "${WEBHOOK_URL}"
+    events:
+      - "session_start"
+      - "session_end"
+      - "high_value_contribution"
