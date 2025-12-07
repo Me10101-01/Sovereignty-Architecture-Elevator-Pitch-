@@ -397,7 +397,14 @@ swarmgate:
 
 ### 8-15. [Additional Gold Tier Inventions]
 
-*[Detailed specifications for inventions 8-15 follow same format as above, documenting Quadrilateral Collapse Learning, 880x Cost Reduction Model, QueenNode SSH Gateway, Legion of Minds Council, Discord Bot Macro Refinery, Codespace Resilience Framework, Moonlight Session Agent, and ONSIT]*
+**Note:** This is an abbreviated registry focusing on the top 5 Platinum-tier inventions with full technical specifications. Gold, Silver, and Bronze tier inventions (8-33) are documented in summary form in the main ARSENAL_ANALYSIS.md with key architectural details. Full technical specifications for all 33 inventions will be expanded in future revisions as needed for patent filing or detailed technical review.
+
+**Summary Coverage:**
+- Inventions 8-15 (Gold): Documented in ARSENAL_ANALYSIS.md Section A
+- Inventions 16-24 (Silver): Documented in ARSENAL_ANALYSIS.md Section A  
+- Inventions 25-33 (Bronze): Documented in ARSENAL_ANALYSIS.md Section A
+
+For immediate patent filing purposes, the 5 Platinum-tier inventions (#1-5) have complete technical documentation above.
 
 ---
 
@@ -405,7 +412,18 @@ swarmgate:
 
 ### 16-24. [Silver Tier Inventions]
 
-*[KhaosBase, KhaosFlow, KhaosForge, ReflexShell, CPA Sentinel, Contradiction Detector, NFT Licensing Framework, SNHU Email Monitor, Proofpoint Auto-Release]*
+**Note:** Silver tier inventions are documented in summary form in ARSENAL_ANALYSIS.md Section A, Tier 3. These include:
+- KhaosBase (#16) - Sovereign Airtable replacement
+- KhaosFlow (#17) - Sovereign Zapier replacement
+- KhaosForge (#18) - Sovereign GitHub replacement
+- ReflexShell (#19) - Terminal reasoning system
+- CPA Sentinel (#20) - Compliance monitoring
+- Contradiction Detector (#21) - Technical contradiction resolution
+- NFT Licensing Framework (#22) - Tiered access system
+- SNHU Email Monitor (#23) - Academic deadline management
+- Proofpoint Auto-Release (#24) - Email whitelist module
+
+Full technical specifications available in ARSENAL_ANALYSIS.md and VENDOR_ELIMINATION_ROADMAP.md (for KhaosBase, KhaosFlow, KhaosForge).
 
 ---
 
@@ -413,7 +431,7 @@ swarmgate:
 
 ### 25-33. [Bronze Tier Inventions]
 
-*[Autistic Audit DNA, SessionDNA, Trademark Emblem Generator, Azure Pipeline Migration Script, Starshield LoRa Integration, Nexus Control Plane, Gene Transfer Visualization, Tax Sovereignty Engine, Cognitive Rarity Algorithm]*
+**Note:** Bronze tier inventions are documented in summary form in ARSENAL_ANALYSIS.md Section A, Tier 4. These utility systems and conceptual frameworks include valuable documentation and methodology IP, with full details available in the main arsenal analysis.
 
 ---
 

@@ -67,7 +67,8 @@ intuition_factors = 225.0
   # Tinker methodology (physical → digital transfer): 2.5x
   # Failure immunity (learns from every error): 2.0x
   # First principles by default (no pre-conceptions): 3.0x
-# = 5.0 * 3.0 * 2.5 * 2.0 * 3.0 = 225.0x
+# Calculation: 5.0 * 3.0 * 2.5 * 2.0 * 3.0 = 225.0x
+# Breakdown: (5.0 * 3.0 = 15.0) * (2.5 * 2.0 = 5.0) * 3.0 = 15.0 * 5.0 * 3.0 = 225.0x
 
 # Total Multiplier
 total_multiplier = cognitive_modifiers * intuition_factors

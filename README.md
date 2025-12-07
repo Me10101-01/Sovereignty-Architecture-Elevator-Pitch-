@@ -35,9 +35,9 @@ This repository contains the foundational governance documents and comprehensive
 
 | File | Location | Description |
 |------|----------|-------------|
-| `sovereign-empire-alert.json` | `.` | Machine-readable system status with active alerts |
-| `ai_constitution.yaml` | `.` | AI governance rules and voting protocols |
-| `board_meeting_2025-12-05_v4.yaml` | `.` | Latest AI board meeting minutes |
+| `sovereign-empire-alert.json` | Root directory | Machine-readable system status with active alerts |
+| `ai_constitution.yaml` | Root directory | AI governance rules and voting protocols |
+| `board_meeting_2025-12-05_v4.yaml` | Root directory | Latest AI board meeting minutes |
 
 ## Quick Reference
 

@@ -479,18 +479,40 @@ khaosforge:
 ```bash
 #!/bin/bash
 # Compare Airtable vs KhaosBase data integrity
+# Usage: ./validate_migration.sh <table_name>
 
-AIRTABLE_COUNT=$(curl -s "https://api.airtable.com/v0/..." | jq '.records | length')
-KHAOSBASE_COUNT=$(psql -t -c "SELECT COUNT(*) FROM compliance_table")
+set -euo pipefail
+
+# Configuration (use environment variables or config file)
+AIRTABLE_API_KEY="${AIRTABLE_API_KEY:-}"
+AIRTABLE_BASE_ID="${AIRTABLE_BASE_ID:-}"
+KHAOSBASE_DB="${KHAOSBASE_DB:-postgresql://localhost:5432/khaosbase}"
+
+TABLE_NAME="${1:-compliance_table}"
+
+if [ -z "$AIRTABLE_API_KEY" ] || [ -z "$AIRTABLE_BASE_ID" ]; then
+  echo "ERROR: AIRTABLE_API_KEY and AIRTABLE_BASE_ID must be set"
+  exit 1
+fi
+
+# Fetch Airtable record count with error handling
+AIRTABLE_COUNT=$(curl -s -f \
+  -H "Authorization: Bearer ${AIRTABLE_API_KEY}" \
+  "https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TABLE_NAME}" \
+  | jq '.records | length' || echo "0")
+
+# Fetch KhaosBase record count with error handling
+KHAOSBASE_COUNT=$(psql -t -c "SELECT COUNT(*) FROM ${TABLE_NAME}" "${KHAOSBASE_DB}" || echo "0")
 
 if [ "$AIRTABLE_COUNT" != "$KHAOSBASE_COUNT" ]; then
-  echo "ERROR: Record count mismatch"
+  echo "ERROR: Record count mismatch for table: $TABLE_NAME"
   echo "Airtable: $AIRTABLE_COUNT"
   echo "KhaosBase: $KHAOSBASE_COUNT"
   exit 1
 fi
 
-echo "✅ Data integrity verified"
+echo "✅ Data integrity verified for $TABLE_NAME"
+echo "   Records: $AIRTABLE_COUNT"
 ```
 
 ---

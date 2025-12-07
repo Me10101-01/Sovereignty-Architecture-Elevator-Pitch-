@@ -37,9 +37,26 @@
 
 ```python
 def calculate_nft_tier(responses):
+    """
+    Calculate NFT tier based on interview responses.
+    
+    Args:
+        responses (dict): Dictionary with Bloom's taxonomy levels as keys
+            {
+                'remember': int,    # Number of correct Remember-level questions (0-5)
+                'understand': int,  # Number of correct Understand-level questions (0-5)
+                'apply': int,       # Number of correct Apply-level questions (0-5)
+                'analyze': int,     # Number of correct Analyze-level questions (0-5)
+                'evaluate': int,    # Number of correct Evaluate-level questions (0-5)
+                'create': int       # Number of correct Create-level questions (0-5)
+            }
+    
+    Returns:
+        str: NFT tier assignment ("Platinum", "Gold", "Silver", or "Bronze")
+    """
     score = 0
     
-    # Award points by Bloom's level
+    # Award points by Bloom's level (weighted by cognitive complexity)
     score += responses['remember'] * 1
     score += responses['understand'] * 2
     score += responses['apply'] * 3
