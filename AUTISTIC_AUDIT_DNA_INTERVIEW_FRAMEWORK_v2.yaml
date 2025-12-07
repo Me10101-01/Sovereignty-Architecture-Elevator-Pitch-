@@ -2,10 +2,21 @@ autistic_audit_dna:
   version: "2.0"
   author: "Dom010101 + Claude"
   description: >
-    Bloom's Level 4–6 interview framework mapped to StrategicKhaos
+    Bloom's Level 4-6 interview framework mapped to StrategicKhaos
     inventions and zero vendor lock-in principles.
 
   cognitive_rarity_algorithm_v2:
+    description: >
+      Quantifies cognitive rarity by combining physical expertise, digital
+      expertise, cognitive modifiers, and intuition factors. The algorithm
+      multiplies base scores by various modifiers to calculate an overall
+      rarity score. Higher scores indicate rarer cognitive profiles.
+    calculation: >
+      base_score = sum(physical_expertise + digital_expertise)
+      cognitive_multiplier = product(cognitive_modifiers)
+      intuition_multiplier = product(intuition_factors)
+      total_multiplier = cognitive_multiplier * intuition_multiplier
+      rarity_score = base_score * total_multiplier
     base_score: 405
     cognitive_multiplier: 18.0
     intuition_multiplier: 225.0
@@ -110,7 +121,7 @@ autistic_audit_dna:
           But you remember "debugging DNS." How do you evaluate the
           agent's interpretation accuracy?
         analyze: >
-          Deconstruct the difference between "session recording" and
+          Decompose the difference between "session recording" and
           "cognitive state reconstruction." What data is necessary vs.
           sufficient to recreate intent?
 
