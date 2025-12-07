@@ -6,11 +6,21 @@ This directory contains the foundational governance documents for **Strategickha
 
 ## Documents
 
+### Core Governance
+
 | File | Description | Status |
 |------|-------------|--------|
 | `TRUST_DECLARATION.md` | Foundational trust instrument defining principles, governance, and infrastructure | v2.1.0 |
 | `NON_AGGRESSION_CLAUSE.md` | Immutable ethical constraints (cannot be amended) | v2.1.0 IMMUTABLE |
 | `public-identifier-registry.md` | Verified credentials, EINs, platforms, infrastructure | v2.1.0 |
+
+### Business Documentation
+
+| File | Description | Status |
+|------|-------------|--------|
+| `ELEVATOR_PITCH.md` | Comprehensive elevator pitch for legal counsel and client review | v1.0.0 |
+| `ZERO_VENDOR_LOCKIN_PRINCIPALS.md` | 12 Sovereignty Principals ensuring client freedom | v1.0.0 |
+| `STRATEGICKHAOS_ARSENAL_ANALYSIS.md` | Complete IP portfolio inventory (33 inventions) | v1.0.0 |
 
 ## Related Files
 
@@ -66,7 +76,12 @@ FOUNDATIONAL (amendment requires ratification):
 │
 OPERATIONAL (update as needed):
 ├── public-identifier-registry.md
-└── sovereign-empire-alert.json
+├── sovereign-empire-alert.json
+│
+BUSINESS/LEGAL:
+├── ELEVATOR_PITCH.md
+├── ZERO_VENDOR_LOCKIN_PRINCIPALS.md
+└── STRATEGICKHAOS_ARSENAL_ANALYSIS.md
 ```
 
 ## Contact
@@ -77,4 +92,4 @@ OPERATIONAL (update as needed):
 
 ---
 
-*Last Updated: December 3, 2025*
+*Last Updated: December 7, 2025*
