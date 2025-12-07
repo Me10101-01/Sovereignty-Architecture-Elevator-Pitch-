@@ -284,8 +284,12 @@ action_categories:
   financial_actions:
     category: "Financial Actions"
     
-    transaction_under_100:
-      action: "Financial transaction under $100"
+    # NOTE: All financial transactions require escalation per AOL Article III.1
+    # The $100 threshold mentioned in Article III.1 is for reference only
+    # In practice, ANY financial transaction requires human approval
+    
+    transaction_any_amount:
+      action: "Financial transaction (any amount)"
       risk_level: "CRITICAL"
       pre_authorized: false
       escalation_required: true
@@ -293,16 +297,7 @@ action_categories:
       audit_level: "CRITICAL"
       notification_required: true
       approval_required: true
-      
-    transaction_over_100:
-      action: "Financial transaction over $100"
-      risk_level: "CRITICAL"
-      pre_authorized: false
-      escalation_required: true
-      trust_tier_required: "SOVEREIGN"
-      audit_level: "CRITICAL"
-      notification_required: true
-      approval_required: true
+      notes: "Article III.1 mentions $100 threshold, but all amounts require approval"
       
     modify_banking_credentials:
       action: "Modify banking credentials"

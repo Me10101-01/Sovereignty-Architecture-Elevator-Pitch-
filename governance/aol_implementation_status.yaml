@@ -368,40 +368,50 @@ next_actions:
     - action: "Update main README to reference AOL"
       priority: "HIGH"
       estimated_hours: 1
+      assignee: "Dominic Garza (Operator)"
       
     - action: "Validate all YAML files"
       priority: "HIGH"
       estimated_hours: 2
+      assignee: "Dominic Garza (Operator)"
       
     - action: "Generate GPG key pair"
       priority: "HIGH"
       estimated_hours: 2
+      assignee: "Dominic Garza (Operator)"
       
   this_week:
     - action: "Configure Discord webhook for alerts"
       priority: "HIGH"
       estimated_hours: 3
+      assignee: "Infrastructure Team"
       
     - action: "Provision audit log storage"
       priority: "HIGH"
       estimated_hours: 8
+      assignee: "Infrastructure Team"
       
     - action: "Present AOL to AI Board"
       priority: "MEDIUM"
       estimated_hours: 2
+      assignee: "Dominic Garza (Operator)"
       
   this_month:
     - action: "Implement circuit breakers"
       priority: "HIGH"
       estimated_hours: 40
+      assignee: "Development Team"
       
     - action: "Attorney review"
       priority: "HIGH"
       estimated_hours: 4
+      assignee: "Dominic Garza (Operator)" 
+      notes: "Coordinate with WY-licensed attorney"
       
     - action: "Create test suite"
       priority: "HIGH"
       estimated_hours: 24
+      assignee: "Development Team"
 
 # Risk tracking
 risks:

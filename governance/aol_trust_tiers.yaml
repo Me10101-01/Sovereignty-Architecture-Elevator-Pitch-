@@ -117,6 +117,7 @@ trust_tiers:
       - "delete_session" # Requires SOVEREIGN
       - "record_board_decision" # Requires SOVEREIGN
       - "update_audit_trail" # Requires SOVEREIGN
+      - "file_modification_existing" # Requires TRUSTED (files not marked for editing)
       
     escalation_requirements:
       financial: true
@@ -171,12 +172,12 @@ trust_tiers:
         - "create_meeting_minutes"
         
     restricted_actions:
-      - "file_modify" # Requires TRUSTED
+      - "file_modify" # Requires TRUSTED or explicit instruction
       - "file_delete" # Requires TRUSTED
       - "memory_access" # Requires TRUSTED
       - "package_install" # Requires TRUSTED
       - "database_query_read" # Requires TRUSTED
-      - "update_documentation" # Requires TRUSTED
+      - "update_documentation" # Requires TRUSTED (existing docs)
       - "record_board_decision" # Requires SOVEREIGN
       - "update_audit_trail" # Requires SOVEREIGN
       
