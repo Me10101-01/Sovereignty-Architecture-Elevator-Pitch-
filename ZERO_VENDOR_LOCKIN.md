@@ -350,17 +350,17 @@ git log --show-signature
 
 ### Current Vendor Dependencies
 
-| Vendor | Service | Annual Cost | Pain Points | Replacement |
-|--------|---------|-------------|-------------|-------------|
-| **Airtable** | Database/CRM | $240/yr | Limited API, export restrictions | KhaosBase |
-| **Zapier** | Automation | $240+/yr | Expensive at scale, task limits | KhaosFlow |
-| **GitHub** | Git hosting | $252/yr | Centralized, downtime risk | KhaosForge |
-| **Discord** | Communication | $0-84/yr | Closed platform, no data ownership | KhaosComms |
-| **Notion** | Documentation | $120/yr | Proprietary format, export issues | KhaosDocs |
-| **Stripe** | Payments | 2.9%+30¢ | High fees, limited control | KhaosPay |
-| **Obsidian Sync** | Note sync | $96/yr | Optional, can use Git | Git sync |
+| Vendor | Service | Annual Base Cost | Transaction Fees | Pain Points | Replacement |
+|--------|---------|------------------|------------------|-------------|-------------|
+| **Airtable** | Database/CRM | $240 | None | Limited API, export restrictions | KhaosBase |
+| **Zapier** | Automation | $240+ | None | Expensive at scale, task limits | KhaosFlow |
+| **GitHub** | Git hosting | $252 | None | Centralized, downtime risk | KhaosForge |
+| **Discord** | Communication | $0-84 | None | Closed platform, no data ownership | KhaosComms |
+| **Notion** | Documentation | $120 | None | Proprietary format, export issues | KhaosDocs |
+| **Stripe** | Payments | $0 | 2.9% + 30¢ per transaction | High fees, limited control | KhaosPay |
+| **Obsidian Sync** | Note sync | $96 | None | Optional, can use Git | Git sync |
 
-**Total Annual Vendor Cost:** ~$1,000+ base + transaction fees
+**Total Annual Vendor Cost:** ~$948 base + transaction fees (2.9% of all payments)
 
 ---
 

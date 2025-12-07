@@ -5,6 +5,9 @@
 
 set -uo pipefail
 
+# Note: Not using -e flag to allow graceful handling of optional checks (GPG/OTS)
+# and to collect all warnings before reporting final status
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -162,6 +165,9 @@ echo ""
 echo "5. Content Validation"
 echo "---------------------"
 
+# Pattern for section headers
+SECTION_PATTERN='^### [0-9]\+\.'
+
 # Check ARSENAL_ANALYSIS.md references other documents
 if grep -q "INVENTION_REGISTRY.md" ARSENAL_ANALYSIS.md && \
    grep -q "ZERO_VENDOR_LOCKIN.md" ARSENAL_ANALYSIS.md && \
@@ -173,7 +179,7 @@ else
 fi
 
 # Check INVENTION_REGISTRY.md has all 33 inventions
-invention_count=$(grep -c "^### [0-9]\+\." INVENTION_REGISTRY.md || echo 0)
+invention_count=$(grep -c "$SECTION_PATTERN" INVENTION_REGISTRY.md || echo 0)
 if [[ $invention_count -eq 33 ]]; then
     print_status "PASS" "INVENTION_REGISTRY.md contains all 33 inventions"
 else
@@ -181,7 +187,7 @@ else
 fi
 
 # Check ZERO_VENDOR_LOCKIN.md has all 12 principles
-principle_count=$(grep -c "^### [0-9]\+\." ZERO_VENDOR_LOCKIN.md || echo 0)
+principle_count=$(grep -c "$SECTION_PATTERN" ZERO_VENDOR_LOCKIN.md || echo 0)
 if [[ $principle_count -ge 12 ]]; then
     print_status "PASS" "ZERO_VENDOR_LOCKIN.md contains at least 12 principles"
 else
