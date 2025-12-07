@@ -23,6 +23,17 @@ Every tension is a revenue opportunity. Every "versus" becomes "value added."
 > **Revenue**: Free basics → $19/mo for power features  
 > **Proof**: Feature usage analytics
 
+### Cloud Vendor Lock-in vs Zero Dependencies
+> **Hook**: "Cloud power without cloud prison."
+> **Mechanism**: Kubernetes-native + portable abstractions + multi-cloud terraform
+> **Revenue**: Pay infrastructure costs only → $0 switching fees
+> **Proof**: `kubectl get all --all-namespaces` (zero vendor-specific resources)
+> **Quadrilateral Collapse**:
+> - **Vendor**: Zero lock-in architecture
+> - **Speed**: Multi-cloud failover <30s
+> - **Cost**: Infrastructure-only pricing
+> - **Learning**: Accumulated expertise transfers across clouds
+
 ## Growth Tactics
 
 | Channel | Tactic | Example |
