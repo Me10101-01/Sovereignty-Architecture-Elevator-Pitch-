@@ -139,9 +139,10 @@ default_http_headers:
   X-Robots-Tag: noindex, nofollow
   Referrer-Policy: no-referrer
   
-# Hostname plugin configuration
-hostname_replace:
-  '(.*\.)?youtube\.com$': 'invidious.strategickhaos.ai'
-  '(.*\.)?youtu\.be$': 'invidious.strategickhaos.ai'
-  '(.*\.)?twitter\.com$': 'nitter.strategickhaos.ai'
-  '(.*\.)?reddit\.com$': 'libreddit.strategickhaos.ai'
+# Hostname plugin configuration (optional privacy frontends)
+# Uncomment and configure if you have deployed these privacy-friendly frontends
+# hostname_replace:
+#   '(.*\.)?youtube\.com$': 'invidious.yourdomain.com'
+#   '(.*\.)?youtu\.be$': 'invidious.yourdomain.com'
+#   '(.*\.)?twitter\.com$': 'nitter.yourdomain.com'
+#   '(.*\.)?reddit\.com$': 'libreddit.yourdomain.com'

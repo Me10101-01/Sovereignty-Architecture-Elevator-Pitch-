@@ -247,10 +247,11 @@
     description = "KhaosOS Operator";
     extraGroups = [ "wheel" "docker" "networkmanager" "wireshark" ];
     
-    # SSH public keys
+    # SSH public keys (REQUIRED: Add your key before deployment!)
+    # Generate with: ssh-keygen -t ed25519 -C "your_email@example.com"
+    # Get public key: cat ~/.ssh/id_ed25519.pub
     openssh.authorizedKeys.keys = [
-      # Add your SSH public key here
-      # "ssh-ed25519 AAAAC3... user@host"
+      # "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExample... user@host"
     ];
   };
   
