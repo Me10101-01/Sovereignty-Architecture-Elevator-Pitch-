@@ -414,6 +414,8 @@ Services:
 
 ### Monthly Infrastructure Costs
 
+*Note: Costs are estimates based on December 2025 pricing. For current pricing, visit [GitHub Pricing](https://github.com/pricing), [GCP Pricing](https://cloud.google.com/pricing), and [Tailscale Pricing](https://tailscale.com/pricing).*
+
 | Service | Tier | Cost | Notes |
 |---------|------|------|-------|
 | **GitHub Enterprise** | Cloud | $21/mo | Or $0 with education |

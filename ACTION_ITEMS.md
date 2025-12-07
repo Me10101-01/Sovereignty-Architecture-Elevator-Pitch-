@@ -62,18 +62,13 @@ Total: 1,622 lines of comprehensive documentation
 **Cost:** $0 (under your enterprise)
 
 **Steps:**
-```bash
-# 1. Go to GitHub
-https://github.com/organizations/new
-
-# 2. Fill in the form:
-Organization account name: ssio-dao-llc
-Contact email: domenic.garza@snhu.edu
-This organization belongs to: Your enterprise (if prompted)
-Billing plan: Free (inherits enterprise features)
-
-# 3. Click "Create organization"
-```
+1. Visit [GitHub Organizations](https://github.com/organizations/new)
+2. Fill in the form:
+   - Organization account name: `ssio-dao-llc`
+   - Contact email: `domenic.garza@snhu.edu`
+   - This organization belongs to: Your enterprise (if prompted)
+   - Billing plan: Free (inherits enterprise features)
+3. Click "Create organization"
 
 **After Creation:**
 - Set up teams and permissions
@@ -91,18 +86,13 @@ Billing plan: Free (inherits enterprise features)
 **Cost:** $0 (under your enterprise)
 
 **Steps:**
-```bash
-# 1. Go to GitHub
-https://github.com/organizations/new
-
-# 2. Fill in the form:
-Organization account name: valoryield-engine-pbc
-Contact email: domenic.garza@snhu.edu
-Visibility: Public (for charity transparency)
-Billing plan: Free
-
-# 3. Click "Create organization"
-```
+1. Visit [GitHub Organizations](https://github.com/organizations/new)
+2. Fill in the form:
+   - Organization account name: `valoryield-engine-pbc`
+   - Contact email: `domenic.garza@snhu.edu`
+   - Visibility: Public (for charity transparency)
+   - Billing plan: Free
+3. Click "Create organization"
 
 **After Creation:**
 - Make repositories public for transparency

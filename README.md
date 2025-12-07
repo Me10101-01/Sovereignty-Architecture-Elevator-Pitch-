@@ -26,8 +26,8 @@ This repository contains the foundational governance documents, infrastructure a
 
 | File | Location | Description |
 |------|----------|-------------|
-| `sovereign-empire-alert.json` | Root | Machine-readable system status with active alerts |
-| `ENTERPRISE_BENCHMARKS_COMPLETE.md` | Root | 30-test enterprise validation suite |
+| `sovereign-empire-alert.json` | Root directory | Machine-readable system status with active alerts |
+| `ENTERPRISE_BENCHMARKS_COMPLETE.md` | Root directory | 30-test enterprise validation suite |
 
 ## Quick Reference
 

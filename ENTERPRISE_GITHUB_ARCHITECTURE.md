@@ -114,7 +114,7 @@ You have **four legal entities** (the "four dragons"):
    - EIN: 39-2923503
    - AI-driven dividend system
    - Veterans and underserved communities
-   - Pending 501(c)(3) status
+   - Pending 501(c)(3) status (federal tax-exempt charitable organization status)
 
 3. **Skyline Strategies** (Louisiana LLC) / **SSSF LLC**
    - EIN: 99-2899134
