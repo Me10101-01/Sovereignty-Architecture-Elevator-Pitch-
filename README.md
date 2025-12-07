@@ -11,6 +11,20 @@ This directory contains the foundational governance documents for **Strategickha
 | `TRUST_DECLARATION.md` | Foundational trust instrument defining principles, governance, and infrastructure | v2.1.0 |
 | `NON_AGGRESSION_CLAUSE.md` | Immutable ethical constraints (cannot be amended) | v2.1.0 IMMUTABLE |
 | `public-identifier-registry.md` | Verified credentials, EINs, platforms, infrastructure | v2.1.0 |
+| `document_certification_office.md` | Department charter for NFT stamp approval oversight | v1.0.0 |
+
+## Departments
+
+| Department | Description | Charter |
+|------------|-------------|---------|
+| **Document Certification Office (DCO)** | Oversees all documents receive official NFT Stamp of Approval | [DCO Charter](governance/document_certification_office.md) |
+
+### NFT Stamp of Approval
+
+The official **Ratio Ex Nihilo** trademark emblem certifies authentic Strategickhaos DAO LLC documents:
+- **View Stamp:** [strategickhaos-trademark-nft-stamp.html](governance/strategickhaos-trademark-nft-stamp.html)
+- **Certification Registry:** [certification_registry.yaml](governance/certification_registry.yaml)
+- **Submit for Certification:** [DCO Process](governance/certification/README.md)
 
 ## Related Files
 
@@ -66,15 +80,23 @@ FOUNDATIONAL (amendment requires ratification):
 │
 OPERATIONAL (update as needed):
 ├── public-identifier-registry.md
-└── sovereign-empire-alert.json
+├── sovereign-empire-alert.json
+└── certification_registry.yaml
+│
+DEPARTMENTAL (governed by charter):
+└── Document Certification Office (DCO)
+    ├── document_certification_office.md (charter)
+    ├── strategickhaos-trademark-nft-stamp.html (official stamp)
+    └── certification/ (workflow management)
 ```
 
 ## Contact
 
 - **Security:** security@strategickhaos.ai
+- **Document Certification:** dco@strategickhaos.ai
 - **Wyoming SOS:** 307-777-7370
 - **GitHub:** [@Strategickhaos](https://github.com/Strategickhaos)
 
 ---
 
-*Last Updated: December 3, 2025*
+*Last Updated: December 7, 2025*

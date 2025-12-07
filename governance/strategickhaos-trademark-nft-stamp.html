@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategickhaos DAO LLC - Trademark V2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Exo+2:wght@300;400;900&family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --void-black: #000000;
+            --deep-space: #0a0e1a;
+            --marble-dark: #1a1a2e;
+            --orbital-blue: #0066cc;
+            --plasma-cyan: #00d4ff;
+            --plasma-blue: #4488ff;
+            --toruk-orange: #ff6b00;
+            --toruk-gold: #ffaa00;
+            --copper-light: #d4956a;
+            --copper-dark: #8b5a3c;
+            --bio-luminescent: #00ff88;
+            --signal-white: #e8f4ff;
+            --energy-core: #ffcc66;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--void-black);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Exo 2', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Marble texture background */
+        .marble-bg {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(26, 26, 46, 0.8) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(10, 14, 26, 0.9) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%);
+            z-index: 0;
+        }
+
+        .marble-veins {
+            position: fixed;
+            inset: 0;
+            opacity: 0.15;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            z-index: 1;
+        }
+
+        .trademark-container {
+            position: relative;
+            width: 900px;
+            height: 950px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        /* === RATIO EX NIHILO EMBLEM === */
+        .ratio-emblem {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            margin-bottom: 20px;
+        }
+
+        /* Outer copper ring */
+        .outer-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid transparent;
+            background: 
+                linear-gradient(var(--deep-space), var(--deep-space)) padding-box,
+                linear-gradient(135deg, var(--copper-light) 0%, var(--copper-dark) 50%, var(--copper-light) 100%) border-box;
+            box-shadow: 
+                0 0 30px rgba(212, 149, 106, 0.3),
+                inset 0 0 40px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Inner copper ring */
+        .inner-ring {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: calc(100% - 60px);
+            height: calc(100% - 60px);
+            border-radius: 50%;
+            border: 4px solid transparent;
+            background: 
+                linear-gradient(var(--marble-dark), var(--marble-dark)) padding-box,
+                linear-gradient(135deg, var(--copper-dark) 0%, var(--copper-light) 50%, var(--copper-dark) 100%) border-box;
+        }
+
+        /* Circuit traces on sides */
+        .circuit-left, .circuit-right {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 200px;
+            z-index: 5;
+        }
+
+        .circuit-left { left: -10px; }
+        .circuit-right { right: -10px; transform: translateY(-50%) scaleX(-1); }
+
+        .circuit-left svg, .circuit-right svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Curved text - top */
+        .text-arc-top {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 200px;
+            z-index: 20;
+        }
+
+        .text-arc-bottom {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 200px;
+            z-index: 20;
+        }
+
+        .arc-text {
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            font-weight: 600;
+            fill: var(--copper-light);
+            letter-spacing: 4px;
+        }
+
+        /* === METATRON'S CUBE / STAR TETRAHEDRON === */
+        .sacred-geometry {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            height: 320px;
+            z-index: 15;
+        }
+
+        .geometry-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 20px rgba(255, 170, 0, 0.5));
+        }
+
+        /* Energy field behind geometry */
+        .energy-field {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, 
+                rgba(68, 136, 255, 0.4) 0%, 
+                rgba(0, 212, 255, 0.2) 30%,
+                rgba(0, 102, 204, 0.1) 60%,
+                transparent 80%);
+            animation: energy-pulse 3s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes energy-pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+        }
+
+        /* Lightning/plasma effects */
+        .plasma-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            height: 350px;
+            z-index: 12;
+            opacity: 0.6;
+        }
+
+        /* Node points glow */
+        .node-glow {
+            fill: var(--toruk-gold);
+            filter: url(#nodeGlow);
+            animation: node-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes node-pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        /* === TORUK OVERLAY === */
+        .toruk-overlay {
+            position: absolute;
+            top: 42%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 120px;
+            z-index: 25;
+            opacity: 0.9;
+        }
+
+        .toruk-overlay svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 15px rgba(255, 107, 0, 0.6));
+        }
+
+        /* === SATELLITE NODE 137 === */
+        .node-137 {
+            position: absolute;
+            top: 12%;
+            right: 12%;
+            width: 50px;
+            height: 50px;
+            z-index: 30;
+            animation: satellite-drift 10s ease-in-out infinite;
+        }
+
+        @keyframes satellite-drift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-5px, 3px) rotate(5deg); }
+            50% { transform: translate(0, 6px) rotate(0deg); }
+            75% { transform: translate(5px, 3px) rotate(-5deg); }
+        }
+
+        .node-137 svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 10px var(--plasma-cyan));
+        }
+
+        /* === TEXT ELEMENTS === */
+        .trademark-text {
+            text-align: center;
+            z-index: 20;
+            margin-top: 10px;
+        }
+
+        .entity-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: 6px;
+            background: linear-gradient(90deg, 
+                var(--plasma-cyan) 0%, 
+                var(--signal-white) 30%,
+                var(--toruk-gold) 70%,
+                var(--copper-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: text-shimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes text-shimmer {
+            0%, 100% { filter: brightness(1) drop-shadow(0 0 10px rgba(0, 212, 255, 0.3)); }
+            50% { filter: brightness(1.2) drop-shadow(0 0 20px rgba(255, 170, 0, 0.5)); }
+        }
+
+        .tagline {
+            font-family: 'Exo 2', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            color: var(--plasma-cyan);
+            margin-top: 8px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        .node-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--bio-luminescent);
+            margin-top: 15px;
+            opacity: 0.85;
+        }
+
+        .dao-label {
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            letter-spacing: 4px;
+            color: var(--copper-light);
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
+        /* TM symbol */
+        .tm-mark {
+            position: absolute;
+            top: 80px;
+            right: 120px;
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            color: var(--copper-light);
+            opacity: 0.9;
+            z-index: 50;
+        }
+
+        /* Legal footer */
+        .legal-footer {
+            position: fixed;
+            bottom: 20px;
+            font-family: 'Exo 2', sans-serif;
+            font-size: 10px;
+            color: rgba(212, 149, 106, 0.5);
+            letter-spacing: 1px;
+            z-index: 100;
+        }
+
+        /* Export info panel */
+        .export-info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(10, 14, 26, 0.95);
+            border: 1px solid var(--copper-dark);
+            padding: 15px 20px;
+            font-family: 'Exo 2', sans-serif;
+            font-size: 11px;
+            color: var(--signal-white);
+            z-index: 100;
+            border-radius: 4px;
+        }
+
+        .export-info h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            color: var(--copper-light);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .export-info p {
+            margin: 5px 0;
+            opacity: 0.8;
+        }
+
+        .export-info code {
+            color: var(--bio-luminescent);
+            font-family: monospace;
+        }
+
+        /* Star field */
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: star-twinkle 3s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        @keyframes star-twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background layers -->
+    <div class="marble-bg"></div>
+    <div class="marble-veins"></div>
+
+    <!-- Stars -->
+    <div class="star" style="top: 8%; left: 12%; animation-delay: 0.2s;"></div>
+    <div class="star" style="top: 15%; left: 85%; animation-delay: 0.8s;"></div>
+    <div class="star" style="top: 35%; left: 5%; animation-delay: 1.2s;"></div>
+    <div class="star" style="top: 70%; left: 92%; animation-delay: 0.4s;"></div>
+    <div class="star" style="top: 85%; left: 18%; animation-delay: 1.6s;"></div>
+    <div class="star" style="top: 20%; left: 50%; animation-delay: 0.6s;"></div>
+    <div class="star" style="top: 90%; left: 75%; animation-delay: 1.0s;"></div>
+
+    <!-- Export info panel -->
+    <div class="export-info">
+        <h3>⬡ TRADEMARK ASSET V2</h3>
+        <p>Entity: <code>Strategickhaos DAO LLC</code></p>
+        <p>Motto: <code>Ratio Ex Nihilo</code></p>
+        <p>EIN: <code>39-2923503</code></p>
+        <p>Wyoming: <code>2025-001708194</code></p>
+        <p>Node: <code>Orbiting Node 137</code></p>
+    </div>
+
+    <!-- TM Mark -->
+    <span class="tm-mark">™</span>
+
+    <div class="trademark-container">
+        <!-- Main Emblem -->
+        <div class="ratio-emblem">
+            <!-- Outer copper ring -->
+            <div class="outer-ring"></div>
+            
+            <!-- Inner copper ring -->
+            <div class="inner-ring"></div>
+
+            <!-- Circuit traces - left -->
+            <div class="circuit-left">
+                <svg viewBox="0 0 40 200" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M35 20 L25 20 L25 40 L15 40 L15 60 L25 60 L25 80 L20 80 L20 100" stroke="#d4956a" stroke-width="2" fill="none" opacity="0.7"></path>
+                    <path d="M35 100 L30 100 L30 120 L20 120 L20 140 L25 140 L25 160 L35 160" stroke="#d4956a" stroke-width="2" fill="none" opacity="0.7"></path>
+                    <circle cx="35" cy="20" r="3" fill="#d4956a" opacity="0.8"></circle>
+                    <circle cx="20" cy="100" r="3" fill="#d4956a" opacity="0.8"></circle>
+                    <circle cx="35" cy="160" r="3" fill="#d4956a" opacity="0.8"></circle>
+                </svg>
+            </div>
+
+            <!-- Circuit traces - right -->
+            <div class="circuit-right">
+                <svg viewBox="0 0 40 200" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M35 20 L25 20 L25 40 L15 40 L15 60 L25 60 L25 80 L20 80 L20 100" stroke="#d4956a" stroke-width="2" fill="none" opacity="0.7"></path>
+                    <path d="M35 100 L30 100 L30 120 L20 120 L20 140 L25 140 L25 160 L35 160" stroke="#d4956a" stroke-width="2" fill="none" opacity="0.7"></path>
+                    <circle cx="35" cy="20" r="3" fill="#d4956a" opacity="0.8"></circle>
+                    <circle cx="20" cy="100" r="3" fill="#d4956a" opacity="0.8"></circle>
+                    <circle cx="35" cy="160" r="3" fill="#d4956a" opacity="0.8"></circle>
+                </svg>
+            </div>
+
+            <!-- Text arc - top -->
+            <div class="text-arc-top">
+                <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <path id="textArcTop" d="M 40,180 A 160,160 0 0,1 360,180" fill="none"></path>
+                    </defs>
+                    <text class="arc-text">
+                        <textPath href="#textArcTop" startOffset="50%" text-anchor="middle">
+                            Ratio Ex Nihilo
+                        </textPath>
+                    </text>
+                </svg>
+            </div>
+
+            <!-- Text arc - bottom -->
+            <div class="text-arc-bottom">
+                <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <path id="textArcBottom" d="M 40,20 A 160,160 0 0,0 360,20" fill="none"></path>
+                    </defs>
+                    <text class="arc-text">
+                        <textPath href="#textArcBottom" startOffset="50%" text-anchor="middle">
+                            Ratio Ex Nihilo
+                        </textPath>
+                    </text>
+                </svg>
+            </div>
+
+            <!-- Energy field -->
+            <div class="energy-field"></div>
+
+            <!-- Sacred Geometry - Metatron's Cube / Star Tetrahedron -->
+            <div class="sacred-geometry">
+                <svg class="geometry-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <!-- Glow filters -->
+                        <filter id="goldGlow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
+                            <feMerge>
+                                <feMergeNode in="blur"></feMergeNode>
+                                <feMergeNode in="SourceGraphic"></feMergeNode>
+                            </feMerge>
+                        </filter>
+                        <filter id="nodeGlow" x="-100%" y="-100%" width="300%" height="300%">
+                            <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
+                            <feMerge>
+                                <feMergeNode in="blur"></feMergeNode>
+                                <feMergeNode in="blur"></feMergeNode>
+                                <feMergeNode in="SourceGraphic"></feMergeNode>
+                            </feMerge>
+                        </filter>
+                        <filter id="plasmaGlow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="2" result="blur"></feGaussianBlur>
+                            <feMerge>
+                                <feMergeNode in="blur"></feMergeNode>
+                                <feMergeNode in="SourceGraphic"></feMergeNode>
+                            </feMerge>
+                        </filter>
+
+                        <!-- Gradients -->
+                        <linearGradient id="goldLine" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffcc66"></stop>
+                            <stop offset="50%" style="stop-color:#ffaa00"></stop>
+                            <stop offset="100%" style="stop-color:#ff8800"></stop>
+                        </linearGradient>
+                        <linearGradient id="cyanLine" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4ff"></stop>
+                            <stop offset="50%" style="stop-color:#4488ff"></stop>
+                            <stop offset="100%" style="stop-color:#0066cc"></stop>
+                        </linearGradient>
+                        <radialGradient id="nodeGrad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" style="stop-color:#ffffff"></stop>
+                            <stop offset="40%" style="stop-color:#ffcc66"></stop>
+                            <stop offset="100%" style="stop-color:#ff8800"></stop>
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Center point -->
+                    <circle cx="160" cy="160" r="8" fill="url(#nodeGrad)" class="node-glow">
+                        <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite"></animate>
+                    </circle>
+
+                    <!-- Inner hexagon (Star of David center) -->
+                    <polygon points="160,100 195,130 195,190 160,220 125,190 125,130" fill="none" stroke="url(#cyanLine)" stroke-width="2" filter="url(#plasmaGlow)" opacity="0.9"></polygon>
+
+                    <!-- Upward triangle -->
+                    <polygon points="160,60 240,200 80,200" fill="none" stroke="url(#goldLine)" stroke-width="2.5" filter="url(#goldGlow)"></polygon>
+
+                    <!-- Downward triangle -->
+                    <polygon points="160,260 80,120 240,120" fill="none" stroke="url(#goldLine)" stroke-width="2.5" filter="url(#goldGlow)"></polygon>
+
+                    <!-- Outer hexagon vertices - the 6 main nodes -->
+                    <!-- Top -->
+                    <circle cx="160" cy="60" r="10" fill="url(#nodeGrad)" class="node-glow"></circle>
+                    <!-- Top right -->
+                    <circle cx="240" cy="120" r="10" fill="url(#nodeGrad)" class="node-glow"></circle>
+                    <!-- Bottom right -->
+                    <circle cx="240" cy="200" r="10" fill="url(#nodeGrad)" class="node-glow"></circle>
+                    <!-- Bottom -->
+                    <circle cx="160" cy="260" r="10" fill="url(#nodeGrad)" class="node-glow"></circle>
+                    <!-- Bottom left -->
+                    <circle cx="80" cy="200" r="10" fill="url(#nodeGrad)" class="node-glow"></circle>
+                    <!-- Top left -->
+                    <circle cx="80" cy="120" r="10" fill="url(#nodeGrad)" class="node-glow"></circle>
+
+                    <!-- Connecting lines to center (Metatron's structure) -->
+                    <line x1="160" y1="60" x2="160" y2="160" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.7"></line>
+                    <line x1="240" y1="120" x2="160" y2="160" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.7"></line>
+                    <line x1="240" y1="200" x2="160" y2="160" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.7"></line>
+                    <line x1="160" y1="260" x2="160" y2="160" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.7"></line>
+                    <line x1="80" y1="200" x2="160" y2="160" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.7"></line>
+                    <line x1="80" y1="120" x2="160" y2="160" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.7"></line>
+
+                    <!-- Outer connecting lines (hexagon edges) -->
+                    <line x1="160" y1="60" x2="240" y2="120" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.6"></line>
+                    <line x1="240" y1="120" x2="240" y2="200" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.6"></line>
+                    <line x1="240" y1="200" x2="160" y2="260" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.6"></line>
+                    <line x1="160" y1="260" x2="80" y2="200" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.6"></line>
+                    <line x1="80" y1="200" x2="80" y2="120" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.6"></line>
+                    <line x1="80" y1="120" x2="160" y2="60" stroke="url(#goldLine)" stroke-width="1.5" filter="url(#goldGlow)" opacity="0.6"></line>
+
+                    <!-- Plasma lightning effect lines -->
+                    <path d="M100 90 Q120 100 110 120 Q130 115 120 140" stroke="url(#cyanLine)" stroke-width="1" fill="none" filter="url(#plasmaGlow)" opacity="0.5">
+                        <animate attributeName="opacity" values="0.3;0.7;0.3" dur="1.5s" repeatCount="indefinite"></animate>
+                    </path>
+                    <path d="M220 90 Q200 105 210 125 Q190 120 200 145" stroke="url(#cyanLine)" stroke-width="1" fill="none" filter="url(#plasmaGlow)" opacity="0.5">
+                        <animate attributeName="opacity" values="0.5;0.8;0.5" dur="1.8s" repeatCount="indefinite"></animate>
+                    </path>
+                    <path d="M100 230 Q115 215 105 195 Q125 200 115 175" stroke="url(#cyanLine)" stroke-width="1" fill="none" filter="url(#plasmaGlow)" opacity="0.5">
+                        <animate attributeName="opacity" values="0.4;0.6;0.4" dur="2s" repeatCount="indefinite"></animate>
+                    </path>
+                    <path d="M220 230 Q205 210 215 190 Q195 195 205 170" stroke="url(#cyanLine)" stroke-width="1" fill="none" filter="url(#plasmaGlow)" opacity="0.5">
+                        <animate attributeName="opacity" values="0.3;0.7;0.3" dur="1.7s" repeatCount="indefinite"></animate>
+                    </path>
+                </svg>
+            </div>
+
+            <!-- Toruk silhouette overlay -->
+            <div class="toruk-overlay">
+                <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="torukGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ff6b00;stop-opacity:0.9"></stop>
+                            <stop offset="50%" style="stop-color:#ffaa00;stop-opacity:0.95"></stop>
+                            <stop offset="100%" style="stop-color:#ff4400;stop-opacity:0.9"></stop>
+                        </linearGradient>
+                        <filter id="torukGlow">
+                            <feGaussianBlur stdDeviation="2" result="blur"></feGaussianBlur>
+                            <feMerge>
+                                <feMergeNode in="blur"></feMergeNode>
+                                <feMergeNode in="SourceGraphic"></feMergeNode>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <!-- Left wing -->
+                    <path d="M100 55 L20 15 L5 30 L18 45 L35 40 L55 52 L75 48 L90 54 Z" fill="url(#torukGrad)" filter="url(#torukGlow)"></path>
+                    <!-- Right wing -->
+                    <path d="M100 55 L180 15 L195 30 L182 45 L165 40 L145 52 L125 48 L110 54 Z" fill="url(#torukGrad)" filter="url(#torukGlow)"></path>
+                    <!-- Body -->
+                    <ellipse cx="100" cy="58" rx="18" ry="8" fill="url(#torukGrad)" filter="url(#torukGlow)"></ellipse>
+                    <!-- Head crest -->
+                    <path d="M100 50 L96 32 L100 38 L104 32 L100 50" fill="url(#torukGrad)" filter="url(#torukGlow)"></path>
+                    <!-- Tail -->
+                    <path d="M92 66 L100 105 L108 66" fill="url(#torukGrad)" filter="url(#torukGlow)"></path>
+                    <!-- Bio-luminescent eye -->
+                    <circle cx="100" cy="55" r="2" fill="#00d4ff" opacity="0.9">
+                        <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"></animate>
+                    </circle>
+                </svg>
+            </div>
+
+            <!-- Satellite Node 137 -->
+            <div class="node-137">
+                <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="satPanel" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#0066cc"></stop>
+                            <stop offset="100%" style="stop-color:#00d4ff"></stop>
+                        </linearGradient>
+                    </defs>
+                    <!-- Solar panels -->
+                    <rect x="3" y="20" width="14" height="8" fill="url(#satPanel)" opacity="0.85"></rect>
+                    <rect x="33" y="20" width="14" height="8" fill="url(#satPanel)" opacity="0.85"></rect>
+                    <!-- Body -->
+                    <rect x="17" y="17" width="16" height="14" fill="#1a1a2e" stroke="#00d4ff" stroke-width="1"></rect>
+                    <!-- Antenna -->
+                    <line x1="25" y1="17" x2="25" y2="8" stroke="#00d4ff" stroke-width="1"></line>
+                    <circle cx="25" cy="6" r="3" fill="none" stroke="#00d4ff" stroke-width="1"></circle>
+                    <!-- Signal pulse -->
+                    <circle cx="25" cy="6" r="6" fill="none" stroke="#00d4ff" stroke-width="0.5" opacity="0.4">
+                        <animate attributeName="r" values="4;10;4" dur="2s" repeatCount="indefinite"></animate>
+                        <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"></animate>
+                    </circle>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Text block -->
+        <div class="trademark-text">
+            <div class="entity-name">STRATEGICKHAOS</div>
+            <div class="tagline">Swarm Intelligence</div>
+            <div class="dao-label">DAO LLC</div>
+            <div class="node-label">◈ ORBITING NODE 137 ◈</div>
+        </div>
+    </div>
+
+    <div class="legal-footer">
+        © 2025 Strategickhaos DAO LLC · Wyoming 2025-001708194 · EIN 39-2923503 · Ratio Ex Nihilo · All Rights Reserved
+    </div>
+
+
+</body></html>
