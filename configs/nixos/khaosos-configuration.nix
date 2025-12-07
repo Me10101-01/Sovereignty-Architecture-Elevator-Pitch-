@@ -1,0 +1,322 @@
+# /etc/nixos/khaosos-configuration.nix
+# KhaosOS - Sovereign Operating System Configuration
+# Version: 1.0
+# Codename: TORUK (The Last Shadow)
+
+{ config, pkgs, ... }:
+
+{
+  # System identity
+  networking.hostName = "khaosos";
+  networking.domain = "strategickhaos.local";
+  
+  # Boot configuration
+  boot = {
+    # Use hardened kernel for maximum security
+    kernelPackages = pkgs.linuxPackages_hardened;
+    
+    # Kernel hardening parameters
+    kernel.sysctl = {
+      # Disable unprivileged BPF
+      "kernel.unprivileged_bpf_disabled" = 1;
+      # Harden BPF JIT compiler
+      "net.core.bpf_jit_harden" = 2;
+      # Hide kernel pointers
+      "kernel.kptr_restrict" = 2;
+      # Restrict dmesg access
+      "kernel.dmesg_restrict" = 1;
+      # Disable kexec (prevents runtime kernel replacement)
+      "kernel.kexec_load_disabled" = 1;
+      # Enable ASLR
+      "kernel.randomize_va_space" = 2;
+      # Restrict kernel module loading
+      "kernel.modules_disabled" = 0;  # Set to 1 after initial setup
+      # Restrict ptrace to root only
+      "kernel.yama.ptrace_scope" = 2;
+      # SYN flood protection
+      "net.ipv4.tcp_syncookies" = 1;
+      # Disable source routing
+      "net.ipv4.conf.all.accept_source_route" = 0;
+      "net.ipv6.conf.all.accept_source_route" = 0;
+      # Disable ICMP redirects
+      "net.ipv4.conf.all.accept_redirects" = 0;
+      "net.ipv6.conf.all.accept_redirects" = 0;
+      # Enable IP spoofing protection
+      "net.ipv4.conf.all.rp_filter" = 1;
+    };
+    
+    # Enable bootloader
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+      # Password protect bootloader
+      systemd-boot.editor = false;
+    };
+  };
+
+  # Firewall - default deny everything
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ ];  # Nothing open by default
+    allowedUDPPorts = [ ];
+    # Log dropped packets for security monitoring
+    logRefusedConnections = true;
+    logRefusedPackets = true;
+  };
+
+  # Time zone and locale
+  time.timeZone = "America/Chicago";
+  i18n.defaultLocale = "en_US.UTF-8";
+
+  # Users configuration
+  users.users.khaos = {
+    isNormalUser = true;
+    description = "Khaos Operator";
+    extraGroups = [ "wheel" "docker" "networkmanager" "libvirtd" ];
+    # Use strong password hash or SSH key only
+    hashedPassword = null;  # Set this in deployment
+    openssh.authorizedKeys.keys = [
+      # Add SSH public keys here
+    ];
+  };
+
+  # Disable root login
+  users.users.root.hashedPassword = "!";
+
+  # SSH hardening
+  services.openssh = {
+    enable = true;
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+      X11Forwarding = false;
+      # Use strong ciphers only
+      Ciphers = [ "chacha20-poly1305@openssh.com" "aes256-gcm@openssh.com" ];
+      KexAlgorithms = [ "curve25519-sha256" "curve25519-sha256@libssh.org" ];
+      Macs = [ "hmac-sha2-512-etm@openssh.com" "hmac-sha2-256-etm@openssh.com" ];
+    };
+    ports = [ 22 ];  # Change to non-standard port in production
+  };
+
+  # Core system packages
+  environment.systemPackages = with pkgs; [
+    # Core utilities
+    vim
+    neovim
+    git
+    curl
+    wget
+    htop
+    tmux
+    
+    # Security tools
+    gnupg
+    age
+    yubikey-manager
+    yubikey-personalization
+    
+    # Network tools
+    wireguard-tools
+    tailscale
+    nmap
+    wireshark
+    tcpdump
+    
+    # Container & orchestration
+    docker
+    docker-compose
+    kubectl
+    k9s
+    helm
+    
+    # Infrastructure as Code
+    terraform
+    ansible
+    
+    # Privacy tools
+    tor
+    torsocks
+    
+    # Development tools
+    gcc
+    gnumake
+    python3
+    nodejs
+    go
+    
+    # Monitoring
+    prometheus
+    grafana
+    loki
+    
+    # Custom KhaosTools (to be implemented)
+    # khaos-cli
+    # khaos-browser
+    # khaos-search
+  ];
+
+  # Ollama for local LLM (Air-gapped AI)
+  services.ollama = {
+    enable = true;
+    acceleration = "cuda";  # Use "rocm" for AMD GPUs
+    # Models are pulled separately: ollama pull qwen2.5:72b
+    listenAddress = "127.0.0.1:11434";  # Localhost only
+  };
+
+  # Tailscale for mesh networking
+  services.tailscale = {
+    enable = true;
+    # useRoutingFeatures = "both";  # Enable subnet routing if needed
+  };
+
+  # Docker for container workloads
+  virtualisation.docker = {
+    enable = true;
+    autoPrune = {
+      enable = true;
+      dates = "weekly";
+    };
+    # Use hardened daemon config
+    daemon.settings = {
+      live-restore = true;
+      userland-proxy = false;
+      no-new-privileges = true;
+    };
+  };
+
+  # libvirt/KVM for VM management
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+      package = pkgs.qemu_kvm;
+      runAsRoot = false;
+      swtpm.enable = true;
+      ovmf = {
+        enable = true;
+        packages = [ pkgs.OVMFFull.fd ];
+      };
+    };
+  };
+
+  # WireGuard VPN
+  networking.wireguard.interfaces = {
+    wg0 = {
+      ips = [ "10.100.0.1/24" ];
+      listenPort = 51820;
+      # privateKeyFile must be created separately
+      privateKeyFile = "/etc/wireguard/private.key";
+      
+      peers = [
+        # Add peer configurations here
+        # {
+        #   publicKey = "PEER_PUBLIC_KEY";
+        #   allowedIPs = [ "10.100.0.2/32" ];
+        #   endpoint = "peer.example.com:51820";
+        # }
+      ];
+    };
+  };
+
+  # Enable CUPS for printing (optional, disable for minimal attack surface)
+  # services.printing.enable = false;
+
+  # Enable sound (optional)
+  # sound.enable = true;
+  # hardware.pulseaudio.enable = true;
+
+  # Enable X11 or Wayland (for desktop usage)
+  services.xserver = {
+    enable = true;
+    displayManager.gdm.enable = true;
+    desktopManager.gnome.enable = true;
+    
+    # Keyboard layout
+    layout = "us";
+    xkbOptions = "ctrl:nocaps";  # Map Caps Lock to Ctrl
+  };
+
+  # Enable automatic updates (with rollback capability)
+  system.autoUpgrade = {
+    enable = false;  # Enable after testing
+    allowReboot = false;
+    channel = "https://nixos.org/channels/nixos-unstable";
+  };
+
+  # Automatic garbage collection
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+
+  # Enable flakes and new nix command
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    # Optimize storage
+    auto-optimise-store = true;
+  };
+
+  # Security options
+  security = {
+    # Enable sudo with password
+    sudo = {
+      enable = true;
+      wheelNeedsPassword = true;
+    };
+    
+    # AppArmor for mandatory access control
+    apparmor = {
+      enable = true;
+      killUnconfinedConfinables = true;
+    };
+    
+    # Audit framework
+    auditd.enable = true;
+    audit = {
+      enable = true;
+      rules = [
+        "-a exit,always -F arch=b64 -S execve"
+        "-a exit,always -F arch=b64 -S connect -S socket"
+      ];
+    };
+    
+    # PAM configuration
+    pam.services = {
+      # Require YubiKey for sudo
+      # sudo.u2fAuth = true;
+    };
+  };
+
+  # Systemd hardening
+  systemd.services = {
+    # Harden systemd services
+    "systemd-networkd".serviceConfig = {
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      PrivateTmp = true;
+      NoNewPrivileges = true;
+    };
+  };
+
+  # File systems
+  fileSystems."/" = {
+    device = "/dev/disk/by-label/nixos";
+    fsType = "ext4";
+    options = [ "noatime" "nodiratime" ];
+  };
+
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-label/boot";
+    fsType = "vfat";
+  };
+
+  # Swap configuration (adjust as needed)
+  swapDevices = [
+    { device = "/dev/disk/by-label/swap"; }
+  ];
+
+  # This value determines the NixOS release compatibility
+  # DON'T change this unless you know what you're doing
+  system.stateVersion = "23.11";
+}
