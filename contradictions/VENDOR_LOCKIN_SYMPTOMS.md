@@ -309,4 +309,4 @@ This creates an **evolutionary defense system** against vendor lock-in, where ac
 
 **Pricing**: Pay infrastructure costs only → $0 switching fees  
 **Proof**: `kubectl get all --all-namespaces` (zero vendor-specific resources)  
-**Demo**: https://demo.strategickhaos.com/sovereign
+**Demo**: https://demo.example.com/sovereign

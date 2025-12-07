@@ -28,7 +28,7 @@ spec:
       # No node selectors for specific cloud instance types
       containers:
       - name: app
-        image: strategickhaos/sovereign-app:1.0
+        image: registry.example.com/myorg/sovereign-app:1.0
         ports:
         - containerPort: 8080
           protocol: TCP
@@ -147,10 +147,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - app.strategickhaos.com
+    - app.example.com
     secretName: app-tls
   rules:
-  - host: app.strategickhaos.com
+  - host: app.example.com
     http:
       paths:
       - path: /

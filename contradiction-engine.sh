@@ -505,7 +505,7 @@ main() {
     log ""
     log "🎯 Next Steps:"
     log "1. Run: ./contradictions/deploy-contradictions.sh"
-    log "2. Test Discord: /resolve_privacy, /resolve_speed, /resolve_sovereign"
+    log "2. Test Discord: /resolve_privacy, /resolve_speed, /resolve_simple, /resolve_sovereign"
     log "3. View Grafana: http://localhost:3000"
     log "4. Deploy landing pages"
     log ""
