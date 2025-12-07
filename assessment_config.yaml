@@ -9,7 +9,7 @@ metadata:
   version: "1.0.0"
   style: "DOMINATORFIED"
   mercy_level: "ZERO"
-  expected_survival_rate: 0.016  # 1.6% - Top 1 in 60
+  expected_survival_rate: 0.016  # 1.6% - Top 1 in ~62
   
 assessment_structure:
   total_questions: 37  # 36 + 1 meta-question

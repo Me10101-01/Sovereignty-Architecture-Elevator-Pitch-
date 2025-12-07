@@ -521,7 +521,7 @@ Each answer should follow this structure:
 **Classification:** PUBLIC  
 **Style:** DOMINATORFIED  
 **Mercy Level:** ZERO  
-**Expected Survival Rate:** ~1.6% (Top 1 in 60)
+**Expected Survival Rate:** ~1.6% (Top 1 in ~62)
 
 ---
 

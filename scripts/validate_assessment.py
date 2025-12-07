@@ -162,10 +162,13 @@ class AssessmentValidator:
         else:
             self.warnings.append("No OpenTimestamps file specified")
         
-        # Check declaration
-        declaration = verification.get('signature_declaration')
-        if declaration != "I agree to the above declaration":
-            self.errors.append("Invalid signature declaration")
+        # Check declaration (flexible matching - just needs to be present and agree)
+        declaration = verification.get('signature_declaration', '').lower()
+        if not declaration or 'agree' not in declaration:
+            self.errors.append(
+                "Invalid or missing signature declaration. "
+                "Must contain 'agree' and acknowledge the declaration."
+            )
     
     def _get_nested_field(self, field_path: str):
         """Get a nested field from the data dict using dot notation"""

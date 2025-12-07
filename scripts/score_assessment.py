@@ -49,6 +49,11 @@ class AssessmentScorer:
         'steps', 'procedure', 'protocol', 'process'
     ]
     
+    # Scoring thresholds (configurable)
+    MIN_WORD_COUNT_TOURIST = 100  # Minimum words to avoid TOURIST score
+    MIN_WORD_COUNT_DESIGNED = 500  # Words needed for DESIGNED level
+    MIN_SOVEREIGN_KEYWORDS = 5  # Keyword count for SOVEREIGN level
+    
     def __init__(self, submission_path: str):
         self.submission_path = Path(submission_path)
         self.data = None
@@ -111,8 +116,8 @@ class AssessmentScorer:
             # Count indicators
             word_count = len(content.split())
             
-            # No answer or very short
-            if word_count < 100:
+            # No answer or very short - use configurable threshold
+            if word_count < self.MIN_WORD_COUNT_TOURIST:
                 return 0  # TOURIST
             
             # Check for code blocks
@@ -129,10 +134,10 @@ class AssessmentScorer:
             has_failure_modes = 'failure mode' in content
             has_success_criteria = 'success criteria' in content
             
-            # Scoring logic (rough approximation)
+            # Scoring logic (rough approximation based on configurable thresholds)
             score = 4  # Start at CONCEPTUAL
             
-            if word_count > 500:
+            if word_count > self.MIN_WORD_COUNT_DESIGNED:
                 score = 6  # DESIGNED
             
             if has_diagram and has_failure_modes:
@@ -141,9 +146,10 @@ class AssessmentScorer:
             if has_code and has_yaml and has_implementation:
                 score = 8  # OPERATIONAL
             
+            # SOVEREIGN requires comprehensive coverage with configurable keyword threshold
             if (has_code and has_yaml and has_diagram and 
                 has_implementation and has_failure_modes and 
-                has_success_criteria and sovereign_count >= 5):
+                has_success_criteria and sovereign_count >= self.MIN_SOVEREIGN_KEYWORDS):
                 score = 10  # SOVEREIGN
             
             return score
