@@ -11,6 +11,8 @@ This directory contains the foundational governance documents for **Strategickha
 | `TRUST_DECLARATION.md` | Foundational trust instrument defining principles, governance, and infrastructure | v2.1.0 |
 | `NON_AGGRESSION_CLAUSE.md` | Immutable ethical constraints (cannot be amended) | v2.1.0 IMMUTABLE |
 | `public-identifier-registry.md` | Verified credentials, EINs, platforms, infrastructure | v2.1.0 |
+| `SOVEREIGNTY_INTERVIEW_QUESTIONS.md` | 36 DOMINATORFIED assessment questions for sovereignty architecture mastery | v1.0.0 |
+| `MASTERY_PROMPTS.md` | 20 ecosystem articulation prompts for LLM-assisted design and synthesis | v1.0.0 |
 
 ## Related Files
 
@@ -66,8 +68,33 @@ FOUNDATIONAL (amendment requires ratification):
 │
 OPERATIONAL (update as needed):
 ├── public-identifier-registry.md
-└── sovereign-empire-alert.json
+├── sovereign-empire-alert.json
+├── SOVEREIGNTY_INTERVIEW_QUESTIONS.md (Certification & Assessment)
+└── MASTERY_PROMPTS.md (Training & Development)
 ```
+
+## Assessment & Training
+
+### Sovereignty Certification
+The **36 DOMINATORFIED Interview Questions** (`SOVEREIGNTY_INTERVIEW_QUESTIONS.md`) provide a comprehensive assessment of sovereignty architecture mastery across six key domains:
+- **Multi-AI Governance:** Consensus protocols, rogue AI containment, board evolution
+- **Antifragile Audit:** Chaos engineering, cascading failure prevention, evidence integrity
+- **Zero Vendor Lock-in:** Data portability, API abstraction, migration readiness
+- **Infrastructure Sovereignty:** Kubernetes failover, secrets rotation, network resilience
+- **Cognitive Architecture:** Knowledge management, parallel processing, mission alignment
+- **Revenue & Sustainability:** Business models, automation, succession planning
+
+**Scoring:** 360 points maximum (10 points per question)  
+**Certification Tiers:** Bronze (144+), Silver (216+), Gold (288+), Platinum (360+)
+
+### Mastery Development
+The **20 Ecosystem Articulation Prompts** (`MASTERY_PROMPTS.md`) enable systematic mastery through LLM-assisted synthesis:
+- Architecture & Design Synthesis (Prompts 1-5)
+- Dependency & Integration Mapping (Prompts 6-10)
+- Security & Threat Analysis (Prompts 11-15)
+- Quality & Testing Strategy (Prompts 16-20)
+
+**Usage:** Apply prompts to any LLM (Claude, GPT, Grok, Gemini) with repository context for automated documentation, design validation, and knowledge extraction.
 
 ## Contact
 
@@ -77,4 +104,4 @@ OPERATIONAL (update as needed):
 
 ---
 
-*Last Updated: December 3, 2025*
+*Last Updated: December 7, 2025*
