@@ -19,7 +19,7 @@ This directory contains the foundational governance documents for **Strategickha
 | File | Description | Status |
 |------|-------------|--------|
 | `ELEVATOR_PITCH.md` | Comprehensive elevator pitch for legal counsel and client review | v1.0.0 |
-| `ZERO_VENDOR_LOCKIN_PRINCIPALS.md` | 12 Sovereignty Principals ensuring client freedom | v1.0.0 |
+| `ZERO_VENDOR_LOCKIN_PRINCIPLES.md` | 12 Sovereignty Principles ensuring client freedom | v1.0.0 |
 | `STRATEGICKHAOS_ARSENAL_ANALYSIS.md` | Complete IP portfolio inventory (33 inventions) | v1.0.0 |
 
 ## Related Files
@@ -80,7 +80,7 @@ OPERATIONAL (update as needed):
 │
 BUSINESS/LEGAL:
 ├── ELEVATOR_PITCH.md
-├── ZERO_VENDOR_LOCKIN_PRINCIPALS.md
+├── ZERO_VENDOR_LOCKIN_PRINCIPLES.md
 └── STRATEGICKHAOS_ARSENAL_ANALYSIS.md
 ```
 

@@ -175,10 +175,10 @@ A documented methodology for achieving 880x cost reduction compared to tradition
 
 ## Gold Tier: Strong IP Assets
 
-### 6. Zero Vendor Lock-in Architecture Principals
+### 6. Zero Vendor Lock-in Architecture Principles
 
 **Category:** Software Architecture  
-**Innovation:** Systematic 12-principal framework ensuring vendor escape velocity  
+**Innovation:** Systematic 12-principle framework ensuring vendor escape velocity  
 **Protection:** Trade secret + published framework (defensive publication)  
 **Commercial Value:** High - enterprise sales differentiator
 
@@ -403,13 +403,13 @@ A documented methodology for achieving 880x cost reduction compared to tradition
 | **Copyright Registration** | Q1 2026 | $500-1,000 | Low |
 | **Trade Secret Audit** | Q1 2026 | $2,000-5,000 | High |
 
-### Trademark Candidates
+**Trademark Candidates
 
 - **StrategicKhaos** - Primary brand
 - **ValorYield Engine** - PBC brand
 - **Empire DNA** - Methodology brand
 - **880x Cost Reduction** - Service mark
-- **Sovereignty Principals** - Framework mark
+- **Sovereignty Principles** - Framework mark
 
 ---
 

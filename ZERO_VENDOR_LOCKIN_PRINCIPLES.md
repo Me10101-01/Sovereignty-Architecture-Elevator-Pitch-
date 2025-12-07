@@ -1,4 +1,4 @@
-# Zero Vendor Lock-in Principals
+# Zero Vendor Lock-in Principles
 
 **Document Version:** 1.0.0  
 **Entity:** Strategickhaos DAO LLC  
@@ -9,13 +9,13 @@
 
 ## Overview
 
-This document defines the **12 Sovereignty Principals** that guarantee clients and the organization itself maintain complete operational independence from any single vendor, platform, or service provider.
+This document defines the **12 Sovereignty Principles** that guarantee clients and the organization itself maintain complete operational independence from any single vendor, platform, or service provider.
 
 These principals are not aspirational—they are implemented requirements verified through chaos testing and maintained as critical infrastructure.
 
 ---
 
-## The 12 Sovereignty Principals
+## The 12 Sovereignty Principles
 
 ### 1. Data Portability
 
@@ -279,7 +279,7 @@ Each principal is stress-tested quarterly through simulated vendor failures:
 
 ### Success Criteria
 
-| Principal | Target Escape Velocity | Last Test Date | Last Test Result |
+| Principle | Target Escape Velocity | Last Test Date | Last Test Result |
 |-----------|------------------------|----------------|------------------|
 | Data Portability | < 24 hours | 2025-12-01 | ✅ 18.2 hours |
 | API Abstraction | < 4 hours | 2025-12-01 | ✅ 2.7 hours |

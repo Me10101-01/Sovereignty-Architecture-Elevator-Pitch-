@@ -16,7 +16,7 @@
 A Wyoming-registered Decentralized Autonomous Organization that builds sovereign technology infrastructure with AI-assisted governance, cryptographic provenance, and a legally hardcoded 7% perpetual charitable distribution.
 
 **What we do:**  
-Deliver enterprise-grade technology solutions at 880x cost reduction through single-operator AI augmentation, while guaranteeing clients **zero vendor lock-in** through our 12 Sovereignty Principals.
+Deliver enterprise-grade technology solutions at 880x cost reduction through single-operator AI augmentation, while guaranteeing clients **zero vendor lock-in** through our 12 Sovereignty Principles.
 
 **Why it matters:**  
 Clients never get trapped. Data exports in 24 hours. Self-hosted alternatives for every vendor. Chaos-tested migrations. Every decision cryptographically signed and timestamped.
@@ -56,7 +56,7 @@ Strategickhaos DAO LLC (Parent)
 | You need audit trail | GPG-signed, timestamped records |
 | You want source code | Available under license |
 
-### The 12 Sovereignty Principals
+### The 12 Sovereignty Principles
 
 1. **Data Portability** - Universal export formats
 2. **API Abstraction** - Swap backends transparently
@@ -71,7 +71,7 @@ Strategickhaos DAO LLC (Parent)
 11. **Source Code Ownership** - Independent mirrors
 12. **Observability Independence** - Self-hosted monitoring
 
-_See [ZERO_VENDOR_LOCKIN_PRINCIPALS.md](./ZERO_VENDOR_LOCKIN_PRINCIPALS.md) for detailed implementation._
+_See [ZERO_VENDOR_LOCKIN_PRINCIPLES.md](./ZERO_VENDOR_LOCKIN_PRINCIPLES.md) for detailed implementation._
 
 ---
 
@@ -184,7 +184,7 @@ _See [STRATEGICKHAOS_ARSENAL_ANALYSIS.md](./STRATEGICKHAOS_ARSENAL_ANALYSIS.md) 
 1. **[TRUST_DECLARATION.md](./TRUST_DECLARATION.md)** - Foundational governance
 2. **[NON_AGGRESSION_CLAUSE.md](./NON_AGGRESSION_CLAUSE.md)** - Immutable ethical constraints
 3. **[public-identifier-registry.md](./public-identifier-registry.md)** - Verified credentials
-4. **[ZERO_VENDOR_LOCKIN_PRINCIPALS.md](./ZERO_VENDOR_LOCKIN_PRINCIPALS.md)** - Client protections
+4. **[ZERO_VENDOR_LOCKIN_PRINCIPLES.md](./ZERO_VENDOR_LOCKIN_PRINCIPLES.md)** - Client protections
 5. **[STRATEGICKHAOS_ARSENAL_ANALYSIS.md](./STRATEGICKHAOS_ARSENAL_ANALYSIS.md)** - Complete IP inventory
 
 ### Verification Commands
