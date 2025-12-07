@@ -8,26 +8,26 @@ general:
   debug: false
   instance_name: "KhaosSearch"
   contact_url: https://strategickhaos.ai/contact
-  
+
 server:
   secret_key: "${SEARXNG_SECRET}"
   limiter: true
   image_proxy: true
   http_protocol_version: "1.1"
   method: "POST"
-  
+
 ui:
   static_use_hash: true
   default_locale: "en"
   theme_args:
     simple_style: dark
-  
+
 search:
   safe_search: 0  # 0=None, 1=Moderate, 2=Strict
   autocomplete: "google"
   default_lang: "en"
   max_page: 0  # Unlimited
-  
+
 # Search engines configuration
 engines:
   # Enable Google (via proxy)
@@ -35,57 +35,57 @@ engines:
     engine: google
     shortcut: g
     use_mobile_ui: false
-    
+
   # Enable DuckDuckGo
   - name: duckduckgo
     engine: duckduckgo
     shortcut: ddg
-    
+
   # Enable Brave Search
   - name: brave
     engine: brave
     shortcut: br
-    
+
   # Enable Bing
   - name: bing
     engine: bing
     shortcut: bi
-    
+
   # Enable Qwant (privacy-focused)
   - name: qwant
     engine: qwant
     shortcut: qw
-    
+
   # GitHub search
   - name: github
     engine: github
     shortcut: gh
-    
+
   # Stack Overflow
   - name: stackoverflow
     engine: stackoverflow
     shortcut: so
-    
+
   # Wikipedia
   - name: wikipedia
     engine: wikipedia
     shortcut: wp
-    
+
   # Reddit
   - name: reddit
     engine: reddit
     shortcut: re
-    
+
   # arXiv (academic papers)
   - name: arxiv
     engine: arxiv
     shortcut: arx
-    
+
   # YouTube
   - name: youtube
     engine: youtube
     shortcut: yt
-    
+
   # Disable tracking engines
   - name: google images
     disabled: true
@@ -93,20 +93,20 @@ engines:
     disabled: true
   - name: google videos
     disabled: true
-    
+
 enabled_plugins:
   - 'Hash plugin'
   - 'Self Information'
   - 'Tracker URL remover'
   - 'Ahmia blacklist'
-  
+
 disabled_plugins:
   - 'Open Access DOI rewrite'
-  
+
 # Redis cache configuration
 redis:
   url: redis://redis:6379/0
-  
+
 # Outgoing request configuration
 outgoing:
   request_timeout: 10.0
@@ -114,23 +114,23 @@ outgoing:
   pool_connections: 100
   pool_maxsize: 20
   enable_http2: true
-  
+
   # Use Tor for anonymous queries
   proxies:
     http: socks5h://tor:9050
     https: socks5h://tor:9050
-    
+
   # Or disable Tor for faster results
   # proxies: {}
-  
+
   # User agent rotation
   useragent_suffix: ""
-  
+
 # Privacy settings
 doi_resolvers:
   oadoi.org: 'https://oadoi.org/'
   doi.org: 'https://doi.org/'
-  
+
 # Additional security headers
 default_http_headers:
   X-Content-Type-Options: nosniff
@@ -138,7 +138,7 @@ default_http_headers:
   X-Download-Options: noopen
   X-Robots-Tag: noindex, nofollow
   Referrer-Policy: no-referrer
-  
+
 # Hostname plugin configuration (optional privacy frontends)
 # Uncomment and configure if you have deployed these privacy-friendly frontends
 # hostname_replace:
