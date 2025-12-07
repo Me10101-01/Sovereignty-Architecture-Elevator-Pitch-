@@ -53,17 +53,17 @@ class ContradictionCommands(commands.Cog):
         )
         embed.add_field(
             name="Antibodies (Evolutionary Defense)",
-            value="🔴 Red Blood Cells: Container orchestration (workload mobility)\n⚪ White Blood Cells: API layers (vendor abstraction)\n🧬 DNA: IaC templates (reproducible deployments)",
+            value="🔴 Red Blood Cells: Container orchestration (workload mobility)\\n⚪ White Blood Cells: API layers (vendor abstraction)\\n🧬 DNA: IaC templates (reproducible deployments)",
             inline=False
         )
         embed.add_field(
             name="Symptoms of Vendor Lock-in",
-            value="• CSP warnings\n• Deprecated vendor SDKs\n• Third-party cookies\n• Proprietary error codes",
+            value="• CSP warnings\\n• Deprecated vendor SDKs\\n• Third-party cookies\\n• Proprietary error codes",
             inline=False
         )
         embed.add_field(
             name="Quadrilateral Collapse",
-            value="✅ Vendor: Zero lock-in\n⚡ Speed: Failover <30s\n💰 Cost: Infrastructure-only\n📚 Learning: Transfers across clouds",
+            value="✅ Vendor: Zero lock-in\\n⚡ Speed: Failover <30s\\n💰 Cost: Infrastructure-only\\n📚 Learning: Transfers across clouds",
             inline=False
         )
         embed.add_field(name="Pricing", value="Pay infrastructure costs → $0 switching fees", inline=False)
