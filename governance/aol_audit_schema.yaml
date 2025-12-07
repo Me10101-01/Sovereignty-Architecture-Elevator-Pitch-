@@ -1,0 +1,493 @@
+# aol_audit_schema.yaml
+# Autonomous Operation License - Audit Log Schema
+# Strategickhaos DAO LLC
+# Version: 1.0
+# Effective: 2025-12-07
+
+metadata:
+  version: "1.0"
+  effective_date: "2025-12-07"
+  document_type: "AOL_AUDIT_SCHEMA"
+  owner: "Dominic Garza"
+  entity: "Strategickhaos DAO LLC"
+  ein: "39-2900295"
+
+# Audit log schema definition
+audit_log_schema:
+  format: "JSON"
+  encoding: "UTF-8"
+  compression: "gzip"
+  encryption: "AES-256-GCM"
+  
+  required_fields:
+    timestamp:
+      type: "ISO8601"
+      timezone: "UTC"
+      precision: "milliseconds"
+      example: "2025-12-07T22:04:35.433Z"
+      
+    event_id:
+      type: "UUID"
+      version: 4
+      example: "550e8400-e29b-41d4-a716-446655440000"
+      
+    event_type:
+      type: "string"
+      enum:
+        - "action_attempted"
+        - "action_completed"
+        - "action_failed"
+        - "escalation_triggered"
+        - "circuit_breaker_triggered"
+        - "approval_requested"
+        - "approval_granted"
+        - "approval_denied"
+      
+    actor:
+      type: "object"
+      fields:
+        agent_name:
+          type: "string"
+          example: "Claude Opus 4.5"
+        agent_version:
+          type: "string"
+          example: "4.5.0"
+        trust_tier:
+          type: "string"
+          enum: ["SOVEREIGN", "TRUSTED", "VERIFIED", "PROBATIONARY"]
+        session_id:
+          type: "string"
+          example: "sess_123456789"
+          
+    action:
+      type: "object"
+      fields:
+        action_type:
+          type: "string"
+          example: "file_create"
+        action_category:
+          type: "string"
+          example: "file_operations"
+        risk_level:
+          type: "string"
+          enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+        pre_authorized:
+          type: "boolean"
+        parameters:
+          type: "object"
+          description: "Action-specific parameters"
+          
+    decision_rationale:
+      type: "string"
+      max_length: 1000
+      description: "Explanation of why action was taken"
+      example: "User requested report generation for board meeting"
+      
+    outcome:
+      type: "object"
+      fields:
+        status:
+          type: "string"
+          enum: ["success", "failure", "partial", "blocked", "escalated"]
+        result:
+          type: "object"
+          description: "Action-specific result data"
+        error:
+          type: "object"
+          optional: true
+          fields:
+            error_code:
+              type: "string"
+            error_message:
+              type: "string"
+            stack_trace:
+              type: "string"
+              optional: true
+              
+    resource_consumption:
+      type: "object"
+      fields:
+        cpu_seconds:
+          type: "number"
+          unit: "seconds"
+        memory_mb:
+          type: "number"
+          unit: "megabytes"
+        network_kb:
+          type: "number"
+          unit: "kilobytes"
+        duration_ms:
+          type: "number"
+          unit: "milliseconds"
+          
+    context:
+      type: "object"
+      fields:
+        user_request:
+          type: "string"
+          optional: true
+        conversation_id:
+          type: "string"
+          optional: true
+        related_events:
+          type: "array"
+          items:
+            type: "string"
+            description: "Event IDs of related audit entries"
+            
+  optional_fields:
+    files_accessed:
+      type: "array"
+      items:
+        type: "object"
+        fields:
+          path:
+            type: "string"
+          operation:
+            type: "string"
+            enum: ["read", "write", "create", "delete"]
+          size_bytes:
+            type: "number"
+            
+    network_requests:
+      type: "array"
+      items:
+        type: "object"
+        fields:
+          url:
+            type: "string"
+          method:
+            type: "string"
+          status_code:
+            type: "number"
+          duration_ms:
+            type: "number"
+            
+    approvals:
+      type: "array"
+      items:
+        type: "object"
+        fields:
+          approver:
+            type: "string"
+          timestamp:
+            type: "ISO8601"
+          decision:
+            type: "string"
+            enum: ["approved", "denied", "pending"]
+          rationale:
+            type: "string"
+            
+    cryptographic_proof:
+      type: "object"
+      fields:
+        signature:
+          type: "string"
+          description: "GPG signature of log entry"
+        public_key_id:
+          type: "string"
+        opentimestamp:
+          type: "string"
+          description: "OpenTimestamps proof"
+          optional: true
+
+# Example audit log entry
+example_entry:
+  timestamp: "2025-12-07T22:04:35.433Z"
+  event_id: "550e8400-e29b-41d4-a716-446655440000"
+  event_type: "action_completed"
+  actor:
+    agent_name: "Claude Opus 4.5"
+    agent_version: "4.5.0"
+    trust_tier: "SOVEREIGN"
+    session_id: "sess_20251207_220435"
+  action:
+    action_type: "file_create"
+    action_category: "file_operations"
+    risk_level: "LOW"
+    pre_authorized: true
+    parameters:
+      path: "/home/claude/board_report_2025-12-07.md"
+      content_type: "text/markdown"
+      size_bytes: 8192
+  decision_rationale: "User requested board meeting report generation to document session progress and decisions"
+  outcome:
+    status: "success"
+    result:
+      path: "/home/claude/board_report_2025-12-07.md"
+      created: true
+      checksum_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  resource_consumption:
+    cpu_seconds: 0.15
+    memory_mb: 2.3
+    network_kb: 0
+    duration_ms: 234
+  context:
+    user_request: "Generate a board meeting report for today's session"
+    conversation_id: "conv_20251207_session1"
+    related_events:
+      - "550e8400-e29b-41d4-a716-446655440001"
+  files_accessed:
+    - path: "/home/claude/board_report_2025-12-07.md"
+      operation: "create"
+      size_bytes: 8192
+  cryptographic_proof:
+    signature: "[GPG_SIGNATURE]"
+    public_key_id: "[OPERATOR_KEY_ID]"
+    opentimestamp: "[OTS_PROOF]"
+
+# Example escalation entry
+example_escalation:
+  timestamp: "2025-12-07T23:15:22.891Z"
+  event_id: "550e8400-e29b-41d4-a716-446655440100"
+  event_type: "escalation_triggered"
+  actor:
+    agent_name: "Claude Opus 4.5"
+    agent_version: "4.5.0"
+    trust_tier: "SOVEREIGN"
+    session_id: "sess_20251207_231522"
+  action:
+    action_type: "send_email"
+    action_category: "communications"
+    risk_level: "HIGH"
+    pre_authorized: false
+    parameters:
+      to: "investor@example.com"
+      subject: "Investment Proposal"
+      body: "[REDACTED]"
+  decision_rationale: "Action requires escalation per AOL Article III.5 - external communications on Operator's behalf"
+  outcome:
+    status: "escalated"
+    result:
+      escalation_reason: "High-risk external communication"
+      notification_sent: true
+      awaiting_approval: true
+  resource_consumption:
+    cpu_seconds: 0.05
+    memory_mb: 1.1
+    network_kb: 0
+    duration_ms: 87
+  context:
+    user_request: "Send email to investor about our proposal"
+    conversation_id: "conv_20251207_session2"
+  approvals:
+    - approver: "Dominic Garza"
+      timestamp: "2025-12-07T23:20:15.234Z"
+      decision: "pending"
+      rationale: "Reviewing email content before sending"
+  cryptographic_proof:
+    signature: "[GPG_SIGNATURE]"
+    public_key_id: "[OPERATOR_KEY_ID]"
+
+# Example circuit breaker entry
+example_circuit_breaker:
+  timestamp: "2025-12-08T01:45:12.567Z"
+  event_id: "550e8400-e29b-41d4-a716-446655440200"
+  event_type: "circuit_breaker_triggered"
+  actor:
+    agent_name: "Claude Opus 4.5"
+    agent_version: "4.5.0"
+    trust_tier: "SOVEREIGN"
+    session_id: "sess_20251208_014512"
+  action:
+    action_type: "database_query"
+    action_category: "infrastructure_access"
+    risk_level: "LOW"
+    pre_authorized: true
+    parameters:
+      query: "SELECT * FROM users"
+      database: "production_db"
+  decision_rationale: "Routine database query for analytics"
+  outcome:
+    status: "blocked"
+    result:
+      circuit_breaker: "consecutive_failures"
+      trigger_reason: "Query failed 3 consecutive times"
+      failures:
+        - timestamp: "2025-12-08T01:44:30.123Z"
+          error: "Connection timeout"
+        - timestamp: "2025-12-08T01:44:50.456Z"
+          error: "Connection timeout"
+        - timestamp: "2025-12-08T01:45:10.789Z"
+          error: "Connection timeout"
+    error:
+      error_code: "CIRCUIT_BREAKER_OPEN"
+      error_message: "Consecutive failure breaker triggered after 3 failures"
+  resource_consumption:
+    cpu_seconds: 0.02
+    memory_mb: 0.8
+    network_kb: 1.2
+    duration_ms: 30001
+  context:
+    user_request: "Query user data for report"
+    conversation_id: "conv_20251208_analytics"
+    related_events:
+      - "550e8400-e29b-41d4-a716-446655440199"
+      - "550e8400-e29b-41d4-a716-446655440198"
+      - "550e8400-e29b-41d4-a716-446655440197"
+  network_requests:
+    - url: "postgresql://production_db:5432/main"
+      method: "SELECT"
+      status_code: 0
+      duration_ms: 30000
+      error: "timeout"
+  cryptographic_proof:
+    signature: "[GPG_SIGNATURE]"
+    public_key_id: "[OPERATOR_KEY_ID]"
+
+# Storage configuration
+storage:
+  primary_location: "/var/log/aol/autonomous_actions.log"
+  backup_location: "/mnt/backup/aol/autonomous_actions.log"
+  archive_location: "/mnt/archive/aol/{year}/{month}/autonomous_actions_{date}.log.gz"
+  
+  rotation:
+    enabled: true
+    max_size_mb: 100
+    max_files: 10
+    compression: "gzip"
+    
+  retention:
+    audit_logs_days: 2555  # 7 years
+    circuit_breaker_logs_days: 2555  # 7 years
+    escalation_logs_days: 3650  # 10 years (legal requirement)
+    
+  replication:
+    enabled: true
+    replicas: 3
+    locations:
+      - "/mnt/replica1/aol/"
+      - "/mnt/replica2/aol/"
+      - "gs://strategickhaos-audit/aol/"  # Google Cloud Storage
+      
+# Search and query
+search:
+  indexing:
+    enabled: true
+    engine: "elasticsearch"
+    index_name: "aol-audit-logs"
+    
+  query_performance:
+    target_response_time_ms: 100
+    max_response_time_ms: 500
+    
+  supported_queries:
+    - "Find all actions by agent"
+    - "Find all failed actions"
+    - "Find all escalations"
+    - "Find actions by date range"
+    - "Find actions by risk level"
+    - "Find circuit breaker triggers"
+    - "Find resource consumption over threshold"
+    
+# Export formats
+export:
+  supported_formats:
+    - "JSON"
+    - "CSV"
+    - "YAML"
+    - "PDF" # For human-readable reports
+    
+  report_templates:
+    daily_summary:
+      format: "PDF"
+      sections:
+        - "Actions completed"
+        - "Escalations triggered"
+        - "Circuit breakers activated"
+        - "Resource consumption"
+        - "Anomalies detected"
+        
+    weekly_digest:
+      format: "PDF"
+      sections:
+        - "Executive summary"
+        - "Action statistics"
+        - "Trust tier performance"
+        - "Risk analysis"
+        - "Recommendations"
+        
+    compliance_report:
+      format: "PDF"
+      sections:
+        - "All escalations"
+        - "All circuit breakers"
+        - "All failures"
+        - "Cryptographic proofs"
+        - "Attestations"
+
+# Cryptographic signing
+cryptography:
+  signing:
+    enabled: false  # Enable when GPG key available
+    algorithm: "RSA-4096"
+    key_id: "[OPERATOR_KEY_ID]"
+    sign_frequency: "per_entry"
+    
+  opentimestamps:
+    enabled: false  # Enable when OTS configured
+    frequency: "daily"
+    calendar_servers:
+      - "https://alice.btc.calendar.opentimestamps.org"
+      - "https://bob.btc.calendar.opentimestamps.org"
+      
+  hashing:
+    enabled: true
+    algorithms:
+      primary: "SHA256"
+      secondary: "BLAKE3"
+      
+# Monitoring and alerting
+monitoring:
+  metrics:
+    - metric: "audit_log_write_latency_ms"
+      alert_threshold: 1000
+    - metric: "audit_log_write_errors"
+      alert_threshold: 1
+    - metric: "audit_log_size_mb"
+      alert_threshold: 10000
+    - metric: "audit_log_search_latency_ms"
+      alert_threshold: 500
+      
+  alerts:
+    - condition: "Audit log write failure"
+      severity: "CRITICAL"
+      notification: "Immediate"
+    - condition: "Audit log tampering detected"
+      severity: "CRITICAL"
+      notification: "Immediate"
+    - condition: "Search performance degraded"
+      severity: "MEDIUM"
+      notification: "Daily digest"
+
+# Compliance and legal
+compliance:
+  retention_requirements:
+    - jurisdiction: "Wyoming"
+      retention_years: 7
+      requirement: "LLC business records"
+    - jurisdiction: "Federal"
+      retention_years: 7
+      requirement: "Tax records"
+    - jurisdiction: "SOC2"
+      retention_years: 7
+      requirement: "Security audit logs"
+      
+  privacy:
+    pii_handling: "Redact or encrypt PII in logs"
+    data_subject_rights: "Support right to access and deletion"
+    
+# Version control
+versioning:
+  current_version: "1.0"
+  effective_date: "2025-12-07"
+  git_tracked: true
+  schema_evolution: "Backward compatible only"
+
+# Attestation
+attestation:
+  operator: "Dominic Garza"
+  entity: "Strategickhaos DAO LLC"
+  ein: "39-2900295"
+  date: "2025-12-07"
+  signature: "[PENDING GPG SIGNATURE]"
