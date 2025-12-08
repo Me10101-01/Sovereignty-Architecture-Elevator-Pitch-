@@ -1,6 +1,8 @@
 # access_matrix.yaml
 # Strategickhaos DAO LLC — UPL-Safe Access Control
-version: "1.0"
+version: "1.1"
+updated: "2025-12-07"
+change_log: "Added Document Certification Office (DCO) roles"
 roles:
   drafter:
     - name: "Domenic Garza"
@@ -40,13 +42,124 @@ roles:
         - verify_gpg
         - generate_sha256
 
+  # === DOCUMENT CERTIFICATION OFFICE (DCO) ROLES ===
+  
+  chief_certification_officer:
+    - name: "Domenic Garza"
+      id: "managing-member"
+      department: "DCO"
+      permissions:
+        - approve_platinum_certification
+        - approve_gold_certification
+        - revoke_certification
+        - update_dco_policy
+        - apply_nft_stamp
+        - emergency_override
+        - trademark_protection
+  
+  deputy_certification_officer:
+    - name: "Node 137 Compliance AI"
+      id: "node-137-dco"
+      department: "DCO"
+      permissions:
+        - approve_gold_certification
+        - approve_silver_certification
+        - approve_bronze_certification
+        - review_platinum_submissions
+        - maintain_registry
+        - audit_trail_logging
+  
+  certification_reviewer:
+    - name: "AI Certification Agents"
+      id: "claude-3.5, gpt-4, grok, llama3"
+      department: "DCO"
+      permissions:
+        - initial_document_review
+        - template_compliance_check
+        - quality_checklist
+        - ai_consensus_vote
+        - silver_bronze_processing
+    - name: "Human Intern Reviewers"
+      id: "intern-pool"
+      department: "DCO"
+      permissions:
+        - document_intake
+        - format_verification
+        - bronze_certification
+        - registry_updates
+  
+  trademark_guardian:
+    - name: "Trademark Protection AI"
+      id: "trademark-guard-01"
+      department: "DCO"
+      permissions:
+        - monitor_trademark_usage
+        - detect_violations
+        - issue_takedown_notices
+        - maintain_trademark_registry
+  
+  compliance_validator:
+    - name: "Legal Compliance AI"
+      id: "compliance-ai-01"
+      department: "DCO"
+      permissions:
+        - legal_compliance_check
+        - upl_prevention_scan
+        - regulatory_verification
+        - wyoming_statute_check
+    - name: "WY-Licensed Attorney"
+      id: "counsel-01"
+      department: "DCO"
+      permissions:
+        - platinum_legal_review
+        - compliance_override
+        - legal_opinion_provision
+
 enforcement:
   repo_permissions:
     - "drafter: write to /drafts"
     - "approver: required review on /final"
     - "signer: push to main"
+    - "certification_reviewer: write to /governance/certification/pending/"
+    - "deputy_certification_officer: write to /governance/certification/registry.yaml"
+    - "chief_certification_officer: write to /governance/certified/"
   ci_checks:
     - disclaimer_present
     - checklist_complete
     - proof_logged
     - gpg_signed
+    - nft_stamp_verified
+    - certification_tier_valid
+  
+  dco_workflow_gates:
+    platinum:
+      required_approvals:
+        - "chief_certification_officer"
+        - "compliance_validator (attorney)"
+      required_consensus: "4/4 AI models"
+      required_verifications:
+        - "gpg_signature"
+        - "ots_timestamp"
+        - "legal_compliance"
+    
+    gold:
+      required_approvals:
+        - "deputy_certification_officer OR chief_certification_officer"
+      required_consensus: "3/4 AI models"
+      required_verifications:
+        - "sha256_hash"
+        - "compliance_checklist"
+    
+    silver:
+      required_approvals:
+        - "certification_reviewer OR deputy_certification_officer"
+      required_consensus: "2/4 AI models"
+      required_verifications:
+        - "template_compliance"
+    
+    bronze:
+      required_approvals:
+        - "certification_reviewer"
+      required_consensus: "1/4 AI models"
+      required_verifications:
+        - "basic_formatting"

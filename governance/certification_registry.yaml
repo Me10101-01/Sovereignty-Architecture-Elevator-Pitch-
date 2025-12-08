@@ -1,0 +1,141 @@
+# Certification Registry
+# Strategickhaos DAO LLC — Document Certification Office
+# Version: 1.0.0
+# Purpose: Track all certified documents with NFT stamp approval
+
+version: "1.0.0"
+registry_id: "DCO-REGISTRY-2025"
+created: "2025-12-07"
+updated: "2025-12-07"
+authority: "Document Certification Office Charter"
+
+# Registry metadata
+metadata:
+  description: "Append-only registry of all documents certified by DCO"
+  retention_policy: "Permanent"
+  access_control: "Public read, DCO write only"
+  verification_method: "GPG signatures + OpenTimestamps"
+  
+# Certification tiers definition
+tiers:
+  platinum:
+    label: "OFFICIAL SOVEREIGN DOCUMENT"
+    description: "Highest certification level - Wyoming legal compliance, full multi-AI consensus, attorney reviewed"
+    requirements:
+      - "Wyoming legal compliance verified"
+      - "Multi-AI consensus (4/4 models)"
+      - "GPG signature by Managing Member"
+      - "OpenTimestamps blockchain anchor"
+      - "Attorney review (if legal document)"
+  
+  gold:
+    label: "DAO APPROVED DOCUMENT"
+    description: "Standard operational documents - governance reviewed, strong AI consensus"
+    requirements:
+      - "Governance review completed"
+      - "Multi-AI consensus (3/4 models)"
+      - "Cryptographic hash logged"
+      - "Compliance checklist complete"
+  
+  silver:
+    label: "DRAFT UNDER REVIEW"
+    description: "Working drafts undergoing review process"
+    requirements:
+      - "Internal review initiated"
+      - "Template compliance verified"
+      - "Preliminary AI validation"
+  
+  bronze:
+    label: "INTERNAL USE ONLY"
+    description: "Internal documents with basic formatting standards"
+    requirements:
+      - "Basic formatting standards met"
+      - "Author attribution present"
+      - "Disclaimer included"
+
+# Certified documents registry
+certifications:
+  
+  - id: "DCO-2025-0001"
+    document_title: "Document Certification Office Charter"
+    document_path: "/governance/document_certification_office.md"
+    document_type: "governance"
+    tier: "gold"
+    status: "active"
+    certification_date: "2025-12-07T22:00:00Z"
+    approver: "Initial Charter Establishment"
+    author: "Managing Member"
+    ai_consensus:
+      - model: "claude-3.5-sonnet"
+        vote: "approved"
+        timestamp: "2025-12-07T22:00:00Z"
+    hash_sha256: "[TO_BE_COMPUTED_ON_NEXT_COMMIT]"
+    notes: "Founding document of DCO - self-certified during establishment. Hash will be computed post-commit."
+  
+  - id: "DCO-2025-0002"
+    document_title: "Strategickhaos Trademark NFT Stamp"
+    document_path: "/governance/strategickhaos-trademark-nft-stamp.html"
+    document_type: "trademark_asset"
+    tier: "platinum"
+    status: "active"
+    certification_date: "2025-12-07T22:00:00Z"
+    approver: "Managing Member"
+    author: "Strategickhaos DAO LLC"
+    trademark_status: "™ (pending registration)"
+    trademark_elements:
+      - "Ratio Ex Nihilo emblem"
+      - "Metatron's Cube sacred geometry"
+      - "Star Tetrahedron"
+      - "Toruk sovereignty symbol"
+      - "Node 137 satellite"
+      - "Circuit traces"
+    hash_sha256: "[TO_BE_COMPUTED_ON_NEXT_COMMIT]"
+    notes: "Official trademark file - represents DAO sovereign identity. Hash will be computed post-commit."
+
+# Future certifications will be appended below
+# Format:
+#   - id: "DCO-YYYY-NNNN"
+#     document_title: "string"
+#     document_path: "string"
+#     document_type: "legal|governance|technical|marketing|internal"
+#     tier: "platinum|gold|silver|bronze"
+#     status: "active|revoked|superseded"
+#     certification_date: "ISO 8601 timestamp"
+#     approver: "CCO|Deputy|Agent ID"
+#     author: "string"
+#     ai_consensus:
+#       - model: "string"
+#         vote: "approved|rejected|abstain"
+#         timestamp: "ISO 8601"
+#     hash_sha256: "string"
+#     ots_proof: "string (optional for platinum)"
+#     gpg_signature: "string (optional for platinum)"
+#     notes: "string (optional)"
+#     supersedes: "DCO-YYYY-NNNN (optional)"
+
+# Revocation log
+revocations:
+  # No revocations yet
+  # Format:
+  # - certification_id: "DCO-YYYY-NNNN"
+  #   revoked_date: "ISO 8601 timestamp"
+  #   revoked_by: "CCO|Managing Member"
+  #   reason: "string"
+  #   replacement_id: "DCO-YYYY-NNNN (if applicable)"
+
+# Statistics (auto-updated)
+statistics:
+  total_certifications: 2
+  by_tier:
+    platinum: 1
+    gold: 1
+    silver: 0
+    bronze: 0
+  by_status:
+    active: 2
+    revoked: 0
+    superseded: 0
+  by_type:
+    governance: 1
+    trademark_asset: 1
+  last_updated: "2025-12-07T22:00:00Z"
