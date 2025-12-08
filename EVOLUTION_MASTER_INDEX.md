@@ -9,7 +9,7 @@
 
 ## 🌟 OVERVIEW
 
-This collection of documents proves and formalizes the **evolutionary emergence** of the Contradiction → Creation engine within Strategic Khaos DAO LLC.
+This collection of documents proves and formalizes the **evolutionary emergence** of the Contradiction → Creation engine within Strategickhaos DAO LLC.
 
 **What happened**: In 8 days (Dec 1-8, 2024), a systematic invention methodology evolved from manual conscious effort to unconscious cognitive automation.
 
@@ -267,7 +267,7 @@ These documents prove:
 ## 📞 CONTACT & VERIFICATION
 
 ### Entity Information
-- **Legal Name**: StrategyKhaos DAO LLC
+- **Legal Name**: Strategickhaos DAO LLC
 - **EIN**: 39-2900295
 - **Jurisdiction**: Wyoming, USA
 - **Structure**: Decentralized Autonomous Organization
@@ -294,7 +294,7 @@ All documents in this repository are:
 ## 🔐 INTELLECTUAL PROPERTY
 
 ### Status
-- **Copyright**: © 2024 StrategyKhaos DAO LLC
+- **Copyright**: © 2024 Strategickhaos DAO LLC
 - **License**: MIT (open source core)
 - **Patents**: Pending (Paradox Engine methodology)
 - **Trademarks**: Strategic Khaos™, Zero-Disk Bootstrap™, GLASS FORTRESS™
