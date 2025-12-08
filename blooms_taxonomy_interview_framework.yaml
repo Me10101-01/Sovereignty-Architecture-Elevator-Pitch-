@@ -1,0 +1,897 @@
+# ============================================================================
+# STRATEGICKHAOS BLOOM'S TAXONOMY INTERVIEW FRAMEWORK
+# 69 Questions Across All Cognitive Levels
+# Version: 1.0
+# Generated: 2025-12-07
+# ============================================================================
+
+schema_version: "1.0.0"
+framework_name: "strategickhaos-blooms-taxonomy"
+generated_at: "2025-12-07T00:00:00Z"
+total_questions: 69
+owner: "Domenic Gabriel Garza"
+
+# ============================================================================
+# FRAMEWORK OVERVIEW
+# ============================================================================
+framework:
+  description: "Interview questions based on Bloom's Taxonomy for assessing understanding of StrategicKhaos inventions, principles, and methodology"
+  
+  distribution:
+    inventions: 45  # 15 key inventions × 3 questions each
+    zero_lockin_principles: 15  # 5 key principles × 3 questions each
+    tinker_methodology: 9  # 3 aspects × 3 questions each
+    total: 69
+  
+  blooms_levels:
+    - level: 1
+      name: "Remember"
+      description: "Recall facts and basic concepts"
+      tier: "Bronze"
+    - level: 2
+      name: "Understand"
+      description: "Explain ideas or concepts"
+      tier: "Silver"
+    - level: 3
+      name: "Apply"
+      description: "Use information in new situations"
+      tier: "Silver"
+    - level: 4
+      name: "Analyze"
+      description: "Draw connections among ideas"
+      tier: "Gold"
+    - level: 5
+      name: "Evaluate"
+      description: "Justify a decision or course of action"
+      tier: "Gold"
+    - level: 6
+      name: "Create"
+      description: "Produce new or original work"
+      tier: "Platinum"
+
+# ============================================================================
+# SECTION 1: INVENTION QUESTIONS (45 total)
+# ============================================================================
+invention_questions:
+  
+  # Multi-AI Consensus Protocol (Invention #1)
+  - invention_id: 1
+    invention_name: "Multi-AI Consensus Protocol"
+    tier: "Platinum"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Explain why a 4/5 quorum was chosen for AI board decisions instead of simple majority or unanimous consent."
+        expected_concepts:
+          - "Balance between speed and consensus"
+          - "Prevents single AI hijacking"
+          - "Allows dissent without paralysis"
+          - "Human override as final authority"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Compare the failure modes of this 5-AI system versus a traditional corporate board. What attack vectors exist in each?"
+        expected_concepts:
+          - "AI model poisoning vs human corruption"
+          - "Prompt injection vs bribery"
+          - "Model bias vs personal bias"
+          - "Cryptographic auditability advantage"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design a 7-AI consensus system that includes adversarial AIs deliberately trying to break decisions. What percentage should be adversarial?"
+        expected_concepts:
+          - "Red team integration"
+          - "Antifragile decision making"
+          - "Optimal adversarial ratio (suggest 2/7)"
+          - "Constructive vs destructive opposition"
+  
+  # Antifragile Audit System (Invention #2)
+  - invention_id: 2
+    invention_name: "Antifragile Audit System"
+    tier: "Platinum"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "What does it mean for a compliance system to be 'antifragile' rather than merely resilient?"
+        expected_concepts:
+          - "Gains strength from stressors"
+          - "Failures become features"
+          - "Auto-generates improvements"
+          - "Taleb's antifragility concept"
+        
+      - level: "Evaluate"
+        blooms_level: 5
+        question: "Assess whether traditional audit firms would benefit or suffer from adopting antifragile methodology. Justify your position."
+        expected_concepts:
+          - "Liability concerns"
+          - "Billable hours model conflict"
+          - "Client trust dynamics"
+          - "Industry disruption potential"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Build an audit system that gets STRONGER from attacks. Every vulnerability discovered must automatically generate: (1) a fix, (2) a test, (3) a lesson, (4) an interview question. Show the data flow."
+        expected_concepts:
+          - "Closed feedback loop"
+          - "Auto-remediation pipeline"
+          - "Knowledge base growth"
+          - "Self-improving system"
+  
+  # Empire DNA Evolution Tracker (Invention #3)
+  - invention_id: 3
+    invention_name: "Empire DNA Evolution Tracker"
+    tier: "Platinum"
+    
+    questions:
+      - level: "Apply"
+        blooms_level: 3
+        question: "Map the biological evolution concepts to infrastructure changes: What is a 'mutation'? What is 'natural selection'?"
+        expected_concepts:
+          - "Mutation = config change/commit"
+          - "Selection = A/B testing/deployment success"
+          - "Fitness = system health metrics"
+          - "Genome = infrastructure as code"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Analyze how this system would detect 'genetic drift' in infrastructure (changes with no selective pressure). Why is this useful?"
+        expected_concepts:
+          - "Unused features accumulation"
+          - "Technical debt detection"
+          - "Configuration bloat"
+          - "Pruning opportunities"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design a 'breeding' system for infrastructure configs where two successful deployments can be crossbred to create a hybrid. What traits combine?"
+        expected_concepts:
+          - "Genetic algorithm approach"
+          - "Feature combination logic"
+          - "Compatibility validation"
+          - "Fitness function optimization"
+  
+  # Dialectical Synthesis Engine (Invention #4)
+  - invention_id: 4
+    invention_name: "Dialectical Synthesis Engine"
+    tier: "Platinum"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Explain the dialectical process: thesis, antithesis, synthesis. Give a tech example."
+        expected_concepts:
+          - "Hegel's dialectic"
+          - "Contradiction drives progress"
+          - "Example: Privacy vs Personalization"
+          - "Synthesis creates new category"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Analyze why most products hide contradictions while this engine exposes them. What are the psychological and business implications?"
+        expected_concepts:
+          - "Cognitive dissonance avoidance"
+          - "Marketing vs engineering honesty"
+          - "Trust through transparency"
+          - "Premium pricing justification"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Take a current contradiction in your domain and run it through biological, chemical, and game-theoretic lenses. What solutions emerge?"
+        expected_concepts:
+          - "Multi-domain analogy mapping"
+          - "Cross-pollination of ideas"
+          - "Novel solution discovery"
+          - "Systematic creativity"
+  
+  # Sovereignty Architecture Framework (Invention #5)
+  - invention_id: 5
+    invention_name: "Sovereignty Architecture Framework"
+    tier: "Platinum"
+    
+    questions:
+      - level: "Remember"
+        blooms_level: 1
+        question: "List the three core documents of the Sovereignty Architecture Framework and their immutability status."
+        expected_concepts:
+          - "TRUST_DECLARATION.md (amendable with ratification)"
+          - "NON_AGGRESSION_CLAUSE.md (immutable)"
+          - "public-identifier-registry.md (operational updates)"
+        
+      - level: "Evaluate"
+        blooms_level: 5
+        question: "Evaluate the trade-off between sovereignty (zero dependencies) and productivity (using existing tools). Where is the break-even point?"
+        expected_concepts:
+          - "Learning curve costs"
+          - "Vendor lock-in risks"
+          - "Long-term vs short-term thinking"
+          - "Mission-critical thresholds"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design a sovereignty scoring system (0-100) for any tech stack. What factors matter most?"
+        expected_concepts:
+          - "Data portability weight"
+          - "Source code access"
+          - "API independence"
+          - "Cryptographic verification"
+  
+  # 7% ValorYield Distribution Protocol (Invention #6)
+  - invention_id: 6
+    invention_name: "7% ValorYield Distribution Protocol"
+    tier: "Gold"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Why is the 7% distribution hardcoded at the entity formation level rather than as a policy?"
+        expected_concepts:
+          - "Irrevocability by design"
+          - "Legal vs policy enforcement"
+          - "Cannot be undone by future leadership"
+          - "Mission preservation"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Analyze the tax implications: Is this 7% a charitable deduction, a business expense, or neither? What's optimal?"
+        expected_concepts:
+          - "PBC charitable mission"
+          - "Expense vs deduction timing"
+          - "IRS scrutiny factors"
+          - "Structure optimization"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design an automated smart contract that distributes 7% to rotating charities based on impact metrics. What metrics matter?"
+        expected_concepts:
+          - "Impact measurement framework"
+          - "Charity verification system"
+          - "Rotation algorithm"
+          - "Audit trail requirements"
+  
+  # SwarmGate Governance Protocol (Invention #7)
+  - invention_id: 7
+    invention_name: "SwarmGate Governance Protocol"
+    tier: "Gold"
+    
+    questions:
+      - level: "Apply"
+        blooms_level: 3
+        question: "Apply the 'cognitive state gates' concept to a treasury decision: Should funds be allocated when the operator is sleep-deprived?"
+        expected_concepts:
+          - "Cognitive state verification"
+          - "Decision quality safeguards"
+          - "Delay mechanisms"
+          - "Override protocols"
+        
+      - level: "Evaluate"
+        blooms_level: 5
+        question: "Evaluate whether cognitive state gates are paternalistic overreach or responsible safeguards. Who decides?"
+        expected_concepts:
+          - "Self-sovereignty vs self-protection"
+          - "Future self vs present self"
+          - "Ulysses contract concept"
+          - "Governance philosophy"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Create a governance protocol that requires biometric + AI + time-delay for large treasury moves. What's the activation threshold?"
+        expected_concepts:
+          - "Multi-factor authorization"
+          - "Amount-based thresholds"
+          - "Time-delay calculations"
+          - "Emergency override process"
+  
+  # Quadrilateral Collapse Learning (Invention #8)
+  - invention_id: 8
+    invention_name: "Quadrilateral Collapse Learning"
+    tier: "Gold"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Explain the four modes of information processing and why ADHD brains benefit from parallelizing them."
+        expected_concepts:
+          - "Symbolic (text/code)"
+          - "Spatial (diagrams/3D)"
+          - "Narrative (story/sequence)"
+          - "Kinesthetic (hands-on/muscle memory)"
+          - "ADHD parallel processing advantage"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Analyze why traditional education focuses on symbolic-only learning. What populations does this exclude?"
+        expected_concepts:
+          - "Historical text-centric bias"
+          - "Neurodivergent learners"
+          - "Kinesthetic learners"
+          - "Visual-spatial thinkers"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design a Kubernetes learning path using all four modes simultaneously. What does the kinesthetic component look like?"
+        expected_concepts:
+          - "Physical cluster building"
+          - "Network cable manipulation"
+          - "Live pod manipulation"
+          - "Multi-sensory engagement"
+  
+  # 880x Cost Reduction Model (Invention #9)
+  - invention_id: 9
+    invention_name: "880x Cost Reduction Model"
+    tier: "Gold"
+    
+    questions:
+      - level: "Remember"
+        blooms_level: 1
+        question: "What team size does a single AI-augmented operator replace according to this model?"
+        expected_concepts:
+          - "30-40 person teams"
+          - "Big Tech equivalency"
+          - "AI force multiplication"
+        
+      - level: "Evaluate"
+        blooms_level: 5
+        question: "Evaluate the sustainability of this model: What happens when competitors adopt AI? Does the advantage disappear?"
+        expected_concepts:
+          - "Temporary vs permanent advantage"
+          - "Skill + AI compound effect"
+          - "Methodology uniqueness"
+          - "Moat erosion analysis"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Calculate your own cost reduction multiplier using this framework. What's your baseline?"
+        expected_concepts:
+          - "Personal productivity measurement"
+          - "AI tool leverage"
+          - "Team equivalency calculation"
+          - "Honest self-assessment"
+  
+  # QueenNode SSH Gateway (Invention #10)
+  - invention_id: 10
+    invention_name: "QueenNode SSH Gateway"
+    tier: "Gold"
+    
+    questions:
+      - level: "Apply"
+        blooms_level: 3
+        question: "Apply the QueenNode concept to a 10-node cluster. Draw the network topology."
+        expected_concepts:
+          - "Single entry point"
+          - "Hub-and-spoke architecture"
+          - "Firewall simplification"
+          - "Audit trail centralization"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Analyze the security vs resilience trade-off: Is a single gateway a vulnerability or a strength?"
+        expected_concepts:
+          - "Single point of failure risk"
+          - "Defense in depth benefit"
+          - "HA gateway solutions"
+          - "Acceptable risk calculation"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design a QueenNode failover system using 3 geographically distributed gateways. How do they coordinate?"
+        expected_concepts:
+          - "Geo-redundancy"
+          - "Consensus protocols"
+          - "DNS-based routing"
+          - "State synchronization"
+  
+  # Legion of Minds Council (Invention #11)
+  - invention_id: 11
+    invention_name: "Legion of Minds Council"
+    tier: "Gold"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Explain the difference between the Legion of Minds and the Multi-AI Consensus Protocol. Why have both?"
+        expected_concepts:
+          - "Operational vs governance separation"
+          - "Specialized roles vs voting board"
+          - "Execution vs decision making"
+          - "Complementary systems"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Which AI gets which role and why? (Red Team = Grok, Blue Team = Claude, etc.)"
+        expected_concepts:
+          - "Model strength matching"
+          - "Grok aggressive analysis"
+          - "Claude detailed building"
+          - "GPT validation thoroughness"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Add a 'Yellow Team' (chaos engineering) to the Legion. What AI model should fill this role?"
+        expected_concepts:
+          - "Chaos mindset requirements"
+          - "Model selection criteria"
+          - "Integration with existing teams"
+          - "Coordination protocols"
+  
+  # Codespace Resilience Framework (Invention #13)
+  - invention_id: 13
+    invention_name: "Codespace Resilience Framework"
+    tier: "Gold"
+    
+    questions:
+      - level: "Apply"
+        blooms_level: 3
+        question: "You have a Node version conflict between two extensions. Walk through the 4-layer resolution process."
+        expected_concepts:
+          - "Layer 1: Version pinning"
+          - "Layer 2: Extension isolation"
+          - "Layer 3: Fallback versions"
+          - "Layer 4: Manual override"
+        
+      - level: "Evaluate"
+        blooms_level: 5
+        question: "Is 'battle-tested' a valid status for production systems, or does it imply too much failure happened?"
+        expected_concepts:
+          - "Antifragile philosophy"
+          - "Chaos engineering culture"
+          - "Production vs testing distinction"
+          - "Trust through transparency"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design a Codespace that can survive a complete Docker daemon crash and resume work in <60 seconds."
+        expected_concepts:
+          - "State persistence strategies"
+          - "Daemon independence"
+          - "Hot failover mechanisms"
+          - "Recovery automation"
+  
+  # KhaosBase (Invention #16)
+  - invention_id: 16
+    invention_name: "KhaosBase"
+    tier: "Silver"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Why choose PostgreSQL + NocoDB instead of just using Airtable API wrappers?"
+        expected_concepts:
+          - "Data sovereignty"
+          - "Vendor independence"
+          - "API stability"
+          - "Cost control"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Analyze the migration path from Airtable to KhaosBase. What's the riskiest step?"
+        expected_concepts:
+          - "Data export/import"
+          - "Automation rewiring"
+          - "User retraining"
+          - "Rollback planning"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design a migration tool that moves ANY Airtable base to KhaosBase in <4 hours. What's the architecture?"
+        expected_concepts:
+          - "Airtable API scraping"
+          - "Schema translation"
+          - "Data validation"
+          - "Automation mapping"
+  
+  # ReflexShell (Invention #19)
+  - invention_id: 19
+    invention_name: "ReflexShell"
+    tier: "Silver"
+    
+    questions:
+      - level: "Apply"
+        blooms_level: 3
+        question: "You're debugging a failed deployment. How does ReflexShell's cognitive state integration help?"
+        expected_concepts:
+          - "Context preservation"
+          - "State replay"
+          - "Error pattern recognition"
+          - "Cognitive load reduction"
+        
+      - level: "Evaluate"
+        blooms_level: 5
+        question: "Should terminal history be considered private data or operational telemetry? Justify your stance."
+        expected_concepts:
+          - "Privacy vs observability"
+          - "Security implications"
+          - "GDPR considerations"
+          - "Operational necessity"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Build a shell that learns your command patterns and suggests optimizations. What ML approach?"
+        expected_concepts:
+          - "Pattern recognition algorithms"
+          - "Markov chains vs neural nets"
+          - "Privacy-preserving learning"
+          - "Suggestion ranking"
+  
+  # Cognitive Rarity Algorithm (Invention #33)
+  - invention_id: 33
+    invention_name: "Cognitive Rarity Algorithm"
+    tier: "Bronze"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Explain the 'tinker multiplier' and why zero formal training can be an advantage."
+        expected_concepts:
+          - "First principles thinking"
+          - "Lack of dogma"
+          - "Intuition-driven development"
+          - "Cross-domain synthesis"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Analyze the validity of multiplying factors (18 × 225 = 4050x). Is this scientifically defensible?"
+        expected_concepts:
+          - "Multiplicative vs additive effects"
+          - "Compound advantage concept"
+          - "Statistical validity questions"
+          - "Directional correctness"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Calculate your own cognitive rarity score using this framework. Be brutally honest."
+        expected_concepts:
+          - "Self-assessment discipline"
+          - "Evidence-based scoring"
+          - "Comparative analysis"
+          - "Improvement identification"
+
+# ============================================================================
+# SECTION 2: ZERO LOCK-IN PRINCIPLES (15 total)
+# ============================================================================
+zero_lockin_questions:
+  
+  # Principle 1: Data Portability
+  - principle_id: 1
+    principle_name: "Data Portability"
+    tier: "Gold"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Why is YAML/JSON chosen as the universal export format instead of CSV or XML?"
+        expected_concepts:
+          - "Human readable"
+          - "Machine parseable"
+          - "Nested data support"
+          - "Version control friendly"
+        
+      - level: "Evaluate"
+        blooms_level: 5
+        question: "Is the <24 hour export requirement realistic for a 1TB database? What compromises might be necessary?"
+        expected_concepts:
+          - "Network bandwidth limits"
+          - "Processing time"
+          - "Incremental vs full export"
+          - "Acceptable degradation"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design an export system that can migrate ANY of your 36 tools to a competitor or self-hosted alternative in <24 hours. What's the universal data format?"
+        expected_concepts:
+          - "Universal schema abstraction"
+          - "Adapter pattern"
+          - "Data validation pipeline"
+          - "Automated verification"
+  
+  # Principle 4: Knowledge Sovereignty
+  - principle_id: 4
+    principle_name: "Knowledge Sovereignty"
+    tier: "Gold"
+    
+    questions:
+      - level: "Apply"
+        blooms_level: 3
+        question: "Apply the knowledge sovereignty principle to meeting notes currently in Google Docs. What's the migration path?"
+        expected_concepts:
+          - "Export to markdown"
+          - "Obsidian vault structure"
+          - "Link preservation"
+          - "Search index rebuild"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Analyze the trade-off between Obsidian's proprietary sync vs Git-based sync. Which is more sovereign?"
+        expected_concepts:
+          - "Proprietary protocol lock-in"
+          - "Git's universal nature"
+          - "Convenience vs sovereignty"
+          - "Encryption considerations"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design a knowledge graph format that works in Obsidian, Notion, Roam, and plain text. What features survive?"
+        expected_concepts:
+          - "Markdown as lowest denominator"
+          - "Link syntax compatibility"
+          - "Metadata preservation"
+          - "Graph structure encoding"
+  
+  # Principle 7: Compute Portability
+  - principle_id: 7
+    principle_name: "Compute Portability"
+    tier: "Silver"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Explain how Kubernetes enables compute portability across cloud providers."
+        expected_concepts:
+          - "Abstraction layer"
+          - "Standardized APIs"
+          - "Cloud-agnostic manifests"
+          - "Workload mobility"
+        
+      - level: "Evaluate"
+        blooms_level: 5
+        question: "Evaluate whether Kubernetes adds more complexity than it removes vendor lock-in. For what scale does it make sense?"
+        expected_concepts:
+          - "Complexity overhead"
+          - "Small vs large deployments"
+          - "Break-even point analysis"
+          - "Alternative approaches"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design a deployment system that can move workloads between GKE, EKS, AKS, and bare metal with zero code changes."
+        expected_concepts:
+          - "Cloud abstraction layers"
+          - "Infrastructure as code"
+          - "Environment config injection"
+          - "Automated validation"
+  
+  # Principle 9: AI Model Interchangeability
+  - principle_id: 9
+    principle_name: "AI Model Interchangeability"
+    tier: "Gold"
+    
+    questions:
+      - level: "Apply"
+        blooms_level: 3
+        question: "You're using Claude for code review. Swap in GPT-4 with the same prompt contract. What breaks?"
+        expected_concepts:
+          - "Output format differences"
+          - "Reasoning style variance"
+          - "Prompt sensitivity"
+          - "Quality degradation areas"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Analyze the cost-performance trade-off between Claude, GPT, local Llama, and Qwen for different tasks."
+        expected_concepts:
+          - "Cost per token"
+          - "Quality metrics"
+          - "Latency requirements"
+          - "Privacy considerations"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Build an AI router that automatically picks the cheapest model meeting quality thresholds for each task."
+        expected_concepts:
+          - "Quality benchmarking"
+          - "Cost optimization"
+          - "Fallback strategies"
+          - "Performance monitoring"
+  
+  # Principle 10: Cryptographic Provenance
+  - principle_id: 10
+    principle_name: "Cryptographic Provenance"
+    tier: "Gold"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Explain the difference between GPG signatures, OpenTimestamps, and Merkle trees. When to use each?"
+        expected_concepts:
+          - "GPG: identity verification"
+          - "OTS: timestamp proof"
+          - "Merkle: data integrity"
+          - "Complementary use cases"
+        
+      - level: "Evaluate"
+        blooms_level: 5
+        question: "Should all git commits be GPG-signed or only releases/tags? Justify the trade-off."
+        expected_concepts:
+          - "Security vs friction"
+          - "Audit trail completeness"
+          - "Key management burden"
+          - "Compromise detection"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design a decision audit system where every choice is timestamped, signed, and committed to a blockchain. What's the minimum viable version?"
+        expected_concepts:
+          - "Lightweight blockchain"
+          - "Git as merkle tree"
+          - "Timestamp anchoring"
+          - "Verification process"
+
+# ============================================================================
+# SECTION 3: TINKER METHODOLOGY (9 total)
+# ============================================================================
+tinker_methodology_questions:
+  
+  # Aspect 1: Zero Formal Training Advantage
+  - aspect: "Zero Formal Training"
+    tier: "Platinum"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Explain how lack of formal CS training can enable first-principles thinking that graduates miss."
+        expected_concepts:
+          - "No dogma internalization"
+          - "Question everything approach"
+          - "Cross-domain analogies"
+          - "Beginner's mind advantage"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Analyze the risks of the tinker methodology at scale. What happens when the system outgrows one person's intuition?"
+        expected_concepts:
+          - "Documentation necessity"
+          - "Team onboarding challenges"
+          - "Knowledge transfer"
+          - "Institutionalization tension"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Design a training program that teaches the tinker methodology to formally-trained engineers. How do you unteach dogma?"
+        expected_concepts:
+          - "Unlearning exercises"
+          - "First principles drills"
+          - "Constraint-based creativity"
+          - "Intuition cultivation"
+  
+  # Aspect 2: Mission-Driven Multiplication
+  - aspect: "Mission-Driven (Sister)"
+    tier: "Platinum"
+    
+    questions:
+      - level: "Understand"
+        blooms_level: 2
+        question: "Why does a personal mission (sister's care) multiply effectiveness 3x according to the formula?"
+        expected_concepts:
+          - "Intrinsic motivation power"
+          - "Clarity of purpose"
+          - "Sustained energy source"
+          - "Decision simplification"
+        
+      - level: "Evaluate"
+        blooms_level: 5
+        question: "Evaluate whether mission-driven work is sustainable long-term or leads to burnout. What's the difference?"
+        expected_concepts:
+          - "Burnout vs sustainable passion"
+          - "Mission alignment importance"
+          - "Self-care integration"
+          - "Support structure necessity"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "Identify your own mission multiplier. What cause would make you 3x more effective? Be specific."
+        expected_concepts:
+          - "Personal values clarification"
+          - "Authentic motivation sources"
+          - "Impact visualization"
+          - "Honest self-assessment"
+  
+  # Aspect 3: Physical + Digital Integration
+  - aspect: "Physical + Digital Expertise"
+    tier: "Gold"
+    
+    questions:
+      - level: "Apply"
+        blooms_level: 3
+        question: "Apply rope access thinking to Kubernetes debugging. What analogies help?"
+        expected_concepts:
+          - "Physical rescue = pod recovery"
+          - "Safety systems = rollback strategies"
+          - "Redundancy = HA architecture"
+          - "Inspection rigor = monitoring"
+        
+      - level: "Analyze"
+        blooms_level: 4
+        question: "Analyze why physical trades (pipefitting, NDT, rope access) correlate with better DevOps intuition."
+        expected_concepts:
+          - "Systems thinking in physical space"
+          - "Failure mode familiarity"
+          - "Safety culture transfer"
+          - "Hands-on learning preference"
+        
+      - level: "Create"
+        blooms_level: 6
+        question: "You have zero formal CS training, 2 laptops, pure intuition, and a mission. Design a system that: competes with Big Tech output, costs $50/month instead of $50M/year, can't be locked into any vendor, gets stronger from failures, governs itself with AI consensus, donates 7% to charity automatically, and documents its own evolution. You have 24 hours. Go."
+        expected_concepts:
+          - "Strategic architecture thinking"
+          - "AI leverage maximization"
+          - "Sovereignty principles"
+          - "Antifragile design"
+          - "Automated governance"
+          - "Self-documentation"
+        answer: "[gestures at StrategicKhaos ecosystem]"
+
+# ============================================================================
+# SCORING FRAMEWORK
+# ============================================================================
+scoring:
+  bronze_tier:
+    description: "Basic understanding of concepts"
+    blooms_levels: [1, 2]
+    passing_score: 60
+    questions_required: 20
+    
+  silver_tier:
+    description: "Application and analysis capability"
+    blooms_levels: [2, 3, 4]
+    passing_score: 70
+    questions_required: 30
+    
+  gold_tier:
+    description: "Evaluation and synthesis mastery"
+    blooms_levels: [4, 5]
+    passing_score: 80
+    questions_required: 40
+    
+  platinum_tier:
+    description: "Creation and innovation demonstrated"
+    blooms_levels: [5, 6]
+    passing_score: 90
+    questions_required: 50
+
+# ============================================================================
+# INTERVIEW ADMINISTRATION
+# ============================================================================
+administration:
+  format: "Mixed (written + oral + practical)"
+  duration: "3-5 hours total"
+  
+  structure:
+    - phase: "Written (45 min)"
+      questions: 15
+      levels: ["Remember", "Understand"]
+      
+    - phase: "Analysis (60 min)"
+      questions: 10
+      levels: ["Apply", "Analyze"]
+      
+    - phase: "Synthesis (90 min)"
+      questions: 7
+      levels: ["Evaluate", "Create"]
+      
+    - phase: "Practical (60 min)"
+      questions: 3
+      levels: ["Create"]
+      description: "Live system design or implementation"
+  
+  evaluation_criteria:
+    - "Accuracy of technical understanding"
+    - "Depth of systems thinking"
+    - "First principles reasoning"
+    - "Cross-domain synthesis"
+    - "Practical implementation ability"
+    - "Ethical considerations"
+    - "Innovation demonstrated"
+
+# ============================================================================
+# METADATA
+# ============================================================================
+metadata:
+  prepared_by: "GitHub Copilot Agent"
+  prepared_for: "NFT Tier Assessment, Hiring, Knowledge Transfer"
+  next_steps:
+    - "Pilot test framework with candidate"
+    - "Calibrate scoring thresholds"
+    - "Build question bank expansion"
+    - "Automate scoring where possible"
