@@ -1,8 +1,15 @@
 # auto_approve_config.yaml
 # Strategickhaos DAO LLC / Valoryield Engine — Set-and-Forget Automation v1
 # Generated: 2025-11-16T15:48:00Z
+# Updated: 2025-12-07 (AOL Integration)
 # Operator: Domenic Garza (Node 137)
 # Purpose: 5 UPL-safe, non-interactive automation patterns for Windows + Docker stack
+#
+# GOVERNANCE INTEGRATION:
+# This file operates under the Autonomous Operation License (AOL) v1.0
+# See: AUTONOMOUS_OPERATION_LICENSE.md and governance/aol_*.yaml
+# Hierarchy: AOL provides governance framework, this provides tactical patterns
+# In case of conflict: AOL takes precedence
 
 version: "1.0"
 suite_name: "auto_approve_v1"
@@ -10,6 +17,32 @@ run_mode: "unattended"
 os_target: "Windows"
 ci_safe: true
 gpg_sign_artifacts: true
+
+# AOL Integration
+aol_integration:
+  license_version: "1.0"
+  governed_by: "AUTONOMOUS_OPERATION_LICENSE.md"
+  trust_tier_required: "VERIFIED"  # Minimum tier for auto-approve operations
+  circuit_breakers_enabled: true
+  audit_required: true
+  
+  action_mappings:
+    winget_install: "package_install"  # Maps to aol_action_matrix.yaml
+    choco_install: "package_install"
+    docker_build: "sandboxed_execution"
+    scheduled_task: "code_execution"
+    
+  escalation_triggers:
+    - "Financial transaction detected"
+    - "Legal document modification"
+    - "Security credential change"
+    - "Production deployment"
+    
+  compliance_notes: |
+    All automation patterns in this file are pre-authorized under AOL Article II
+    (File Operations, Code Execution, Package Installation).
+    Any pattern that would trigger AOL escalation requirements must be removed
+    or require explicit human approval.
 
 globals:
   user_agent: "Strategickhaos-Auto/1.0"
@@ -66,7 +99,7 @@ selected_patterns:
     name: "Run as SYSTEM via Scheduled Task"
     desc: "No UAC, runs when logged off"
     schtasks_cmd: |
-      schtasks /Create /SC ONSTART /TN "ValoryieldRecon" /TR "powershell -File C:\recon\run_all.ps1" /RU "NT AUTHORITY\SYSTEM" /RL HIGHEST /F
+      schtasks /Create /SC ONSTART /TN "ValoryieldRecon" /TR "powershell -File C:\\recon\\run_all.ps1" /RU "NT AUTHORITY\\SYSTEM" /RL HIGHEST /F
     cleanup: "schtasks /Delete /TN ValoryieldRecon /F"
     applies_to: ["nightly_ingest", "benchmark_run"]
     safety: "SYSTEM context; GPG-sign output"
@@ -87,13 +120,13 @@ automation_workflow:
 
     - name: "Clone & Ingest"
       commands:
-        - "git clone https://github.com/strategickhaos/valoryield-engine.git C:\valoryield"
-        - "cd C:\valoryield && docker compose up -d"
-        - "python C:\valoryield\scripts\ingest_all.py"
+        - "git clone https://github.com/strategickhaos/valoryield-engine.git C:\\valoryield"
+        - "cd C:\\valoryield && docker compose up -d"
+        - "python C:\\valoryield\\scripts\\ingest_all.py"
 
     - name: "Run Benchmarks"
       commands:
-        - "python C:\valoryield\scripts\run_benchmarks.py"
+        - "python C:\\valoryield\\scripts\\run_benchmarks.py"
 
     - name: "Sign & Archive"
       commands:

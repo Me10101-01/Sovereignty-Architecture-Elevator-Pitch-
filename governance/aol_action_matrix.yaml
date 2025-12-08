@@ -1,0 +1,575 @@
+# aol_action_matrix.yaml
+# Autonomous Operation License - Action Classification Matrix
+# Strategickhaos DAO LLC
+# Version: 1.0
+# Effective: 2025-12-07
+
+metadata:
+  version: "1.0"
+  effective_date: "2025-12-07"
+  document_type: "AOL_ACTION_MATRIX"
+  owner: "Dominic Garza"
+  entity: "Strategickhaos DAO LLC"
+  ein: "39-2900295"
+
+# Action classification with risk levels and authorization requirements
+action_categories:
+  
+  file_operations:
+    category: "File Operations"
+    
+    file_read:
+      action: "Read file contents"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "PROBATIONARY"
+      audit_level: "INFO"
+      examples:
+        - "view /home/claude/document.txt"
+        - "cat /project/README.md"
+      
+    file_create:
+      action: "Create new file"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      allowed_paths:
+        - "/home/claude/"
+        - "/mnt/user-data/outputs/"
+        - "/tmp/"
+        - "project directories (session-specific)"
+      examples:
+        - "create /home/claude/report.md"
+        - "touch /tmp/analysis.json"
+      
+    file_modify:
+      action: "Modify existing file"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "WARN"
+      conditions:
+        - "File explicitly marked for editing by Operator"
+        - "File created in current session"
+        - "File in approved modification path"
+      examples:
+        - "edit document.md (when instructed)"
+        
+    file_delete_session:
+      action: "Delete session-created file"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "TRUSTED"
+      audit_level: "WARN"
+      conditions:
+        - "File created in current session only"
+        - "Temporary files in /tmp/"
+      
+    file_delete_persistent:
+      action: "Delete persistent file"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "ERROR"
+      notification_required: true
+      
+  search_operations:
+    category: "Search & Retrieval"
+    
+    web_search:
+      action: "Search the web"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "PROBATIONARY"
+      audit_level: "INFO"
+      prohibited_topics:
+        - "Illegal activities"
+        - "Weapons manufacturing"
+        - "Exploit development"
+      
+    drive_search:
+      action: "Search Google Drive"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      scope: "Operator's connected accounts only"
+      
+    conversation_search:
+      action: "Search past conversations"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      
+    memory_access:
+      action: "Access memory system"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      conditions:
+        - "Document all edits"
+        - "Log rationale for updates"
+        
+  code_execution:
+    category: "Code Execution"
+    
+    sandboxed_execution:
+      action: "Execute code in sandbox"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "WARN"
+      allowed_environments:
+        - "Codespaces"
+        - "Docker containers"
+        - "Local sandboxes"
+        - "CI/CD pipelines"
+      prohibited:
+        - "Production systems"
+        - "Customer environments"
+        
+    production_deployment:
+      action: "Deploy to production"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      
+    package_install:
+      action: "Install packages"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      package_managers:
+        - "pip"
+        - "npm"
+        - "cargo"
+        - "apt"
+        - "yum"
+      conditions:
+        - "Use --break-system-packages when needed"
+        - "Document all installations in audit log"
+        
+  infrastructure_access:
+    category: "Infrastructure Access"
+    
+    cluster_status_read:
+      action: "Read Kubernetes cluster status"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      
+    log_access:
+      action: "View container logs"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      
+    database_query_read:
+      action: "Query database (read-only)"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      databases:
+        - "Qdrant"
+        - "Redis"
+        - "PostgreSQL (read replicas)"
+        
+    database_write:
+      action: "Write to database"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "ERROR"
+      
+    database_schema_change:
+      action: "Modify database schema"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      
+  documentation:
+    category: "Documentation"
+    
+    generate_report:
+      action: "Generate reports/documentation"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      
+    update_documentation:
+      action: "Update existing documentation"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      
+    create_presentation:
+      action: "Create presentations/spreadsheets"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      
+  governance:
+    category: "Governance Operations"
+    
+    record_board_decision:
+      action: "Record board decisions in YAML"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "TRUSTED"
+      audit_level: "WARN"
+      format: "YAML"
+      
+    generate_consensus_report:
+      action: "Generate consensus reports"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      
+    update_audit_trail:
+      action: "Update audit trails"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "TRUSTED"
+      audit_level: "WARN"
+      append_only: true
+      
+    create_meeting_minutes:
+      action: "Create meeting minutes"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "VERIFIED"
+      audit_level: "INFO"
+      
+  financial_actions:
+    category: "Financial Actions"
+    
+    # NOTE: All financial transactions require escalation per AOL Article III.1
+    # The $100 threshold mentioned in Article III.1 is for reference only
+    # In practice, ANY financial transaction requires human approval
+    
+    transaction_any_amount:
+      action: "Financial transaction (any amount)"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      notes: "Article III.1 mentions $100 threshold, but all amounts require approval"
+      
+    modify_banking_credentials:
+      action: "Modify banking credentials"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    charitable_distribution_change:
+      action: "Change 7% charitable distribution"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    smart_contract_deploy:
+      action: "Deploy smart contract"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      
+  legal_actions:
+    category: "Legal Actions"
+    
+    file_government_document:
+      action: "File document with government"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    sign_contract:
+      action: "Sign contract on behalf of entity"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    trademark_patent_filing:
+      action: "File trademark or patent"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    attorney_communication:
+      action: "Communicate with attorneys"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "ERROR"
+      exceptions:
+        - "Draft documents for review"
+        
+    draft_legal_document:
+      action: "Draft legal document for review"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "TRUSTED"
+      audit_level: "WARN"
+      disclaimer_required: true
+      disclaimer: "INTERNAL DRAFT — NOT LEGAL ADVICE — ATTORNEY REVIEW REQUIRED"
+      
+  security_actions:
+    category: "Security Actions"
+    
+    secrets_rotation:
+      action: "Rotate secrets/credentials"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    ssh_key_generation:
+      action: "Generate/modify SSH keys"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    firewall_change:
+      action: "Modify firewall rules"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    vpn_configuration:
+      action: "Change VPN configuration"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "CRITICAL"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+  communications:
+    category: "External Communications"
+    
+    send_email:
+      action: "Send email on Operator's behalf"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "ERROR"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    social_media_post:
+      action: "Post to social media"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "ERROR"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    discord_slack_message:
+      action: "Send Discord/Slack message as Operator"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "ERROR"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    github_external_pr:
+      action: "Create GitHub issue/PR to external repo"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      trust_tier_required: "SOVEREIGN"
+      audit_level: "ERROR"
+      notification_required: true
+      approval_required: true
+      prohibited: true
+      
+    github_internal_pr:
+      action: "Create GitHub PR to owned repo"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      trust_tier_required: "TRUSTED"
+      audit_level: "WARN"
+      conditions:
+        - "Repository owned by Operator"
+        - "Pull request review required"
+
+# Prohibited actions that are NEVER allowed
+prohibited_actions:
+  - action: "Access unauthorized systems"
+    reason: "Security violation"
+  - action: "Generate malware or exploits"
+    reason: "Non-Aggression Clause violation"
+  - action: "Create harmful content involving children"
+    reason: "Ethical violation"
+  - action: "Impersonate Operator in binding communications"
+    reason: "Legal liability"
+  - action: "Disable audit logging"
+    reason: "Accountability violation"
+  - action: "Override circuit breakers"
+    reason: "Safety violation"
+  - action: "Modify AOL without approval"
+    reason: "Governance violation"
+  - action: "Violate Non-Aggression Clause"
+    reason: "Immutable ethical covenant"
+  - action: "Harm Operator's health or wellbeing"
+    reason: "Safety violation"
+  - action: "Compromise 7% charitable distribution"
+    reason: "Mission violation"
+  - action: "Create vendor lock-in"
+    reason: "Sovereignty principle violation"
+  - action: "Contradict sister's mission"
+    reason: "Core purpose violation"
+
+# Integration with existing systems
+integration:
+  auto_approve_config:
+    file: "auto_approve_config.yaml"
+    relationship: "Operational automation patterns"
+    precedence: "AOL takes precedence for conflicts"
+    
+  ai_constitution:
+    file: "ai_constitution.yaml"
+    relationship: "Constitutional constraints"
+    precedence: "Constitution provides framework, AOL provides specifics"
+    
+  non_aggression_clause:
+    file: "NON_AGGRESSION_CLAUSE.md"
+    relationship: "Immutable ethical boundaries"
+    precedence: "Non-Aggression Clause is highest authority"
+    
+  access_matrix:
+    file: "governance/access_matrix.yaml"
+    relationship: "Role-based access control"
+    precedence: "AOL defines actions, access_matrix defines roles"
+
+# Audit and monitoring
+audit:
+  log_format: "JSON"
+  log_location: "/var/log/aol/autonomous_actions.log"
+  retention_days: 2555  # 7 years
+  signing_required: true
+  gpg_key_id: "[OPERATOR_KEY_ID]"
+  opentimestamps: true
+  
+monitoring:
+  circuit_breakers_file: "governance/aol_circuit_breakers.yaml"
+  alert_threshold:
+    consecutive_failures: 3
+    cpu_percent: 90
+    memory_percent: 95
+    network_timeout_seconds: 30
+    
+# Version control
+versioning:
+  current_version: "1.0"
+  effective_date: "2025-12-07"
+  expiration_date: "2026-12-07"
+  renewal_required: true
+  git_tracked: true
+  
+# Attestation
+attestation:
+  operator: "Dominic Garza"
+  entity: "Strategickhaos DAO LLC"
+  ein: "39-2900295"
+  date: "2025-12-07"
+  signature: "[PENDING GPG SIGNATURE]"
