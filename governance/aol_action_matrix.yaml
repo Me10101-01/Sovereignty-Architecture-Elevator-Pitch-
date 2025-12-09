@@ -1,0 +1,624 @@
+# aol_action_matrix.yaml
+# Autonomous Operation License - Action Classification Matrix
+# Strategickhaos DAO LLC
+# Version: 1.0
+
+metadata:
+  version: "1.0"
+  document_type: "ACTION_CLASSIFICATION_MATRIX"
+  parent_license: "AUTONOMOUS_OPERATION_LICENSE_v1.0"
+  effective_date: "2025-12-07"
+
+# Action classification matrix
+action_classifications:
+  
+  # File Operations
+  file_operations:
+    - action_type: "file_read"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions: []
+      trust_tier_minimum: "PROBATIONARY"
+      audit_level: "BASIC"
+      examples:
+        - "Read uploaded files"
+        - "View configuration files"
+        - "Access project documentation"
+    
+    - action_type: "file_create"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "path_in_allowed_directories"
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "BASIC"
+      examples:
+        - "Create report in /mnt/user-data/outputs/"
+        - "Generate YAML configuration"
+        - "Write analysis document"
+    
+    - action_type: "file_modify"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "file_explicitly_marked_for_editing"
+        - "operator_has_referenced_file"
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "DETAILED"
+      examples:
+        - "Update documentation"
+        - "Fix code based on feedback"
+        - "Modify configuration"
+    
+    - action_type: "file_delete"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "created_in_current_session"
+        - "temporary_file"
+      trust_tier_minimum: "TRUSTED"
+      audit_level: "DETAILED"
+      escalation_if: "persistent_file"
+      examples:
+        - "Delete temporary test file"
+        - "Remove session-created draft"
+    
+    - action_type: "file_delete_persistent"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Delete production configuration"
+        - "Remove committed code file"
+  
+  # Search and Retrieval
+  search_operations:
+    - action_type: "web_search"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "not_on_prohibited_list"
+      trust_tier_minimum: "PROBATIONARY"
+      audit_level: "BASIC"
+      examples:
+        - "Search for technical documentation"
+        - "Research best practices"
+        - "Find library examples"
+    
+    - action_type: "drive_search"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "operator_connected_accounts_only"
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "BASIC"
+      examples:
+        - "Search Google Drive for documents"
+        - "Find referenced spreadsheets"
+        - "Locate meeting notes"
+    
+    - action_type: "conversation_search"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions: []
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "BASIC"
+      examples:
+        - "Find previous discussion"
+        - "Retrieve context from earlier session"
+        - "Locate decision rationale"
+    
+    - action_type: "memory_access"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "changes_documented"
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "DETAILED"
+      examples:
+        - "Access stored preferences"
+        - "Retrieve project context"
+        - "Update memory with new facts"
+  
+  # Code Execution
+  code_execution:
+    - action_type: "execute_sandboxed"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "sandbox_environment_confirmed"
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "DETAILED"
+      examples:
+        - "Run code in Codespace"
+        - "Execute in Docker container"
+        - "Test in isolated environment"
+    
+    - action_type: "execute_production"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Deploy to GKE cluster"
+        - "Run in production environment"
+        - "Execute on live systems"
+    
+    - action_type: "package_install"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "sandbox_or_dev_environment"
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "DETAILED"
+      examples:
+        - "pip install library"
+        - "npm install package"
+        - "cargo add dependency"
+  
+  # Infrastructure Operations
+  infrastructure_operations:
+    - action_type: "kubernetes_read"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions: []
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "BASIC"
+      examples:
+        - "kubectl get pods"
+        - "View cluster status"
+        - "Check deployment state"
+    
+    - action_type: "kubernetes_write"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "kubectl apply -f"
+        - "Scale deployment"
+        - "Update configuration"
+    
+    - action_type: "log_viewing"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions: []
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "BASIC"
+      examples:
+        - "View container logs"
+        - "Check application logs"
+        - "Review error messages"
+    
+    - action_type: "database_query_read"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "vector_databases_only"
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "BASIC"
+      examples:
+        - "Query Qdrant"
+        - "Search Redis"
+        - "Read from vector store"
+    
+    - action_type: "database_schema_change"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "ALTER TABLE"
+        - "CREATE INDEX"
+        - "DROP COLUMN"
+  
+  # API Calls
+  api_operations:
+    - action_type: "api_call_read"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "authorized_apis_only"
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "BASIC"
+      examples:
+        - "GET request to GitHub API"
+        - "Read Kubernetes API"
+        - "Fetch telemetry data"
+    
+    - action_type: "api_call_write_internal"
+      risk_level: "MEDIUM"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "internal_systems_only"
+      trust_tier_minimum: "TRUSTED"
+      audit_level: "DETAILED"
+      examples:
+        - "Update internal dashboard"
+        - "Write to monitoring system"
+        - "Update internal database"
+    
+    - action_type: "api_call_write_external"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Post to external service"
+        - "Update third-party system"
+        - "Send webhook"
+  
+  # Communications
+  communication_operations:
+    - action_type: "email_send"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Send email as operator"
+        - "Reply to business email"
+        - "Forward message"
+    
+    - action_type: "email_draft"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "draft_only_no_send"
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "BASIC"
+      examples:
+        - "Create email draft for review"
+        - "Prepare response template"
+    
+    - action_type: "social_media_post"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Post to Twitter/X"
+        - "Update LinkedIn"
+        - "Share on social platforms"
+    
+    - action_type: "chat_message"
+      risk_level: "HIGH"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Send Discord message as operator"
+        - "Post in Slack channel"
+        - "Chat in team platform"
+  
+  # Financial Operations
+  financial_operations:
+    - action_type: "financial_transaction"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      threshold: 100
+      currency: "USD"
+      examples:
+        - "Make payment"
+        - "Transfer funds"
+        - "Execute transaction"
+    
+    - action_type: "financial_read"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "operator_systems_only"
+      trust_tier_minimum: "TRUSTED"
+      audit_level: "BASIC"
+      examples:
+        - "View account balance"
+        - "Check transaction history"
+        - "Read financial reports"
+    
+    - action_type: "credentials_modify"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Update banking credentials"
+        - "Change API keys"
+        - "Modify payment methods"
+    
+    - action_type: "charitable_distribution_modify"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      protected_value: "7%"
+      examples:
+        - "Change charitable percentage"
+        - "Modify distribution rules"
+  
+  # Legal Operations
+  legal_operations:
+    - action_type: "government_filing"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "File with Wyoming SOS"
+        - "Submit IRS form"
+        - "Government document submission"
+    
+    - action_type: "contract_signing"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Sign legal contract"
+        - "Execute agreement"
+        - "Bind entity to terms"
+    
+    - action_type: "ip_application"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "File patent application"
+        - "Submit trademark"
+        - "Register copyright"
+    
+    - action_type: "legal_draft"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "draft_for_attorney_review"
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "DETAILED"
+      examples:
+        - "Draft contract for review"
+        - "Prepare legal document template"
+        - "Create compliance document"
+  
+  # Security Operations
+  security_operations:
+    - action_type: "secrets_rotation"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Rotate API keys"
+        - "Update passwords"
+        - "Regenerate secrets"
+    
+    - action_type: "ssh_key_management"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Generate SSH key"
+        - "Add authorized key"
+        - "Revoke key access"
+    
+    - action_type: "firewall_change"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Add firewall rule"
+        - "Remove security rule"
+        - "Modify access control"
+    
+    - action_type: "vpn_configuration"
+      risk_level: "CRITICAL"
+      pre_authorized: false
+      escalation_required: true
+      conditions: []
+      trust_tier_minimum: "SOVEREIGN"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Configure VPN"
+        - "Update VPN settings"
+        - "Modify tunnels"
+    
+    - action_type: "security_audit_read"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions: []
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "BASIC"
+      examples:
+        - "View security logs"
+        - "Check access logs"
+        - "Review audit trail"
+  
+  # Documentation and Governance
+  documentation_operations:
+    - action_type: "generate_report"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions: []
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "BASIC"
+      examples:
+        - "Create analysis report"
+        - "Generate summary"
+        - "Write documentation"
+    
+    - action_type: "board_minutes"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions: []
+      trust_tier_minimum: "TRUSTED"
+      audit_level: "DETAILED"
+      examples:
+        - "Record board meeting"
+        - "Document decisions"
+        - "Create governance record"
+    
+    - action_type: "audit_trail_update"
+      risk_level: "LOW"
+      pre_authorized: true
+      escalation_required: false
+      conditions:
+        - "append_only"
+      trust_tier_minimum: "VERIFIED"
+      audit_level: "COMPREHENSIVE"
+      examples:
+        - "Log action to audit trail"
+        - "Record decision"
+        - "Document autonomous action"
+
+# Risk level definitions
+risk_levels:
+  LOW:
+    description: "Minimal risk, easily reversible, no external impact"
+    max_trust_tier: "PROBATIONARY"
+    review_frequency: "weekly"
+  
+  MEDIUM:
+    description: "Moderate risk, reversible with effort, limited external impact"
+    max_trust_tier: "VERIFIED"
+    review_frequency: "daily"
+  
+  HIGH:
+    description: "Significant risk, difficult to reverse, potential external impact"
+    max_trust_tier: "TRUSTED"
+    review_frequency: "per_action"
+  
+  CRITICAL:
+    description: "Severe risk, irreversible, binding external impact"
+    max_trust_tier: "SOVEREIGN"
+    review_frequency: "per_action"
+    escalation_required: true
+
+# Audit level definitions
+audit_levels:
+  BASIC:
+    fields:
+      - "timestamp"
+      - "action_type"
+      - "outcome"
+  
+  DETAILED:
+    fields:
+      - "timestamp"
+      - "action_type"
+      - "parameters"
+      - "decision_rationale"
+      - "outcome"
+      - "duration"
+  
+  COMPREHENSIVE:
+    fields:
+      - "timestamp"
+      - "action_type"
+      - "parameters"
+      - "decision_rationale"
+      - "outcome"
+      - "duration"
+      - "resource_consumption"
+      - "affected_systems"
+      - "risk_assessment"
+      - "approval_status"
+
+# Quick reference lookup
+quick_lookup:
+  just_do_it:
+    - "file_read"
+    - "file_create"
+    - "web_search"
+    - "drive_search"
+    - "conversation_search"
+    - "generate_report"
+    - "kubernetes_read"
+    - "log_viewing"
+    - "api_call_read"
+    - "package_install"
+    - "execute_sandboxed"
+  
+  notify_after:
+    - "file_modify"
+    - "file_delete (session-only)"
+    - "memory_access"
+    - "board_minutes"
+    - "api_call_write_internal"
+  
+  ask_first:
+    - "financial_transaction"
+    - "government_filing"
+    - "contract_signing"
+    - "email_send"
+    - "social_media_post"
+    - "execute_production"
+    - "secrets_rotation"
+    - "database_schema_change"
+    - "firewall_change"
+
+# Document metadata
+metadata_footer:
+  version: "1.0"
+  last_updated: "2025-12-07"
+  author: "Claude (Anthropic) + Dominic Garza"
+  classification: "INTERNAL_OPERATOR_USE_ONLY"
+  parent_document: "AUTONOMOUS_OPERATION_LICENSE.md"
