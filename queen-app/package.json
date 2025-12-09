@@ -1,0 +1,23 @@
+{
+  "name": "estrategi-khaos-queen",
+  "version": "1.0.0",
+  "description": "Sovereign orchestrator for the SovereignMesh ecosystem - Queen node that coordinates outer-ring signals and GitHub App webhooks",
+  "main": "queen.js",
+  "scripts": {
+    "start": "node queen.js",
+    "dev": "node --watch queen.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "sovereign",
+    "orchestrator",
+    "mesh",
+    "webhooks",
+    "signals"
+  ],
+  "author": "Strategickhaos DAO LLC",
+  "license": "MIT",
+  "private": true
+}
