@@ -1,0 +1,95 @@
+# Kubernetes Namespace for the Black Ops Lab
+# This namespace isolates all lab experiments from production workloads.
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: black-ops
+  labels:
+    app.kubernetes.io/name: sovereign-black-ops-lab
+    app.kubernetes.io/component: namespace
+    environment: lab
+    isolation: strict
+  annotations:
+    description: "Sovereign Black Ops Lab - Isolated experiment environment"
+    owner: "strategickhaos-swarm"
+    created-by: "swarm-lab-cli"
+---
+# Resource Quota to prevent experiments from consuming excessive resources
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: black-ops-quota
+  namespace: black-ops
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: "8Gi"
+    limits.cpu: "8"
+    limits.memory: "16Gi"
+    pods: "20"
+    services: "10"
+    secrets: "20"
+    configmaps: "20"
+    persistentvolumeclaims: "5"
+---
+# Limit Range to set default resource limits for pods
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: black-ops-limits
+  namespace: black-ops
+spec:
+  limits:
+    - default:
+        cpu: "500m"
+        memory: "512Mi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "128Mi"
+      type: Container
+---
+# Network Policy to restrict egress from the lab namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: black-ops-network-policy
+  namespace: black-ops
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic within the namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: black-ops
+  egress:
+    # Allow traffic within the namespace
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: black-ops
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow external HTTPS (for fetching dependencies, etc.)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
