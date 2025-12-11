@@ -11,12 +11,15 @@ This directory contains the foundational governance documents for **Strategickha
 | `TRUST_DECLARATION.md` | Foundational trust instrument defining principles, governance, and infrastructure | v2.1.0 |
 | `NON_AGGRESSION_CLAUSE.md` | Immutable ethical constraints (cannot be amended) | v2.1.0 IMMUTABLE |
 | `public-identifier-registry.md` | Verified credentials, EINs, platforms, infrastructure | v2.1.0 |
+| `SOVEREIGNTY_ASSESSMENT.md` | 36 DOMINATORFIED INTERVIEW QUESTIONS - Certification exam | v1.0.0 |
 
 ## Related Files
 
 | File | Location | Description |
 |------|----------|-------------|
 | `sovereign-empire-alert.json` | `../schemas/` | Machine-readable system status with active alerts |
+| `assessment_config.yaml` | `.` | Configuration for Sovereignty Assessment certification |
+| `assessment_templates/` | `.` | Templates and resources for completing the assessment |
 
 ## Quick Reference
 
@@ -64,17 +67,51 @@ IMMUTABLE (cannot be amended):
 FOUNDATIONAL (amendment requires ratification):
 ├── TRUST_DECLARATION.md (except Article I.1.1, II.4, V.3)
 │
+CERTIFICATION & ASSESSMENT:
+├── SOVEREIGNTY_ASSESSMENT.md (v1.0.0)
+├── assessment_config.yaml
+└── assessment_templates/
+│
 OPERATIONAL (update as needed):
 ├── public-identifier-registry.md
 └── sovereign-empire-alert.json
 ```
 
+## Certification Program
+
+StrategicKhaos offers a comprehensive sovereignty certification through the **36 DOMINATORFIED INTERVIEW QUESTIONS** assessment.
+
+### Assessment Tiers
+
+| Tier | Score Required | Benefits |
+|------|---------------|----------|
+| **Bronze** | 216+ pts (60%) | NFT access ($25), Community Discord, Implementation support |
+| **Silver** | 288+ pts (80%) | NFT access ($100), Partner opportunities, Revenue share eligibility |
+| **Gold** | 324+ pts (90%) | NFT access ($500), Core team consideration, Equity discussion |
+| **Platinum** | 360 pts (100%) | NFT access ($2500, max 10), Co-founder interview, Board consideration |
+
+### Getting Started
+
+1. **Study**: Review [SOVEREIGNTY_ASSESSMENT.md](SOVEREIGNTY_ASSESSMENT.md)
+2. **Practice**: Use [MASTERY_PROMPTS.md](MASTERY_PROMPTS.md) for exercises
+3. **Prepare**: Copy templates from [assessment_templates/](assessment_templates/)
+4. **Submit**: Follow the submission process in the assessment document
+
+**Expected Survival Rate**: ~1.6% achieve Gold or above  
+**Time Commitment**: 8-12 hours
+
+*"If you can answer all 36, you're not a client. You're a co-founder."*
+
 ## Contact
 
 - **Security:** security@strategickhaos.ai
+- **Assessment:** assessment@strategickhaos.ai
+- **Support:** support@strategickhaos.ai
+- **Accessibility:** accessibility@strategickhaos.ai
 - **Wyoming SOS:** 307-777-7370
 - **GitHub:** [@Strategickhaos](https://github.com/Strategickhaos)
+- **Discord:** [Join StrategicKhaos](https://discord.gg/strategickhaos)
 
 ---
 
-*Last Updated: December 3, 2025*
+*Last Updated: December 7, 2025*
