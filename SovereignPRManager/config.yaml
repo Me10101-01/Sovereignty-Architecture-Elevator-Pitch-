@@ -1,0 +1,151 @@
+# SovereignPRManager Configuration
+# Autonomous PR Review, Validation, and Merge Orchestration
+
+# GitHub Configuration
+github:
+  # Token from environment: GITHUB_TOKEN
+  repo: "Me10101-01/Sovereignty-Architecture-Elevator-Pitch-"
+  org: "Strategickhaos-Swarm-Intelligence"
+
+# AI API Configuration
+ai_apis:
+  # Keys from environment variables
+  anthropic_key: ${ANTHROPIC_API_KEY}
+  openai_key: ${OPENAI_API_KEY}
+  xai_key: ${XAI_API_KEY}  # For Grok when enterprise API available
+
+# NATS Messaging Configuration
+nats:
+  url: "nats://localhost:4222"
+  subjects:
+    pr_new: "pr.new"
+    pr_review: "pr.review"
+    pr_decision: "pr.decision"
+    pr_merged: "pr.merged"
+
+# Merge Decision Thresholds
+merge_thresholds:
+  # Minimum confidence for automatic merge (90%)
+  auto_merge: 0.90
+  
+  # Security review below this confidence vetoes merge (80%)
+  security_veto: 0.80
+  
+  # Minimum sovereignty compliance score (70%)
+  sovereignty_minimum: 0.70
+
+# Discord Integration
+discord:
+  webhook_url: ${DISCORD_WEBHOOK_URL}
+  channels:
+    pr_notifications: "#pr-automation"
+    human_review: "#requires-human"
+    alerts: "#alerts"
+
+# Technical Declaration
+declaration:
+  path: "/declaration/DECLARATION.md"
+  enforce: true
+
+# Audit Logging
+audit:
+  elasticsearch:
+    url: "http://elasticsearch:9200"
+    index: "sovereignprmanager-audit"
+  
+  # Cryptographic provenance
+  signing:
+    algorithm: "blake3"  # Falls back to SHA-256 if unavailable
+    key: ${SIGNING_KEY}
+  
+  # Blockchain timestamping
+  opentimestamps:
+    enabled: true
+
+# Rate Limiting
+rate_limits:
+  # Seconds between processing PRs
+  pr_processing_interval: 10
+  
+  # Maximum PRs per hour
+  max_prs_per_hour: 60
+  
+  # API call limits
+  github_api_calls_per_minute: 30
+  ai_api_calls_per_minute: 10
+
+# Reviewer Configuration
+reviewers:
+  # Security review (Claude)
+  security:
+    enabled: true
+    provider: "anthropic"
+    model: "claude-sonnet-4-20250514"
+    priority: 1  # Highest priority, can veto
+
+  # Sovereignty compliance (Claude)
+  sovereignty:
+    enabled: true
+    provider: "anthropic"
+    model: "claude-sonnet-4-20250514"
+    priority: 2
+
+  # Architecture review (GPT)
+  architecture:
+    enabled: true
+    provider: "openai"
+    model: "gpt-4o"
+    priority: 3
+
+  # Performance review (GPT)
+  performance:
+    enabled: true
+    provider: "openai"
+    model: "gpt-4o"
+    priority: 4
+
+# Conflict Detection
+conflict_detection:
+  # Git merge conflict detection
+  git_conflicts: true
+  
+  # Semantic/logical conflict detection
+  semantic_analysis: true
+  
+  # Dependency conflict detection
+  dependency_analysis: true
+  
+  # Architectural pattern conflict detection
+  architectural_analysis: true
+
+# Notifications
+notifications:
+  # Notify on successful merge
+  on_merge: true
+  
+  # Notify when human review required
+  on_review_required: true
+  
+  # Notify on rejection
+  on_rejection: true
+  
+  # Notify on errors
+  on_error: true
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # File logging
+  file:
+    enabled: true
+    path: "/var/log/sovereignprmanager/app.log"
+    max_size: "100MB"
+    backup_count: 5
+
+# Health Check
+health:
+  enabled: true
+  port: 8080
+  path: "/health"
