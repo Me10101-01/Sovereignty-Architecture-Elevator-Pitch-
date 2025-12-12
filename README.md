@@ -17,6 +17,7 @@ This directory contains the foundational governance documents for **Strategickha
 | File | Location | Description |
 |------|----------|-------------|
 | `sovereign-empire-alert.json` | `../schemas/` | Machine-readable system status with active alerts |
+| `khaosbase.html` | `web/` | KhaosBase Sovereign Database Platform interface |
 
 ## Quick Reference
 
@@ -39,6 +40,7 @@ This directory contains the foundational governance documents for **Strategickha
 - **GKE Clusters:** 2 (jarvis-swarm-personal-001, autopilot-cluster-1)
 - **Local Nodes:** 4 (Athena, Lyra, Nova, iPower)
 - **Routers:** 8 (SOC inference nodes)
+- **Web Interfaces:** KhaosBase (Sovereign Database Platform)
 
 ## Verification
 
@@ -54,6 +56,36 @@ ots verify NON_AGGRESSION_CLAUSE.md.ots
 # Verify hashes
 sha256sum *.md
 ```
+
+## KhaosBase Interface
+
+The **KhaosBase Sovereign Database Platform** provides a cyberpunk-themed web interface for managing antifragile audit operations, team coordination, and AI board governance.
+
+### Quick Start
+
+```bash
+# Open the interface
+cd web
+python3 -m http.server 8000
+# Navigate to http://localhost:8000/khaosbase.html
+```
+
+Or open directly:
+```bash
+open web/khaosbase.html  # macOS
+xdg-open web/khaosbase.html  # Linux
+```
+
+### Features
+
+- **Animated Grid Background** with cyberpunk aesthetics
+- **Team Operations Dashboard** for Red, Blue, and Purple teams
+- **Antifragile Audit Table** with severity and status tracking
+- **AI Board of Directors Panel** with 5 AI members and real-time updates
+- **Command Bar** for AI board interactions
+- **Zero Vendor Lock-in** - Self-contained, self-hosted
+
+See [web/README.md](web/README.md) for detailed documentation.
 
 ## Document Hierarchy
 
