@@ -1,0 +1,407 @@
+---
+# Queen Orchestrator Kubernetes Deployment
+# Deploys to GKE with ValorYield Financial OS
+# For use with Strategickhaos sovereign infrastructure
+#
+# Legal Entities:
+# - Strategickhaos DAO LLC (EIN: 39-2900295)
+# - ValorYield Engine PBC (EIN: 39-2923503)
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: valoryield
+  labels:
+    app: valoryield-sovereign-os
+    organization: strategickhaos
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: valoryield-config
+  namespace: valoryield
+  labels:
+    app: valoryield-sovereign-os
+data:
+  # Legal entity configuration
+  DAO_NAME: "Strategickhaos DAO LLC"
+  DAO_EIN: "39-2900295"
+  PBC_NAME: "ValorYield Engine PBC"
+  PBC_EIN: "39-2923503"
+  JURISDICTION: "Wyoming"
+  
+  # SovereignGuard rules
+  MAX_ALLOCATION_PERCENT: "7"
+  RESERVE_REQUIREMENT_PERCENT: "20"
+  MAX_DAILY_DISTRIBUTIONS: "10"
+  
+  # Service configuration
+  VALORYIELD_PORT: "3000"
+  QUEEN_PORT: "3001"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: valoryield-secrets
+  namespace: valoryield
+  labels:
+    app: valoryield-sovereign-os
+type: Opaque
+stringData:
+  # Replace with actual secrets in production
+  HMAC_SECRET: "replace-with-64-char-hmac-secret"
+
+---
+# ValorYield Financial OS Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: valoryield-os
+  namespace: valoryield
+  labels:
+    app: valoryield-os
+    component: financial
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: valoryield-os
+  template:
+    metadata:
+      labels:
+        app: valoryield-os
+        component: financial
+    spec:
+      containers:
+        - name: valoryield
+          # Using specific LTS version for reproducible builds
+          # Node 20.x LTS includes native fetch API
+          image: node:20.18-alpine
+          workingDir: /app
+          command: ["node", "valoryield.js"]
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: valoryield-config
+          env:
+            - name: PORT
+              value: "3000"
+            - name: NODE_ENV
+              value: "production"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: app-code
+              mountPath: /app
+      volumes:
+        - name: app-code
+          emptyDir: {}
+      # NOTE: In production, replace with a pre-built container image
+      # or use a git-sync sidecar with verified commit hashes
+      initContainers:
+        - name: init-code
+          image: node:20.18-alpine
+          command:
+            - /bin/sh
+            - -c
+            - |
+              cd /app && \
+              apk add --no-cache wget && \
+              wget -q https://raw.githubusercontent.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture/main/valoryield-os/valoryield.js && \
+              wget -q https://raw.githubusercontent.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture/main/valoryield-os/package.json && \
+              npm install --omit=dev
+          volumeMounts:
+            - name: app-code
+              mountPath: /app
+
+---
+# Queen Orchestrator Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queen-orchestrator
+  namespace: valoryield
+  labels:
+    app: queen-orchestrator
+    component: orchestration
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: queen-orchestrator
+  template:
+    metadata:
+      labels:
+        app: queen-orchestrator
+        component: orchestration
+    spec:
+      containers:
+        - name: queen
+          # Using specific LTS version for reproducible builds
+          # Node 20.x LTS includes native fetch API
+          image: node:20.18-alpine
+          workingDir: /app
+          command: ["node", "queen.js"]
+          ports:
+            - containerPort: 3001
+              name: http
+          envFrom:
+            - configMapRef:
+                name: valoryield-config
+          env:
+            - name: PORT
+              value: "3001"
+            - name: NODE_ENV
+              value: "production"
+            - name: VALORYIELD_URL
+              value: "http://valoryield-os-svc:3000"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: app-code
+              mountPath: /app
+      volumes:
+        - name: app-code
+          emptyDir: {}
+      # NOTE: In production, replace with a pre-built container image
+      # or use a git-sync sidecar with verified commit hashes
+      initContainers:
+        - name: init-code
+          image: node:20.18-alpine
+          command:
+            - /bin/sh
+            - -c
+            - |
+              cd /app && \
+              apk add --no-cache wget && \
+              wget -q https://raw.githubusercontent.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture/main/queen-app/queen.js && \
+              wget -q https://raw.githubusercontent.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture/main/queen-app/package.json && \
+              npm install --omit=dev
+          volumeMounts:
+            - name: app-code
+              mountPath: /app
+
+---
+# ValorYield Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: valoryield-os-svc
+  namespace: valoryield
+  labels:
+    app: valoryield-os
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: valoryield-os
+
+---
+# Queen Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: queen-orchestrator-svc
+  namespace: valoryield
+  labels:
+    app: queen-orchestrator
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3001
+      targetPort: 3001
+      protocol: TCP
+      name: http
+  selector:
+    app: queen-orchestrator
+
+---
+# LoadBalancer for external access
+apiVersion: v1
+kind: Service
+metadata:
+  name: queen-lb
+  namespace: valoryield
+  labels:
+    app: queen-orchestrator
+  annotations:
+    # GKE-specific annotations for static IP (optional)
+    # cloud.google.com/load-balancer-type: "External"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 3001
+      protocol: TCP
+      name: http
+    - port: 443
+      targetPort: 3001
+      protocol: TCP
+      name: https
+  selector:
+    app: queen-orchestrator
+
+---
+# Ingress for domain routing
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: valoryield-ingress
+  namespace: valoryield
+  labels:
+    app: valoryield-sovereign-os
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "valoryield-ip"
+spec:
+  rules:
+    - host: queen.strategickhaos.ai
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: queen-orchestrator-svc
+                port:
+                  number: 3001
+    - host: treasury.strategickhaos.ai
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: valoryield-os-svc
+                port:
+                  number: 3000
+
+---
+# Horizontal Pod Autoscaler for ValorYield
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: valoryield-hpa
+  namespace: valoryield
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: valoryield-os
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+---
+# Horizontal Pod Autoscaler for Queen
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: queen-hpa
+  namespace: valoryield
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: queen-orchestrator
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+---
+# Network Policy for security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: valoryield-network-policy
+  namespace: valoryield
+spec:
+  podSelector:
+    matchLabels:
+      app: valoryield-os
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: queen-orchestrator
+      ports:
+        - protocol: TCP
+          port: 3000
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+  egress:
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
