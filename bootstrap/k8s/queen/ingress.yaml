@@ -1,0 +1,140 @@
+# Queen Ingress Configuration
+# Configures ingress for queen.strategickhaos.ai
+#
+# ⚠️ DEPLOYMENT ORDER:
+# The ManagedCertificate must be created before or with the Ingress.
+# Use: kubectl apply -f ingress.yaml (applies all resources in order)
+---
+# GKE Ingress for queen.strategickhaos.ai
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: queen-ingress
+  namespace: queen
+  labels:
+    app: strategickhaos-queen
+    component: ingress
+  annotations:
+    # GKE Ingress annotations
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "queen-static-ip"
+    
+    # Enable Google-managed SSL certificate
+    # Note: ManagedCertificate 'queen-ssl-cert' is defined below and will be created first
+    networking.gke.io/managed-certificates: "queen-ssl-cert"
+    
+    # HTTP to HTTPS redirect
+    kubernetes.io/ingress.allow-http: "false"
+    
+    # Backend configuration
+    cloud.google.com/backend-config: '{"default": "queen-backend-config"}'
+spec:
+  rules:
+    - host: queen.strategickhaos.ai
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: queen
+                port:
+                  number: 80
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: queen
+                port:
+                  number: 80
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: queen
+                port:
+                  number: 80
+---
+# Google-managed SSL Certificate
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: queen-ssl-cert
+  namespace: queen
+  labels:
+    app: strategickhaos-queen
+    component: ssl
+spec:
+  domains:
+    - queen.strategickhaos.ai
+---
+# Backend Configuration for health checks and timeouts
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: queen-backend-config
+  namespace: queen
+  labels:
+    app: strategickhaos-queen
+    component: backend
+spec:
+  healthCheck:
+    checkIntervalSec: 30
+    timeoutSec: 10
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    type: HTTP
+    requestPath: /health
+    port: 3000
+  
+  timeoutSec: 30
+  
+  connectionDraining:
+    drainingTimeoutSec: 60
+  
+  # Session affinity (optional)
+  sessionAffinity:
+    affinityType: "CLIENT_IP"
+    affinityCookieTtlSec: 10800
+  
+  # Cloud CDN (optional - enable for static content)
+  # cdn:
+  #   enabled: true
+  #   cachePolicy:
+  #     includeHost: true
+  #     includeProtocol: true
+  
+  # Cloud Armor security policy (optional - for DDoS protection)
+  # securityPolicy:
+  #   name: "queen-security-policy"
+---
+# Alternative: NGINX Ingress Controller configuration
+# Uncomment if using nginx-ingress instead of GCE ingress
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: queen-ingress-nginx
+#   namespace: queen
+#   annotations:
+#     kubernetes.io/ingress.class: "nginx"
+#     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+#     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+#     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+#     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+#     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+# spec:
+#   tls:
+#     - hosts:
+#         - queen.strategickhaos.ai
+#       secretName: queen-tls
+#   rules:
+#     - host: queen.strategickhaos.ai
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: queen
+#                 port:
+#                   number: 80

@@ -1,0 +1,39 @@
+# Queen Namespace Configuration
+# Creates dedicated namespace for Queen orchestrator in GKE
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: queen
+  labels:
+    app: strategickhaos-queen
+    tier: orchestration
+    environment: production
+  annotations:
+    description: "Queen Orchestrator - Central control plane for Strategickhaos Sovereign Mesh"
+---
+# Queen ConfigMap - Configuration for the orchestrator
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: queen-config
+  namespace: queen
+  labels:
+    app: strategickhaos-queen
+    component: config
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  LOG_LEVEL: "info"
+  METRICS_PORT: "9090"
+  HEALTH_CHECK_PATH: "/health"
+  API_VERSION: "v1"
+  
+  # Cluster connectivity
+  PRIMARY_CLUSTER_ENDPOINT: "34.29.28.27"
+  SECONDARY_CLUSTER_ENDPOINT: "35.192.28.199"
+  
+  # Discord integration
+  DISCORD_ENABLED: "true"
+  DISCORD_ALERTS_CHANNEL: "#alerts"
+  DISCORD_DEPLOYMENTS_CHANNEL: "#deployments"
+  DISCORD_STATUS_CHANNEL: "#cluster-status"
