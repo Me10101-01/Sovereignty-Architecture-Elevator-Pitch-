@@ -1,0 +1,390 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queen
+  namespace: queen-system
+  labels:
+    app.kubernetes.io/name: queen
+    app.kubernetes.io/component: queen
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: queen
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: queen
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: queen
+          image: node:20-alpine
+          imagePullPolicy: IfNotPresent
+          command: ["node", "/app/queen.cjs"]
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            # From ConfigMap
+            - name: GITHUB_APP_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: queen-config
+                  key: GITHUB_APP_ID
+            - name: GITHUB_APP_INSTALLATION_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: queen-config
+                  key: GITHUB_APP_INSTALLATION_ID
+            - name: GITHUB_ORG
+              valueFrom:
+                configMapKeyRef:
+                  name: queen-config
+                  key: GITHUB_ORG
+            - name: QUEEN_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: queen-config
+                  key: QUEEN_DOMAIN
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: queen-config
+                  key: PORT
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: queen-config
+                  key: NODE_ENV
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: queen-config
+                  key: LOG_LEVEL
+            # From Secrets
+            - name: GITHUB_APP_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: queen-secrets
+                  key: GITHUB_APP_PRIVATE_KEY
+            - name: GITHUB_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: queen-secrets
+                  key: GITHUB_WEBHOOK_SECRET
+            - name: GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: queen-secrets
+                  key: GITHUB_CLIENT_SECRET
+            - name: DISCORD_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: queen-secrets
+                  key: DISCORD_BOT_TOKEN
+          volumeMounts:
+            - name: queen-app
+              mountPath: /app
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+      volumes:
+        - name: queen-app
+          configMap:
+            name: queen-app-code
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: queen-app-code
+  namespace: queen-system
+  labels:
+    app.kubernetes.io/name: queen
+    app.kubernetes.io/component: app-code
+data:
+  queen.cjs: |
+    const http = require('http');
+    const crypto = require('crypto');
+
+    const PORT = process.env.PORT || 3000;
+    const GITHUB_WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET;
+    const GITHUB_APP_ID = process.env.GITHUB_APP_ID;
+    const GITHUB_APP_INSTALLATION_ID = process.env.GITHUB_APP_INSTALLATION_ID;
+    const QUEEN_DOMAIN = process.env.QUEEN_DOMAIN;
+
+    // Request handler
+    async function handleRequest(req, res) {
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const path = url.pathname;
+      const method = req.method;
+
+      // Health check endpoint
+      if (path === '/health' && method === 'GET') {
+        return sendJSON(res, 200, {
+          status: 'healthy',
+          service: 'queen',
+          timestamp: new Date().toISOString(),
+          version: '1.0.0',
+          github: {
+            appId: GITHUB_APP_ID,
+            installationId: GITHUB_APP_INSTALLATION_ID
+          }
+        });
+      }
+
+      // Academic signals endpoint (for Zapier)
+      if (path === '/signals/academic' && method === 'POST') {
+        try {
+          const body = await getRequestBody(req);
+          const signal = JSON.parse(body);
+          console.log(`[SIGNAL] Academic signal received:`, JSON.stringify(signal));
+          return sendJSON(res, 200, {
+            received: true,
+            signal_type: 'academic',
+            processed_at: new Date().toISOString()
+          });
+        } catch (err) {
+          console.error(`[ERROR] Signal processing failed:`, err.message);
+          return sendJSON(res, 400, { error: 'Invalid signal payload' });
+        }
+      }
+
+      // GitHub webhooks endpoint
+      if (path === '/webhooks/github' && method === 'POST') {
+        try {
+          const body = await getRequestBody(req);
+          const signature = req.headers['x-hub-signature-256'];
+          
+          // Verify webhook signature
+          if (GITHUB_WEBHOOK_SECRET && signature) {
+            const hmac = crypto.createHmac('sha256', GITHUB_WEBHOOK_SECRET);
+            hmac.update(body);
+            const expectedSig = `sha256=${hmac.digest('hex')}`;
+            if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+              console.warn('[WEBHOOK] Invalid signature');
+              return sendJSON(res, 401, { error: 'Invalid signature' });
+            }
+          }
+
+          const event = req.headers['x-github-event'];
+          const payload = JSON.parse(body);
+          console.log(`[WEBHOOK] GitHub event: ${event}`);
+          
+          // Process different event types
+          await processGitHubEvent(event, payload);
+          
+          return sendJSON(res, 200, {
+            received: true,
+            event: event,
+            processed_at: new Date().toISOString()
+          });
+        } catch (err) {
+          console.error(`[ERROR] Webhook processing failed:`, err.message);
+          return sendJSON(res, 400, { error: 'Webhook processing failed' });
+        }
+      }
+
+      // OAuth callback endpoint
+      if (path === '/oauth/callback' && method === 'GET') {
+        const code = url.searchParams.get('code');
+        const state = url.searchParams.get('state');
+        
+        if (!code) {
+          return sendHTML(res, 400, `
+            <html>
+              <body style="font-family: sans-serif; text-align: center; padding: 40px;">
+                <h1>❌ OAuth Error</h1>
+                <p>No authorization code received.</p>
+              </body>
+            </html>
+          `);
+        }
+        
+        // TODO: Exchange code for access token
+        console.log(`[OAUTH] Callback received - code: ${code.substring(0, 10)}...`);
+        
+        return sendHTML(res, 200, `
+          <html>
+            <body style="font-family: sans-serif; text-align: center; padding: 40px;">
+              <h1>✅ Authorization Complete</h1>
+              <p>Queen has been authorized. You can close this window.</p>
+              <p style="color: #666; font-size: 12px;">
+                GitHub App ID: ${GITHUB_APP_ID}<br>
+                Domain: ${QUEEN_DOMAIN}
+              </p>
+            </body>
+          </html>
+        `);
+      }
+
+      // Root/landing page
+      if (path === '/' && method === 'GET') {
+        return sendHTML(res, 200, `
+          <html>
+            <head>
+              <title>Queen | StrategicKhaos</title>
+              <style>
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                  color: #fff;
+                  min-height: 100vh;
+                  margin: 0;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                }
+                .container {
+                  text-align: center;
+                  padding: 40px;
+                }
+                h1 { font-size: 3em; margin-bottom: 10px; }
+                .crown { font-size: 4em; }
+                .status { 
+                  background: rgba(255,255,255,0.1); 
+                  padding: 20px; 
+                  border-radius: 10px;
+                  margin-top: 30px;
+                }
+                .endpoint { 
+                  font-family: monospace; 
+                  background: rgba(0,0,0,0.3); 
+                  padding: 8px 16px;
+                  border-radius: 4px;
+                  margin: 5px 0;
+                  display: inline-block;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="crown">👑</div>
+                <h1>Queen</h1>
+                <p>StrategicKhaos Swarm Intelligence Control Plane</p>
+                <div class="status">
+                  <h3>Active Endpoints</h3>
+                  <div class="endpoint">GET /health</div><br>
+                  <div class="endpoint">POST /signals/academic</div><br>
+                  <div class="endpoint">POST /webhooks/github</div><br>
+                  <div class="endpoint">GET /oauth/callback</div>
+                </div>
+                <p style="margin-top: 30px; color: #888; font-size: 14px;">
+                  GitHub App: ${GITHUB_APP_ID} | Installation: ${GITHUB_APP_INSTALLATION_ID}
+                </p>
+              </div>
+            </body>
+          </html>
+        `);
+      }
+
+      // 404 for all other paths
+      return sendJSON(res, 404, { error: 'Not found', path: path });
+    }
+
+    // Process GitHub events
+    async function processGitHubEvent(event, payload) {
+      switch (event) {
+        case 'installation':
+          console.log(`[GITHUB] App ${payload.action} on ${payload.installation?.account?.login}`);
+          break;
+        case 'pull_request':
+          console.log(`[GITHUB] PR ${payload.action}: #${payload.pull_request?.number} - ${payload.pull_request?.title}`);
+          break;
+        case 'push':
+          console.log(`[GITHUB] Push to ${payload.ref} by ${payload.pusher?.name}`);
+          break;
+        case 'issues':
+          console.log(`[GITHUB] Issue ${payload.action}: #${payload.issue?.number} - ${payload.issue?.title}`);
+          break;
+        case 'issue_comment':
+          console.log(`[GITHUB] Comment on #${payload.issue?.number} by ${payload.comment?.user?.login}`);
+          break;
+        default:
+          console.log(`[GITHUB] Event ${event} received`);
+      }
+    }
+
+    // Helper: Get request body
+    function getRequestBody(req) {
+      return new Promise((resolve, reject) => {
+        let body = '';
+        req.on('data', chunk => body += chunk.toString());
+        req.on('end', () => resolve(body));
+        req.on('error', reject);
+      });
+    }
+
+    // Helper: Send JSON response
+    function sendJSON(res, status, data) {
+      res.writeHead(status, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(data));
+    }
+
+    // Helper: Send HTML response
+    function sendHTML(res, status, html) {
+      res.writeHead(status, { 'Content-Type': 'text/html' });
+      res.end(html);
+    }
+
+    // Create and start server
+    const server = http.createServer((req, res) => {
+      handleRequest(req, res).catch(err => {
+        console.error('[ERROR] Unhandled error:', err);
+        // Only send error response if headers haven't been sent yet
+        if (!res.headersSent) {
+          sendJSON(res, 500, { error: 'Internal server error' });
+        }
+      });
+    });
+
+    server.listen(PORT, () => {
+      console.log(`
+    ╔══════════════════════════════════════════════╗
+    ║               👑 QUEEN ONLINE 👑              ║
+    ╠══════════════════════════════════════════════╣
+    ║  Port: ${String(PORT).padEnd(37)}║
+    ║  Domain: ${(QUEEN_DOMAIN || 'localhost').padEnd(35)}║
+    ║  GitHub App: ${(GITHUB_APP_ID || 'N/A').padEnd(31)}║
+    ║  Installation: ${(GITHUB_APP_INSTALLATION_ID || 'N/A').padEnd(28)}║
+    ╚══════════════════════════════════════════════╝
+      `);
+    });
