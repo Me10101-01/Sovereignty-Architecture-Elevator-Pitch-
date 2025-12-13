@@ -1,0 +1,253 @@
+# Escape Routes Registry
+# Migration scripts and alternatives for all vendor dependencies
+# Referenced in ZERO_VENDOR_LOCK_IN_PRINCIPALS.md
+
+version: 1.0
+last_updated: 2025-12-07
+
+systems:
+  # Infrastructure Services
+  github:
+    vendor: GitHub
+    type: code_hosting
+    escape_route:
+      primary_alternative: Gitea (self-hosted)
+      migration_script: scripts/migrate_github_to_gitea.sh
+      migration_time: 2-4 hours
+      automation_level: 90%
+      tested: true
+      last_test_date: 2025-12-01
+    alternatives:
+      - name: Gitea
+        type: self-hosted
+        status: operational
+        location: internal
+      - name: Git bundles
+        type: local_backup
+        status: automated
+        frequency: daily
+      - name: Azure DevOps
+        type: cloud_mirror
+        status: active
+        sync_frequency: on_push
+
+  gcp:
+    vendor: Google Cloud Platform
+    type: compute_infrastructure
+    escape_route:
+      primary_alternative: Local Kubernetes
+      migration_script: terraform/migrate_gcp_to_local.tf
+      migration_time: 24-48 hours
+      automation_level: 85%
+      tested: true
+      last_test_date: 2025-11-15
+    alternatives:
+      - name: Local K8s Cluster
+        type: bare_metal
+        status: operational
+        nodes: 4
+      - name: AWS
+        type: cloud
+        status: tested
+      - name: Azure
+        type: cloud
+        status: tested
+
+  # Communication Platforms
+  discord:
+    vendor: Discord
+    type: communication
+    escape_route:
+      primary_alternative: Matrix/Element (self-hosted)
+      migration_script: scripts/export_discord_to_matrix.py
+      migration_time: 4-8 hours
+      automation_level: 75%
+      tested: true
+      last_test_date: 2025-11-20
+    alternatives:
+      - name: Matrix/Element
+        type: self-hosted
+        status: ready
+      - name: Email (Protonmail)
+        type: fallback
+        status: active
+      - name: Satellite (LoRa)
+        type: emergency
+        status: operational
+
+  # AI/LLM Services
+  openai:
+    vendor: OpenAI
+    type: llm_api
+    escape_route:
+      primary_alternative: Ollama + Local Models
+      migration_script: scripts/swap_llm_provider.sh
+      migration_time: 1-2 hours
+      automation_level: 95%
+      tested: true
+      last_test_date: 2025-12-05
+    alternatives:
+      - name: Anthropic Claude
+        type: cloud_api
+        status: active
+      - name: Grok
+        type: cloud_api
+        status: active
+      - name: Ollama + Qwen
+        type: self-hosted
+        status: operational
+      - name: Gemini
+        type: cloud_api
+        status: tested
+
+  # Identity & Auth
+  google_oauth:
+    vendor: Google
+    type: identity_provider
+    escape_route:
+      primary_alternative: Keycloak
+      migration_script: scripts/migrate_oauth_to_keycloak.sh
+      migration_time: 8-12 hours
+      automation_level: 80%
+      tested: true
+      last_test_date: 2025-11-10
+    alternatives:
+      - name: Keycloak
+        type: self-hosted
+        status: ready
+      - name: Local Auth
+        type: fallback
+        status: operational
+      - name: Azure AD
+        type: cloud
+        status: configured
+
+  # Payment Processing
+  stripe:
+    vendor: Stripe
+    type: payment_processor
+    escape_route:
+      primary_alternative: Thread Bank BaaS
+      migration_script: scripts/migrate_payments.sh
+      migration_time: 48-72 hours
+      automation_level: 70%
+      tested: false
+      last_test_date: null
+    alternatives:
+      - name: Thread Bank
+        type: baas
+        status: configured
+      - name: Cryptocurrency
+        type: decentralized
+        status: operational
+      - name: Direct ACH
+        type: banking
+        status: ready
+
+  # Monitoring & Observability
+  datadog:
+    vendor: Datadog
+    type: monitoring
+    escape_route:
+      primary_alternative: Prometheus + Grafana
+      migration_script: scripts/migrate_datadog_to_prometheus.sh
+      migration_time: 12-24 hours
+      automation_level: 85%
+      tested: true
+      last_test_date: 2025-11-25
+    alternatives:
+      - name: Prometheus
+        type: self-hosted
+        status: operational
+      - name: Grafana
+        type: self-hosted
+        status: operational
+      - name: Elasticsearch
+        type: self-hosted
+        status: operational
+
+  # Database Services
+  mongodb_atlas:
+    vendor: MongoDB Atlas
+    type: database
+    escape_route:
+      primary_alternative: Self-hosted MongoDB
+      migration_script: scripts/migrate_mongodb_atlas.sh
+      migration_time: 4-8 hours
+      automation_level: 90%
+      tested: true
+      last_test_date: 2025-11-18
+    alternatives:
+      - name: Self-hosted MongoDB
+        type: container
+        status: operational
+      - name: PostgreSQL
+        type: alternative_db
+        status: tested
+
+migration_protocols:
+  emergency:
+    description: Critical vendor outage requiring immediate migration
+    max_downtime: 4 hours
+    process:
+      - Activate emergency communications (satellite/LoRa)
+      - Deploy pre-configured alternatives from local infrastructure
+      - Execute migration scripts with rollback capability
+      - Verify data integrity and service continuity
+      - Update DNS/routing to new infrastructure
+
+  planned:
+    description: Strategic migration due to pricing, acquisition, or policy changes
+    max_downtime: 24 hours
+    process:
+      - Schedule migration during maintenance window
+      - Run parallel systems for validation
+      - Execute migration with comprehensive testing
+      - Monitor for 48 hours before decommissioning old system
+      - Document lessons learned and update escape routes
+
+  chaos_test:
+    description: Quarterly verification of escape route viability
+    frequency: quarterly
+    process:
+      - Simulate vendor failure scenario
+      - Execute escape route without warning to team
+      - Measure migration time and success metrics
+      - Identify bottlenecks and improvement areas
+      - Update automation and documentation
+
+verification:
+  automated_tests:
+    - Export scripts run weekly
+    - Alternative systems health-checked daily
+    - Migration scripts validated monthly
+    - Chaos engineering tests quarterly
+
+  manual_audits:
+    - Full system escape route review: quarterly
+    - Documentation completeness check: monthly
+    - Alternative vendor status verification: bi-weekly
+    - Team training and drills: semi-annually
+
+compliance:
+  attorney_verification:
+    - Data export < 24 hours: verified
+    - Migration plans documented: verified
+    - Self-hosted alternatives: verified
+    - Stress test results: verified
+
+  auditor_verification:
+    - escape_routes.yaml: current
+    - stress_tests/: documented
+    - alternatives/: operational
+    - exports/: validated
+
+notes: |
+  This registry is a living document. All escape routes must be tested
+  quarterly through chaos engineering exercises. Any vendor relationship
+  changes trigger immediate escape route verification.
+  
+  Migration automation should trend toward 95%+ over time. Manual steps
+  must be documented with runbooks and practiced by the team.
+  
+  The goal: Any vendor can be replaced in <24 hours with <4 hours downtime.
