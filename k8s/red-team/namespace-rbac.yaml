@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: red-team
+  labels:
+    team: red
+    purpose: attack-simulation
+    idea: "101"
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+---
+# Intentionally permissive RBAC for testing privilege escalation detection
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: red-team-attacker
+  namespace: red-team
+  labels:
+    team: red
+    warning: intentionally-weak
+rules:
+  # This is intentionally permissive to allow testing
+  - apiGroups: [""]
+    resources: ["pods", "pods/exec", "pods/log"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]  # Intentionally allows secret access for testing
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "create", "update", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: red-team-attacker-binding
+  namespace: red-team
+  labels:
+    team: red
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: red-team-attacker
+subjects:
+  - kind: ServiceAccount
+    name: red-team-attacker
+    namespace: red-team
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: red-team-attacker
+  namespace: red-team
+  labels:
+    team: red
+    purpose: attack-simulation
