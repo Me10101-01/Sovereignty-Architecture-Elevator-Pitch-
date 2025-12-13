@@ -1,0 +1,113 @@
+# KhaosSearch - Sovereign Search Engine
+# Self-hosted meta-search engine based on SearXNG
+# Zero tracking, full privacy, complete control
+# Version: 1.0
+
+version: '3.8'
+
+services:
+  # SearXNG meta-search engine
+  searxng:
+    image: searxng/searxng:latest
+    container_name: khaossearch
+    restart: unless-stopped
+    ports:
+      - "8888:8080"
+    volumes:
+      - ./searxng:/etc/searxng:rw
+      - searxng-data:/var/lib/searxng
+    environment:
+      - SEARXNG_BASE_URL=https://search.strategickhaos.ai
+      - SEARXNG_SECRET=${SEARXNG_SECRET:-changeme}
+      - SEARXNG_REDIS_URL=redis://redis:6379/0
+    networks:
+      - khaosnet
+    depends_on:
+      - redis
+      - tor
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.khaossearch.rule=Host(`search.strategickhaos.ai`)"
+      - "traefik.http.routers.khaossearch.tls=true"
+      - "traefik.http.routers.khaossearch.tls.certresolver=letsencrypt"
+      - "traefik.http.services.khaossearch.loadbalancer.server.port=8080"
+  
+  # Redis for caching search results
+  redis:
+    image: redis:7-alpine
+    container_name: khaossearch-cache
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
+    networks:
+      - khaosnet
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+  
+  # Tor proxy for anonymous queries
+  tor:
+    image: dperson/torproxy
+    container_name: khaossearch-tor
+    restart: unless-stopped
+    networks:
+      - khaosnet
+    environment:
+      - TOR_MaxCircuitDirtiness=60
+      - TOR_NewCircuitPeriod=30
+    healthcheck:
+      test: ["CMD", "curl", "-f", "--socks5-hostname", "localhost:9050", "https://check.torproject.org"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+  
+  # Optional: Traefik for reverse proxy and TLS
+  traefik:
+    image: traefik:v2.10
+    container_name: khaossearch-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certs:/letsencrypt
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+    networks:
+      - khaosnet
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=security@strategickhaos.ai"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.strategickhaos.ai`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      # Generate password with: htpasswd -nb admin yourpassword
+      # Then set TRAEFIK_BASIC_AUTH in .env file
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_BASIC_AUTH}"
+
+networks:
+  khaosnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+volumes:
+  searxng-data:
+    driver: local
+  redis-data:
+    driver: local
+  traefik-certs:
+    driver: local
