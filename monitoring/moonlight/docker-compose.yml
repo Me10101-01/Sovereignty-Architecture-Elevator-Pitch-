@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  moonlight-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: moonlight-telemetry
+    image: strategickhaos/moonlight-agent:1.0.0
+    
+    environment:
+      # Node configuration
+      - NODE_NAME=${NODE_NAME:-athena}
+      - OBSIDIAN_VAULT=${OBSIDIAN_VAULT:-Athena}
+      - BOARD_MEMBER=${BOARD_MEMBER:-Claude Opus 4.5}
+      
+      # KhaosBase connection
+      - KHAOSBASE_URL=${KHAOSBASE_URL:-http://khaosbase:8080}
+      - KHAOSBASE_API_KEY=${KHAOSBASE_API_KEY}
+      
+      # GPG configuration
+      - GPG_KEY_ID=${GPG_KEY_ID:-AE5519579584DEF5}
+      
+      # Telemetry settings
+      - TELEMETRY_DIR=/data/telemetry
+      - AUTO_PUSH_TELEMETRY=${AUTO_PUSH_TELEMETRY:-true}
+      
+      # Session metadata
+      - USER=${USER:-moonlight}
+      - SESSION_TYPE=${SESSION_TYPE:-local}
+    
+    volumes:
+      # Persist telemetry data
+      - telemetry-data:/data/telemetry
+      
+      # Optional: Mount Obsidian vault (read-only)
+      - ${OBSIDIAN_VAULT_PATH:-/dev/null}:/vault:ro
+      
+      # Optional: Mount GPG keyring
+      - ${GPG_HOME:-/dev/null}:/home/moonlight/.gnupg:ro
+    
+    networks:
+      - moonlight-network
+      - strategickhaos-network
+    
+    restart: unless-stopped
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    labels:
+      - "com.strategickhaos.service=moonlight"
+      - "com.strategickhaos.component=telemetry"
+      - "com.strategickhaos.version=1.0.0"
+
+  # Optional: KhaosBase mock for testing
+  khaosbase-mock:
+    image: nginx:alpine
+    container_name: khaosbase-mock
+    ports:
+      - "8080:80"
+    networks:
+      - moonlight-network
+    profiles:
+      - testing
+    
+  # Optional: Prometheus for metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: moonlight-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus-data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - moonlight-network
+    profiles:
+      - monitoring
+    
+  # Optional: Grafana for visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: moonlight-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - moonlight-network
+    profiles:
+      - monitoring
+
+networks:
+  moonlight-network:
+    driver: bridge
+    
+  strategickhaos-network:
+    external: true
+    name: strategickhaos_network
+
+volumes:
+  telemetry-data:
+    driver: local
+    
+  prometheus-data:
+    driver: local
+    
+  grafana-data:
+    driver: local

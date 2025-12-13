@@ -35,3 +35,18 @@ target/
 
 # Workspace data
 workspace/
+
+# Moonlight telemetry data
+monitoring/moonlight/telemetry/
+**/telemetry/*.json
+**/telemetry/*.jsonl
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
