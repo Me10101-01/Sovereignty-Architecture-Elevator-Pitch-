@@ -1,0 +1,239 @@
+# Portable Kubernetes Manifests
+# These demonstrate zero vendor lock-in principles
+
+# All manifests use standard Kubernetes APIs only
+# No vendor-specific annotations or resources
+# Can deploy to GKE, EKS, AKS, or bare metal
+
+---
+# Standard Deployment (works everywhere)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sovereign-app
+  labels:
+    app: sovereign-app
+    tier: application
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sovereign-app
+  template:
+    metadata:
+      labels:
+        app: sovereign-app
+        tier: application
+    spec:
+      # No node selectors for specific cloud instance types
+      containers:
+      - name: app
+        image: registry.example.com/myorg/sovereign-app:1.0
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        # Use ConfigMap/Secret references, not cloud-specific secrets managers
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: url
+        - name: STORAGE_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: storage-endpoint
+        resources:
+          # Standard resource requests (not cloud-specific instance types)
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+# Standard Service (LoadBalancer type works on all clouds)
+apiVersion: v1
+kind: Service
+metadata:
+  name: sovereign-app
+  labels:
+    app: sovereign-app
+spec:
+  type: LoadBalancer
+  # No cloud-specific annotations for load balancer type
+  selector:
+    app: sovereign-app
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+
+---
+# Standard ConfigMap (not cloud-specific parameter store)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  storage-endpoint: "https://s3.amazonaws.com"  # Can be GCS, S3, MinIO
+  auth-provider: "oidc"  # Standard OIDC, not vendor-specific
+  oidc-issuer: "https://accounts.google.com"  # Easily changed
+
+---
+# Standard Secret (not cloud KMS)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+type: Opaque
+stringData:
+  url: "postgresql://user:pass@postgres.default.svc.cluster.local:5432/db"
+  # This is a Kubernetes secret, not AWS Secrets Manager or GCP Secret Manager
+
+---
+# Standard RBAC (portable across clusters)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: app-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: app-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: app-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+
+---
+# Standard Ingress (not cloud-specific ingress controller)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sovereign-app
+  annotations:
+    # Use standard annotations, not cloud-specific ones
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - app.example.com
+    secretName: app-tls
+  rules:
+  - host: app.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sovereign-app
+            port:
+              number: 80
+
+---
+# Standard PersistentVolumeClaim (uses default storage class)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-data
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  # No storageClassName specified = uses default
+  # Works with GCE PD, AWS EBS, Azure Disk, local storage, etc.
+
+---
+# Standard HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sovereign-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sovereign-app
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+# Standard NetworkPolicy (works on any CNI with network policy support)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sovereign-app
+spec:
+  podSelector:
+    matchLabels:
+      app: sovereign-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          tier: frontend
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          tier: database
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:  # Allow external API calls
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443

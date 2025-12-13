@@ -43,5 +43,32 @@
     "pricing": "Pay per region ($5/mo per geo)",
     "proof": "Latency maps by region",
     "demo": "https://demo.strategickhaos.com/global"
+  },
+  {
+    "id": 6,
+    "name": "Cloud Vendor Lock-in vs Zero Dependencies",
+    "hook": "Cloud power without cloud prison.",
+    "mechanism": "Kubernetes-native with portable abstractions + multi-cloud terraform",
+    "pricing": "Pay infrastructure costs only → $0 switching fees",
+    "proof": "No proprietary APIs, zero CSP warnings in console",
+    "demo": "https://demo.strategickhaos.com/sovereign",
+    "symptoms_of_lockin": [
+      "Content-Security-Policy warnings (third-party tracking)",
+      "Deprecated authentication libraries (vendor-specific SDKs)",
+      "Third-party cookie dependencies (cross-domain tracking)",
+      "Proprietary feature policies (clipboard-read/write)",
+      "Vendor-specific error codes (m=core:3902:344)"
+    ],
+    "antibodies": {
+      "red_blood_cells": "Portable container orchestration (oxygen delivery = workload mobility)",
+      "white_blood_cells": "API compatibility layers (immune defense = vendor abstraction)",
+      "dna": "Infrastructure as Code templates (genetic blueprint = reproducible deployments)"
+    },
+    "quadrilateral_collapse": {
+      "vendor": "Zero lock-in architecture",
+      "speed": "Multi-cloud failover <30s",
+      "cost": "Infrastructure-only pricing",
+      "learning": "Accumulated expertise transfers across clouds"
+    }
   }
 ]
