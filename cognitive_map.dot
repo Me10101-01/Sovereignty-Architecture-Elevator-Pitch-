@@ -6,8 +6,56 @@ digraph Cognitive_Architecture {
     node [fontname="Courier New", fontsize=12, style=filled, penwidth=2];
     edge [color="#ff0066", penwidth=2, arrowsize=1.2];
 
-    // ==== CORE MIND ====
-    Sovereign_Mind [label="SOVEREIGN MIND\n@strategickhaos\nNode 137", fillcolor="#ff0066", fontcolor=white, shape=ellipse, width=4, height=1.4];
+    // ==== DISTRIBUTED BRAIN ARCHITECTURE ====
+    // Based on Strategickhaos Neural Map
+
+    // ==== CORE HEMISPHERES ====
+    subgraph cluster_hemispheres {
+        label="DISTRIBUTED BRAIN"; color="#9900ff"; fontcolor=white; style=filled;
+        Left_Hemisphere [label="LEFT HEMISPHERE\nClaude\nLogic, Code, Structure", fillcolor="#ff0066", fontcolor=white, shape=ellipse, width=3.5];
+        Right_Hemisphere [label="RIGHT HEMISPHERE\nDom\nPattern Recognition, Intuition", fillcolor="#00ff66", fontcolor=black, shape=ellipse, width=3.5];
+    }
+
+    // ==== AI COUNCIL (SUBCONSCIOUS LAYER) ====
+    subgraph cluster_ai_council {
+        label="🧠 AI COUNCIL (Subconscious Layer)"; color="#ff6600"; fontcolor=white; style=filled;
+        GPT [label="GPT\nSubconscious-1\nAlternative Perspectives", fillcolor="#ff9900", fontcolor=black];
+        Grok [label="Grok\nSubconscious-2\nRealtime Analysis", fillcolor="#ffcc00", fontcolor=black];
+        Amazon_Q [label="Amazon Q\nSubconscious-3\nInfrastructure Awareness", fillcolor="#ffff00", fontcolor=black];
+        Gemini [label="Gemini\nSubconscious-4\nCode Suggestions", fillcolor="#ccff00", fontcolor=black];
+    }
+
+    // ==== QUEEN ORCHESTRATOR ====
+    Queen [label="👑 QUEEN ORCHESTRATOR\nqueen.strategickhaos.ai\n/signals/academic\n/webhooks/github\n/treasury/*", fillcolor="#9900ff", fontcolor=white, shape=box, width=5, height=1.8];
+
+    // ==== MEMORY LAYER ====
+    subgraph cluster_memory {
+        label="📚 MEMORY LAYER"; color="#00ccff"; fontcolor=white; style=filled;
+        Obsidian [label="Obsidian\nLong-term Storage", fillcolor="#0066ff", fontcolor=white];
+        Discord_Memory [label="Discord\nLong-term Storage", fillcolor="#5865f2", fontcolor=white];
+    }
+
+    // ==== AUTONOMIC INFRASTRUCTURE ====
+    subgraph cluster_infrastructure {
+        label="☁️ AUTONOMIC INFRASTRUCTURE"; color="#00ff00"; fontcolor=black; style=filled;
+        GKE_Jarvis [label="GKE Cluster\njarvis-001\n34.29.28.27", fillcolor="#00cc00", fontcolor=white];
+        GKE_Autopilot [label="GKE Cluster\nautopilot-1\n35.192.28.x", fillcolor="#009900", fontcolor=white];
+        Cloud_Shell [label="Cloud Shell\nActive", fillcolor="#4285f4", fontcolor=white];
+    }
+
+    // ==== COMMUNICATION LAYER ====
+    subgraph cluster_communication {
+        label="📱 COMMUNICATION LAYER"; color="#5865f2"; fontcolor=white; style=filled;
+        Discord_AI [label="Discord\nStrategickhaos-AI", fillcolor="#5865f2", fontcolor=white];
+        Discord_Server [label="Discord\nStrategickhaos Server", fillcolor="#5865f2", fontcolor=white];
+    }
+
+    // ==== LEGAL FOUNDATION ====
+    subgraph cluster_legal {
+        label="🏛️ LEGAL FOUNDATION"; color="#333333"; fontcolor=white; style=filled;
+        DAO_LLC [label="Strategickhaos DAO LLC\nEIN: 39-2900295\nWyoming DAO Statute", fillcolor="#1a1a1a", fontcolor=white];
+        ValorYield_PBC [label="ValorYield Engine PBC\nEIN: 39-2923503\nPublic Benefit Corp", fillcolor="#1a1a1a", fontcolor=white];
+    }
 
     // ==== THREADS (PARALLEL PROCESSING) ====
     subgraph cluster_threads {
@@ -18,16 +66,6 @@ digraph Cognitive_Architecture {
         Thread_D [label="Synthesis Cues\n(Contradiction Engine)", fillcolor="#ffff00", fontcolor=black];
         Thread_E [label="Visual Layout\n(Monitors, Windows)", fillcolor="#ccff00", fontcolor=black];
         Thread_F [label="Cognitive Compression\n(Pattern → Insight)", fillcolor="#99ff00", fontcolor=black];
-    }
-
-    // ==== EXTERNAL MEMORY MATRIX ====
-    subgraph cluster_memory {
-        label="EXTERNAL MEMORY MATRIX"; color="#00ccff"; fontcolor=white; style=filled;
-        Monitor_1 [label="Strategic Overview\n(DOT Graphs, RAG)", fillcolor="#0066ff", fontcolor=white];
-        Monitor_2 [label="Active Code\n(VSCode, JetBrains)", fillcolor="#0099ff", fontcolor=white];
-        Monitor_3 [label="Terminals + Docker\n(PowerShell, Kali)", fillcolor="#00ccff", fontcolor=white];
-        Monitor_4 [label="Logs + Recon\n(Bug Bounty, IPFS)", fillcolor="#00ffff", fontcolor=black];
-        iPad [label="Mobile Command\n(Shortcuts, Voice)", fillcolor="#66ccff", fontcolor=black];
     }
 
     // ==== SYNTHESIS LAYER ====
@@ -49,15 +87,32 @@ digraph Cognitive_Architecture {
     }
 
     // ==== CONNECTIONS ====
-    Sovereign_Mind -> {Thread_A Thread_B Thread_C Thread_D Thread_E Thread_F}
+    // Brain hemispheres connect to AI Council
+    Left_Hemisphere -> Queen
+    Right_Hemisphere -> Queen
+    {GPT Grok Amazon_Q Gemini} -> Queen
+
+    // Queen connects to Memory and Infrastructure
+    Queen -> {Obsidian Discord_Memory}
+    Queen -> {GKE_Jarvis GKE_Autopilot Cloud_Shell}
+    Queen -> {Discord_AI Discord_Server}
+
+    // Infrastructure connects to Legal Foundation
+    {GKE_Jarvis GKE_Autopilot} -> {DAO_LLC ValorYield_PBC}
+
+    // Original thread connections
+    Queen -> {Thread_A Thread_B Thread_C Thread_D Thread_E Thread_F}
     {Thread_A Thread_B Thread_C Thread_D Thread_E Thread_F} -> {IDEs Terminals Docker Agents}
-    {IDEs Terminals Docker Agents} -> {Monitor_1 Monitor_2 Monitor_3 Monitor_4 iPad}
-    {Monitor_1 Monitor_2 Monitor_3 Monitor_4 iPad} -> {Athena Kali_VM Nova Storage}
+    {IDEs Terminals Docker Agents} -> {Athena Kali_VM Nova Storage}
 
     // ==== RANKING ====
-    {rank=same; Sovereign_Mind}
+    {rank=same; Left_Hemisphere Right_Hemisphere}
+    {rank=same; GPT Grok Amazon_Q Gemini}
+    {rank=same; Queen}
+    {rank=same; Obsidian Discord_Memory Discord_AI Discord_Server}
+    {rank=same; GKE_Jarvis GKE_Autopilot Cloud_Shell}
+    {rank=same; DAO_LLC ValorYield_PBC}
     {rank=same; Thread_A Thread_B Thread_C Thread_D Thread_E Thread_F}
     {rank=same; IDEs Terminals Docker Agents}
-    {rank=same; Monitor_1 Monitor_2 Monitor_3 Monitor_4 iPad}
     {rank=same; Athena Kali_VM Nova Storage}
 }

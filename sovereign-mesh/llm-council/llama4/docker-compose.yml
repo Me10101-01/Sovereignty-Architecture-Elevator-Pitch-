@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  llama4:
+    build: .
+    ports:
+      - "5004:5000"
+    environment:
+      - MODEL_NAME=llama4
