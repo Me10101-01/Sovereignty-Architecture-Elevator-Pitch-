@@ -65,53 +65,19 @@ sagco_tie:
   - Tierra Artificial Life
   benchmark: Precision-enhanced ANOVA lm on variance with script-tied metrics
 enhanced_metrics:
-  speedup_ops_per_sec: 560.8446987302883
+  speedup_ops_per_sec: 554.1591159041387
   precision_dps: 700
-  wave_stability: !!python/object/apply:numpy._core.multiarray.scalar
-  - &id001 !!python/object/apply:numpy.dtype
-    args:
-    - f8
-    - false
-    - true
-    state: !!python/tuple
-    - 3
-    - <
-    - null
-    - null
-    - null
-    - -1
-    - -1
-    - 0
-  - !!binary |
-    AAAAAAAA8D8=
+  wave_stability: 1.0
   stable_ci_lower: 0.996173241514445
   stable_ci_upper: 1.0
   ci_coverage: 0.9999999999999
-  var_power: N/A (computation error)
-  anova_f_statistic: 1.1256842235262683
-  anova_p_value: 0.33709258796278796
-  recall_stable: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA8D8=
+  var_power: 0.0028495230590557252
+  power_analysis_alpha: 0.001
+  anova_f_statistic: 0.7369922084300465
+  anova_p_value: 0.7033686193242557
+  recall_stable: 1.0
   recall_threshold: 0.9999999
-  recall_achieved: !!python/object/apply:numpy._core.multiarray.scalar
-  - !!python/object/apply:numpy.dtype
-    args:
-    - b1
-    - false
-    - true
-    state: !!python/tuple
-    - 3
-    - '|'
-    - null
-    - null
-    - null
-    - -1
-    - -1
-    - 0
-  - !!binary |
-    AQ==
+  recall_achieved: true
 quantum_simulation:
   quantum_state: Bell state |00>
   entanglement: maximal
@@ -128,14 +94,11 @@ graph_structure:
   - Voynich
   - Indus
   edges:
-  - !!python/tuple
-    - Linear_B
+  - - Linear_B
     - Egyptian
-  - !!python/tuple
-    - Linear_B
+  - - Linear_B
     - Indus
-  - !!python/tuple
-    - Egyptian
+  - - Egyptian
     - Voynich
   num_nodes: 4
   num_edges: 3

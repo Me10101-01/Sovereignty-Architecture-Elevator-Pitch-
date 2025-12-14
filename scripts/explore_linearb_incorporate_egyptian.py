@@ -277,33 +277,36 @@ class LinearBEgyptianExplorer:
             speedup = n / (end_time - start_time)  # Operations per second
             
             results = {
-                'speedup_ops_per_sec': speedup,
+                'speedup_ops_per_sec': float(speedup),
                 'precision_dps': dps if MPMATH_AVAILABLE else 15,
-                'wave_stability': np.mean(np.abs(wave) <= 1.0),
+                'wave_stability': float(np.mean(np.abs(wave) <= 1.0)),
             }
             
             # Enhanced statistical analysis
             if STATSMODELS_AVAILABLE:
                 # Confidence interval for stability proportion
-                stable_count = np.sum(np.abs(wave) <= 1.0)
+                stable_count = int(np.sum(np.abs(wave) <= 1.0))
                 ci = proportion.proportion_confint(stable_count, len(wave), method='wilson')
-                results['stable_ci_lower'] = ci[0]
-                results['stable_ci_upper'] = ci[1]
+                results['stable_ci_lower'] = float(ci[0])
+                results['stable_ci_upper'] = float(ci[1])
                 results['ci_coverage'] = 0.9999999999999  # 99.99999999999% CI
                 
                 # Power analysis for variance detection
                 try:
                     effect_size = 0.5
                     alpha = 0.001  # Practical alpha for power analysis
+                    # Solve for power given effect_size and alpha (nobs is passed as k_groups)
                     var_power = sm_power.FTestPower().solve_power(
                         effect_size=effect_size,
-                        nobs=len(wave),
-                        alpha=alpha
+                        df_num=11,  # 12 groups - 1
+                        df_denom=len(wave) - 12,
+                        alpha=alpha,
+                        power=None  # Solve for power
                     )
-                    results['var_power'] = var_power
-                    results['power_analysis_alpha'] = alpha
+                    results['var_power'] = float(var_power)
+                    results['power_analysis_alpha'] = float(alpha)
                 except Exception as e:
-                    results['var_power'] = 'N/A (computation error)'
+                    results['var_power'] = f'N/A ({str(e)[:50]})'
                 
                 # ANOVA on multi-group data
                 try:
@@ -323,10 +326,10 @@ class LinearBEgyptianExplorer:
                     results['anova_p_value'] = 'N/A'
             
             # Enhanced recall (>99.99999%)
-            recall_stable = np.mean(wave <= 1.0)
+            recall_stable = float(np.mean(wave <= 1.0))
             results['recall_stable'] = recall_stable
             results['recall_threshold'] = 0.9999999  # Target >99.99999%
-            results['recall_achieved'] = recall_stable >= results['recall_threshold']
+            results['recall_achieved'] = bool(recall_stable >= results['recall_threshold'])
             
             return results
         finally:
@@ -474,11 +477,13 @@ class LinearBEgyptianExplorer:
     def get_graph_summary(self):
         """Get summary of the correspondence graph."""
         if NETWORKX_AVAILABLE and isinstance(self.graph, nx.Graph):
+            # Convert tuples to lists for YAML serialization
+            edges_list = [list(edge) for edge in self.graph.edges()]
             return {
                 'nodes': list(self.graph.nodes()),
-                'edges': list(self.graph.edges()),
-                'num_nodes': self.graph.number_of_nodes(),
-                'num_edges': self.graph.number_of_edges()
+                'edges': edges_list,
+                'num_nodes': int(self.graph.number_of_nodes()),
+                'num_edges': int(self.graph.number_of_edges())
             }
         else:
             return self.graph
