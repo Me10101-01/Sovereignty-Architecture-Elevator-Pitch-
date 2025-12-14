@@ -1,7 +1,7 @@
 benchmarks:
-  duration_sec: 0.0003685951232910156
+  duration_sec: 0.0003864765167236328
   samples: 10000
-  speedup_ops_per_sec: 27130038.809831824
+  speedup_ops_per_sec: 25874793.337446023
   stability:
     clamped: false
     drift_amount: 0.02513459309369949

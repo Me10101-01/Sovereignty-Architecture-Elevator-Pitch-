@@ -6,6 +6,14 @@ from sympy import sin, pi
 import networkx as nx
 
 # Load PDF claims (full pages 1-6 parsed)
+import os
+import sys
+
+# Ensure we can find files from repo root
+script_dir = os.path.dirname(os.path.abspath(__file__))
+repo_root = os.path.dirname(script_dir)
+os.chdir(repo_root)
+
 with open('docs/prior_art.pdf.yaml', 'r') as f:
     claims = yaml.safe_load(f)
 
@@ -74,14 +82,14 @@ def gsch_superposition(gradient_value):
     until ratification (observation) causes collapse to stable state
     """
     # BellState for multi-state gradient (Claim 3 fuse)
-    # Superposition: |00⟩ + |11⟩ / sqrt(2) approximation
-    bell = np.array([[1, 0, 0, 1]]) / np.sqrt(2)
+    # Superposition: |00⟩ + |11⟩ / sqrt(2) representation
+    bell = np.array([1, 0, 0, 1]) / np.sqrt(2)
     
     # Simulate entangled gradient state
     gradient_qubit = np.array([gradient_value, 1 - gradient_value])
     
-    # Tensor product simulation (simplified)
-    entangled = np.outer(bell, gradient_qubit)
+    # Tensor product simulation using Kronecker product
+    entangled = np.kron(bell, gradient_qubit)
     
     # Drift "observation" - collapse check
     trace_val = np.sum(np.abs(entangled))

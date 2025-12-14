@@ -1,7 +1,7 @@
 # Orchestration Compose - Phases 1-7 Full Integration
 # Sovereignty Architecture Emulator with Swarm Bot Recursive Evolution
 
-version: '3'
+version: '3.8'
 
 services:
   # Phase 1: Bootstrap Tree Initialization

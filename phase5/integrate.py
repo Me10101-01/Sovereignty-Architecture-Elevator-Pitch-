@@ -1,9 +1,15 @@
 """Phase 5: Full Integration and Recursive Evolution (Swarm Bot Activation)"""
 import os
+import sys
 import yaml
 import numpy as np
 from sympy import sin, pi, symbols
 import networkx as nx
+
+# Ensure we can find files from repo root
+script_dir = os.path.dirname(os.path.abspath(__file__))
+repo_root = os.path.dirname(script_dir)
+os.chdir(repo_root)
 
 # Load prior art claims (from PDF upload)
 def load_claims():
@@ -34,8 +40,8 @@ class QuantumAIEmulator:
         """Entanglement core using networkx graph simulation"""
         g = nx.Graph()
         g.add_edge('qubit1', 'qubit2')
-        # Bell state stub - identity matrix representation
-        bell_state = np.array([[1, 0], [0, 1]])
+        # Bell state: |00⟩ + |11⟩ / sqrt(2) representation
+        bell_state = np.array([1, 0, 0, 1]) / np.sqrt(2)
         return {'graph': g, 'state': bell_state}
 
     def dna_register(self, seq):
@@ -48,8 +54,9 @@ class QuantumAIEmulator:
     def activate_swarm(self):
         """Activate swarm bots for recursive evolution"""
         try:
-            with open('swarm_bots/bots.yaml', 'r') as f:
-                bots = yaml.safe_load(f)
+            with open('src/swarm_bots/bots.yaml', 'r') as f:
+                bots_config = yaml.safe_load(f)
+                bots = bots_config.get('bots', [])
         except FileNotFoundError:
             print("Warning: bots.yaml not found, using default swarm")
             bots = [

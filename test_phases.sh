@@ -43,15 +43,21 @@ cd ..
 
 echo ""
 echo "--- Phase 5: Full Integration (Swarm Activation) ---"
-python phase5/integrate.py
+cd phase5
+python integrate.py
+cd ..
 
 echo ""
 echo "--- Phase 6: Superposition Expansion ---"
-python phase6/expand_claim8.py
+cd phase6
+python expand_claim8.py
+cd ..
 
 echo ""
 echo "--- Phase 7: Ripley Gates Deepening + Benchmarks ---"
-python phase7/deepen_ripley_explore_sagco.py
+cd phase7
+python deepen_ripley_explore_sagco.py
+cd ..
 
 echo ""
 echo "==================================="

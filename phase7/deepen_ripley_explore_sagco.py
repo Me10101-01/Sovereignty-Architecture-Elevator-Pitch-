@@ -7,6 +7,14 @@ from sympy import sin, pi
 import networkx as nx
 
 # Load PDF claims (pages 1-6 parsed, SAGCO on 5-6)
+import os
+import sys
+
+# Ensure we can find files from repo root
+script_dir = os.path.dirname(os.path.abspath(__file__))
+repo_root = os.path.dirname(script_dir)
+os.chdir(repo_root)
+
 with open('docs/prior_art.pdf.yaml', 'r') as f:
     claims = yaml.safe_load(f)
 
@@ -155,7 +163,7 @@ def benchmark_wave_gen(n=1000, drift_threshold=0.05):
     
     end = time.time()
     duration = end - start
-    speedup = n / duration if duration > 0 else float('inf')
+    speedup = n / duration if duration > 0 else 1e9  # Large finite number
     
     stability = {
         'max_wave': float(np.max(np.abs(wave))),
