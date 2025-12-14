@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   # Prior phases would be here (signatures_enochian_quotes, etc.)
   # This is Phase 13 addition
