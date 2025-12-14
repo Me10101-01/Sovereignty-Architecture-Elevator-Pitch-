@@ -47,7 +47,4 @@ async function main() {
     }
 }
 // Run if executed directly
-if (require.main === module) {
-    main().catch(console.error);
-}
-export { main };
+main().catch(console.error);

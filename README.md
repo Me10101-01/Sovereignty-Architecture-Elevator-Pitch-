@@ -4,6 +4,16 @@
 
 This directory contains the foundational governance documents for **Strategickhaos DAO LLC**, a Wyoming-registered Decentralized Autonomous Organization.
 
+## 🔥 AetherLingua — Living Glyph Language Engine
+
+**NEW:** Ancient scripts as executable sonic-cognitive DNA. See [AETHERLINGUA.md](AETHERLINGUA.md) for details.
+
+- Kemetic hieroglyphics → FM synthesis with phoneme classification
+- Sumerian cuneiform → percussive bronze bell transients
+- 7% motif → SwarmGate treasury trigger
+- Node 137 → speculative path spawner
+- Cryptographic proof of invocation → on-chain verifiable
+
 ## Documents
 
 | File | Description | Status |
