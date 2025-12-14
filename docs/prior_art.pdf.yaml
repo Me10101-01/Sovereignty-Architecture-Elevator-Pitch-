@@ -1,0 +1,48 @@
+# Prior art claims structure for Paracelsus alchemy exploration
+# Pages 1-6 reference for alchemy depth exploration
+
+claims:
+  '1':
+    description: 'Biological system integration with quantum components'
+    page: 1
+    relevance: 'Claim 1 bio tie for biopython alkahest solvent sim'
+  
+  '2':
+    description: 'Bootstrap tree initialization with guard enforcement'
+    page: 2
+    relevance: 'Foundation for phase operations'
+  
+  '3':
+    description: 'Memory integration and quantum entanglement'
+    page: 3
+    relevance: 'Phase 5 memory integration'
+  
+  '4':
+    description: 'Swarm intelligence and distributed processing'
+    page: 3
+    relevance: 'Phase 6 swarm activation'
+  
+  '5':
+    description: 'Superposition expansion and state management'
+    page: 4
+    relevance: 'Phase 7 superposition expanded'
+  
+  '6':
+    description: 'Ripley gates and alchemical transformations'
+    page: 5
+    relevance: 'Phase 7 Ripley gates deepened'
+  
+  '7':
+    description: 'SAGCO (Self-Aware Governance and Control Operations) evolution'
+    page: 5
+    priors:
+      - 'IBM self-managing systems (2001)'
+      - 'MIT cognitive architectures'
+      - 'Tierra artificial life'
+    relevance: 'Phase 7 SAGCO explored with benchmarks'
+  
+  '8':
+    description: 'Superposition and dissolution without collapse'
+    page: 6
+    relevance: 'Candidate for alchemy depth - alkahest dissolves mismatches to neutral'
+    alchemy_tie: 'Prima materia dissolution in Calcination gate'
