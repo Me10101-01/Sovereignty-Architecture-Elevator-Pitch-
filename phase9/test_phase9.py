@@ -114,9 +114,8 @@ def test_benchmark_output():
     """Test that benchmark output is generated correctly"""
     print("\nTesting benchmark output generation...")
     
-    output_path = '../benchmarks/tria_hermetic_precision.yaml'
-    if not os.path.exists(output_path):
-        output_path = 'benchmarks/tria_hermetic_precision.yaml'
+    # Use the utility function from main module
+    output_path = phase9.resolve_path('benchmarks/tria_hermetic_precision.yaml')
     
     # Check if output file exists
     assert os.path.exists(output_path), f"Benchmark output should exist at {output_path}"

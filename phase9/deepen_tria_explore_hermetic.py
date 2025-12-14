@@ -46,12 +46,29 @@ except ImportError:
     print("Warning: biopython not available, using mock sequences")
 
 
+# Utility functions
+def resolve_path(relative_path):
+    """
+    Resolve a path that might be relative to current dir or parent dir
+    
+    Args:
+        relative_path: Path relative to project root (e.g., 'docs/prior_art.pdf.yaml')
+    
+    Returns:
+        str: Resolved absolute or working path
+    """
+    if os.path.exists(relative_path):
+        return relative_path
+    parent_path = os.path.join('..', relative_path)
+    if os.path.exists(parent_path):
+        return parent_path
+    return relative_path  # Return original if neither exists
+
+
 # Load PDF claims (pages 1-6, tie to hermetic explore)
 def load_claims():
     """Load prior art claims for hermetic principle references"""
-    claims_path = 'docs/prior_art.pdf.yaml'
-    if not os.path.exists(claims_path):
-        claims_path = '../docs/prior_art.pdf.yaml'
+    claims_path = resolve_path('docs/prior_art.pdf.yaml')
     
     try:
         with open(claims_path, 'r') as f:
@@ -65,6 +82,10 @@ def load_claims():
             }
         }
 
+
+# Hermetic alchemy constants
+SULPHUR_ENERGY_AMPLIFICATION = 1.5  # Energy intensification multiplier for Sulphur principle
+MIN_DF_DENOM = 50  # Minimum degrees of freedom for F-test stability
 
 # Deepened Tria Prima (applications in GSCH recharge/hermetic principles)
 tria_prima_deep = {
@@ -100,7 +121,7 @@ def explore_hermetic_unity(gradient_value, principle='Mercury'):
     
     # Apply Tria Prima principle transformations
     if principle == 'Sulphur':  # Combustion amplify
-        unified *= 1.5  # Energy intensify
+        unified *= SULPHUR_ENERGY_AMPLIFICATION  # Energy intensify
     elif principle == 'Mercury':  # Volatility fluidize
         # Precise fluid divide using mpmath
         unified_mp = mpmath.mpf(unified) / mpmath.mpf(2)
@@ -214,10 +235,12 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=100):
     # Calculate achieved power for given effect size and sample size
     # Using very large effect size for high-precision detection (>0.95 target)
     try:
+        # Ensure sufficient degrees of freedom for F-test stability
+        df_denom = max(len(wave) - 30, MIN_DF_DENOM)
         var_f_test = power.FTestPower().solve_power(
             effect_size=2.5,  # Very large effect size for precision hermetic detection
             df_num=20,        # Higher degrees of freedom for precision
-            df_denom=len(wave)-30,
+            df_denom=df_denom,
             alpha=0.05, 
             power=None
         )
@@ -229,7 +252,7 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=100):
     return {
         'speedup': float(speedup),
         'stable_ci': [float(stable_prop_ci[0]), float(stable_prop_ci[1])],
-        'var_power': float(var_f_test) if var_f_test else 0.95,
+        'var_power': float(var_f_test) if var_f_test is not None else 0.95,
         'exact_variance': float(np.var(wave)),
         'samples': n,
         'precision_dps': dps
@@ -290,10 +313,7 @@ def main():
     
     # Save benchmark results
     print("\n[5/5] Saving Benchmark Results...")
-    output_path = 'benchmarks/tria_hermetic_precision.yaml'
-    if not os.path.exists('benchmarks'):
-        output_path = '../benchmarks/tria_hermetic_precision.yaml'
-    
+    output_path = resolve_path('benchmarks/tria_hermetic_precision.yaml')
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         yaml.dump(output, f, default_flow_style=False, sort_keys=False)
