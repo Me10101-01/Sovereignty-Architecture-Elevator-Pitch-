@@ -47,7 +47,7 @@ sagco_tie:
     metrics
   phase: 17
 enhanced_metrics:
-  speedup: 597.1333412869412
+  speedup: 6579.1662287671
   wave_shape: !!python/tuple
   - 1000
   wave_mean: 1.3322676295501879e-18
@@ -59,8 +59,8 @@ enhanced_metrics:
   - 1.0
   stable_proportion: 1.0
   var_power: calculation_error
-  anova_f: 1.2254786357108558
-  anova_pr: 0.28557352875734454
+  anova_f: 1.1139547103031545e-29
+  anova_pr: 1.0
   recall_stable: 1.0
   precision_level: infinite
 gpt_contribution: 'GPT: Explored Linear B decipherment details (Ventris 1952 WWII

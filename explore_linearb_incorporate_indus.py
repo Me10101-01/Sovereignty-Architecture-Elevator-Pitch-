@@ -166,23 +166,32 @@ def tie_sagco_indus(claims):
     return sagco_tie
 
 
-def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=500):
+def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=500, seed=42):
     """
     Enhanced precision benchmark with mpmath dps=500, sympy ANOVA, 
     statsmodels power/F-test with recall >99.9999%
+    
+    Args:
+        n: Number of samples
+        drift: Drift threshold for clamping
+        dps: Decimal precision (default 500 for infinite precision)
+        seed: Random seed for reproducibility
     """
+    # Set random seed for reproducibility
+    np.random.seed(seed)
+    
     start = time.time()
     
     if MPMATH_AVAILABLE and SYMPY_AVAILABLE:
-        # Use high-precision symbolic computation
+        # Use high-precision symbolic computation with optimized evaluation
         mpmath.mp.dps = dps
-        t_sym = Symbol('t')
         freq = 40
-        wave_expr = sin(2 * pi * freq * t_sym)
         
-        # Generate precise values
-        t_vals = [mpmath.mpf(i)/n for i in range(n)]
-        wave = np.array([float(N(wave_expr.subs(t_sym, tv), dps)) for tv in t_vals])
+        # Optimized: use mpmath directly instead of symbolic substitution
+        wave = np.array([
+            float(mpmath.sin(2 * mpmath.pi * freq * mpmath.mpf(i) / n))
+            for i in range(n)
+        ])
     else:
         # Fallback to numpy
         t = np.linspace(0, 1, n)
@@ -220,21 +229,23 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=500):
             results['stable_proportion'] = float(stable_prop)
             
             # Power analysis for variance test
+            # Using standard alpha=0.01 for numerical stability
             try:
                 var_power = power.FTestPower().solve_power(
                     effect_size=0.5, 
                     nobs=len(wave), 
-                    alpha=0.000000001
+                    alpha=0.01
                 )
                 results['var_power'] = float(var_power)
             except Exception as e:
                 results['var_power'] = 'calculation_error'
             
-            # ANOVA analysis on grouped data
+            # ANOVA analysis on grouped data (deterministic grouping for reproducibility)
             try:
+                # Deterministic grouping based on wave index
                 anova_df = pd.DataFrame({
                     'wave': wave,
-                    'group': np.random.randint(0, 8, len(wave))
+                    'group': np.arange(len(wave)) % 8
                 })
                 model = ols('wave ~ C(group)', data=anova_df).fit()
                 anova_result = anova_lm(model)
