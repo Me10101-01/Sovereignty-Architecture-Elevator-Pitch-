@@ -1,0 +1,37 @@
+tria_apps_deep:
+  Sulphur: Soul/energy amplification - Healing inflammation/revitalization (Qabala
+    Binah/Understanding correspondence for transformative fire)
+  Mercury: Spirit/fluidity adaptive - Cure fluidity in blood/spirits (Qabala Hod/Glory
+    for mercurial change/unity)
+  Salt: Body/stability clamp - Remedy solidification for wounds (Qabala Malkuth/Kingdom
+    for earthly permanence/healing)
+qabala_correspondences:
+  Sulphur:
+    corresponded: 0.10605
+    hermetized: 41
+  Mercury:
+    corresponded: 0.03535
+    hermetized: 41
+  Salt:
+    corresponded: 0.0707
+    hermetized: 41
+qabala_graph_stats:
+  nodes: 5
+  edges: 6
+sagco_tie:
+  from: IBM self-managing (2001) to Paracelsus tria prima recharge in GSCH with Qabala
+    Sefirot correspondences
+  bench: Precision-enhanced ANOVA on variance in drift resolution
+  priors:
+  - IBM Autonomic Computing (2001)
+  - MIT Self-Organizing Systems
+  - Tierra Artificial Life (Ray 1991)
+enhanced_metrics:
+  speedup: 632.8451494592236
+  stable_ci:
+  - 0.996173241514445
+  - 1.0
+  var_power: 0.013872043860299943
+  anova_f: 1.8710345518699306e-30
+  wave_samples: 1000
+  precision_dps: 150
