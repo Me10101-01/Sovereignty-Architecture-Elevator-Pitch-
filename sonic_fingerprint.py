@@ -39,7 +39,8 @@ def charity_gliss(carrier, t):
 
 def node137_burst(carrier, t):
     if t < 0.8:
-        offset_cents = 5.0 + 18.0 - 12.0
+        # Offset in cents: 5 + 18 - 12 = 11 cents pitch shift
+        offset_cents = 11.0
         freq = carrier * math.pow(2.0, offset_cents / 1200.0)
         return saw(freq, t) * math.exp(-t * 6.0) * 0.45
     return 0.0
@@ -65,7 +66,7 @@ SOURCE_LINES = [
   "Ḥkꜣw ḫft‑n, ʿnḫ‑ḏfꜣ"
 ]
 
-# Render one line to mono signal (simplified, no FM/token for brevity)
+# Render one line to mono signal
 def render_line(carrier, text):
     n = int(DURATION * SAMPLE_RATE)
     signal = []
