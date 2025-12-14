@@ -50,6 +50,18 @@ Ha.ty‑a n Kemt: Sḫm‑r Ḥr‑Ḥsb
 - **[DINGIR] glyph** → Bronze-bell wedge strikes (5 strikes at 261.63 Hz base with inharmonic shimmer)
 - Phoneme FM + harmonics
 
+### With Linear B Glyph
+```
+smn nṯrwy nfr <A1> ḥr wḥw
+(Establish the good gods <A1> on the altar)
+```
+
+**Audio features:**
+- Base carrier: varies by line
+- **<A1> glyph** → Sawtooth wedge strikes (6 strikes at 240 Hz with -7 cents detune)
+- Exponential decay envelopes
+- Phoneme FM + harmonics
+
 ### With Node137 Spawn
 ```
 ṯs‑ỉt 137 m ḫnt iwf

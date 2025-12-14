@@ -52,6 +52,8 @@ The engine generates:
 
 ### Sumerian Glyph Map
 
+Sumerian glyphs are marked with square brackets: `[GLYPH]`
+
 | Glyph   | Phonetic | Base Freq | Wedges | Meaning |
 |---------|----------|-----------|--------|---------|
 | DINGIR  | an       | 261.63 Hz | 5      | Divine  |
@@ -59,6 +61,16 @@ The engine generates:
 | EN      | en       | 293.66 Hz | 3      | Lord    |
 | NIN     | nin      | 329.63 Hz | 4      | Lady    |
 | URU     | uru      | 220.00 Hz | 2      | City    |
+
+### Linear B Glyph Map
+
+Linear glyphs are marked with angle brackets: `<GLYPH>`
+
+| Glyph | Base Freq | Strikes | Cents Offset |
+|-------|-----------|---------|--------------|
+| A1    | 240.0 Hz  | 6       | -7.0         |
+| B2    | 260.0 Hz  | 4       | +12.0        |
+| C3    | 280.0 Hz  | 5       | -3.0         |
 
 ## Configuration
 

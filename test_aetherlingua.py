@@ -27,9 +27,10 @@ def test_tokenization():
     print("✓ Tokenization tests passed")
 
 def test_glyph_extraction():
-    """Test Sumerian glyph extraction"""
+    """Test Sumerian and Linear glyph extraction"""
     print("Testing glyph extraction...")
     
+    # Test Sumerian glyphs
     glyphs = al.extract_sumerian_glyphs("[DINGIR] test [LUGAL]")
     assert len(glyphs) == 2, f"Expected 2 glyphs, got {len(glyphs)}"
     assert "DINGIR" in glyphs, "DINGIR should be extracted"
@@ -38,6 +39,16 @@ def test_glyph_extraction():
     # Test no glyphs
     glyphs = al.extract_sumerian_glyphs("plain text")
     assert len(glyphs) == 0, f"Expected 0 glyphs, got {len(glyphs)}"
+    
+    # Test Linear glyphs
+    glyphs = al.extract_linear_glyphs("<A1> test <B2>")
+    assert len(glyphs) == 2, f"Expected 2 Linear glyphs, got {len(glyphs)}"
+    assert "A1" in glyphs, "A1 should be extracted"
+    assert "B2" in glyphs, "B2 should be extracted"
+    
+    # Test no Linear glyphs
+    glyphs = al.extract_linear_glyphs("plain text")
+    assert len(glyphs) == 0, f"Expected 0 Linear glyphs, got {len(glyphs)}"
     
     print("✓ Glyph extraction tests passed")
 
@@ -192,6 +203,33 @@ def test_config_constants():
     
     print("✓ Configuration constants tests passed")
 
+def test_pack_int24():
+    """Test 24-bit integer packing"""
+    print("Testing 24-bit integer packing...")
+    
+    # Test positive values
+    packed = al.pack_int24_le(1000)
+    assert len(packed) == 3, "Packed value should be 3 bytes"
+    assert packed == bytes([0xe8, 0x03, 0x00]), f"Expected e80300, got {packed.hex()}"
+    
+    # Test zero
+    packed = al.pack_int24_le(0)
+    assert packed == bytes([0x00, 0x00, 0x00]), f"Expected 000000, got {packed.hex()}"
+    
+    # Test negative values
+    packed = al.pack_int24_le(-1000)
+    assert packed == bytes([0x18, 0xfc, 0xff]), f"Expected 18fcff, got {packed.hex()}"
+    
+    # Test max value
+    packed = al.pack_int24_le(8388607)
+    assert packed == bytes([0xff, 0xff, 0x7f]), f"Expected ffff7f, got {packed.hex()}"
+    
+    # Test min value
+    packed = al.pack_int24_le(-8388608)
+    assert packed == bytes([0x00, 0x00, 0x80]), f"Expected 000080, got {packed.hex()}"
+    
+    print("✓ 24-bit integer packing tests passed")
+
 def run_all_tests():
     """Run all test suites"""
     print("=" * 60)
@@ -201,6 +239,7 @@ def run_all_tests():
     
     try:
         test_config_constants()
+        test_pack_int24()
         test_tokenization()
         test_glyph_extraction()
         test_deterministic_rng()

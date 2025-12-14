@@ -165,6 +165,22 @@ def extract_sumerian_glyphs(text: str) -> List[str]:
         i += 1
     return found
 
+def extract_linear_glyphs(text: str) -> List[str]:
+    """Parse Linear glyph list in-line within text (e.g., <A1>)"""
+    found = []
+    i = 0
+    while i < len(text):
+        if text[i] == "<":
+            j = i + 1
+            while j < len(text) and text[j] != ">":
+                j += 1
+            if j < len(text):
+                found.append(text[i+1:j])
+                i = j + 1
+                continue
+        i += 1
+    return found
+
 def sumerian_glyph_signal(glyph: str, t: float) -> float:
     """Sumerian wedge strike sonification - returns additive signal for given glyph at time t"""
     if glyph not in SUMERIAN_GLYPHS:
@@ -256,6 +272,16 @@ def apply_reverb(mono: List[float]) -> List[float]:
             wet[i] += mono[i - delay3] * 0.15
     return wet
 
+def pack_int24_le(value: int) -> bytes:
+    """Pack a signed 24-bit integer as 3 bytes little-endian"""
+    # Ensure value is in valid 24-bit signed range
+    value = max(-8388608, min(8388607, value))
+    # Handle negative values with two's complement
+    if value < 0:
+        value = (1 << 24) + value
+    # Pack as 3 bytes little-endian
+    return bytes([value & 0xFF, (value >> 8) & 0xFF, (value >> 16) & 0xFF])
+
 def write_wav_24bit_stereo(filename: str, left: List[float], right: List[float]):
     """Write 24-bit PCM WAV file (stereo)"""
     n = len(left)
@@ -287,9 +313,9 @@ def write_wav_24bit_stereo(filename: str, left: List[float], right: List[float])
         for i in range(n):
             l = int(max(-1.0, min(1.0, left[i])) * PCM_24BIT_MAX)
             r = int(max(-1.0, min(1.0, right[i])) * PCM_24BIT_MAX)
-            # Write 24-bit little-endian
-            f.write(struct.pack("<i", l)[:3])
-            f.write(struct.pack("<i", r)[:3])
+            # Write 24-bit little-endian properly
+            f.write(pack_int24_le(l))
+            f.write(pack_int24_le(r))
 
 def sha256_bytes_from_wav(left: List[float], right: List[float]) -> str:
     """SHA-256 fingerprint for audio buffer (canonical PCM int24 little-endian interleaved)"""
@@ -297,8 +323,8 @@ def sha256_bytes_from_wav(left: List[float], right: List[float]) -> str:
     for i in range(len(left)):
         l = int(max(-1.0, min(1.0, left[i])) * PCM_24BIT_MAX)
         r = int(max(-1.0, min(1.0, right[i])) * PCM_24BIT_MAX)
-        h.update(struct.pack("<i", l)[:3])
-        h.update(struct.pack("<i", r)[:3])
+        h.update(pack_int24_le(l))
+        h.update(pack_int24_le(r))
     return h.hexdigest()
 
 def render_line_to_buffers(text: str, carrier: float, duration: float) -> Tuple[List[float], List[float]]:
@@ -308,7 +334,7 @@ def render_line_to_buffers(text: str, carrier: float, duration: float) -> Tuple[
     right = [0.0] * n
     tokens = tokenize_kemetic(text)
     sumer_glyphs = extract_sumerian_glyphs(text)
-    linear_glyphs = []  # parse linear glyphs if annotated, omitted for brevity
+    linear_glyphs = extract_linear_glyphs(text)
     t = 0.0
     step = 1.0 / SAMPLE_RATE
 
