@@ -55,9 +55,9 @@ def entangle_qubits():
             contribution['code_snippet'] = """
 # Hebrew glyph symbolic encoding
 GLYPH_MAP = {
-    'aleph': '\\u05D0',  # א
-    'bet': '\\u05D1',    # ב
-    'gimel': '\\u05D2'   # ג
+    'aleph': '\u05D0',  # א
+    'bet': '\u05D1',    # ב
+    'gimel': '\u05D2'   # ג
 }
 """
         elif claim_id == 5:

@@ -31,7 +31,8 @@ def create_tree_structure():
         'flame': 'shagco/chain_breaker_evo.flame'  # FlameLang core
     }
     
-    base_path = Path('/app')
+    # Use environment variable or default to current directory
+    base_path = Path(os.environ.get('CHAIN_BREAKER_BASE', '/app'))
     if not base_path.exists():
         base_path = Path('.')
     

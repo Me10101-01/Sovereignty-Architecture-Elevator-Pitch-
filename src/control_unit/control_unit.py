@@ -22,10 +22,12 @@ class EntanglementCore:
     GSCH-protected with drift monitoring <0.05
     """
     
-    def __init__(self, gsch_threshold=0.05):
+    def __init__(self, gsch_threshold=0.05, deterministic=False):
         self.gsch_threshold = gsch_threshold
         self.drift = 0.0
         self.state = None
+        self.deterministic = deterministic
+        self._drift_counter = 0
         
     def entangle_qubits(self, bell_type='00'):
         """
@@ -45,7 +47,12 @@ class EntanglementCore:
         Apply GSCH homeostasis protection
         Clamps drift to threshold
         """
-        self.drift = np.random.uniform(0, 0.1)  # Simulate drift
+        if self.deterministic:
+            # Deterministic drift for testing: increases then resets
+            self.drift = (self._drift_counter * 0.02) % 0.1
+            self._drift_counter += 1
+        else:
+            self.drift = np.random.uniform(0, 0.1)  # Simulate drift
         
         if self.drift > self.gsch_threshold:
             print(f"⚠ Drift {self.drift:.4f} exceeds threshold {self.gsch_threshold}")

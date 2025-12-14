@@ -57,7 +57,10 @@ impl ChainBreakerEvo {
             RipleyGate::Multiplication, // Amplify novelty
             RipleyGate::Projection      // Emit IR
         ]
-        let transformed = ripley_transform(wave, gates)
+        let mut transformed = wave
+        for gate in gates {
+            transformed = gate.apply(transformed)
+        }
         
         // DNA evolve (incomprehensible methodology)
         // Chain breaker: Self-mutating logic evolves priors to novelties

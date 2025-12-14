@@ -34,19 +34,42 @@ class DNARegister:
         """
         Apply controlled mutation to DNA sequence
         Rate controlled by GSCH threshold
+        Implements realistic point mutations, insertions, and deletions
         """
         if BIOPYTHON_AVAILABLE:
             seq = Seq(self.sequence)
-            # Simulate mutation by complementing
             if np.random.random() < rate:
-                seq = seq.complement()
-                self.sequence = str(seq)
+                # Choose mutation type
+                mutation_type = np.random.choice(['point', 'insertion', 'deletion'])
+                seq_list = list(str(seq))
+                
+                if mutation_type == 'point' and len(seq_list) > 0:
+                    # Point mutation: replace random base
+                    bases = ['A', 'T', 'C', 'G']
+                    pos = np.random.randint(0, len(seq_list))
+                    seq_list[pos] = np.random.choice(bases)
+                elif mutation_type == 'insertion' and len(seq_list) > 0:
+                    # Insertion: add random base
+                    bases = ['A', 'T', 'C', 'G']
+                    pos = np.random.randint(0, len(seq_list))
+                    seq_list.insert(pos, np.random.choice(bases))
+                elif mutation_type == 'deletion' and len(seq_list) > 1:
+                    # Deletion: remove random base
+                    pos = np.random.randint(0, len(seq_list))
+                    seq_list.pop(pos)
+                
+                self.sequence = ''.join(seq_list)
                 self.mutation_count += 1
         else:
-            # Simple simulation
+            # Simulation mode: implement simple point mutation
             if np.random.random() < rate:
-                self.sequence = self.sequence[::-1]  # Reverse as mutation
-                self.mutation_count += 1
+                seq_list = list(self.sequence)
+                if len(seq_list) > 0:
+                    bases = ['A', 'T', 'C', 'G']
+                    pos = np.random.randint(0, len(seq_list))
+                    seq_list[pos] = np.random.choice(bases)
+                    self.sequence = ''.join(seq_list)
+                    self.mutation_count += 1
         
         return self.sequence
     
@@ -112,13 +135,20 @@ class PhysicsTypeGuard:
         """Return SI unit for physics type"""
         return PhysicsTypeGuard.PHYSICS_TYPES.get(ptype, 'unknown')
 
-def recursive_evolution_check(drift_threshold=0.05):
+def recursive_evolution_check(drift_threshold=0.05, deterministic=False):
     """
     Check if recursive evolution should trigger
     Based on GSCH drift threshold (Claim 8 reference)
+    
+    Args:
+        drift_threshold: Maximum allowed drift before triggering evolution
+        deterministic: If True, use fixed drift value for testing
     """
     # Simulate drift measurement
-    drift = np.random.uniform(0, 0.1)
+    if deterministic:
+        drift = 0.03  # Fixed safe value for testing
+    else:
+        drift = np.random.uniform(0, 0.1)
     
     if drift > drift_threshold:
         print(f"⚠ Drift {drift:.4f} exceeds threshold {drift_threshold}")
@@ -165,7 +195,10 @@ def main():
     
     # Recursive evolution check
     print("\n✓ Checking for recursive evolution trigger...")
-    evolution_triggered, gpt_contrib = recursive_evolution_check(drift_threshold=0.05)
+    # Use environment variable to control deterministic mode for testing
+    import os
+    deterministic = os.environ.get('DETERMINISTIC_MODE', 'false').lower() == 'true'
+    evolution_triggered, gpt_contrib = recursive_evolution_check(drift_threshold=0.05, deterministic=deterministic)
     
     if evolution_triggered:
         print(f"  Evolution triggered: {gpt_contrib}")
