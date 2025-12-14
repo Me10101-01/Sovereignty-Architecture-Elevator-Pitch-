@@ -207,26 +207,41 @@ def test_pack_int24():
     """Test 24-bit integer packing"""
     print("Testing 24-bit integer packing...")
     
+    # Helper to unpack 24-bit little-endian to int
+    def unpack_int24_le(data: bytes) -> int:
+        value = int.from_bytes(data, byteorder='little', signed=False)
+        # Convert from unsigned to signed (two's complement)
+        if value >= (1 << 23):
+            value -= (1 << 24)
+        return value
+    
     # Test positive values
     packed = al.pack_int24_le(1000)
     assert len(packed) == 3, "Packed value should be 3 bytes"
-    assert packed == bytes([0xe8, 0x03, 0x00]), f"Expected e80300, got {packed.hex()}"
+    assert unpack_int24_le(packed) == 1000, f"Roundtrip failed for 1000"
     
     # Test zero
     packed = al.pack_int24_le(0)
-    assert packed == bytes([0x00, 0x00, 0x00]), f"Expected 000000, got {packed.hex()}"
+    assert unpack_int24_le(packed) == 0, "Roundtrip failed for 0"
     
     # Test negative values
     packed = al.pack_int24_le(-1000)
-    assert packed == bytes([0x18, 0xfc, 0xff]), f"Expected 18fcff, got {packed.hex()}"
+    assert unpack_int24_le(packed) == -1000, "Roundtrip failed for -1000"
     
     # Test max value
     packed = al.pack_int24_le(8388607)
-    assert packed == bytes([0xff, 0xff, 0x7f]), f"Expected ffff7f, got {packed.hex()}"
+    assert unpack_int24_le(packed) == 8388607, "Roundtrip failed for max value"
     
     # Test min value
     packed = al.pack_int24_le(-8388608)
-    assert packed == bytes([0x00, 0x00, 0x80]), f"Expected 000080, got {packed.hex()}"
+    assert unpack_int24_le(packed) == -8388608, "Roundtrip failed for min value"
+    
+    # Test clamping
+    packed = al.pack_int24_le(10000000)  # beyond max
+    assert unpack_int24_le(packed) == 8388607, "Should clamp to max"
+    
+    packed = al.pack_int24_le(-10000000)  # beyond min
+    assert unpack_int24_le(packed) == -8388608, "Should clamp to min"
     
     print("✓ 24-bit integer packing tests passed")
 

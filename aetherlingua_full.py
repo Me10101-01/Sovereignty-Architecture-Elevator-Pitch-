@@ -21,6 +21,7 @@ SEED = 1337
 STRIKE_DURATION = 1.0  # Duration for wedge strike distribution in seconds
 NODE137_CENTS_OFFSET = 11.0  # Microtonal offset in cents for node137 burst
 PCM_24BIT_MAX = 8388607.0  # Maximum value for 24-bit signed PCM (2^23 - 1)
+PCM_24BIT_MIN = -8388608  # Minimum value for 24-bit signed PCM (-2^23)
 
 # --- Deterministic RNG ---
 class DetermRng:
@@ -275,7 +276,7 @@ def apply_reverb(mono: List[float]) -> List[float]:
 def pack_int24_le(value: int) -> bytes:
     """Pack a signed 24-bit integer as 3 bytes little-endian"""
     # Ensure value is in valid 24-bit signed range
-    value = max(-8388608, min(8388607, value))
+    value = max(PCM_24BIT_MIN, min(int(PCM_24BIT_MAX), value))
     # Handle negative values with two's complement
     if value < 0:
         value = (1 << 24) + value
