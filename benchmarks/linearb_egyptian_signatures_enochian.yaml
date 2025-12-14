@@ -65,7 +65,7 @@ sagco_tie:
   - Tierra Artificial Life
   benchmark: Precision-enhanced ANOVA lm on variance with script-tied metrics
 enhanced_metrics:
-  speedup_ops_per_sec: 554.1591159041387
+  speedup_ops_per_sec: 562.1648398750514
   precision_dps: 700
   wave_stability: 1.0
   stable_ci_lower: 0.996173241514445
@@ -73,8 +73,8 @@ enhanced_metrics:
   ci_coverage: 0.9999999999999
   var_power: 0.0028495230590557252
   power_analysis_alpha: 0.001
-  anova_f_statistic: 0.7369922084300465
-  anova_p_value: 0.7033686193242557
+  anova_f_statistic: 0.6560099755783054
+  anova_p_value: 0.7807829175148973
   recall_stable: 1.0
   recall_threshold: 0.9999999
   recall_achieved: true
