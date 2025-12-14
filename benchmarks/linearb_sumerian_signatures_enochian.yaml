@@ -13,25 +13,23 @@ sagco_tie:
   bench: Precision-enhanced ANOVA lm on variance in drift cascades with script-tied
     metrics
 enhanced_metrics:
-  speedup: 567.2550147172667
+  speedup: 566.6502790422007
   wave_length: 1000
   wave_mean: 1.3322676295501879e-18
   wave_std: 0.7071067811865476
-  stable_ci: !!python/tuple
+  stable_ci:
   - 0.996173241514445
   - 1.0
   var_power: 3.0759839120264587e-12
-  anova_f: 0.18881832529720266
+  anova_f: 1.3127342362546544
   recall_stable: 1.0
 graph_nodes:
 - Linear B
 - Sumerian
 - Voynich
 graph_edges:
-- !!python/tuple
-  - Linear B
+- - Linear B
   - Sumerian
-- !!python/tuple
-  - Sumerian
+- - Sumerian
   - Voynich
-timestamp: '2025-12-14 08:51:59'
+timestamp: '2025-12-14 08:54:01'

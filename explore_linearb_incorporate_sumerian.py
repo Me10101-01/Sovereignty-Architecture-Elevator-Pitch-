@@ -228,9 +228,13 @@ output_data = {
     'sagco_tie': tie_sagco_sumerian(),
     'enhanced_metrics': bench_results,
     'graph_nodes': list(exploration_graph.nodes()) if exploration_graph else [],
-    'graph_edges': list(exploration_graph.edges()) if exploration_graph else [],
+    'graph_edges': [list(edge) for edge in exploration_graph.edges()] if exploration_graph else [],
     'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
 }
+
+# Convert tuples to lists in enhanced_metrics
+if 'stable_ci' in output_data['enhanced_metrics']:
+    output_data['enhanced_metrics']['stable_ci'] = list(output_data['enhanced_metrics']['stable_ci'])
 
 # Create benchmarks directory if needed
 os.makedirs('benchmarks', exist_ok=True)
