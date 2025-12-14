@@ -17,6 +17,8 @@ import pandas as pd
 from statsmodels.stats import proportion, power
 from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
+# Optional dependencies for future enhancement
+# These are checked for availability but not yet fully integrated
 try:
     from qutip import bell_state  # Superposition tie to Enochian/Hermes unity
     QUTIP_AVAILABLE = True
@@ -74,7 +76,7 @@ hermes_principles_deep = {
 # Incorporate Undeciphered Ancient Languages (as entropy kernels in wave)
 undeciphered_languages_incorp = {
     'Vinča': 'Old European symbols (c. 5700 BCE) - Entropy for kernel compression in linguistic layer',
-    'Rongorongo': 'Easter Island glyphs (c. 19th CE) - Positional modulation for wave stability',
+    'Rongorongo': 'Easter Island glyphs (19th century CE) - Positional modulation for wave stability',
     'Linear A': 'Minoan script (c. 1800 BCE) - Undeciphered correspondences for GSCH clamp'
 }
 
@@ -162,8 +164,8 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=300):
     except:
         anova_f = 0.0
     
-    # Enhanced recall >99.5%
-    recall_stable = float(np.mean(np.abs(wave) <= 1) * 1.005)
+    # Enhanced recall: proportion of stable values
+    recall_stable = float(np.mean(np.abs(wave) <= 1))
     
     return {
         'speedup': float(speedup),

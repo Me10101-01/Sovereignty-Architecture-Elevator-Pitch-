@@ -21,7 +21,7 @@ Deepens hermetic alchemical principles with quotes:
 ### 3. Undeciphered Ancient Languages Incorporation
 Incorporates undeciphered scripts as entropy kernels:
 - **Vinča** (c. 5700 BCE): Old European symbols for kernel compression
-- **Rongorongo** (c. 19th CE): Easter Island glyphs for positional modulation
+- **Rongorongo** (19th century CE): Easter Island glyphs for positional modulation
 - **Linear A** (c. 1800 BCE): Minoan script for undeciphered correspondences
 
 ### 4. Doctrine of Signatures Healing Integration
@@ -98,7 +98,7 @@ Optional dependencies:
 
 ### Ancient Scripts
 - Vinča symbols (c. 5700 BCE)
-- Rongorongo glyphs (c. 19th CE)
+- Rongorongo glyphs (19th century CE)
 - Linear A script (c. 1800 BCE)
 
 ## Prior Art

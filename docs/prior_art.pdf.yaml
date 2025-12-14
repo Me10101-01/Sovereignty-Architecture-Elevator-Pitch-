@@ -63,7 +63,7 @@
   description: 'Integration of undeciphered scripts as entropy kernels'
   languages:
     vinca: 'Old European symbols (c. 5700 BCE) - entropy compression'
-    rongorongo: 'Easter Island glyphs (c. 19th CE) - positional modulation'
+    rongorongo: 'Easter Island glyphs (19th century CE) - positional modulation'
     linear_a: 'Minoan script (c. 1800 BCE) - undeciphered correspondences'
 
 '11':
