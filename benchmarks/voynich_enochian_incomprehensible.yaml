@@ -1,7 +1,7 @@
 enhanced_metrics:
-  anova_f: 0.2752036728726939
+  anova_f: 0.5611677050439727
   recall_stable: 1.0
-  speedup: 612.1073471491642
+  speedup: 612.879770880823
   stable_ci:
   - 0.996173241514445
   - 1.0
