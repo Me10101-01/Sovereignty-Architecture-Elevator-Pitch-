@@ -291,8 +291,9 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=450):
             
             model = ols('wave ~ C(group)', data=anova_df).fit()
             anova_result = anova_lm(model, typ=2)
-            results['anova_f'] = float(anova_result['F'][0]) if len(anova_result) > 0 else 0.0
-            results['anova_pr'] = float(anova_result['PR(>F)'][0]) if len(anova_result) > 0 else 1.0
+            # Use iloc for position-based indexing to avoid FutureWarning
+            results['anova_f'] = float(anova_result['F'].iloc[0]) if len(anova_result) > 0 else 0.0
+            results['anova_pr'] = float(anova_result['PR(>F)'].iloc[0]) if len(anova_result) > 0 else 1.0
             
             # Enhanced recall metric
             # Calculate proportion of stable wave values (within [-1, 1] bounds)
