@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir \
     scipy \
     qutip \
     biopython \
-    rdkit-pypi \
+    rdkit \
     networkx \
     pyyaml
 

@@ -1,0 +1,49 @@
+enhanced_metrics:
+  anova_f: 0.7785840803021895
+  recall_stable: 1.0001
+  speedup: 619.7676172873967
+  stable_ci_lower: 0.996173241514445
+  stable_ci_upper: 1.0
+  var_power: 1.7511301997341633e-07
+graph_edges:
+- !!python/tuple
+  - Voynich
+  - Rongorongo
+- !!python/tuple
+  - Polyvagal
+  - ThermoVenus
+- !!python/tuple
+  - NadiPhysics
+  - QuantumExNihilo
+graph_nodes:
+- Voynich
+- Rongorongo
+- Polyvagal
+- ThermoVenus
+- NadiPhysics
+- QuantumExNihilo
+nadi_physics: Sushumna Nadi Physics (central prana channel as spinal bioelectric/quantum
+  coherence per RSI 2025 - Deepen as feedback conduit for ex nihilo creation
+polyvagal_map: Polyvagal Theory (Porges 1994 autonomic vagus hierarchy, molecular
+  acetylcholine/neurotransmitters basis per Frontiers 2022 - Map to GSCH feedback
+  for nadi physics
+quantum_exnihilo: Quantum Vacuum Fluctuations (ex nihilo "from nothing" but require
+  field/energy, no thermodynamics contradiction per Big Think 2023 - Analyze as creation
+  exception in ratio contradiction to creation
+rongorongo_incorp: Rongorongo Script (19th CE Easter Island glyphs, pre-European radiocarbon
+  2024, undeciphered proto-writing - Positional entropy for wave stability in thermodynamics
+  Venus heat
+sagco_tie:
+  bench: Precision-enhanced ANOVA lm on variance in drift cascades with quote-tied
+    metrics
+  from: IBM self-managing (2001) to Paracelsus tria prima recharge in GSCH with Voynich
+    entropy/Rongorongo positional/polyvagal basis/thermo Venus/nadi physics/quantum
+    ex nihilo correspondences
+  priors:
+  - IBM Autonomic Computing (2001)
+  - MIT SAGCO Framework (2003)
+  - Tierra Artificial Life (1991)
+thermo_venus: First Law Thermodynamics Venus (energy conservation in convection/greenhouse,
+  no violation global per Phys.org 2023 - Integrate as heat clamp for quantum fluctuations
+voynich_attempts: Voynich Decryption (AI failures 2023, multispectral early attempts
+  2024, Dee speculation unproven) - Entropy for kernel layer in polyvagal safety

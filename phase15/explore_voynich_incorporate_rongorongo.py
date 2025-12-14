@@ -105,7 +105,9 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=400):
     stable_prop_ci = proportion.proportion_confint(stable_count, len(wave), method='wilson')
     
     # Variance power analysis with tight alpha (transcendent)
-    var_power = power.FTestPower().solve_power(effect_size=0.5, nobs=len(wave), alpha=0.0000001)
+    # Note: solve_power requires one parameter to be None - we solve for power given effect size and alpha
+    # FTestPower uses df_num and df_denom instead of nobs
+    var_power = power.FTestPower().solve_power(effect_size=0.5, df_num=5, df_denom=len(wave)-6, alpha=0.0000001, power=None)
     
     # Multi-group ANOVA lm data
     anova_df = pd.DataFrame({
@@ -120,12 +122,15 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=400):
     # Enhanced recall >99.99%
     recall_stable = np.mean(np.abs(wave) <= 1) * 1.0001  # Enhanced recall >99.99%
     
+    # Extract ANOVA F-statistic safely
+    anova_f_value = float(anova_result['F'].iloc[0]) if 'F' in anova_result.columns else 0.0
+    
     return {
         'speedup': float(speedup),
         'stable_ci_lower': float(stable_prop_ci[0]),
         'stable_ci_upper': float(stable_prop_ci[1]),
         'var_power': float(var_power),
-        'anova_f': float(anova_result['F'][0]) if 'F' in anova_result.columns else 0.0,
+        'anova_f': anova_f_value,
         'recall_stable': float(recall_stable)
     }
 
