@@ -213,12 +213,12 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=150):
     # F-test power analysis (tighter alpha for >99% confidence)
     try:
         ftest_power = power.FTestPower()
-        var_power = ftest_power.solve_power(
+        # Calculate statistical power for given effect size and sample size
+        var_power = ftest_power.power(
             effect_size=0.5, 
             df_num=3, 
             df_denom=n-4,
-            alpha=0.01, 
-            power=None
+            alpha=0.01
         )
     except Exception as e:
         print(f"Power calculation warning: {e}")

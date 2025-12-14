@@ -27,7 +27,7 @@ sagco_tie:
   - MIT Self-Organizing Systems
   - Tierra Artificial Life (Ray 1991)
 enhanced_metrics:
-  speedup: 632.8451494592236
+  speedup: 631.9341992343815
   stable_ci:
   - 0.996173241514445
   - 1.0
