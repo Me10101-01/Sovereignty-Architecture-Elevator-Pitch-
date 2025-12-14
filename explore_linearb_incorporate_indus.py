@@ -167,10 +167,11 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=550):
             results['var_power'] = var_power
             
             # ANOVA lm data preparation
+            num_groups = 9  # Multi-group lm data
             anova_df = pd.DataFrame({
                 'wave': wave, 
-                'group': np.random.randint(0, 9, len(wave))
-            })  # Multi-group lm data
+                'group': np.random.randint(0, num_groups, len(wave))
+            })
             
             # Precision ANOVA
             model = ols('wave ~ C(group)', data=anova_df).fit()

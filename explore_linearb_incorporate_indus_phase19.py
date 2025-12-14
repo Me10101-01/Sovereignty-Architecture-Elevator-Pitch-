@@ -70,10 +70,10 @@ def load_claims():
 
 # Explored Linear B Decipherment Details (with Ventris methods and Kober's work)
 linearb_details_deep = (
-    'Linear B Decipherment (Ventris 1952 WWII code-break grid/context with Alice Kober\'s '
-    'frequency analysis, Mycenaean Greek syllabary 87 signs on Knossos/Pylos tablets as '
-    'palace records, Ventris\' Experimental Vocabulary and contextual matches - Details as '
-    'feedback patterns for polyvagal safety in nadi physics)'
+    "Linear B Decipherment (Ventris 1952 WWII code-break grid/context with Alice Kober's "
+    "frequency analysis, Mycenaean Greek syllabary 87 signs on Knossos/Pylos tablets as "
+    "palace records, Ventris' Experimental Vocabulary and contextual matches - Details as "
+    "feedback patterns for polyvagal safety in nadi physics)"
 )
 
 # Incorporated Indus Valley Script (as entropy clamp)
@@ -168,10 +168,11 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=600):
             results['var_power'] = var_power
             
             # ANOVA lm data preparation (10 groups for Phase 19)
+            num_groups = 10  # Multi-group lm data for Phase 19
             anova_df = pd.DataFrame({
                 'wave': wave, 
-                'group': np.random.randint(0, 10, len(wave))
-            })  # Multi-group lm data
+                'group': np.random.randint(0, num_groups, len(wave))
+            })
             
             # Precision ANOVA
             model = ols('wave ~ C(group)', data=anova_df).fit()

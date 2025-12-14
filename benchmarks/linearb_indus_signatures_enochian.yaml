@@ -1,7 +1,7 @@
 enhanced_metrics:
   anova_f: 1.0
   recall_stable: 1.0
-  speedup: 578.2118172470261
+  speedup: 586.070202041232
   stable_ci: !!python/tuple
   - 0.99
   - 1.0
