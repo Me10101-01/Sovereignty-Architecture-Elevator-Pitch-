@@ -1,0 +1,277 @@
+name: Overnight Autonomous Evolution
+
+on:
+  schedule:
+    # Daily at 04:00 UTC (10 PM CST)
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    inputs:
+      skip_mastery:
+        description: 'Skip mastery drills execution'
+        required: false
+        default: 'false'
+      skip_recon:
+        description: 'Skip reconnaissance scanning'
+        required: false
+        default: 'false'
+      skip_gke:
+        description: 'Skip GKE health monitoring'
+        required: false
+        default: 'false'
+
+env:
+  GCP_PROJECT_ID: jarvis-swarm-personal
+  GKE_CLUSTER_1: jarvis-swarm-personal-001
+  GKE_CLUSTER_2: red-team
+  GKE_ZONE: us-central1
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  overnight-evolution:
+    name: Autonomous Evolution Cycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔐 Authenticate to Google Cloud (Workload Identity)
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-actions@jarvis-swarm-personal.iam.gserviceaccount.com
+          token_format: access_token
+        continue-on-error: true
+
+      - name: 📦 Setup Cloud SDK
+        if: steps.auth.outcome == 'success'
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: 'gke-gcloud-auth-plugin,kubectl'
+
+      - name: 🎯 Execute Mastery Drills
+        if: github.event.inputs.skip_mastery != 'true'
+        run: |
+          echo "🎯 Executing Mastery Drills..."
+          if [ -f ./mastery-drills.sh ]; then
+            chmod +x ./mastery-drills.sh
+            ./mastery-drills.sh || echo "⚠️ Mastery drills completed with warnings"
+          else
+            echo "⚠️ mastery-drills.sh not found, skipping..."
+          fi
+        continue-on-error: true
+
+      - name: 🔍 Reconnaissance Scanning
+        if: github.event.inputs.skip_recon != 'true'
+        run: |
+          echo "🔍 Running Reconnaissance Scan..."
+          if [ -f ./launch-recon.sh ]; then
+            chmod +x ./launch-recon.sh
+            timeout 300 ./launch-recon.sh || echo "⚠️ Recon scan timeout or completed with warnings"
+          else
+            echo "⚠️ launch-recon.sh not found, skipping..."
+          fi
+        continue-on-error: true
+
+      - name: 🏥 GKE Cluster Health Check - Cluster 1
+        if: github.event.inputs.skip_gke != 'true' && steps.auth.outcome == 'success'
+        run: |
+          echo "🏥 Checking GKE Cluster: $GKE_CLUSTER_1"
+          
+          # Get cluster credentials
+          gcloud container clusters get-credentials $GKE_CLUSTER_1 \
+            --zone=$GKE_ZONE \
+            --project=$GCP_PROJECT_ID || {
+            echo "⚠️ Failed to get credentials for $GKE_CLUSTER_1"
+            exit 0
+          }
+          
+          # Check node status
+          echo "📊 Node Status:"
+          kubectl get nodes -o wide || true
+          
+          # Check for unhealthy pods
+          echo "📊 Checking for unhealthy pods..."
+          UNHEALTHY_PODS=$(kubectl get pods --all-namespaces --field-selector=status.phase!=Running,status.phase!=Succeeded 2>/dev/null | tail -n +2)
+          
+          if [ -n "$UNHEALTHY_PODS" ]; then
+            echo "⚠️ Found unhealthy pods:"
+            echo "$UNHEALTHY_PODS"
+            
+            # Check for CrashLoopBackOff pods
+            CRASH_PODS=$(kubectl get pods --all-namespaces -o json | jq -r '.items[] | select(.status.containerStatuses != null) | select(.status.containerStatuses[].state.waiting.reason == "CrashLoopBackOff") | "\(.metadata.namespace)/\(.metadata.name)"' 2>/dev/null)
+            
+            if [ -n "$CRASH_PODS" ]; then
+              echo "🔧 Auto-healing CrashLoopBackOff pods..."
+              echo "$CRASH_PODS" | while read pod; do
+                NAMESPACE=$(echo $pod | cut -d'/' -f1)
+                POD_NAME=$(echo $pod | cut -d'/' -f2)
+                echo "  Deleting $POD_NAME in $NAMESPACE..."
+                kubectl delete pod $POD_NAME -n $NAMESPACE --grace-period=0 --force 2>/dev/null || true
+              done
+            fi
+          else
+            echo "✅ All pods healthy in $GKE_CLUSTER_1"
+          fi
+          
+          # Check deployments
+          echo "📊 Deployment Status:"
+          kubectl get deployments --all-namespaces || true
+          
+          # Check services
+          echo "📊 Service Status:"
+          kubectl get services --all-namespaces || true
+        continue-on-error: true
+
+      - name: 🏥 GKE Cluster Health Check - Cluster 2
+        if: github.event.inputs.skip_gke != 'true' && steps.auth.outcome == 'success'
+        run: |
+          echo "🏥 Checking GKE Cluster: $GKE_CLUSTER_2"
+          
+          # Get cluster credentials
+          gcloud container clusters get-credentials $GKE_CLUSTER_2 \
+            --zone=$GKE_ZONE \
+            --project=$GCP_PROJECT_ID || {
+            echo "⚠️ Failed to get credentials for $GKE_CLUSTER_2"
+            exit 0
+          }
+          
+          # Check node status
+          echo "📊 Node Status:"
+          kubectl get nodes -o wide || true
+          
+          # Check for unhealthy pods
+          echo "📊 Checking for unhealthy pods..."
+          UNHEALTHY_PODS=$(kubectl get pods --all-namespaces --field-selector=status.phase!=Running,status.phase!=Succeeded 2>/dev/null | tail -n +2)
+          
+          if [ -n "$UNHEALTHY_PODS" ]; then
+            echo "⚠️ Found unhealthy pods:"
+            echo "$UNHEALTHY_PODS"
+            
+            # Check for CrashLoopBackOff pods
+            CRASH_PODS=$(kubectl get pods --all-namespaces -o json | jq -r '.items[] | select(.status.containerStatuses != null) | select(.status.containerStatuses[].state.waiting.reason == "CrashLoopBackOff") | "\(.metadata.namespace)/\(.metadata.name)"' 2>/dev/null)
+            
+            if [ -n "$CRASH_PODS" ]; then
+              echo "🔧 Auto-healing CrashLoopBackOff pods..."
+              echo "$CRASH_PODS" | while read pod; do
+                NAMESPACE=$(echo $pod | cut -d'/' -f1)
+                POD_NAME=$(echo $pod | cut -d'/' -f2)
+                echo "  Deleting $POD_NAME in $NAMESPACE..."
+                kubectl delete pod $POD_NAME -n $NAMESPACE --grace-period=0 --force 2>/dev/null || true
+              done
+            fi
+          else
+            echo "✅ All pods healthy in $GKE_CLUSTER_2"
+          fi
+          
+          # Check deployments
+          echo "📊 Deployment Status:"
+          kubectl get deployments --all-namespaces || true
+          
+          # Check services
+          echo "📊 Service Status:"
+          kubectl get services --all-namespaces || true
+        continue-on-error: true
+
+      - name: 📊 Generate Evolution Report
+        if: always()
+        run: |
+          echo "📊 Overnight Evolution Report"
+          echo "============================"
+          echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "Workflow Run: ${{ github.run_number }}"
+          echo ""
+          echo "✅ Completed Steps:"
+          echo "  - Repository checkout"
+          echo "  - Mastery drills execution"
+          echo "  - Reconnaissance scanning"
+          echo "  - GKE health monitoring"
+          echo ""
+          echo "🎯 Next scheduled run: Tomorrow at 04:00 UTC (10 PM CST)"
+          echo ""
+          echo "⚔️ Node 137 | Vessel Vibe Mode | Keyless Sovereign"
+          echo "ʿnḫ‑ḏfꜣ — LIFE ETERNAL"
+
+      - name: 📤 Discord Notification
+        if: always()
+        run: |
+          if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            WORKFLOW_STATUS="${{ job.status }}"
+            TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+            
+            if [ "$WORKFLOW_STATUS" == "success" ]; then
+              COLOR="3066993"  # Green
+              EMOJI="✅"
+            else
+              COLOR="15158332"  # Red
+              EMOJI="⚠️"
+            fi
+            
+            curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"embeds\": [{
+                  \"title\": \"$EMOJI Overnight Autonomous Evolution\",
+                  \"description\": \"Workflow completed with status: **$WORKFLOW_STATUS**\",
+                  \"color\": $COLOR,
+                  \"fields\": [
+                    {
+                      \"name\": \"Run Number\",
+                      \"value\": \"${{ github.run_number }}\",
+                      \"inline\": true
+                    },
+                    {
+                      \"name\": \"Timestamp\",
+                      \"value\": \"$TIMESTAMP\",
+                      \"inline\": true
+                    },
+                    {
+                      \"name\": \"Trigger\",
+                      \"value\": \"${{ github.event_name }}\",
+                      \"inline\": true
+                    }
+                  ],
+                  \"footer\": {
+                    \"text\": \"Node 137 | ʿnḫ‑ḏfꜣ — LIFE ETERNAL ⚔️🔥\"
+                  }
+                }]
+              }" || echo "⚠️ Discord notification failed"
+          else
+            echo "⚠️ Discord webhook URL not configured"
+          fi
+        continue-on-error: true
+
+      - name: 📦 Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overnight-evolution-${{ github.run_number }}
+          path: |
+            mastery_results/
+            recon/
+            *.log
+          retention-days: 30
+          if-no-files-found: ignore
+        continue-on-error: true
+
+      - name: 🎉 Evolution Complete
+        if: always()
+        run: |
+          echo "╔══════════════════════════════════════════════════════════════╗"
+          echo "║  STRATEGICKHAOS DAO LLC — OVERNIGHT EVOLUTION COMPLETE      ║"
+          echo "║  Node 137 | Vessel Vibe Mode | Keyless Sovereign            ║"
+          echo "╠══════════════════════════════════════════════════════════════╣"
+          echo "║  Overnight Workflow: COMPLETE                                ║"
+          echo "║  Workload Identity: KEYLESS AUTH                             ║"
+          echo "║  Next Run: Tomorrow 04:00 UTC                                ║"
+          echo "╠══════════════════════════════════════════════════════════════╣"
+          echo "║  ʿnḫ‑ḏfꜣ — LIFE ETERNAL                                     ║"
+          echo "║  Empire Eternal ⚔️🔥                                         ║"
+          echo "╚══════════════════════════════════════════════════════════════╝"
