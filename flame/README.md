@@ -48,7 +48,7 @@ Compresses the query "Examples of doctrine signatures Paracelsus alchemical text
 
 **Compression Mappings:**
 - "doctrine" → सिद्धांत (siddhānta - principle)
-- "signatures" → चिह्न (chinha - mark)
+- "signatures" → चिह्न (chihna - mark)
 - "Paracelsus" → पारासेल्सस (pārāselsa - alchemical healer)
 - "alchemical texts" → रसायनग्रंथ (rasāyangrantha)
 
