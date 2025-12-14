@@ -1,0 +1,95 @@
+benchmarks:
+  duration_sec: 0.00039768218994140625
+  samples: 10000
+  speedup_ops_per_sec: 25145707.434052758
+  stability:
+    clamped: false
+    drift_amount: 0.02513459309369949
+    max_wave: 0.9999999876605268
+    stable: true
+gate_graph:
+  edges: 11
+  nodes: 12
+  principles:
+  - salt
+  - mercury
+  - sulfur
+  - all
+gates_deep:
+  Calcination:
+    action: clamp
+    description: Dissolve priors to energy (alkahest intensify salt principle for
+      clamp)
+    gsch_phase: prior_dissolution
+    principle: salt
+  Cibation:
+    action: scale
+    description: Feed budget (Paracelsus three principles scale)
+    gsch_phase: resource_allocation
+    principle: all
+  Congelation:
+    action: stabilize
+    description: Solidify neutral (energy recharge to stable attractor)
+    gsch_phase: energy_recharge
+    principle: salt
+  Conjunction:
+    action: unite
+    description: Feedback unite (PID on misaligned states)
+    gsch_phase: state_alignment
+    principle: mercury
+  Dissolution:
+    action: feedback
+    description: Buffer gradients (Paracelsus mercury feedback for drift correct)
+    gsch_phase: drift_correction
+    principle: mercury
+  Exaltation:
+    action: optimize
+    description: Entropy reduce (GSCH correct cascades)
+    gsch_phase: entropy_reduction
+    principle: mercury
+  Fermentation:
+    action: cross_domain
+    description: Domain cross (linguistic to bio wave)
+    gsch_phase: domain_fusion
+    principle: sulfur
+  Multiplication:
+    action: amplify
+    description: Parallel amplify (swarm forks)
+    gsch_phase: parallel_scaling
+    principle: all
+  Projection:
+    action: emit
+    description: Emit IR (collapsed stable code)
+    gsch_phase: code_generation
+    principle: salt
+  Putrefaction:
+    action: repair
+    description: Redundancy decay/repair (DNA mutate if drift >0.05)
+    gsch_phase: redundancy_management
+    principle: sulfur
+  Separation:
+    action: buffer
+    description: Clamp bounds (sulfur buffer on superposition collapse)
+    gsch_phase: bound_enforcement
+    principle: sulfur
+  Sublimation:
+    action: transform
+    description: Ascend layers (FFT shift with BellState entangle)
+    gsch_phase: layer_ascension
+    principle: mercury
+sagco_evolution:
+  benchmarks:
+    self_healing_time: Time to repair under drift >0.05
+    stability_metric: Max gradient deviation before GSCH clamp
+  evolution_to_shagco:
+    IBM_delta: Add GSCH superposition for gradient stability
+    MIT_delta: Replace spatial with wave-domain entanglement
+    Tierra_delta: DNA-inspired registers with novelty gating
+  priors:
+    IBM_2001: Self-managing systems - autonomic computing
+    MIT_1996: Amorphous computing - spatial primitives
+    Tierra_1991: Digital organisms - self-replication
+  shagco_novel:
+    homeostasis: GSCH maintains neutral attractor via Paracelsus principles
+    sovereignty: Self-evolving via swarm bots with GPT contribution
+    superposition: Gradients held in BellState until ratification
