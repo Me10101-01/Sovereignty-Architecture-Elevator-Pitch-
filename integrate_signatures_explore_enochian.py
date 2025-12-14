@@ -94,8 +94,8 @@ def explore_enochian_system(gradient, principle='Mercury'):
     if principle == 'Sulphur':  # Fire amplification
         invoked *= 1.5  # Energy intensify for healing
     elif principle == 'Mercury':  # Fluid invocation
-        invoked = complex(mpmath.mpc(invoked.real, invoked.imag) / mpmath.mpf(2))
-    elif principle == 'Salt':  # Solid call
+        invoked /= 2  # Fluid division for adaptive healing
+    elif principle == 'Salt':  # Solid call - high precision
         invoked = complex(float(N(invoked.real, 200)), float(N(invoked.imag, 200)))
     
     # RDKit/Biopython sim: Enochian on molecule/DNA (e.g., signature plant for healing seq)
@@ -166,11 +166,13 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=200):
     freq = 40
     wave_expr = sin(2 * pi * freq * t_sym)  # Symbolic wave expression
     
-    # Generate precise time values
-    t_vals = [mpmath.mpf(i)/n for i in range(n)]
+    # Generate precise time values using vectorization
+    t_vals = np.linspace(0, 1, n, dtype=float)
     
-    # Hyper exact symbolic evaluation
-    wave = np.array([float(N(wave_expr.subs(t_sym, tv), dps)) for tv in t_vals])
+    # Use sympy's lambdify for efficient vectorized evaluation
+    from sympy import lambdify
+    wave_func = lambdify(t_sym, wave_expr, 'numpy')
+    wave = wave_func(t_vals)
     
     # Detect and clamp drift
     if np.max(np.abs(np.diff(wave))) > drift:

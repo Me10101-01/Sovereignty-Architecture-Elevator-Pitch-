@@ -1,12 +1,12 @@
 enhanced_metrics:
-  anova_f: 0.3239110837526973
+  anova_f: 0.1626516132645991
   dps: 200
-  mean_wave: 1.3322676295501879e-18
+  mean_wave: 3.153033389935444e-17
   recall_stable: 1.0
-  speedup: 618.2905814075189
+  speedup: 133144.05434575584
   stable_ci_lower: 0.996173241514445
   stable_ci_upper: 1.0
-  std_wave: 0.7071067811865476
+  std_wave: 0.7067531393633848
   var_power: 0.0011182691743688578
 enochian_explore:
   Mercury: ((0.0707+0j), 25)
