@@ -246,13 +246,35 @@ struct GlyphSonix:
                     return True
         return False
     
+    fn _contains_substring(self, text: String, substring: String) -> Bool:
+        """Check if text contains substring (simple implementation)"""
+        let text_len = len(text)
+        let sub_len = len(substring)
+        
+        if sub_len > text_len or sub_len == 0:
+            return False
+        
+        for i in range(text_len - sub_len + 1):
+            var match = True
+            for j in range(sub_len):
+                if text[i+j:i+j+1] != substring[j:j+1]:
+                    match = False
+                    break
+            if match:
+                return True
+        return False
+    
     fn _contains_charity(self, text: String) -> Bool:
         """Check if text contains 7% charity motif"""
-        return "7%" in text or "7 %" in text or "seven percent" in text
+        return (self._contains_substring(text, "7%") or 
+                self._contains_substring(text, "7 %") or 
+                self._contains_substring(text, "seven percent"))
     
     fn _contains_node137(self, text: String) -> Bool:
         """Check if text contains Node 137 reference"""
-        return "137" in text or "node 137" in text or "Node 137" in text
+        return (self._contains_substring(text, "137") or 
+                self._contains_substring(text, "node 137") or 
+                self._contains_substring(text, "Node 137"))
     
     fn fm_modulate(self, token: Token, t: Float64, index: Int) -> Float64:
         """

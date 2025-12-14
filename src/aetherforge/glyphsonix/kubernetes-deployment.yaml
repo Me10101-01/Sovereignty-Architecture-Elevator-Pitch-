@@ -192,11 +192,15 @@ metadata:
   namespace: aetherforge
 spec:
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce  # Changed from ReadWriteMany for better compatibility
   resources:
     requests:
       storage: 100Gi
   storageClassName: standard
+  # Note: If multi-pod write access is needed, consider:
+  # 1. Using a storage class that supports ReadWriteMany (e.g., NFS, CephFS)
+  # 2. Implementing a sidecar pattern with shared storage
+  # 3. Using object storage (S3, GCS) for multi-writer scenarios
 
 ---
 # ServiceMonitor for Prometheus (if using Prometheus Operator)
