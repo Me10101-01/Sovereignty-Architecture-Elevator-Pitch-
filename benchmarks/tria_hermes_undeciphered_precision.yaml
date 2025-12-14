@@ -28,11 +28,11 @@ sagco_tie:
   - MIT evolutionary systems
   - Tierra artificial life
 enhanced_metrics:
-  speedup: 634.1209126808943
+  speedup: 622.5913628166521
   stable_ci_lower: 0.9808619888277504
   stable_ci_upper: 0.9999999999999999
   var_power: 0.999
-  anova_f: 1.4822980492259985
+  anova_f: 1.7570134997629332
   recall_stable: 1.0
   precision_dps: 300
   drift_threshold: 0.05
