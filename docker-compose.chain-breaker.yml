@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  # Phase 1: Bootstrap
+  bootstrap:
+    build:
+      context: .
+      dockerfile: docker/phase_containers/Dockerfile.phase1
+    container_name: chain-breaker-bootstrap
+    volumes:
+      - ./bootstrap.py:/app/bootstrap.py:ro
+      - ./feps:/app/feps
+      - ./src:/app/src
+    environment:
+      - PHASE=1
+    networks:
+      - chain-breaker-net
+
+  # Phase 2: Prior Art Integration
+  prior-art:
+    build:
+      context: .
+      dockerfile: docker/phase_containers/Dockerfile.phase2
+    container_name: chain-breaker-prior-art
+    volumes:
+      - ./prior_art_integrate.py:/app/prior_art_integrate.py:ro
+      - ./src:/app/src
+      - ./prior_art_mapping.yaml:/app/prior_art_mapping.yaml
+    environment:
+      - PHASE=2
+    depends_on:
+      - bootstrap
+    networks:
+      - chain-breaker-net
+
+  # Phase 3: Control Unit (Quantum Entanglement)
+  control-unit:
+    build:
+      context: .
+      dockerfile: docker/phase_containers/Dockerfile.bootstrap
+    container_name: chain-breaker-control-unit
+    volumes:
+      - ./src/control_unit:/app/control_unit
+    working_dir: /app/control_unit
+    command: python control_unit.py
+    environment:
+      - PHASE=3
+      - GSCH_THRESHOLD=0.05
+    depends_on:
+      - prior-art
+    networks:
+      - chain-breaker-net
+
+  # Phase 4: Register Memory
+  register-memory:
+    build:
+      context: .
+      dockerfile: docker/phase_containers/Dockerfile.bootstrap
+    container_name: chain-breaker-register-memory
+    volumes:
+      - ./src/register_memory:/app/register_memory
+    working_dir: /app/register_memory
+    command: python register_memory.py
+    environment:
+      - PHASE=4
+      - NEURAL_TICK_FREQ=40.0
+    depends_on:
+      - control-unit
+    networks:
+      - chain-breaker-net
+
+  # GPT Assistant Service
+  gpt-assistant:
+    build:
+      context: .
+      dockerfile: docker/phase_containers/Dockerfile.bootstrap
+    container_name: chain-breaker-gpt-assistant
+    volumes:
+      - ./src/gpt_assistant:/app/gpt_assistant
+      - ./gpt_contributions.yaml:/app/gpt_contributions.yaml
+    working_dir: /app/gpt_assistant
+    command: python assistant.py
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+    depends_on:
+      - register-memory
+    networks:
+      - chain-breaker-net
+
+  # Swarm Bot Monitor (long-running service)
+  swarm-monitor:
+    build:
+      context: .
+      dockerfile: docker/phase_containers/Dockerfile.bootstrap
+    container_name: chain-breaker-swarm-monitor
+    volumes:
+      - ./src/swarm_bots:/app/swarm_bots
+      - ./src/control_unit:/app/control_unit:ro
+      - ./src/register_memory:/app/register_memory:ro
+    working_dir: /app/swarm_bots
+    command: tail -f /dev/null  # Keep container running for monitoring
+    environment:
+      - DRIFT_THRESHOLD=0.05
+      - EVOLUTION_ENABLED=true
+    depends_on:
+      - gpt-assistant
+    networks:
+      - chain-breaker-net
+
+networks:
+  chain-breaker-net:
+    driver: bridge
+    name: chain-breaker-evolution
+
+volumes:
+  chain-breaker-data:
+    name: chain-breaker-state

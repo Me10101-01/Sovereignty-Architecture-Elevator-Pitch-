@@ -1,6 +1,6 @@
 component: control_unit
-drift: 0.045000000000000005
-evolution_triggered: true
+drift: 0.04250069221699098
+evolution_triggered: false
 fidelity: 1.0
 gsch_threshold: 0.05
 phase: 3

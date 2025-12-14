@@ -1,11 +1,11 @@
 component: register_memory
 dna_register:
   drift: 0.0
-  mutations: 0
-  sequence: ATCGATCG
-evolution_triggered: false
+  mutations: 1
+  sequence: GCTAGCTA
+evolution_triggered: true
 neural_tick:
   frequency: 40.0
-  tick_value: 1.0004792540805398
-  timestamp: '2025-12-14T07:35:06.003768'
+  tick_value: 1.0004193598911308
+  timestamp: '2025-12-14T07:36:19.981905'
 phase: 4
