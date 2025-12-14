@@ -54,7 +54,20 @@ left, right = render_line_to_stereo(text, carrier_freq, duration)
 write_wav_stereo("output.wav", left, right, SAMPLE_RATE)
 ```
 
-### Full Rendering
+### Command Line Interface
+
+```bash
+# Using the CLI wrapper (recommended)
+python3 gsrc_cli.py --full                    # Render all six lines
+python3 gsrc_cli.py --carriers                # Show carrier frequencies
+python3 gsrc_cli.py --text "Your text here"   # Render custom text
+python3 gsrc_cli.py --help                    # Show all options
+
+# Example: Render with custom carrier and duration
+python3 gsrc_cli.py --text "ḥsb 7% dỉ ỉb nfr" --carrier 220.0 --duration 6.0 --output my_render.wav
+```
+
+### Full Rendering (Direct Module)
 
 ```bash
 # Render all six source text lines
