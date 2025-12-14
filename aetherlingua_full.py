@@ -18,6 +18,9 @@ SAMPLE_RATE = 48000
 BIT_DEPTH = 24
 DURATION = 8.0
 SEED = 1337
+STRIKE_DURATION = 1.0  # Duration for wedge strike distribution in seconds
+NODE137_CENTS_OFFSET = 11.0  # Microtonal offset in cents for node137 burst
+PCM_24BIT_MAX = 8388607.0  # Maximum value for 24-bit signed PCM (2^23 - 1)
 
 # --- Deterministic RNG ---
 class DetermRng:
@@ -168,9 +171,9 @@ def sumerian_glyph_signal(glyph: str, t: float) -> float:
         return 0.0
     phon, base_freq, wedges = SUMERIAN_GLYPHS[glyph]
     out = 0.0
-    # strikes distributed in first 1.2s
+    # strikes distributed over STRIKE_DURATION
     for w in range(wedges):
-        strike_time = (w / max(1, wedges - 1)) * 1.0 if wedges > 1 else 0.0  # 0..1s
+        strike_time = (w / max(1, wedges - 1)) * STRIKE_DURATION if wedges > 1 else 0.0
         dt = t - strike_time
         if dt >= 0.0 and dt < 0.6:
             # percussive bronze strike: filtered burst + microtonal cluster
@@ -218,8 +221,7 @@ def charity_gliss(carrier: float, t: float) -> float:
 def node137_burst(carrier: float, t: float) -> float:
     """Node 137 burst effect"""
     if t < 0.8:
-        offset = 5.0 + 18.0 - 12.0
-        freq = carrier * cents_to_mult(offset)
+        freq = carrier * cents_to_mult(NODE137_CENTS_OFFSET)
         return saw(freq, t) * math.exp(-t * 6.0) * 0.48
     return 0.0
 
@@ -283,8 +285,8 @@ def write_wav_24bit_stereo(filename: str, left: List[float], right: List[float])
         f.write(struct.pack("<I", subchunk2_size))
         # samples
         for i in range(n):
-            l = int(max(-1.0, min(1.0, left[i])) * 8388607.0)
-            r = int(max(-1.0, min(1.0, right[i])) * 8388607.0)
+            l = int(max(-1.0, min(1.0, left[i])) * PCM_24BIT_MAX)
+            r = int(max(-1.0, min(1.0, right[i])) * PCM_24BIT_MAX)
             # Write 24-bit little-endian
             f.write(struct.pack("<i", l)[:3])
             f.write(struct.pack("<i", r)[:3])
@@ -293,8 +295,8 @@ def sha256_bytes_from_wav(left: List[float], right: List[float]) -> str:
     """SHA-256 fingerprint for audio buffer (canonical PCM int24 little-endian interleaved)"""
     h = hashlib.sha256()
     for i in range(len(left)):
-        l = int(max(-1.0, min(1.0, left[i])) * 8388607.0)
-        r = int(max(-1.0, min(1.0, right[i])) * 8388607.0)
+        l = int(max(-1.0, min(1.0, left[i])) * PCM_24BIT_MAX)
+        r = int(max(-1.0, min(1.0, right[i])) * PCM_24BIT_MAX)
         h.update(struct.pack("<i", l)[:3])
         h.update(struct.pack("<i", r)[:3])
     return h.hexdigest()
