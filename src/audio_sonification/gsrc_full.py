@@ -21,6 +21,15 @@ SAMPLE_RATE = 48000
 BIT_DEPTH = 24
 SEED = 1337
 
+# Reverb mix constants
+REVERB_WET_MIX = 0.3
+REVERB_DRY_MIX = 0.7
+
+# Node 137 burst cents offset components
+NODE_137_CENTS_A = 5.0
+NODE_137_CENTS_B = 18.0
+NODE_137_CENTS_C = 12.0
+
 
 class DetermRng:
     """Deterministic random number generator for reproducible renders."""
@@ -38,7 +47,8 @@ class DetermRng:
         return self.next() / 0x7fffffff
 
 
-# Global RNG instance
+# Global RNG instance (reserved for future use in stochastic effects)
+# Note: Currently not used in deterministic rendering pipeline
 RNG = DetermRng()
 
 
@@ -57,7 +67,7 @@ def saw(freq: float, t: float) -> float:
 def triangle(freq: float, t: float) -> float:
     """Triangle wave oscillator."""
     x = (freq * t) % 1.0
-    return 1.0 - 4.0 * abs(round(x) - x)
+    return 1.0 - 4.0 * abs(x - 0.5)
 
 
 # ADSR envelope
@@ -201,7 +211,7 @@ def node137_burst(carrier: float, t: float) -> float:
         t: Current time
     """
     if t < 0.8:
-        offset_cents = 5.0 + 18.0 - 12.0
+        offset_cents = NODE_137_CENTS_A + NODE_137_CENTS_B - NODE_137_CENTS_C
         freq = carrier * cents_to_mult(offset_cents)
         return saw(freq, t) * math.exp(-t * 6.0) * 0.45
     return 0.0
@@ -368,8 +378,8 @@ def render_line_to_stereo(text: str, carrier: float, duration: float) -> Tuple[L
     
     # Mix wet back
     for i in range(n):
-        left[i] = left[i] * 0.7 + wet[i] * 0.3
-        right[i] = right[i] * 0.7 + wet[i] * 0.3
+        left[i] = left[i] * REVERB_DRY_MIX + wet[i] * REVERB_WET_MIX
+        right[i] = right[i] * REVERB_DRY_MIX + wet[i] * REVERB_WET_MIX
     
     return (left, right)
 
@@ -397,10 +407,11 @@ def main():
         write_wav_stereo(fname, L, R, SAMPLE_RATE)
         per_line_files.append(fname)
         
-        # Append to mix (pad if necessary)
-        if len(mix_left) < len(L):
-            mix_left = mix_left + [0.0] * (len(L) - len(mix_left))
-            mix_right = mix_right + [0.0] * (len(R) - len(mix_right))
+        # Append to mix (pad both buffers to the same length)
+        max_len = max(len(mix_left), len(L))
+        if len(mix_left) < max_len:
+            mix_left = mix_left + [0.0] * (max_len - len(mix_left))
+            mix_right = mix_right + [0.0] * (max_len - len(mix_right))
         
         for j in range(len(L)):
             mix_left[j] += L[j]
