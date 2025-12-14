@@ -1,0 +1,25 @@
+FROM python:3.12-slim
+
+# Phase 1: Bootstrap Container
+LABEL phase="1"
+LABEL description="Bootstrap initialization with neural tick clock"
+
+# Install basic dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages
+RUN pip install --no-cache-dir \
+    pyyaml \
+    requests
+
+# Set up working directory
+WORKDIR /app
+
+# Copy bootstrap script
+COPY bootstrap.py /app/
+
+# Entry point
+ENTRYPOINT ["python", "bootstrap.py"]
