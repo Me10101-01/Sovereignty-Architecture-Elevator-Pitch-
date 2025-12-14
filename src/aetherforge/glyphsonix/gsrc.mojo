@@ -28,12 +28,12 @@ alias PI2 = 2.0 * pi
 
 # Token types for Kemetic text parsing
 struct TokenType:
-    var VOWEL: Int = 0
-    var CONSONANT: Int = 1
-    var SIBILANT: Int = 2
-    var PHARYNGEAL: Int = 3
-    var NUMBER: Int = 4
-    var SEPARATOR: Int = 5
+    alias VOWEL: Int = 0
+    alias CONSONANT: Int = 1
+    alias SIBILANT: Int = 2
+    alias PHARYNGEAL: Int = 3
+    alias NUMBER: Int = 4
+    alias SEPARATOR: Int = 5
 
 struct Token:
     """Represents a parsed phonetic/hieroglyphic token"""
@@ -212,21 +212,26 @@ struct GlyphSonix:
         if self._is_number(token):
             return TokenType.NUMBER
         
-        let first_char = token[0] if len(token) > 0 else ""
+        # Check if token is empty
+        if len(token) == 0:
+            return TokenType.SEPARATOR
+        
+        # Get first character as string for comparison
+        let first_char = token[0:1]
         
         # Check vowels
         for v in vowels:
-            if first_char == v[]:
+            if first_char == v:
                 return TokenType.VOWEL
         
         # Check sibilants
         for s in sibilants:
-            if first_char == s[]:
+            if first_char == s:
                 return TokenType.SIBILANT
         
         # Check pharyngeals
         for p in pharyngeals:
-            if first_char == p[]:
+            if first_char == p:
                 return TokenType.PHARYNGEAL
         
         return TokenType.CONSONANT
@@ -235,8 +240,9 @@ struct GlyphSonix:
         """Check if token contains numeric characters"""
         let nums = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
         for i in range(len(token)):
+            let char = token[i:i+1]
             for n in nums:
-                if token[i] == n[]:
+                if char == n:
                     return True
         return False
     
@@ -369,19 +375,24 @@ struct GlyphSonix:
         
         The WAV file becomes proof of invocation — immutable, beautiful, sovereign
         
+        NOTE: This is a placeholder implementation. Actual WAV file I/O requires
+        platform-specific file operations that will be implemented in Phase 2.
+        
         Args:
             buffer: AudioBuffer to export
             filename: Output filename
             
         Returns:
-            True if successful
+            False (not yet implemented - placeholder only)
         """
-        # WAV file export implementation would go here
-        # For now, this is a placeholder
-        print("Exporting to WAV: " + filename)
+        # TODO: Implement actual WAV file export with RIFF header
+        # See SPECIFICATION.md section 8.1 for WAV format details
+        print("⚠ WAV export not yet implemented (placeholder only)")
+        print("Target file: " + filename)
         print("Samples: " + str(buffer.length))
         print("Sample rate: " + str(buffer.sample_rate))
-        return True
+        print("Note: Audio buffer generated successfully, file I/O pending")
+        return False  # Return False to indicate not yet implemented
 
 fn main():
     """

@@ -102,10 +102,15 @@ spec:
         volumeMounts:
         - name: output
           mountPath: /app/output
+        - name: persistent-storage
+          mountPath: /app/persistent
       volumes:
       - name: output
         emptyDir:
           sizeLimit: 10Gi
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: glyphsonix-storage
 
 ---
 apiVersion: v1

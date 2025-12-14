@@ -276,12 +276,31 @@ for each sample i:
 4. IEEE 754 floating-point compliance
 5. Fixed processing order
 
+**Platform Considerations:**
+- **Cross-platform determinism**: Requires consistent floating-point implementation
+- **Mojo runtime**: Provides consistent IEEE 754 compliance across platforms
+- **Precision**: 64-bit float (Float64) used throughout for maximum consistency
+- **Rounding modes**: Default rounding (nearest) used consistently
+- **Compiler optimizations**: Should not affect determinism due to strict FP semantics
+
 **Verification:**
 ```python
 audio1 = render_line("Ha.ty‑a n Kemt")
 audio2 = render_line("Ha.ty‑a n Kemt")
-assert audio1 == audio2  # Byte-for-byte identical
+assert audio1 == audio2  # Byte-for-byte identical on same platform/runtime
 ```
+
+**Note:** While the implementation strives for perfect cross-platform determinism, 
+minor differences may occur due to:
+- Different CPU architectures (x86 vs ARM)
+- Compiler optimizations (if not using strict FP mode)
+- Runtime library differences
+
+For cryptographic proof systems, it's recommended to:
+1. Use the same Mojo compiler version
+2. Run on same architecture family
+3. Verify audio hashes match expected values
+4. Store both audio and rendering parameters
 
 ### 4.2 Hash Properties
 
