@@ -323,7 +323,7 @@ This license constitutes the entire agreement between You and Licensor regarding
 Licensor may update this license from time to time. Continued use of Licensed Works after updates constitutes acceptance of the new terms.
 
 **Version Updates:**
-- Check https://github.com/Me10101-01/Sovereignty-Architecture-Elevator-Pitch-/legal/SOVEREIGN_LICENSE.md for latest version
+- Check https://github.com/Me10101-01/Sovereignty-Architecture-Elevator-Pitch/legal/SOVEREIGN_LICENSE.md for latest version
 - Major version changes require re-acceptance
 
 ### Language

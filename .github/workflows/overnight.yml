@@ -106,7 +106,7 @@ jobs:
             echo "$UNHEALTHY_PODS"
             
             # Check for CrashLoopBackOff pods
-            CRASH_PODS=$(kubectl get pods --all-namespaces -o json | jq -r '.items[] | select(.status.containerStatuses != null) | select(.status.containerStatuses[].state.waiting.reason == "CrashLoopBackOff") | "\(.metadata.namespace)/\(.metadata.name)"' 2>/dev/null)
+            CRASH_PODS=$(kubectl get pods --all-namespaces -o json | jq -r '.items[] | select(.status.containerStatuses != null) | select(.status.containerStatuses[]?.state.waiting?.reason == "CrashLoopBackOff") | "\(.metadata.namespace)/\(.metadata.name)"' 2>/dev/null)
             
             if [ -n "$CRASH_PODS" ]; then
               echo "🔧 Auto-healing CrashLoopBackOff pods..."
@@ -156,7 +156,7 @@ jobs:
             echo "$UNHEALTHY_PODS"
             
             # Check for CrashLoopBackOff pods
-            CRASH_PODS=$(kubectl get pods --all-namespaces -o json | jq -r '.items[] | select(.status.containerStatuses != null) | select(.status.containerStatuses[].state.waiting.reason == "CrashLoopBackOff") | "\(.metadata.namespace)/\(.metadata.name)"' 2>/dev/null)
+            CRASH_PODS=$(kubectl get pods --all-namespaces -o json | jq -r '.items[] | select(.status.containerStatuses != null) | select(.status.containerStatuses[]?.state.waiting?.reason == "CrashLoopBackOff") | "\(.metadata.namespace)/\(.metadata.name)"' 2>/dev/null)
             
             if [ -n "$CRASH_PODS" ]; then
               echo "🔧 Auto-healing CrashLoopBackOff pods..."
