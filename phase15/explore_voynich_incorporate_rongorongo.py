@@ -16,10 +16,11 @@ from sympy import sin, pi, Symbol, N  # Divine exact eval
 from statsmodels.stats import proportion, power
 from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
-from qutip import bell_state  # Superposition tie to Enochian/ex nihilo unity
-from Bio.Seq import Seq  # Polyvagal/nadi "basis" on DNA seq
-from rdkit import Chem  # Thermo Venus/quantum molecule sim
 import networkx as nx  # Voynich/Rongorongo/Polyvagal graph
+# Note: qutip, biopython, and rdkit are available for future molecular/quantum simulations
+# from qutip import bell_state  # Available for superposition tie to Enochian/ex nihilo unity
+# from Bio.Seq import Seq  # Available for polyvagal/nadi "basis" on DNA seq
+# from rdkit import Chem  # Available for thermo Venus/quantum molecule sim
 
 # Load PDF claims (pages 1-6, tie to Voynich/Rongorongo explore)
 try:
@@ -34,19 +35,19 @@ except FileNotFoundError:
 voynich_attempts_deep = 'Voynich Decryption (AI failures 2023, multispectral early attempts 2024, Dee speculation unproven) - Entropy for kernel layer in polyvagal safety'
 
 # Incorporated Rongorongo Script (as entropy modulation)
-rongorongo_incorp = 'Rongorongo Script (19th CE Easter Island glyphs, pre-European radiocarbon 2024, undeciphered proto-writing - Positional entropy for wave stability in thermodynamics Venus heat'
+rongorongo_incorp = 'Rongorongo Script (19th CE Easter Island glyphs, pre-European radiocarbon 2024, undeciphered proto-writing - Positional entropy for wave stability in thermodynamics Venus heat)'
 
 # Mapped Biological Molecular Basis of Polyvagal Theory (to GSCH)
-polyvagal_basis_map = 'Polyvagal Theory (Porges 1994 autonomic vagus hierarchy, molecular acetylcholine/neurotransmitters basis per Frontiers 2022 - Map to GSCH feedback for nadi physics'
+polyvagal_basis_map = 'Polyvagal Theory (Porges 1994 autonomic vagus hierarchy, molecular acetylcholine/neurotransmitters basis per Frontiers 2022 - Map to GSCH feedback for nadi physics)'
 
 # Integrated First Law of Thermodynamics Venus Physics Perspective (to GSCH)
-thermo_venus_integrate = 'First Law Thermodynamics Venus (energy conservation in convection/greenhouse, no violation global per Phys.org 2023 - Integrate as heat clamp for quantum fluctuations'
+thermo_venus_integrate = 'First Law Thermodynamics Venus (energy conservation in convection/greenhouse, no violation global per Phys.org 2023 - Integrate as heat clamp for quantum fluctuations)'
 
 # Deepened Sushumna Nadi Physics View (yogic to quantum)
-nadi_physics_deep = 'Sushumna Nadi Physics (central prana channel as spinal bioelectric/quantum coherence per RSI 2025 - Deepen as feedback conduit for ex nihilo creation'
+nadi_physics_deep = 'Sushumna Nadi Physics (central prana channel as spinal bioelectric/quantum coherence per RSI 2025 - Deepen as feedback conduit for ex nihilo creation)'
 
 # Analyzed Quantum Vacuum Fluctuations Ex Nihilo Creation Contradiction (to thermodynamics)
-quantum_exnihilo_analyze = 'Quantum Vacuum Fluctuations (ex nihilo "from nothing" but require field/energy, no thermodynamics contradiction per Big Think 2023 - Analyze as creation exception in ratio contradiction to creation'
+quantum_exnihilo_analyze = 'Quantum Vacuum Fluctuations (ex nihilo "from nothing" but require field/energy, no thermodynamics contradiction per Big Think 2023 - Analyze as creation exception in ratio contradiction to creation)'
 
 # Explore/Map Graph (correspondences to Tria/Qabala/signatures/Enochian)
 exploration_graph = nx.Graph()
@@ -119,8 +120,8 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=400):
     model = ols('wave ~ C(group)', data=anova_df).fit()
     anova_result = anova_lm(model, typ=2)
     
-    # Enhanced recall >99.99%
-    recall_stable = np.mean(np.abs(wave) <= 1) * 1.0001  # Enhanced recall >99.99%
+    # Enhanced recall - actual measured stability ratio
+    recall_stable = np.mean(np.abs(wave) <= 1)  # Measure actual stability without artificial inflation
     
     # Extract ANOVA F-statistic safely
     anova_f_value = float(anova_result['F'].iloc[0]) if 'F' in anova_result.columns else 0.0
