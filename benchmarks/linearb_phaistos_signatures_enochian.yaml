@@ -1,6 +1,6 @@
 phase: 16
 title: Linear B Script Exploration + Phaistos Disc Incorporation
-timestamp: '2025-12-14 08:40:39'
+timestamp: '2025-12-14 08:43:14'
 linearb_deep: Linear B Script (deciphered 1952 Ventris as Mycenaean Greek syllabary
   c. 1450-1200 BCE, 87 signs on tablets for records - Explore as feedback patterns
   for polyvagal safety in nadi physics and quantum vacuum fluctuations)
@@ -42,7 +42,7 @@ sagco_tie:
   - MIT Tierra artificial life (1991)
   - Stanford evolutionary algorithms
 enhanced_metrics:
-  speedup: 604.3570785415618
+  speedup: 611.8380476749797
   wave_samples: 1000
   frequency: 40
   precision_dps: 450
@@ -57,8 +57,8 @@ enhanced_metrics:
   stable_ci_lower: 0.996173241514445
   stable_ci_upper: 1.0
   var_power: 0.95
-  anova_f: 1.2254530325859816
-  anova_pr: 0.2905137633432059
+  anova_f: 1.7996947721619823
+  anova_pr: 0.09603399520358713
   recall_stable: 1.0
 graph_summary:
   nodes: 5

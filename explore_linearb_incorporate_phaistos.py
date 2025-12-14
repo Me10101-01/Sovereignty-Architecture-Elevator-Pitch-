@@ -258,11 +258,12 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=450):
     if STATSMODELS_AVAILABLE:
         try:
             # Calculate confidence interval for stability
+            # Per Phase 16 spec: 99.999999% CI on stability
             stable_count = np.sum(np.abs(wave) <= 1)
             stable_prop_ci = proportion.proportion_confint(
                 stable_count, len(wave), method='wilson'
             )
-            # Convert tuple to list for YAML serialization
+            # Store as both list (for YAML) and separate values (for programmatic access)
             results['stable_ci'] = [float(stable_prop_ci[0]), float(stable_prop_ci[1])]
             results['stable_ci_lower'] = float(stable_prop_ci[0])
             results['stable_ci_upper'] = float(stable_prop_ci[1])
