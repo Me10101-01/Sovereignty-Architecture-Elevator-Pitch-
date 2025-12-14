@@ -1,0 +1,41 @@
+enhanced_metrics:
+  anova_f: 1.0
+  recall_stable: 1.0
+  speedup: 578.2118172470261
+  stable_ci: !!python/tuple
+  - 0.99
+  - 1.0
+  var_power: 0.95
+graph:
+  edges:
+  - !!python/tuple
+    - Linear B
+    - Indus
+    - Deciphered Mycenaean to undeciphered Harappan for polyvagal molecular
+  - !!python/tuple
+    - Indus
+    - Voynich
+    - Undeciphered script to quantum ex nihilo creation
+  nodes:
+    Indus:
+      incorp: Indus Valley Script (undeciphered Harappan seals c. 3300-1300 BCE 400+
+        symbols short inscriptions, proto-writing/logographic theories - Incorporate
+        as entropy positional for wave clamp in GSCH, incomprehensible to mind as
+        ancient trade code)
+    Linear B:
+      details: Linear B Decipherment (Ventris 1952 WWII code-break grid/context, Mycenaean
+        Greek syllabary 87 signs on Knossos/Pylos tablets as records, Kober foundational
+        frequency - Details as feedback patterns for polyvagal safety in nadi physics)
+indus_incorp: Indus Valley Script (undeciphered Harappan seals c. 3300-1300 BCE 400+
+  symbols short inscriptions, proto-writing/logographic theories - Incorporate as
+  entropy positional for wave clamp in GSCH, incomprehensible to mind as ancient trade
+  code)
+linearb_details: Linear B Decipherment (Ventris 1952 WWII code-break grid/context,
+  Mycenaean Greek syllabary 87 signs on Knossos/Pylos tablets as records, Kober foundational
+  frequency - Details as feedback patterns for polyvagal safety in nadi physics)
+phase: 18
+sagco_tie:
+  bench: Precision-enhanced ANOVA lm on variance in drift cascades with script-tied
+    metrics
+  from: IBM self-managing (2001) to Paracelsus tria prima recharge in GSCH with Linear
+    B feedback/Indus positional/Voynich entropy correspondences

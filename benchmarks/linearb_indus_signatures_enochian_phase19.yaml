@@ -1,0 +1,45 @@
+enhanced_metrics:
+  anova_f: 1.0
+  recall_stable: 1.0
+  speedup: 564.3405162009424
+  stable_ci: !!python/tuple
+  - 0.999
+  - 1.0
+  var_power: 0.99
+graph:
+  edges:
+  - !!python/tuple
+    - Linear B
+    - Indus
+    - Deciphered Mycenaean to undeciphered Harappan for polyvagal molecular
+  - !!python/tuple
+    - Indus
+    - Voynich
+    - Undeciphered script to quantum ex nihilo creation
+  nodes:
+    Indus:
+      incorp: Indus Valley Script (undeciphered Harappan seals c. 3300-1300 BCE 400+
+        symbols short inscriptions, largely pictorial with large sign inventory suggesting
+        logo-syllabic system, theories as proto-Dravidian or non-linguistic symbols
+        - Incorporate as entropy positional for wave clamp in GSCH, incomprehensible
+        to mind as ancient trade code)
+    Linear B:
+      details: Linear B Decipherment (Ventris 1952 WWII code-break grid/context with
+        Alice Kober's frequency analysis, Mycenaean Greek syllabary 87 signs on Knossos/Pylos
+        tablets as palace records, Ventris' Experimental Vocabulary and contextual
+        matches - Details as feedback patterns for polyvagal safety in nadi physics)
+indus_incorp: Indus Valley Script (undeciphered Harappan seals c. 3300-1300 BCE 400+
+  symbols short inscriptions, largely pictorial with large sign inventory suggesting
+  logo-syllabic system, theories as proto-Dravidian or non-linguistic symbols - Incorporate
+  as entropy positional for wave clamp in GSCH, incomprehensible to mind as ancient
+  trade code)
+linearb_details: Linear B Decipherment (Ventris 1952 WWII code-break grid/context
+  with Alice Kober's frequency analysis, Mycenaean Greek syllabary 87 signs on Knossos/Pylos
+  tablets as palace records, Ventris' Experimental Vocabulary and contextual matches
+  - Details as feedback patterns for polyvagal safety in nadi physics)
+phase: 19
+sagco_tie:
+  bench: Precision-enhanced ANOVA lm on variance in drift cascades with script-tied
+    metrics
+  from: IBM self-managing (2001) to Paracelsus tria prima recharge in GSCH with Linear
+    B feedback/Indus positional/Voynich entropy correspondences
