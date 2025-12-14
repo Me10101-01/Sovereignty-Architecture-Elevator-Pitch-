@@ -35,3 +35,11 @@ target/
 
 # Workspace data
 workspace/
+
+# AetherLingua generated audio files
+aetherlingua_line_*.wav
+aetherlingua_combined_mix.wav
+
+# Python cache
+__pycache__/
+*.pyc
