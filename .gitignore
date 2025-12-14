@@ -35,3 +35,8 @@ target/
 
 # Workspace data
 workspace/
+
+# Generated audio files
+*.wav
+gsrc_line_*.wav
+gsrc_full_mix.wav
