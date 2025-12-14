@@ -1,0 +1,64 @@
+# Prior Art Claims (Pages 1-6)
+# References for hermetic alchemy principles and cross-domain applications
+
+claims:
+  '5':
+    title: "Cross-Domain Hermetic Transformation"
+    description: "Macro/microcosm unity as alchemical transformation across domains"
+    principles:
+      - "As above, so below - hermetic correspondence"
+      - "Spiritual matter as wave superposition"
+      - "Domain crossing through alchemical principles"
+    sources:
+      - "Paracelsus Archidoxis"
+      - "Hermetic Corpus"
+    application: "GSCH recharge with Tria Prima principles"
+  
+  '7':
+    title: "SAGCO Evolution with Hermetic Principles"
+    priors:
+      - name: "IBM Autonomic Computing"
+        year: 2001
+        contribution: "Self-managing systems foundation"
+      - name: "MIT Self-Assembly"
+        year: 2003
+        contribution: "Autonomous component organization"
+      - name: "Tierra Digital Evolution"
+        year: 1991
+        contribution: "Self-replicating digital organisms"
+    evolution:
+      from: "IBM self-managing systems"
+      to: "Paracelsus Tria Prima in GSCH recharge"
+      enhancement: "Hermetic alchemy principles for dissolution/amplification"
+
+hermetic_principles:
+  macro_micro_unity:
+    description: "Unity of macrocosm and microcosm"
+    application: "Wave superposition across scales"
+    reference: "Hermetic axiom: As above, so below"
+  
+  spiritual_matter:
+    description: "Matter as spiritual essence in transformation"
+    application: "Wave superposition as spiritual unity"
+    reference: "Paracelsus Archidoxis - spiritual physics"
+  
+  alkahest:
+    description: "Universal solvent for transformation"
+    application: "Principle dissolution in hermetic unity"
+    reference: "Alchemical prima materia"
+
+tria_prima:
+  sulphur:
+    element: "Soul/Flammability"
+    property: "Energy amplification"
+    hermetic_source: "Paracelsus De Natura Rerum"
+  
+  mercury:
+    element: "Spirit/Volatility"
+    property: "Fluid transformation"
+    hermetic_source: "Paracelsus De Natura Rerum"
+  
+  salt:
+    element: "Body/Solidity"
+    property: "Permanence/Fixation"
+    hermetic_source: "Paracelsus De Natura Rerum"

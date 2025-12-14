@@ -1,0 +1,39 @@
+tria_deep:
+  Sulphur: Soul/flammability - Amplify energy in gradients (hermetic combustion/transformation)
+  Mercury: Spirit/volatility - Fluidize feedback corrections (hermetic change/unity)
+  Salt: Body/solidity - Clamp permanence for stability (hermetic fixation/healing)
+hermetic_explore:
+  Sulphur:
+    unified: 0.10606601717798214
+    alchemized: 18
+  Mercury:
+    unified: 0.03535533905932738
+    alchemized: 18
+  Salt:
+    unified: 0.07071067811865477
+    alchemized: 18
+hermetic_graph:
+  nodes: 5
+  edges: 6
+sagco_tie:
+  from: IBM self-managing (2001) to Paracelsus tria prima recharge in GSCH
+  bench: Precision-enhanced F-test on drift variance
+  priors:
+  - name: IBM Autonomic Computing
+    year: 2001
+    contribution: Self-managing systems foundation
+  - name: MIT Self-Assembly
+    year: 2003
+    contribution: Autonomous component organization
+  - name: Tierra Digital Evolution
+    year: 1991
+    contribution: Self-replicating digital organisms
+enhanced_metrics:
+  speedup: 647.4184017117527
+  stable_ci:
+  - 0.996173241514445
+  - 1.0
+  var_power: 0.9999999946530411
+  exact_variance: 0.5
+  samples: 1000
+  precision_dps: 100
