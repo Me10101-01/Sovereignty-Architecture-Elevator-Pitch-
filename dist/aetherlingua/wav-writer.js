@@ -5,6 +5,7 @@ import * as fs from 'fs';
 export class WavWriter {
     /**
      * Write stereo buffer to 24-bit WAV file
+     * Note: Ensure output directory exists before calling this method
      */
     static write(filename, buffer, sampleRate) {
         const numSamples = buffer.left.length;
@@ -60,7 +61,13 @@ export class WavWriter {
     static writeMultiple(baseFilename, buffers, sampleRate) {
         const filenames = [];
         for (let i = 0; i < buffers.length; i++) {
-            const filename = baseFilename.replace('.wav', `_${i + 1}.wav`);
+            let filename;
+            if (baseFilename.endsWith('.wav')) {
+                filename = baseFilename.replace('.wav', `_${i + 1}.wav`);
+            }
+            else {
+                filename = `${baseFilename}_${i + 1}.wav`;
+            }
             this.write(filename, buffers[i], sampleRate);
             filenames.push(filename);
         }

@@ -23,7 +23,7 @@ export class Oscillators {
    */
   static triangle(frequency: number, time: number): number {
     const phase = frequency * time - Math.floor(frequency * time);
-    return 1.0 - 4.0 * Math.abs(Math.round(phase) - phase);
+    return 2.0 * Math.abs(2.0 * (phase - Math.floor(phase + 0.5))) - 1.0;
   }
 
   /**
@@ -78,11 +78,15 @@ export class Oscillators {
 
   /**
    * Node 137 burst motif
+   * Digits 1, 3, 7 → microtonal offsets: 1→+5¢, 3→+18¢, 7→-12¢
+   * Combined offset: 5 + 18 - 12 = +11 cents
    */
   static node137Burst(carrier: number, time: number): number {
     if (time < 0.8) {
-      // 1→5¢, 3→18¢, 7→-12¢ microtonal offset
-      const offsetCents = 5.0 + 18.0 - 12.0;
+      const DIGIT_1_CENTS = 5.0;
+      const DIGIT_3_CENTS = 18.0;
+      const DIGIT_7_CENTS = -12.0;
+      const offsetCents = DIGIT_1_CENTS + DIGIT_3_CENTS + DIGIT_7_CENTS;
       const freq = carrier * Math.pow(2.0, offsetCents / 1200.0);
       return this.saw(freq, time) * Math.exp(-time * 6.0) * 0.45;
     }

@@ -2,7 +2,7 @@
  * Kemetic hieroglyphic tokenizer and phoneme classifier
  */
 export class KemeticTokenizer {
-    // Kemetic multigraphs (special character combinations)
+    // Kemetic special characters (diacritics and extended Unicode glyphs for transliteration)
     static MULTIGRAPHS = ['ḥ', 'ḫ', 'ṯ', 'ỉ', 'ȝ', 'ꜣ', 'ʿ', 'ḏ', 'ḳ'];
     // Character classification sets
     static VOWELS = new Set(['a', 'e', 'i', 'o', 'u', 'y', 'ỉ', 'ȝ', 'ꜣ']);

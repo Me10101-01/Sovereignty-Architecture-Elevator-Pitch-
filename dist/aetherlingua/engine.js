@@ -80,8 +80,9 @@ export class AetherLingua {
         for (let i = 0; i < kemeticLines.length; i++) {
             const carrier = AudioSynthesizer.getLineCarrier(i);
             const buffer = AudioSynthesizer.renderLine(kemeticLines[i], carrier, this.config);
-            // Mix into main buffer
-            for (let j = 0; j < n; j++) {
+            // Mix into main buffer with bounds checking
+            const bufferLength = Math.min(n, buffer.left.length, buffer.right.length);
+            for (let j = 0; j < bufferLength; j++) {
                 left[j] += buffer.left[j] * 0.6;
                 right[j] += buffer.right[j] * 0.6;
             }

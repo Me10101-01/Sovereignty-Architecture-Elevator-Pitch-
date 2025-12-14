@@ -5,7 +5,7 @@
 import { Token, PhonemeClass } from '../types';
 
 export class KemeticTokenizer {
-  // Kemetic multigraphs (special character combinations)
+  // Kemetic special characters (diacritics and extended Unicode glyphs for transliteration)
   private static readonly MULTIGRAPHS = ['ḥ', 'ḫ', 'ṯ', 'ỉ', 'ȝ', 'ꜣ', 'ʿ', 'ḏ', 'ḳ'];
 
   // Character classification sets
