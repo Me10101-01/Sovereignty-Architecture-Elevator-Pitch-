@@ -1,0 +1,7 @@
+// flame/physics/wave_examples.flame
+use flame::physics::{Wave::modulate, GSCH::clamp}
+
+let examples_kernels = ["walnut-brain", "lungwort-lungs", "liverwort-liver"]  // From compression
+let wave = modulate(examples_kernels, freq=40.0)  // Binaural healing sim
+wave.gsch_clamp(0.05)  // Stabilize doctrine gradients
+wave.output()  // Modulated: Stable healing correspondences

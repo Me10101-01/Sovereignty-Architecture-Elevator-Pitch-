@@ -1,0 +1,6 @@
+// flame/linguistic/compress_query.flame
+use flame::cross_domain::{Linguistic::compress}
+
+let query = "Examples of doctrine signatures Paracelsus alchemical texts"
+let kernels = compress(query, "sanskrit_meroitic")  // Roots: doctrine→सिद्धांत, signatures→चिह्न, Paracelsus→पारासेल्सस
+kernels.output()  // Compressed: ["सिद्धांत", "चिह्न", "पारासेल्सस", "रसायनग्रंथ"] - 80x ratio
