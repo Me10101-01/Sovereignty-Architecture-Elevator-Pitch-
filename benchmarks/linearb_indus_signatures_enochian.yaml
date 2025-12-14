@@ -47,7 +47,7 @@ sagco_tie:
     metrics
   phase: 17
 enhanced_metrics:
-  speedup: 6579.1662287671
+  speedup: 6575.886088948327
   wave_shape: !!python/tuple
   - 1000
   wave_mean: 1.3322676295501879e-18
