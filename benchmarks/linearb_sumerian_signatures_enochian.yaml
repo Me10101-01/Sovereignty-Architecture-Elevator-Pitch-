@@ -1,0 +1,37 @@
+phase: 20
+linearb_grids: "Linear B Frequency Grids (Kober 1940s index card analysis grouping\
+  \ symbols into \ninflection grids showing CV bridges, Ventris 1952 Experimental\
+  \ Vocabulary contextual matches on Pylos \ntablets - Grids as feedback patterns\
+  \ for polyvagal safety in nadi physics)"
+sumerian_incorp: "Sumerian Cuneiform Scripts (earliest writing c. 3200 BCE wedge-shaped\
+  \ on clay \ntablets in Sumerian logo-syllabic 600+ signs for admin/religious - Incorporate\
+  \ as entropy positional \nfor wave clamp in GSCH, incomprehensible to mind as ancient\
+  \ accounting code)"
+sagco_tie:
+  from: IBM self-managing (2001) to Paracelsus tria prima recharge in GSCH with Linear
+    B grids/Sumerian wedges/Voynich entropy correspondences
+  bench: Precision-enhanced ANOVA lm on variance in drift cascades with script-tied
+    metrics
+enhanced_metrics:
+  speedup: 572.1773097256136
+  wave_length: 1000
+  wave_mean: 1.3322676295501879e-18
+  wave_std: 0.7071067811865476
+  stable_ci: !!python/tuple
+  - 0.996173241514445
+  - 1.0
+  var_power: 3.0759839120264587e-12
+  anova_f: 1.1381888042401966
+  recall_stable: 1.0
+graph_nodes:
+- Linear B
+- Sumerian
+- Voynich
+graph_edges:
+- !!python/tuple
+  - Linear B
+  - Sumerian
+- !!python/tuple
+  - Sumerian
+  - Voynich
+timestamp: '2025-12-14 08:48:46'
