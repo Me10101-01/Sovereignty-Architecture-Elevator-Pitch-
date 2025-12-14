@@ -29,7 +29,7 @@ sagco_tie:
     year: 1991
     contribution: Self-replicating digital organisms
 enhanced_metrics:
-  speedup: 653.8140362795284
+  speedup: 637.6988312286793
   stable_ci:
   - 0.996173241514445
   - 1.0
