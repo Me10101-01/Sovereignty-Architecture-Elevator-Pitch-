@@ -33,7 +33,8 @@ except ImportError:
     SYMPY_AVAILABLE = False
 
 try:
-    from statsmodels.stats import proportion, power
+    from statsmodels.stats import proportion
+    from statsmodels.stats import power as sm_power
     from statsmodels.formula.api import ols
     import statsmodels.api as sm
     STATSMODELS_AVAILABLE = True
@@ -243,85 +244,95 @@ class LinearBEgyptianExplorer:
         Returns:
             Dictionary with benchmark metrics
         """
+        # Store original precision if mpmath available
+        original_dps = None
         if MPMATH_AVAILABLE:
+            original_dps = mpmath.mp.dps
             mpmath.mp.dps = dps
         
-        start_time = time.time()
-        
-        # Generate high-precision wave
-        if SYMPY_AVAILABLE and MPMATH_AVAILABLE:
-            t_sym = Symbol('t')
-            freq = 40
-            wave_expr = sin(2 * pi * freq * t_sym)
+        try:
+            start_time = time.time()
             
-            t_vals = [mpmath.mpf(i) / n for i in range(n)]
-            wave = np.array([float(N(wave_expr.subs(t_sym, tv), dps)) for tv in t_vals])
-        else:
-            # Fallback to numpy
-            t_vals = np.linspace(0, 1, n)
-            freq = 40
-            wave = np.sin(2 * np.pi * freq * t_vals)
-        
-        # Detect drift and clamp
-        if np.max(np.abs(np.diff(wave))) > drift:
-            wave = np.clip(wave, -1, 1)
-        
-        end_time = time.time()
-        
-        # Calculate metrics
-        speedup = n / (end_time - start_time)  # Operations per second
-        
-        results = {
-            'speedup_ops_per_sec': speedup,
-            'precision_dps': dps if MPMATH_AVAILABLE else 15,
-            'wave_stability': np.mean(np.abs(wave) <= 1.0),
-        }
-        
-        # Enhanced statistical analysis
-        if STATSMODELS_AVAILABLE:
-            # Confidence interval for stability proportion
-            stable_count = np.sum(np.abs(wave) <= 1.0)
-            ci = proportion.proportion_confint(stable_count, len(wave), method='wilson')
-            results['stable_ci_lower'] = ci[0]
-            results['stable_ci_upper'] = ci[1]
-            results['ci_coverage'] = 0.9999999999999  # 99.99999999999% CI
-            
-            # Power analysis for variance detection
-            try:
-                effect_size = 0.5
-                alpha = 0.0000000000001  # Supreme-universal tight alpha
-                var_power = power.FTestPower().solve_power(
-                    effect_size=effect_size,
-                    nobs=len(wave),
-                    alpha=alpha
-                )
-                results['var_power'] = var_power
-            except Exception as e:
-                results['var_power'] = 'N/A (computation error)'
-            
-            # ANOVA on multi-group data
-            try:
-                num_groups = 12
-                df = pd.DataFrame({
-                    'wave': wave,
-                    'group': np.random.randint(0, num_groups, len(wave))
-                })
+            # Generate high-precision wave
+            if SYMPY_AVAILABLE and MPMATH_AVAILABLE:
+                t_sym = Symbol('t')
+                freq = 40
+                wave_expr = sin(2 * pi * freq * t_sym)
                 
-                model = ols('wave ~ C(group)', data=df).fit()
-                anova_table = sm.stats.anova_lm(model, typ=2)
+                t_vals = [mpmath.mpf(i) / n for i in range(n)]
+                wave = np.array([float(N(wave_expr.subs(t_sym, tv), dps)) for tv in t_vals])
+            else:
+                # Fallback to numpy
+                t_vals = np.linspace(0, 1, n)
+                freq = 40
+                wave = np.sin(2 * np.pi * freq * t_vals)
+            
+            # Detect drift and clamp
+            if np.max(np.abs(np.diff(wave))) > drift:
+                wave = np.clip(wave, -1, 1)
+            
+            end_time = time.time()
+            
+            # Calculate metrics
+            speedup = n / (end_time - start_time)  # Operations per second
+            
+            results = {
+                'speedup_ops_per_sec': speedup,
+                'precision_dps': dps if MPMATH_AVAILABLE else 15,
+                'wave_stability': np.mean(np.abs(wave) <= 1.0),
+            }
+            
+            # Enhanced statistical analysis
+            if STATSMODELS_AVAILABLE:
+                # Confidence interval for stability proportion
+                stable_count = np.sum(np.abs(wave) <= 1.0)
+                ci = proportion.proportion_confint(stable_count, len(wave), method='wilson')
+                results['stable_ci_lower'] = ci[0]
+                results['stable_ci_upper'] = ci[1]
+                results['ci_coverage'] = 0.9999999999999  # 99.99999999999% CI
                 
-                results['anova_f_statistic'] = float(anova_table['F'].iloc[0]) if not pd.isna(anova_table['F'].iloc[0]) else 0.0
-                results['anova_p_value'] = float(anova_table['PR(>F)'].iloc[0]) if not pd.isna(anova_table['PR(>F)'].iloc[0]) else 1.0
-            except Exception as e:
-                results['anova_f_statistic'] = 'N/A'
-                results['anova_p_value'] = 'N/A'
-        
-        # Enhanced recall (>99.99999%)
-        recall_stable = np.mean(wave <= 1.0) * 1.0000000001
-        results['recall_stable'] = min(recall_stable, 1.0)  # Cap at 1.0
-        results['recall_threshold'] = 0.9999999  # Target >99.99999%
-        
-        return results
+                # Power analysis for variance detection
+                try:
+                    effect_size = 0.5
+                    alpha = 0.001  # Practical alpha for power analysis
+                    var_power = sm_power.FTestPower().solve_power(
+                        effect_size=effect_size,
+                        nobs=len(wave),
+                        alpha=alpha
+                    )
+                    results['var_power'] = var_power
+                    results['power_analysis_alpha'] = alpha
+                except Exception as e:
+                    results['var_power'] = 'N/A (computation error)'
+                
+                # ANOVA on multi-group data
+                try:
+                    num_groups = 12
+                    df = pd.DataFrame({
+                        'wave': wave,
+                        'group': np.random.randint(0, num_groups, len(wave))
+                    })
+                    
+                    model = ols('wave ~ C(group)', data=df).fit()
+                    anova_table = sm.stats.anova_lm(model, typ=2)
+                    
+                    results['anova_f_statistic'] = float(anova_table['F'].iloc[0]) if not pd.isna(anova_table['F'].iloc[0]) else 0.0
+                    results['anova_p_value'] = float(anova_table['PR(>F)'].iloc[0]) if not pd.isna(anova_table['PR(>F)'].iloc[0]) else 1.0
+                except Exception as e:
+                    results['anova_f_statistic'] = 'N/A'
+                    results['anova_p_value'] = 'N/A'
+            
+            # Enhanced recall (>99.99999%)
+            recall_stable = np.mean(wave <= 1.0)
+            results['recall_stable'] = recall_stable
+            results['recall_threshold'] = 0.9999999  # Target >99.99999%
+            results['recall_achieved'] = recall_stable >= results['recall_threshold']
+            
+            return results
+        finally:
+            # Restore original mpmath precision
+            if MPMATH_AVAILABLE and original_dps is not None:
+                mpmath.mp.dps = original_dps
     
     def simulate_quantum_superposition(self):
         """
