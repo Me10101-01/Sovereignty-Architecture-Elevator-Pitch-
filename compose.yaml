@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  # Phase 15: Voynich Decryption, Rongorongo Script, Polyvagal Theory, 
+  # Thermodynamics Venus, Sushumna Nadi Physics, Quantum Vacuum Fluctuations
+  voynich_rongorongo_polyvagal_thermo_nadi_quantum:
+    build: phase15/
+    # depends_on: voynich_enochian_incomprehensible  # Uncomment when prior phase exists
+    volumes:
+      - .:/app
+    working_dir: /app/phase15
+    entrypoint: python explore_voynich_incorporate_rongorongo.py
+    networks:
+      - strategickhaos_network
+
+networks:
+  strategickhaos_network:
+    external: true
