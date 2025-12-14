@@ -20,7 +20,7 @@ sagco_tie:
   - MIT cognitive architectures
   - Tierra artificial life
 enhanced_bench:
-  speedup: 45900.086453123804
+  speedup: 50407.4608210749
   stable_precision:
   - 0.996173241514445
   - 1.0

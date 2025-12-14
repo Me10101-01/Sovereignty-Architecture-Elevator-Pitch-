@@ -3,12 +3,14 @@ version: '3'
 services:
   # Phase 8: Paracelsus Principles Deepening and Alchemy Exploration
   paracelsus_bench:
-    build: phase8/
+    build:
+      context: ./phase8
+      dockerfile: Dockerfile
     # depends_on:
     #   - ripley_sagco_bench  # Uncomment when prior phases are implemented
     volumes:
       - .:/app
-    entrypoint: python deepen_paracelsus_explore_alchemy.py
+    working_dir: /app
     environment:
       - PYTHONUNBUFFERED=1
     networks:

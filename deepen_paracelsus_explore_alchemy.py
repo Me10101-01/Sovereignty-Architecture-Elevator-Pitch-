@@ -16,7 +16,7 @@ from networkx import Graph  # Gate/principle graph
 
 # Try to import qutip, fall back gracefully if not available
 try:
-    from qutip import bell_state  # Superposition tie
+    import qutip  # Superposition tie
     QUTIP_AVAILABLE = True
 except ImportError:
     QUTIP_AVAILABLE = False
@@ -146,11 +146,8 @@ def enhanced_benchmark_wave_gen(n=1000, drift=0.05, precision=50):
     # Generate precise time samples
     t = [mpmath.mpf(i)/n for i in range(n)]  # Exact linspace
     
-    # Sympy symbolic base (for reference)
-    freq = Symbol('f')  # Sympy symbolic
-    wave_expr = sin(2 * pi * freq * t[0])  # Symbolic base
-    
     # Numeric evaluation with high precision
+    # Note: Using sympy for symbolic representation is available but numeric mpmath is more efficient
     wave = np.array([float(mpmath.sin(2 * mpmath.pi * 40 * ti)) for ti in t])  # Numeric eval
     
     # Drift detection and GSCH clamp

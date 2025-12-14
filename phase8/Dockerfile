@@ -5,14 +5,18 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-ca-certificates
 
-# Copy requirements and install Python dependencies
-COPY phase8/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy and install Python dependencies
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org \
+    -r /tmp/requirements.txt || \
+    (echo "Warning: Some dependencies failed to install, attempting core packages..." && \
+     pip install --no-cache-dir numpy scipy mpmath sympy statsmodels networkx pyyaml)
 
-# Copy application files
-COPY . /app
+# Application files will be mounted via volume
 
 # Set entrypoint
-ENTRYPOINT ["python", "deepen_paracelsus_explore_alchemy.py"]
+CMD ["python", "deepen_paracelsus_explore_alchemy.py"]
