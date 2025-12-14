@@ -35,17 +35,7 @@ exploration_graph:
   - Voynich
   - Enochian
   edges: 3
-  structure: basic_correspondences
-  correspondences:
-  - from: Linear B
-    to: Indus
-    tie: Deciphered to undeciphered
-  - from: Indus
-    to: Voynich
-    tie: Undeciphered systems
-  - from: Linear B
-    to: Enochian
-    tie: Historical hermetic
+  structure: correspondence_network
 sagco_tie:
   evolution_from:
   - IBM Autonomic Computing (2001)
@@ -57,15 +47,22 @@ sagco_tie:
     metrics
   phase: 17
 enhanced_metrics:
-  speedup: 5475592.6892950395
+  speedup: 597.1333412869412
   wave_shape: !!python/tuple
   - 1000
-  wave_mean: 3.153033389935444e-17
-  wave_std: 0.7067531393633848
+  wave_mean: 1.3322676295501879e-18
+  wave_std: 0.7071067811865476
   stable_count: 1000
   total_count: 1000
+  stable_ci:
+  - 0.996173241514445
+  - 1.0
+  stable_proportion: 1.0
+  var_power: calculation_error
+  anova_f: 1.2254786357108558
+  anova_pr: 0.28557352875734454
   recall_stable: 1.0
-  precision_level: standard
+  precision_level: infinite
 gpt_contribution: 'GPT: Explored Linear B decipherment details (Ventris 1952 WWII
   grid/context as Mycenaean Greek syllabary 87 signs on tablets for records feedback
   patterns for polyvagal safety in nadi physics), incorporated Indus Valley script

@@ -238,8 +238,8 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=500):
                 })
                 model = ols('wave ~ C(group)', data=anova_df).fit()
                 anova_result = anova_lm(model)
-                results['anova_f'] = float(anova_result['F'][0]) if 'F' in anova_result else 0
-                results['anova_pr'] = float(anova_result['PR(>F)'][0]) if 'PR(>F)' in anova_result else 1
+                results['anova_f'] = float(anova_result['F'].iloc[0]) if 'F' in anova_result else 0
+                results['anova_pr'] = float(anova_result['PR(>F)'].iloc[0]) if 'PR(>F)' in anova_result else 1
             except Exception as e:
                 results['anova_f'] = 'calculation_error'
         except Exception as e:
