@@ -144,7 +144,7 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=350):
             nobs=len(wave), 
             alpha=0.000001
         )
-    except:
+    except (ValueError, RuntimeError, TypeError):
         var_power = 0.9999
     
     # ANOVA lm data preparation
@@ -158,11 +158,11 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=350):
         model = ols('wave ~ C(group)', data=anova_df).fit()
         anova_result = anova_lm(model, typ=2)
         anova_f = float(anova_result.loc['C(group)', 'F'])
-    except:
+    except (ValueError, KeyError, RuntimeError, TypeError):
         anova_f = 1.0
     
-    # Enhanced recall >99.9%
-    recall_stable = float(np.mean(np.abs(wave) <= 1) * 1.001)
+    # Enhanced recall >99.9% (clamped to valid range [0, 1])
+    recall_stable = float(min(1.0, np.mean(np.abs(wave) <= 1)))
     
     return {
         'speedup': float(speedup),
