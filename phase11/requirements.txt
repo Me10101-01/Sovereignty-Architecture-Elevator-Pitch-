@@ -1,0 +1,23 @@
+# Phase 11 Dependencies - Paracelsus Tria Prima Healing & Enochian System
+numpy==1.24.3
+scipy==1.11.4
+sympy==1.12
+mpmath==1.3.0
+pyyaml==6.0.1
+pandas==2.1.4
+
+# Statistical analysis and precision metrics
+statsmodels==0.14.1
+scikit-learn==1.3.2
+
+# Quantum computing for superposition/entanglement simulation
+qutip==4.7.3
+
+# Bioinformatics for signature "healing" patterns
+biopython==1.83
+
+# Chemistry molecule simulation for Doctrine of Signatures
+rdkit==2023.9.4
+
+# Network graph for Enochian Aethyrs/tables
+networkx==3.2.1

@@ -1,0 +1,60 @@
+# Prior Art Claims - Hermetic, Qabala, and Enochian System References
+# Pages 1-6: Cross-domain integration of hermetic principles
+
+claims:
+  "1":
+    page: 1
+    title: "Hermetic Principles Foundation"
+    description: "As above, so below - microcosm/macrocosm unity in system architecture"
+    priors:
+      - "Hermes Trismegistus Corpus Hermeticum (1-2 CE)"
+      - "Emerald Tablet alchemical axioms"
+  
+  "2":
+    page: 2
+    title: "Paracelsus Tria Prima"
+    description: "Sulphur (soul), Mercury (spirit), Salt (body) as triadic substance theory"
+    priors:
+      - "Paracelsus De Vita Longa (1526)"
+      - "Paramirum healing principles"
+  
+  "3":
+    page: 3
+    title: "Doctrine of Signatures"
+    description: "Plants/minerals resemble ailments they heal - hermetic correspondences"
+    priors:
+      - "Paracelsus signature theory (16th CE)"
+      - "Like cures like principle"
+  
+  "4":
+    page: 4
+    title: "Hermetic Qabala Correspondences"
+    description: "Tree of Life Sefirot as spiritual hierarchies and energy pathways"
+    priors:
+      - "Sefer Yetzirah (3-6 CE)"
+      - "Golden Dawn hermetic Qabala (19th CE)"
+  
+  "5":
+    page: 5
+    title: "Cross-Domain Integration"
+    description: "Unity of hermetic, Qabala, and Enochian systems in healing applications"
+    priors:
+      - "Renaissance hermetic synthesis"
+      - "Esoteric correspondence systems"
+  
+  "6":
+    page: 6
+    title: "John Dee Enochian System"
+    description: "Angelic language and 19 Aethyrs for invocation and spiritual hierarchies"
+    priors:
+      - "John Dee & Edward Kelley scrying (1582-1589)"
+      - "Enochian tables and calls"
+  
+  "7":
+    page: 7
+    title: "SAGCO Evolution Context"
+    description: "Self-adaptive genetic consciousness orchestration with hermetic healing"
+    priors:
+      - "IBM Autonomic Computing (2001)"
+      - "MIT CSAIL self-organizing systems"
+      - "Tierra artificial life (Ray, 1991)"

@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  # Phase 11: Signatures and Enochian Precision Integration
+  signatures_enochian_precision:
+    build: phase11/
+    volumes:
+      - .:/app
+    entrypoint: python integrate_signatures_explore_enochian.py
+    environment:
+      - PYTHONPATH=/app
+    networks:
+      - strategickhaos_network
+
+networks:
+  strategickhaos_network:
+    external: true
