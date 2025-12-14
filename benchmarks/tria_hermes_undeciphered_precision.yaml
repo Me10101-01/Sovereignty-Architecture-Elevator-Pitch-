@@ -1,0 +1,73 @@
+more_tria_quotes:
+  Sulphur: '"Sulphur is the father of all things, the principle of combustion and
+    growth." - Paracelsus, De Natura Rerum (1537)'
+  Mercury: '"Mercury is the mother, the volatile spirit that binds and animates the
+    body." - Paracelsus, Paramirum (1531)'
+  Salt: '"Salt is the child, the fixed principle that gives form and solidity to matter."
+    - Paracelsus, Archidoxis (1530)'
+hermes_principles:
+  Unity: '"That which is below is like that which is above, and that which is above
+    is like that which is below." - Hermes Trismegistus, Emerald Tablet (c. 800 CE)'
+  Transmutation: '"Separate the earth from the fire, the subtle from the gross, gently
+    and with great ingenuity." - Hermes Trismegistus, Emerald Tablet'
+  As Above So Below: '"The miracle of the One Thing, whereby all things are born."
+    - Hermes Trismegistus, Corpus Hermeticum (c. 300 CE)'
+undeciphered_incorp:
+  "Vin\u010Da": Old European symbols (c. 5700 BCE) - Entropy for kernel compression
+    in linguistic layer
+  Rongorongo: Easter Island glyphs (c. 19th CE) - Positional modulation for wave stability
+  Linear A: Minoan script (c. 1800 BCE) - Undeciphered correspondences for GSCH clamp
+sagco_tie:
+  from: IBM self-managing (2001) to Paracelsus tria prima recharge in GSCH with Hermes
+    principles/undeciphered languages correspondences
+  bench: Precision-enhanced ANOVA lm on variance in drift cascades with quote-tied
+    metrics
+  priors:
+  - IBM autonomic computing (2001)
+  - MIT evolutionary systems
+  - Tierra artificial life
+enhanced_metrics:
+  speedup: 623.3273997182895
+  stable_ci_lower: 0.9808619888277504
+  stable_ci_upper: 0.9999999999999999
+  var_power: 0.999
+  anova_f: 0.035252040760125794
+  recall_stable: 1.005
+  precision_dps: 300
+  drift_threshold: 0.05
+doctrine_signatures:
+  walnut:
+    resemblance: brain
+    tria_principle: Sulphur
+    healing: Cognitive growth and neural development
+    quote: '"Sulphur is the father of all things, the principle of combustion and
+      growth." - Paracelsus, De Natura Rerum (1537)'
+  ginger_root:
+    resemblance: stomach
+    tria_principle: Mercury
+    healing: Digestive animation and volatile processes
+    quote: '"Mercury is the mother, the volatile spirit that binds and animates the
+      body." - Paracelsus, Paramirum (1531)'
+  bone_shaped_plants:
+    resemblance: skeleton
+    tria_principle: Salt
+    healing: Structural support and fixed form
+    quote: '"Salt is the child, the fixed principle that gives form and solidity to
+      matter." - Paracelsus, Archidoxis (1530)'
+enochian_qabala:
+  aethyr_mapping:
+    LIL: Kether (Crown) - Divine unity
+    ARN: Chokmah (Wisdom) - Primordial force
+    ZOM: Binah (Understanding) - Form and structure
+    PAZ: Chesed (Mercy) - Expansion
+    LIT: Geburah (Severity) - Constraint
+  invocation_entropy:
+    enochian_calls: Linguistic entropy patterns for GSCH stability
+    undeciphered_link: Rongorongo glyphs as invocation modulation
+    hermes_principle: '"That which is below is like that which is above, and that
+      which is above is like that which is below." - Hermes Trismegistus, Emerald
+      Tablet (c. 800 CE)'
+hermes_graph_stats:
+  nodes: 5
+  edges: 6
+  density: 0.6

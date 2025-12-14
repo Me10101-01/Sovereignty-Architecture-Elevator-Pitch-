@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  # Prior phases would be here (signatures_enochian_quotes, etc.)
+  # This is Phase 13 addition
+  
+  tria_hermes_undeciphered_precision:
+    build: 
+      context: .
+      dockerfile: phase13/Dockerfile
+    container_name: phase13-tria-hermes
+    volumes:
+      - .:/app
+    working_dir: /app/phase13
+    entrypoint: python extract_tria_quotes_deepen_hermes.py
+    networks:
+      - sovereignty_network
+    # Uncomment when prior phases are implemented
+    # depends_on:
+    #   - signatures_enochian_quotes
+
+networks:
+  sovereignty_network:
+    driver: bridge
