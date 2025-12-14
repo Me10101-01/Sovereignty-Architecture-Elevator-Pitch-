@@ -77,7 +77,7 @@ sagco_tie:
   - MIT Oxygen Project (1999)
   - Tierra Artificial Life (1991)
 enhanced_metrics:
-  speedup: 2862.511798303774
+  speedup: 2747.9666913445976
   n_samples: 1000
   drift_threshold: 0.05
   precision_dps: 250
