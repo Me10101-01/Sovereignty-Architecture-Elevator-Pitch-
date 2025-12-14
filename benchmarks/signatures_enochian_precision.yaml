@@ -1,9 +1,9 @@
 enhanced_metrics:
-  anova_f: 2.5694124142702672
+  anova_f: 0.3239110837526973
   dps: 200
   mean_wave: 1.3322676295501879e-18
   recall_stable: 1.0
-  speedup: 627.9073040057702
+  speedup: 618.2905814075189
   stable_ci_lower: 0.996173241514445
   stable_ci_upper: 1.0
   std_wave: 0.7071067811865476
