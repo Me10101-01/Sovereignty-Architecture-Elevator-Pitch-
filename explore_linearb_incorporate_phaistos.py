@@ -262,7 +262,8 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=450):
             stable_prop_ci = proportion.proportion_confint(
                 stable_count, len(wave), method='wilson'
             )
-            results['stable_ci'] = stable_prop_ci
+            # Convert tuple to list for YAML serialization
+            results['stable_ci'] = [float(stable_prop_ci[0]), float(stable_prop_ci[1])]
             results['stable_ci_lower'] = float(stable_prop_ci[0])
             results['stable_ci_upper'] = float(stable_prop_ci[1])
             
@@ -307,7 +308,7 @@ def enhanced_precision_benchmark_wave_gen(n=1000, drift=0.05, dps=450):
             results['recall_stable'] = 0.99999
     else:
         # Basic fallback metrics
-        results['stable_ci'] = (0.99, 1.0)
+        results['stable_ci'] = [0.99, 1.0]  # List for YAML serialization
         results['var_power'] = 0.95
         results['anova_f'] = 0.0
         results['recall_stable'] = float(np.mean(np.abs(wave) <= 1))
