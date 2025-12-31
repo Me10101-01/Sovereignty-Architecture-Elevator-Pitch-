@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skhaos.org/udap/v1.1",
+  "title": "Universal Domain Addressing Protocol (UDAP)",
+  "description": "Schema for decoded UDAP addresses: skhaos://{domain}/{x}/{y}/{z}?{properties}",
+  "type": "object",
+  "properties": {
+    "uri": {
+      "type": "string",
+      "description": "Full UDAP URI",
+      "pattern": "^skhaos://[a-zA-Z0-9-]+/[a-zA-Z0-9.-]+/[a-zA-Z0-9.-]+/[a-zA-Z0-9.-]+(\\?[a-zA-Z0-9=&.-]+)?$"
+    },
+    "domain": {
+      "type": "string",
+      "enum": ["pipe", "net", "neural", "chess", "gps", "frequency", "code", "mood", "browser", "proxy", "audio", "recon", "quantum"],
+      "description": "Addressable domain (extended: browser/proxy for web, audio for music/whale, recon for offline probes, quantum for helm)"
+    },
+    "x": {
+      "type": "string",
+      "description": "X-axis: Primary coordinate (e.g., run/IP/layer/file/lat/hz/module/valence/ip/midi_note)"
+    },
+    "y": {
+      "type": "string",
+      "description": "Y-axis: Secondary (e.g., offset/port/neuron/rank/long/amplitude/function/arousal/port/sheet_page)"
+    },
+    "z": {
+      "type": "string",
+      "description": "Z-axis: Tertiary (e.g., travel/protocol/weight/piece/alt/phase/call_depth/duration/sim_wave/piece_id)"
+    },
+    "properties": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "angle": { "type": "number" },
+        "material": { "type": "string" },
+        "ttl": { "type": "integer" },
+        "activation": { "type": "string" },
+        "eval": { "type": "number" },
+        "color": { "type": "string" },
+        "hz": { "type": "number", "description": "Frequency in Hz (e.g., whale 10-40, classical note)" },
+        "midi_file": { "type": "string", "description": "Path to MIDI (MuseScore-generated)" },
+        "piece_id": { "type": "integer", "minimum": 1, "maximum": 36, "description": "ID of classical piece" },
+        "sim": { "type": "string", "enum": ["wave", "packet", "entangle"], "description": "Offline recon mode" },
+        "ip": { "type": "string", "pattern": "^(\\d{1,3}\\.){3}\\d{1,3}$", "description": "Proxy IP" },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "Proxy port" },
+        "sovereign": { "type": "boolean", "description": "Enable DDG-like privacy (no track)" }
+      }
+    }
+  },
+  "required": ["domain", "x", "y", "z"]
+}

@@ -1,0 +1,31 @@
+# Rust build artifacts
+target/
+Cargo.lock
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+sandbox/*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Build outputs
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Evolution logs (keep structure, ignore content)
+sandbox/evolution_log_*.json
