@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UDAP Bio-Physics URI Schema",
+  "description": "Universal Domain Addressing Protocol extended with bio-physics parameters",
+  "type": "object",
+  "properties": {
+    "scheme": {
+      "type": "string",
+      "const": "skhaos",
+      "description": "URI scheme identifier"
+    },
+    "domain": {
+      "type": "string",
+      "enum": ["bio", "physics"],
+      "description": "Top-level domain (bio or physics)"
+    },
+    "path": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Path segments identifying the resource"
+    },
+    "query": {
+      "type": "object",
+      "properties": {
+        "zipf": {
+          "type": "number",
+          "description": "Zipf rank for whale/dolphin units"
+        },
+        "signature": {
+          "type": "boolean",
+          "description": "Whether this is a signature whistle (dolphin ID)"
+        },
+        "law": {
+          "type": "string",
+          "enum": ["entropy", "uncertainty", "conservation", "relativity"],
+          "description": "Physics law constraint"
+        },
+        "hz": {
+          "type": "number",
+          "description": "Frequency in Hertz"
+        },
+        "burst": {
+          "type": "number",
+          "description": "Echolocation burst count"
+        },
+        "pod": {
+          "type": "string",
+          "description": "Pod identifier for dialects"
+        },
+        "brevity": {
+          "type": "boolean",
+          "description": "Menzerath brevity constraint"
+        }
+      }
+    }
+  },
+  "required": ["scheme", "domain", "path"],
+  "examples": [
+    {
+      "description": "Zipf whale unit with entropy law",
+      "uri": "skhaos://bio/zipf/unit/1?law=entropy&hz=20"
+    },
+    {
+      "description": "Dolphin signature whistle",
+      "uri": "skhaos://bio/dolphin/whistle?signature=true&hz=10"
+    },
+    {
+      "description": "Echolocation click burst",
+      "uri": "skhaos://bio/dolphin/click?burst=200&hz=120"
+    },
+    {
+      "description": "Pod-specific dialect",
+      "uri": "skhaos://bio/dolphin/dialect?pod=alpha&hz=200"
+    },
+    {
+      "description": "Rondo cycle with conservation law",
+      "uri": "skhaos://physics/rondo?law=conservation&hz=10"
+    },
+    {
+      "description": "Sonata with uncertainty law",
+      "uri": "skhaos://physics/sonata?law=uncertainty&hz=22"
+    },
+    {
+      "description": "Fugue with relativity law",
+      "uri": "skhaos://physics/fugue?law=relativity&hz=28"
+    }
+  ]
+}
