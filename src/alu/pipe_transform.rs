@@ -98,6 +98,8 @@ impl CodeNamespace {
         // Simple parser for demonstration
         // Format: skhaos://pipe/run/{run}/offset/{offset}/travel/{travel}?angle={angle}
         
+        const EXPECTED_PATH_LEN: usize = 8;
+        
         if !uri.starts_with("skhaos://pipe/") {
             return Err("Invalid UDAP prefix".to_string());
         }
@@ -113,7 +115,7 @@ impl CodeNamespace {
         
         // Extract numeric values from path
         let path_parts: Vec<&str> = path.split('/').collect();
-        if path_parts.len() < 8 {
+        if path_parts.len() < EXPECTED_PATH_LEN {
             return Err("Invalid path format".to_string());
         }
         

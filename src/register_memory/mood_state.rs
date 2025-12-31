@@ -37,6 +37,17 @@ impl WaveType {
         }
     }
 
+    /// Get typical frequency for wave type
+    pub fn typical_frequency(&self) -> f64 {
+        match self {
+            WaveType::Delta => 2.0,
+            WaveType::Theta => 6.0,
+            WaveType::Alpha => 10.0,
+            WaveType::Beta => 18.0,
+            WaveType::Gamma => 40.0,
+        }
+    }
+
     /// Get typical color associated with wave type
     pub fn typical_color(&self) -> &str {
         match self {
@@ -82,8 +93,7 @@ impl MoodState {
 
     /// Create from wave type
     pub fn from_wave_type(id: String, wave_type: WaveType, intensity: f64, duration: Duration) -> Self {
-        let (min_hz, max_hz) = wave_type.frequency_range();
-        let frequency_hz = (min_hz + max_hz) / 2.0; // Use midpoint
+        let frequency_hz = wave_type.typical_frequency();
         let color = wave_type.typical_color().to_string();
 
         MoodState {

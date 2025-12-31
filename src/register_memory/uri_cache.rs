@@ -81,14 +81,15 @@ impl URICache {
 
     /// Get cache hit rate
     pub fn hit_rate(&self) -> f64 {
-        let total_hits: usize = self.cache.values().map(|e| e.hit_count).sum();
-        let total_requests = total_hits + self.cache.len();
-        
-        if total_requests == 0 {
-            0.0
-        } else {
-            total_hits as f64 / total_requests as f64
+        if self.cache.is_empty() {
+            return 0.0;
         }
+        
+        let total_hits: usize = self.cache.values().map(|e| e.hit_count).sum();
+        let total_entries = self.cache.len();
+        
+        // Calculate hit rate as average hits per entry
+        total_hits as f64 / total_entries as f64
     }
 
     /// Get most accessed keys

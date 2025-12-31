@@ -101,7 +101,11 @@ impl NeuralTickClock {
 
     /// Calculate tick period in milliseconds
     pub fn tick_period_ms(&self) -> u64 {
-        (1000.0 / self.frequency_hz) as u64
+        if self.frequency_hz <= 0.0 {
+            1000 // Default to 1 second for invalid frequencies
+        } else {
+            (1000.0 / self.frequency_hz).max(1.0) as u64
+        }
     }
 
     /// Execute a tick (increment counter)
