@@ -1,8 +1,13 @@
 {
-  "iteration": 0,
-  "timestamp": "2025-12-31T18:00:00Z",
-  "mutations": [],
-  "entanglements": [],
-  "fitness": 1.0,
-  "note": "Initial state - no mutations yet"
+  "iteration": 3,
+  "timestamp": "2025-12-31T18:34:27Z",
+  "mutations": [
+    {"piece_id": 1, "original_hz": 261.0, "mutated_hz": 260.5},
+    {"piece_id": 3, "original_hz": 440.0, "mutated_hz": 440.2}
+  ],
+  "entanglements": [
+    {"classical_hz": 261.0, "whale_hz": 20.0, "ratio": 13.05},
+    {"classical_hz": 440.0, "whale_hz": 30.0, "ratio": 14.67}
+  ],
+  "fitness": 0.95
 }

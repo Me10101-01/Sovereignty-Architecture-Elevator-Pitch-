@@ -13,7 +13,7 @@ cargo build --release 2>/dev/null || echo "Note: cargo build requires Rust envir
 
 echo "2. Validating UDAP schema..."
 if command -v jq &> /dev/null; then
-    jq empty ../schemas/udap.json && echo "✓ UDAP schema valid"
+    jq empty schemas/udap.json && echo "✓ UDAP schema valid"
 else
     echo "Note: jq not found, skipping JSON validation"
 fi
