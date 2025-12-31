@@ -1,0 +1,51 @@
+# Entanglement Core Pod Configuration
+# Domain isomorphisms and quantum-inspired superposition
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: skhaos-entanglement-core
+  labels:
+    app: skhaos-emulator
+    module: entanglement-core
+    phase: "3"
+spec:
+  containers:
+  - name: entanglement-container
+    image: localhost/skhaos-emulator:latest
+    env:
+    - name: SKHAOS_MODULE
+      value: "entanglement_core"
+    - name: DOMAIN_MAPPER_ENABLED
+      value: "true"
+    - name: SUPERPOSITION_SIM_ENABLED
+      value: "true"
+    - name: ENTANGLEMENT_DOMAINS
+      value: "chess,gps,pipe,neural,mood,network"
+    volumeMounts:
+    - name: entanglement-state
+      mountPath: /skhaos/state
+      readOnly: false
+    - name: domain-mappings
+      mountPath: /skhaos/mappings
+      readOnly: false
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "1000m"
+      requests:
+        memory: "256Mi"
+        cpu: "500m"
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL
+  volumes:
+  - name: entanglement-state
+    emptyDir: {}
+  - name: domain-mappings
+    emptyDir: {}
+  restartPolicy: Always

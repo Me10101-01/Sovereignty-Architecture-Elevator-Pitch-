@@ -1,0 +1,33 @@
+[package]
+name = "skhaos-emulator"
+version = "0.1.0"
+edition = "2021"
+authors = ["Domenic Gabriel Garza <strategickhaos@domain.com>"]
+description = "SkhaOS: Quantum-Inspired Symbolic AI Processor Emulator with UDAP"
+license = "See LICENSE"
+repository = "https://github.com/Me10101-01/Sovereignty-Architecture-Elevator-Pitch-"
+
+[lib]
+name = "skhaos"
+path = "src/lib.rs"
+
+[[bin]]
+name = "skhaos-cli"
+path = "src/main.rs"
+
+[dependencies]
+# Using only std library - no external dependencies for sandbox safety
+
+[dev-dependencies]
+# Testing dependencies would go here
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[profile.dev]
+opt-level = 0
+
+[workspace]
+members = []

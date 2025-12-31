@@ -2,8 +2,6 @@
 // Hooks to GPT for reasoning and code generation per phase
 // Interfaces with external LLM APIs for intelligent assistance
 
-use std::collections::HashMap;
-
 /// GPT Assistant for AI-powered reasoning and code generation
 pub struct GPTAssistant {
     /// Model configuration

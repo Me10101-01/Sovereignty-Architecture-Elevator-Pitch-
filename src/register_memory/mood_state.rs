@@ -5,7 +5,7 @@
 use std::time::{Duration, Instant};
 
 /// Brain wave type based on frequency
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum WaveType {
     Delta,  // 0.5-4 Hz (deep sleep)
     Theta,  // 4-8 Hz (meditation, creativity)
@@ -143,7 +143,7 @@ impl MoodState {
             return Err("Invalid path format".to_string());
         }
 
-        let wave_str = path_parts[3];
+        let _wave_str = path_parts[3];
         let id = path_parts[4].to_string();
 
         // Parse query parameters

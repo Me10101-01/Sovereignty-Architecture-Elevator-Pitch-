@@ -1,0 +1,49 @@
+# Control Unit Pod Configuration
+# Orchestrates system flows and UDAP routing
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: skhaos-control-unit
+  labels:
+    app: skhaos-emulator
+    module: control-unit
+    phase: "2"
+spec:
+  containers:
+  - name: control-container
+    image: localhost/skhaos-emulator:latest
+    env:
+    - name: SKHAOS_MODULE
+      value: "control_unit"
+    - name: UDAP_PARSER_ENABLED
+      value: "true"
+    - name: SWARM_ORCHESTRATOR_ENABLED
+      value: "true"
+    volumeMounts:
+    - name: control-state
+      mountPath: /skhaos/state
+      readOnly: false
+    - name: routing-table
+      mountPath: /skhaos/routing
+      readOnly: false
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "1000m"
+      requests:
+        memory: "256Mi"
+        cpu: "500m"
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL
+  volumes:
+  - name: control-state
+    emptyDir: {}
+  - name: routing-table
+    emptyDir: {}
+  restartPolicy: Always

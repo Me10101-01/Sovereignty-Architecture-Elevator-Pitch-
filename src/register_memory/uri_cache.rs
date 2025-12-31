@@ -54,8 +54,9 @@ impl URICache {
     pub fn get(&mut self, key: &str) -> Option<String> {
         if let Some(entry) = self.cache.get_mut(key) {
             entry.hit_count += 1;
+            let value = entry.value.clone();
             self.update_access_order(key);
-            Some(entry.value.clone())
+            Some(value)
         } else {
             None
         }

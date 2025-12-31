@@ -1,0 +1,51 @@
+# Podmanfile - Base Image for SkhaOS Emulator
+# Rust runtime with trigonometric libraries and no internet dependencies
+
+FROM rust:1.75-alpine
+
+# Install build essentials and math libraries
+RUN apk add --no-cache \
+    build-base \
+    musl-dev \
+    openssl-dev \
+    ca-certificates
+
+# Set working directory
+WORKDIR /skhaos
+
+# Copy source files (will be mounted in production)
+COPY src/ /skhaos/src/
+
+# Create Cargo.toml for dependencies
+RUN echo '[package]\n\
+name = "skhaos-emulator"\n\
+version = "0.1.0"\n\
+edition = "2021"\n\
+\n\
+[dependencies]\n\
+# No external dependencies needed - using std library only\n\
+\n\
+[[bin]]\n\
+name = "skhaos"\n\
+path = "src/main.rs"' > /skhaos/Cargo.toml
+
+# Create placeholder main.rs
+RUN mkdir -p /skhaos/src && \
+    echo 'fn main() { println!("SkhaOS Emulator"); }' > /skhaos/src/main.rs
+
+# Pre-build to cache dependencies
+RUN cargo build --release
+
+# Set environment variables
+ENV SKHAOS_MODE=sandbox
+ENV RUST_LOG=info
+
+# Volume for state persistence
+VOLUME ["/skhaos/state", "/skhaos/logs"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD [ "sh", "-c", "echo 'healthy'" ]
+
+# Default command
+CMD ["cargo", "run", "--release"]

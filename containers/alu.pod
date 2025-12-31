@@ -1,0 +1,50 @@
+# ALU Pod Configuration
+# Container for Arithmetic Logic Unit module
+# Handles pipe transforms and neural weight calculations
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: skhaos-alu
+  labels:
+    app: skhaos-emulator
+    module: alu
+    phase: "1"
+spec:
+  containers:
+  - name: alu-container
+    image: localhost/skhaos-emulator:latest
+    env:
+    - name: SKHAOS_MODULE
+      value: "alu"
+    - name: UDAP_DOMAIN
+      value: "pipe,neural,quantum"
+    - name: RUST_LOG
+      value: "debug"
+    volumeMounts:
+    - name: alu-state
+      mountPath: /skhaos/state
+      readOnly: false
+    - name: alu-cache
+      mountPath: /skhaos/cache
+      readOnly: false
+    resources:
+      limits:
+        memory: "256Mi"
+        cpu: "500m"
+      requests:
+        memory: "128Mi"
+        cpu: "250m"
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL
+  volumes:
+  - name: alu-state
+    emptyDir: {}
+  - name: alu-cache
+    emptyDir: {}
+  restartPolicy: Always

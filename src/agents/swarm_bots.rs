@@ -2,8 +2,6 @@
 // Strategickhaos swarms: Multi-agent swarms for parallel domain mapping
 // Evolves via genetic algorithms in sandbox
 
-use std::collections::HashMap;
-
 /// Swarm bot for autonomous operations
 #[derive(Debug, Clone)]
 pub struct SwarmBot {

@@ -67,7 +67,7 @@ impl PipeCoordinate {
         
         PipeCoordinate::from_run_angle(
             new_run,
-            (new_offset.atan2(new_run) * 180.0 / PI)
+            new_offset.atan2(new_run) * 180.0 / PI
         )
     }
 }

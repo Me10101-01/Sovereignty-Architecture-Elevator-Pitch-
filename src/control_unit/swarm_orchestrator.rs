@@ -3,7 +3,6 @@
 // Implements multi-agent swarm patterns for domain mapping
 
 use std::collections::HashMap;
-use std::sync::Arc;
 
 /// Swarm bot agent
 #[derive(Debug, Clone)]
@@ -138,29 +137,50 @@ impl SwarmOrchestrator {
     /// Execute pending tasks
     pub fn execute_tasks(&mut self) -> Vec<String> {
         let mut completed_tasks = Vec::new();
+        let mut tasks_to_process = Vec::new();
 
+        // Collect tasks that need processing
         for task in self.tasks.iter_mut() {
             if task.status == TaskStatus::Pending && !task.assigned_bots.is_empty() {
                 task.status = TaskStatus::InProgress;
-                
-                // Mark bots as working
-                for bot_id in &task.assigned_bots {
-                    if let Some(bot) = self.bots.iter_mut().find(|b| &b.id == bot_id) {
-                        bot.state = BotState::Working;
-                    }
-                }
+                tasks_to_process.push((task.id.clone(), task.assigned_bots.clone(), task.description.clone()));
+            }
+        }
 
-                // Simulate task execution (in real implementation, this would be async)
-                self.simulate_task_execution(task);
+        // Process collected tasks
+        for (task_id, bot_ids, description) in tasks_to_process {
+            // Mark bots as working
+            for bot_id in &bot_ids {
+                if let Some(bot) = self.bots.iter_mut().find(|b| &b.id == bot_id) {
+                    bot.state = BotState::Working;
+                }
+            }
+
+            // Simulate task execution
+            for bot_id in &bot_ids {
+                let result = TaskResult {
+                    task_id: task_id.clone(),
+                    bot_id: bot_id.clone(),
+                    output: format!("Processed: {}", description),
+                    fitness: 0.75, // Simulated fitness score
+                };
                 
+                self.results.insert(
+                    format!("{}_{}", task_id, bot_id),
+                    result
+                );
+            }
+            
+            // Mark task as complete
+            if let Some(task) = self.tasks.iter_mut().find(|t| t.id == task_id) {
                 task.status = TaskStatus::Complete;
                 completed_tasks.push(task.id.clone());
+            }
 
-                // Mark bots as idle again
-                for bot_id in &task.assigned_bots {
-                    if let Some(bot) = self.bots.iter_mut().find(|b| &b.id == bot_id) {
-                        bot.state = BotState::Idle;
-                    }
+            // Mark bots as idle again
+            for bot_id in &bot_ids {
+                if let Some(bot) = self.bots.iter_mut().find(|b| &b.id == bot_id) {
+                    bot.state = BotState::Idle;
                 }
             }
         }
