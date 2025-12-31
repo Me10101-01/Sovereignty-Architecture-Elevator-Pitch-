@@ -11,7 +11,9 @@ pub struct WhaleFrequency {
     pub description: String,
 }
 
-pub const WHALE_FREQUENCIES: [WhaleFrequency; 5] = [
+// NOTE: In production, use lazy_static! or once_cell for heap-allocated const arrays
+pub fn get_whale_frequencies() -> Vec<WhaleFrequency> {
+    vec![
     WhaleFrequency {
         species: "Blue Whale".to_string(),
         frequency_range_hz: (10.0, 40.0),
@@ -42,7 +44,8 @@ pub const WHALE_FREQUENCIES: [WhaleFrequency; 5] = [
         mood_band: "theta".to_string(),
         description: "Transitional frequencies".to_string(),
     },
-];
+    ]
+}
 
 /// Check if a frequency falls within whale song range
 pub fn is_whale_frequency(hz: f64) -> bool {

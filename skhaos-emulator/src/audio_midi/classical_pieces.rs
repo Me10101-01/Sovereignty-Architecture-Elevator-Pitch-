@@ -12,7 +12,10 @@ pub struct ClassicalPiece {
     pub midi_file: String,
 }
 
-pub const CLASSICAL_PIECES: [ClassicalPiece; 36] = [
+// NOTE: In production, use lazy_static! or once_cell for heap-allocated const arrays
+// This prototype uses a function to avoid const heap allocation limitations
+pub fn get_classical_pieces() -> Vec<ClassicalPiece> {
+    vec![
     ClassicalPiece { id: 1, name: "Symphony No.5".to_string(), composer: "Beethoven".to_string(), key_note: "C".to_string(), fundamental_hz: 261.0, mood_band: "beta".to_string(), midi_file: "assets/classical/beethoven_sym5.mid".to_string() },
     ClassicalPiece { id: 2, name: "Symphony No.9".to_string(), composer: "Beethoven".to_string(), key_note: "D".to_string(), fundamental_hz: 294.0, mood_band: "gamma".to_string(), midi_file: "assets/classical/beethoven_sym9.mid".to_string() },
     ClassicalPiece { id: 3, name: "Brandenburg No.3".to_string(), composer: "Bach".to_string(), key_note: "A".to_string(), fundamental_hz: 440.0, mood_band: "alpha".to_string(), midi_file: "assets/classical/bach_brandenburg3.mid".to_string() },
@@ -49,14 +52,15 @@ pub const CLASSICAL_PIECES: [ClassicalPiece; 36] = [
     ClassicalPiece { id: 34, name: "Gymnopedie No.1".to_string(), composer: "Satie".to_string(), key_note: "E".to_string(), fundamental_hz: 330.0, mood_band: "theta".to_string(), midi_file: "assets/classical/satie_gymnopedie.mid".to_string() },
     ClassicalPiece { id: 35, name: "Adagio".to_string(), composer: "Albinoni".to_string(), key_note: "B".to_string(), fundamental_hz: 247.0, mood_band: "delta".to_string(), midi_file: "assets/classical/albinoni_adagio.mid".to_string() },
     ClassicalPiece { id: 36, name: "Jesu Joy of Man's Desiring".to_string(), composer: "Bach".to_string(), key_note: "G".to_string(), fundamental_hz: 196.0, mood_band: "alpha".to_string(), midi_file: "assets/classical/bach_jesu.mid".to_string() },
-];
-
-pub fn get_piece_by_id(id: u8) -> Option<&'static ClassicalPiece> {
-    CLASSICAL_PIECES.iter().find(|p| p.id == id)
+    ]
 }
 
-pub fn get_pieces_by_mood(mood: &str) -> Vec<&'static ClassicalPiece> {
-    CLASSICAL_PIECES.iter().filter(|p| p.mood_band == mood).collect()
+pub fn get_piece_by_id(id: u8) -> Option<ClassicalPiece> {
+    get_classical_pieces().into_iter().find(|p| p.id == id)
+}
+
+pub fn get_pieces_by_mood(mood: &str) -> Vec<ClassicalPiece> {
+    get_classical_pieces().into_iter().filter(|p| p.mood_band == mood).collect()
 }
 
 #[cfg(test)]
@@ -65,7 +69,8 @@ mod tests {
     
     #[test]
     fn test_all_pieces_have_unique_ids() {
-        let mut ids: Vec<u8> = CLASSICAL_PIECES.iter().map(|p| p.id).collect();
+        let pieces = get_classical_pieces();
+        let mut ids: Vec<u8> = pieces.iter().map(|p| p.id).collect();
         ids.sort();
         let unique_count = ids.iter().collect::<std::collections::HashSet<_>>().len();
         assert_eq!(unique_count, 36);

@@ -1,5 +1,7 @@
 // Proxy handler for UDAP-addressed requests
 // Handles skhaos://browser/ip/port?sovereign=true
+// NOTE: This is a prototype implementation. Production version should include
+// actual HTTP proxying logic using hyper::Client for request forwarding.
 
 use hyper::{Body, Request, Response, StatusCode};
 
@@ -12,6 +14,7 @@ pub async fn handle_request(req: Request<Body>) -> Result<Response<Body>, hyper:
         handle_udap_request(path).await
     } else {
         // Regular proxy request - apply privacy filters
+        // NOTE: Prototype - production should forward to actual target
         handle_regular_proxy(req).await
     }
 }
@@ -51,15 +54,17 @@ async fn handle_udap_request(path: &str) -> Result<Response<Body>, hyper::Error>
 async fn handle_regular_proxy(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
     // Apply DDG-like privacy filters
     // Block tracking scripts, remove identifying headers
+    // NOTE: Prototype implementation - production should use hyper::Client to forward requests
     
     let response = format!(
-        "Regular proxy request to {} (tracking blocked, privacy-first)",
+        "Regular proxy request to {} (tracking blocked, privacy-first)\nPrototype: Actual proxying not implemented",
         req.uri()
     );
     
     Ok(Response::builder()
         .status(StatusCode::OK)
         .header("X-Tracking-Blocked", "true")
+        .header("X-Prototype", "true")
         .body(Body::from(response))
         .unwrap())
 }

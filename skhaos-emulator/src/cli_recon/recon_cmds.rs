@@ -371,7 +371,8 @@ fn frequency_to_note(hz: f64) -> String {
     let notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
     let a4 = 440.0;
     let semitones_from_a4 = 12.0 * (hz / a4).log2();
-    let note_index = ((semitones_from_a4.round() as i32 + 9) % 12) as usize;
+    // Ensure the index is positive and within bounds
+    let note_index = ((semitones_from_a4.round() as i32 + 9).rem_euclid(12)) as usize;
     let octave = 4 + ((semitones_from_a4 + 9.0) / 12.0).floor() as i32;
     format!("{}{}", notes[note_index], octave)
 }
