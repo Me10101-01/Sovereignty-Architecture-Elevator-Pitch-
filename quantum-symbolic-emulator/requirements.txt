@@ -1,0 +1,9 @@
+# Quantum-Symbolic AI Processor Emulator
+# Python dependencies
+
+# Core scientific computing
+numpy>=1.20.0
+
+# Optional: For enhanced features
+# scipy>=1.7.0  # For advanced signal processing
+# matplotlib>=3.3.0  # For visualization
