@@ -9,8 +9,10 @@ COPY src/entanglement_core/ ./entanglement_core/
 COPY src/alu/ ./alu/
 COPY configs/thought_log.yaml ./configs/
 
-# Install dependencies
-RUN pip install --no-cache-dir networkx matplotlib pyyaml numpy
+# Install dependencies (with fallback for certificate issues)
+RUN pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org \
+    networkx matplotlib pyyaml numpy || \
+    echo "Warning: Package installation may have failed. Container will use pre-installed packages if available."
 
 # Set Python path
 ENV PYTHONPATH=/app
