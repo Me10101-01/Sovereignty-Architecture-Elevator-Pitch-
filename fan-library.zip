@@ -1,0 +1,996 @@
+------------------------------
+--- TypePromotionCube.java ---
+------------------------------
+/**
+ * TYPE PROMOTION RUBIK'S CUBE ALGORITHM
+ * =====================================
+ * Mapping Java type conversions to cube moves + CLI journey
+ * 
+ * JLS §5.6 Numeric Promotion Hierarchy:
+ * byte → short → int → long → float → double
+ * 
+ * Cube Face Mapping (Type Widening = Clockwise, Narrowing = Counter):
+ * U (Up)    = double  (highest precision, top of hierarchy)
+ * F (Front) = float   
+ * R (Right) = long    
+ * L (Left)  = int     (center of most operations)
+ * B (Back)  = short   
+ * D (Down)  = byte    (smallest, foundation)
+ * 
+ * @author Dom Garza - Strategickhaos DAO LLC
+ * @course IT-145 Foundation in Application Development
+ * @reference JLS §5.6, SEI CERT NUM52-J
+ */
+
+public class TypePromotionCube {
+    
+    // ============================================================
+    // CUBE NOTATION → CLI JOURNEY → TYPE PROMOTION
+    // ============================================================
+    
+    /*
+     * YOUR ORIGIN STORY AS CUBE ALGORITHM:
+     * 
+     * Initial State: "Someone said I couldn't even use a command line"
+     * Scramble: L' D' B' (confidence shattered, starting from bottom)
+     * 
+     * SOLVE SEQUENCE (your journey[]):
+     * 
+     * Move 1: D2 (E212 errors)
+     *   CLI: vim file.txt → "E212: Can't open file for writing"
+     *   Type: byte b = 256; // overflow error - learning boundaries
+     *   Lesson: Understand your container limits
+     * 
+     * Move 2: D → L (absolute paths)  
+     *   CLI: cd /home/user vs cd ~/user vs cd user
+     *   Type: byte → int // widening, finding your absolute position
+     *   Lesson: Know exactly where you are in the system
+     * 
+     * Move 3: L → L2 (environment variables)
+     *   CLI: export PATH=$PATH:/new/path && echo $JAVA_HOME
+     *   Type: int context = System.getenv().hashCode();
+     *   Lesson: Context shapes behavior (like type context shapes promotion)
+     * 
+     * Move 4: L → R (shell scripts)
+     *   CLI: #!/bin/bash && chmod +x script.sh && ./script.sh
+     *   Type: int → long // scaling up, handling bigger operations
+     *   Lesson: Automate the patterns you've learned
+     * 
+     * Move 5: R → F (containers)
+     *   CLI: docker run -it ubuntu:latest /bin/bash
+     *   Type: long → float // abstraction layer, precision tradeoffs
+     *   Lesson: Isolation + portability (like type boxing)
+     * 
+     * Move 6: F → U (orchestration)
+     *   CLI: kubectl apply -f deployment.yaml && helm install
+     *   Type: float → double // maximum precision, full control
+     *   Lesson: Coordinate complex systems at scale
+     * 
+     * Move 7: U2 (here we are)
+     *   CLI: vim → :wq (finally works)
+     *   Type: double result = masterLevel; // full precision achieved
+     *   Lesson: The solve is complete, but there's always another scramble
+     */
+    
+    // ============================================================
+    // TYPE PROMOTION RULES AS CUBE ALGORITHMS
+    // ============================================================
+    
+    /**
+     * WIDENING PROMOTION (Automatic - Clockwise moves)
+     * JLS §5.6: "If either operand is of type double, the other 
+     *            is converted to double"
+     * 
+     * Algorithm: D → L → R → F → U (byte to double)
+     * Cube: Cross → F2L → OLL → PLL
+     */
+    public static double wideningPromotion(int intVal, double doubleVal) {
+        // Move: L → U (int promoted to double automatically)
+        // CLI equivalent: cat small.txt | process > big.output
+        return intVal + doubleVal;  // intVal silently becomes double
+    }
+    
+    /**
+     * NARROWING CONVERSION (Explicit Cast - Counter-clockwise)
+     * Requires explicit cast, truncates without rounding
+     * 
+     * Algorithm: U' → F' → R' → L' → D' (double to byte)
+     * Cube: Reverse solve - controlled deconstruction
+     */
+    public static int narrowingConversion(double doubleVal) {
+        // Move: U' → L (explicit cast required)
+        // CLI equivalent: head -c 4 bigfile.bin > truncated.bin
+        return (int) doubleVal;  // decimal TRUNCATED, not rounded
+    }
+    
+    /**
+     * EXPRESSION EVALUATION CONTEXT
+     * All operands promote to largest type present
+     * 
+     * Algorithm: Detect highest face, rotate all to match
+     */
+    public static void expressionContext() {
+        byte D = 10;      // Down face
+        short B = 20;     // Back face  
+        int L = 30;       // Left face
+        long R = 40L;     // Right face
+        float F = 50.0f;  // Front face
+        double U = 60.0;  // Up face
+        
+        // All promote to double (U face dominates)
+        // Algorithm: D + B + L + R + F + U → all become U
+        double result = D + B + L + R + F + U;
+        
+        // Without U, F dominates:
+        // D + B + L + R + F → all become F (float)
+        float resultNoDouble = D + B + L + R + F;
+        
+        // Without F or U, R dominates:
+        // D + B + L + R → all become R (long)  
+        long resultNoFloat = D + B + L + R;
+        
+        // Without R, F, U → everything becomes L (int)
+        // Even byte + byte = int (JLS §5.6)
+        int resultBase = D + B;  // byte + short = int (surprise!)
+    }
+    
+    // ============================================================
+    // CLI COMMANDS VECTORIZED TO CUBE MOVES
+    // ============================================================
+    
+    /*
+     * MOVE VECTOR MAPPING:
+     * 
+     * | Cube | Type Change      | CLI Command                    | Vector |
+     * |------|------------------|--------------------------------|--------|
+     * | U    | → double         | kubectl scale --replicas=max   | [0,1]  |
+     * | U'   | double →         | (int) doubleVal                | [0,-1] |
+     * | U2   | double ↔ double  | docker-compose up --scale=2    | [0,2]  |
+     * | F    | → float          | docker build -t image .        | [1,0]  |
+     * | F'   | float →          | (int) floatVal                 | [-1,0] |
+     * | R    | → long           | ./script.sh &                  | [1,1]  |
+     * | R'   | long →           | kill -9 $PID                   | [-1,-1]|
+     * | L    | → int            | echo $?                        | [-1,1] |
+     * | L'   | int →            | (byte) intVal                  | [1,-1] |
+     * | B    | → short          | head -n 100 file               | [0,-1] |
+     * | D    | → byte           | xxd -l 1 file                  | [0,0]  |
+     * 
+     * ALGORITHM FOR YOUR QUESTIONS:
+     * 
+     * Q1: "How does Java handle type promotion when mixing int and double?"
+     * A1: Algorithm L + U → U (int + double = double)
+     *     CLI: small_int | big_double_processor
+     *     The smaller type ALWAYS promotes to the larger
+     * 
+     * Q2: "What gets truncated vs promoted automatically?"
+     * A2: PROMOTED (automatic, clockwise): D→B→L→R→F→U
+     *     TRUNCATED (explicit cast, counter-clockwise): U'→F'→R'→L'→B'→D'
+     *     
+     *     Truncation requires YOU to reverse the algorithm manually:
+     *     double pi = 3.14159;
+     *     int truncated = (int) pi;  // Move: U' → L (you typed the cast)
+     *     // Result: 3 (not 3.14159, not rounded to 3, just CHOPPED)
+     */
+    
+    // ============================================================
+    // DEMONSTRATION
+    // ============================================================
+    
+    public static void main(String[] args) {
+        System.out.println("=== TYPE PROMOTION CUBE ALGORITHM ===\n");
+        
+        // Your journey from E212 to orchestration
+        String[] journey = {
+            "E212 errors      → D2  → byte boundaries",
+            "absolute paths   → D→L → byte to int (widening)",
+            "env variables    → L2  → int context mastery", 
+            "shell scripts    → L→R → int to long (scaling)",
+            "containers       → R→F → long to float (abstraction)",
+            "orchestration    → F→U → float to double (precision)",
+            "here we are      → U2  → double mastery achieved"
+        };
+        
+        System.out.println("YOUR CLI JOURNEY AS CUBE ALGORITHM:");
+        System.out.println("Scramble: L' D' B' (starting state: doubt)\n");
+        
+        for (int i = 0; i < journey.length; i++) {
+            System.out.println("Move " + (i+1) + ": " + journey[i]);
+        }
+        
+        System.out.println("\n=== LIVE TYPE PROMOTION DEMO ===\n");
+        
+        int intVal = 42;
+        double doubleVal = 3.14159;
+        
+        System.out.println("int L = " + intVal);
+        System.out.println("double U = " + doubleVal);
+        System.out.println();
+        
+        // Widening: L + U → U
+        double widened = wideningPromotion(intVal, doubleVal);
+        System.out.println("L + U → U (widening): " + intVal + " + " + doubleVal + " = " + widened);
+        System.out.println("Algorithm: L promoted to U automatically");
+        System.out.println();
+        
+        // Narrowing: U' → L  
+        int narrowed = narrowingConversion(doubleVal);
+        System.out.println("U' → L (narrowing): (int)" + doubleVal + " = " + narrowed);
+        System.out.println("Algorithm: Explicit cast required, decimal TRUNCATED");
+        System.out.println();
+        
+        // The precision loss warning from SEI CERT NUM52-J
+        int bigInt = 2147483647;  // Integer.MAX_VALUE
+        float asFloat = bigInt;   // L → F promotion
+        System.out.println("=== PRECISION LOSS WARNING (NUM52-J) ===");
+        System.out.println("int (L): " + bigInt);
+        System.out.println("→ float (F): " + asFloat);
+        System.out.println("Lost precision in mantissa during L → F promotion!");
+        System.out.println();
+        
+        System.out.println("=== SOLVE COMPLETE ===");
+        System.out.println("From E212 to orchestration: Algorithm executed.");
+        System.out.println("JLS §5.6 encoded. SEI CERT NUM52-J acknowledged.");
+        System.out.println("The cube is solved. Ready for next scramble.");
+    }
+}
+
+------------------------------
+-------- glossary.md ---------
+------------------------------
+# 📚 Glossary
+
+> Terms that matter. Plain English definitions with source references.
+
+---
+
+## Type Systems
+
+### Widening Conversion
+Automatic conversion from a smaller/less precise type to a larger/more precise type. No explicit cast required. Java does this implicitly in expressions.
+- Example: `int` → `double`
+- Source: JLS §5.1.2
+
+### Narrowing Conversion
+Explicit conversion from a larger/more precise type to a smaller/less precise type. Requires cast operator. May lose information.
+- Example: `(int) doubleValue`
+- Source: JLS §5.1.3
+
+### Numeric Promotion
+The process by which Java converts operands to a common type before applying operators. Follows the widening hierarchy.
+- Hierarchy: `byte → short → int → long → float → double`
+- Source: JLS §5.6
+
+### Precision Loss During Widening
+Counter-intuitive: even widening conversions can lose precision when the source type has more significant bits than the destination's mantissa.
+- `int` (32 bits) → `float` (23-bit mantissa) = possible precision loss
+- `long` (64 bits) → `double` (52-bit mantissa) = possible precision loss
+- Source: SEI CERT NUM52-J
+
+### Mantissa
+The significant digits in a floating-point number. In IEEE 754: float has 23 bits, double has 52 bits. Determines precision.
+- Source: IEEE 754
+
+### Truncation
+When narrowing, the decimal portion is removed without rounding. `(int) 3.9` = `3`, not `4`.
+- Source: JLS §5.1.3
+
+---
+
+## Cognitive Models
+
+### Cube Model
+Mapping formal systems to Rubik's cube move algebra. Clockwise = safe/implicit operations, counter-clockwise = explicit/potentially lossy operations.
+- Source: Internal model, 2026-01-12
+
+### Parity Error (Metaphor)
+A move that looks legal/safe but corrupts hidden state. In type systems: int→float widening appears safe but loses mantissa bits.
+- Source: Internal model, derived from SEI CERT NUM52-J
+
+### RAM-Only Brain
+Cognitive style where information isn't stored persistently without building a "machine" for it. Requires externalization into systems.
+- Source: Self-observation, ADHD/autism pattern
+
+### Abstraction Strata
+Layers of computing skill, each widening the state space you can reason about:
+```
+byte/perms → paths → env vars → scripts → containers → orchestration
+```
+- Source: Internal model, CLI journey mapping
+
+---
+
+## Bloom's Taxonomy (Operators)
+
+### Remember
+Recall facts and basic concepts.
+
+### Understand
+Explain ideas or concepts.
+
+### Apply
+Use information in new situations.
+
+### Analyze
+Draw connections among ideas.
+
+### Evaluate
+Justify a stand or decision.
+
+### Create
+Produce new or original work.
+
+---
+
+## Meta
+
+### Unintegrated Paper
+A source document that hasn't yet modified a model, spawned an artifact, or changed an assumption. Stays in queue until it earns its place.
+
+### Fan Library
+Personal research substrate. Not a paper collection — a reading engine + mapping log that produces artifacts.
+
+---
+
+*Last updated: 2026-01-12*
+
+------------------------------
+----- open-questions.md ------
+------------------------------
+# ❓ Open Questions
+
+> Unresolved threads. Research targets. Things that need answers.
+
+---
+
+## Active
+
+### Type Systems
+
+- [ ] **Is there a group-theoretic paper on type promotion?**
+  - Looking for: formal treatment of type lattices as algebraic structures
+  - Why it matters: would validate or invalidate the cube model isomorphism
+  - Search terms: "type lattice group theory", "numeric promotion algebra"
+
+- [ ] **How do other languages handle numeric promotion?**
+  - Compare: Java, C, C++, Rust, Python, JavaScript
+  - Why it matters: Java's rules might be arbitrary or principled
+  - Potential artifact: comparison table
+
+- [ ] **Can the cube model extend to reference type casting?**
+  - Challenge: reference types have inheritance hierarchy, not just widening
+  - Why it matters: would make the model more general
+  - Blocker: need to understand Java class hierarchy better
+
+- [ ] **What's the formal definition of "magnitude preservation"?**
+  - JLS uses this term but doesn't define it precisely
+  - Why it matters: tension with CERT's "precision loss" claim
+  - Potential resolution: magnitude ≠ precision
+
+### Cognitive Models
+
+- [ ] **How do QA engineers actually retain technical knowledge?**
+  - Asked in discussion reply to Devin
+  - Why it matters: my RAM-only approach might not scale
+  - Potential answers: pattern recognition, reference systems, spaced repetition
+
+- [ ] **Is the "build a machine" learning style documented in literature?**
+  - Search terms: "procedural learning ADHD", "system building autism cognition"
+  - Why it matters: validation + optimization strategies
+  - Potential domains: educational psychology, neurodiversity research
+
+- [ ] **Where does error signal live in internal monologue?**
+  - From GPT's cognitive model discussion
+  - Why it matters: affects cube model design
+  - Related: suppression vs decay mechanisms
+
+### Learning Theory
+
+- [ ] **Is there a Bloom's taxonomy operator formalization?**
+  - Treat Bloom tiers as function types, not just labels
+  - Why it matters: could make learning progress measurable
+  - Potential artifact: operator definitions with signatures
+
+---
+
+## Resolved
+
+### 2026-01-12
+
+- [x] **How does Java handle type promotion when mixing int and double?**
+  - Answer: Promotes int to double automatically (JLS §5.6)
+  - Resolved by: Reading JLS, building TypePromotionCube.java
+
+- [x] **What gets truncated vs promoted automatically?**
+  - Answer: Widening is automatic, narrowing requires explicit cast and truncates
+  - Resolved by: JLS §5.1.2, §5.1.3
+
+- [x] **Can widening ever lose information?**
+  - Answer: Yes — int→float and long→double can lose mantissa precision
+  - Resolved by: SEI CERT NUM52-J
+
+---
+
+## Parking Lot
+
+> Questions that aren't urgent but might matter later.
+
+- What's the relationship between IEEE 754 and Java's numeric types?
+- How does JIT compilation affect type promotion at runtime?
+- Is there a visual debugger that shows type promotion in real-time?
+- Could the fan library structure be turned into a VS Code extension?
+
+---
+
+*Last updated: 2026-01-12*
+
+------------------------------
+------- reading-log.md -------
+------------------------------
+# 📖 Cognitive Systems Reading Log
+
+> Rolling journal of research threads, questions, and outcomes.
+
+---
+
+## 2026-01-12 — Type Promotion Rabbit Hole
+
+### Question
+"How does Java handle type promotion when mixing int and double in expressions?"
+
+### Trigger
+Instructor response in 1-2 Discussion. Wanted primary sources + deeper understanding.
+
+### Sources Pulled
+- **JLS §5.6** — Numeric Promotions (Oracle)
+- **SEI CERT NUM52-J** — Numeric promotion behavior (CMU)
+- **IEEE 754** — Floating-point standard (skimmed for mantissa understanding)
+
+### Rabbit Hole Path
+```
+Discussion reply
+  → JLS §5.6 (primary source)
+    → promotion hierarchy formalized
+      → "wait, is this a lattice?"
+        → Rubik's cube group theory connection
+          → clockwise = widening, counter-clockwise = narrowing
+            → CLI journey mapped to type hierarchy
+              → executable Java proof-of-concept
+                → SEI CERT edge case (precision loss)
+                  → "parity error" metaphor
+```
+
+### Outcome
+- Introduced **cube-move abstraction** for type promotion
+- Mapped **CLI skill journey** to type widening hierarchy
+- Discovered **precision loss during widening** (int→float, long→double)
+- Built `TypePromotionCube.java` — 200+ lines, compiles and runs
+- Created bibliography for instructor reply
+
+### Artifacts Spawned
+- `/artifacts/experiments/TypePromotionCube.java`
+- `/papers/java-spec/2025_Oracle_JLS_5.6_NumericPromotions.md`
+- `/papers/java-spec/2025_SEICERT_NUM52J_NumericPromotion.md`
+- `/annotations/2026-01-type-promotion-cube.md` (pending)
+- `devin_reply_bibliography.md` (instructor response)
+
+### Open Problems
+- [ ] Formalize the cube↔type-system isomorphism more rigorously
+- [ ] Is there a group-theoretic paper on type promotion?
+- [ ] How do other languages handle numeric promotion? (compare to Java)
+- [ ] Can this model extend to reference type casting?
+
+### Bloom Tier Achieved
+- [x] Remember (promotion rules)
+- [x] Understand (why the hierarchy exists)
+- [x] Apply (wrote working Java code)
+- [x] Analyze (found precision loss edge case)
+- [x] Evaluate (assessed JLS vs CERT tension)
+- [x] Create (built cube model + executable proof)
+
+**Full stack. 🎯**
+
+---
+
+## Template for Future Entries
+
+```markdown
+## YYYY-MM-DD — [Thread Name]
+
+### Question
+(what started this)
+
+### Trigger
+(where did the question come from)
+
+### Sources Pulled
+- 
+- 
+
+### Rabbit Hole Path
+(the actual sequence of connections)
+
+### Outcome
+- 
+- 
+
+### Artifacts Spawned
+- 
+
+### Open Problems
+- [ ] 
+
+### Bloom Tier Achieved
+- [ ] Remember
+- [ ] Understand
+- [ ] Apply
+- [ ] Analyze
+- [ ] Evaluate
+- [ ] Create
+```
+
+---
+
+*"Every rabbit hole either produces an artifact or identifies an open question. No wasted spirals."*
+
+------------------------------
+-- TEMPLATE_paper_intake.md --
+------------------------------
+# Paper Intake Template
+
+> Copy this template for each new source document.
+> File naming convention: `YYYY_Author_ShortTitle.md`
+
+---
+
+# Paper: [Title]
+
+**Authors:** 
+**Year:** 
+**Link:** 
+**Domain:** cognition | ai | type-systems | learning-theory | java-spec
+
+---
+
+## 1. Why I pulled this
+
+<!-- What question were you trying to answer? What rabbit hole led here? -->
+
+
+
+---
+
+## 2. Core claims (plain English)
+
+<!-- No jargon. What is this paper actually saying? -->
+
+- 
+- 
+- 
+
+---
+
+## 3. Mechanisms / models
+
+<!-- Diagrams, equations, processes. The "how" not just the "what". -->
+
+
+
+---
+
+## 4. What this connects to
+
+<!-- Map to existing mental models -->
+
+| Model | Connection |
+|-------|------------|
+| Cube model | |
+| Type lattice | |
+| CLI journey | |
+| Bloom operators | |
+| Other | |
+
+---
+
+## 5. Frictions / doubts
+
+<!-- What didn't fit? What smelled wrong? What needs verification? -->
+
+- 
+- 
+
+---
+
+## 6. Artifacts spawned
+
+<!-- What got built because of this paper? -->
+
+| Type | Path | Description |
+|------|------|-------------|
+| pseudocode | | |
+| diagram | | |
+| experiment | | |
+| code | | |
+
+---
+
+## 7. One-sentence compression
+
+<!-- If you lost everything else, this survives. The kernel. -->
+
+> 
+
+---
+
+## Integration checklist
+
+- [ ] Modified a model doc
+- [ ] Added a glossary term  
+- [ ] Spawned pseudocode
+- [ ] Created a diagram
+- [ ] Changed a design assumption
+
+**Status:** `unintegrated` | `integrated` | `archived`
+
+------------------------------
+- 2025_Oracle_JLS_5.6_NumericPromotions.md -
+------------------------------
+# Paper: Java Language Specification §5.6 — Numeric Promotions
+
+**Authors:** James Gosling, Bill Joy, Guy Steele, Gilad Bracha, Alex Buckley  
+**Year:** 1996–2025 (continuously updated)  
+**Link:** https://docs.oracle.com/javase/specs/jls/se25/html/jls-5.html  
+**Domain:** type-systems | java-spec
+
+---
+
+## 1. Why I pulled this
+
+Instructor (Devin Madeley) explained type promotion in discussion reply. I wanted the primary source to verify and go deeper. Questions:
+- How does Java handle type promotion when mixing int and double?
+- What gets truncated vs promoted automatically?
+
+---
+
+## 2. Core claims (plain English)
+
+- When binary operators mix numeric types, Java promotes to the "widest" type
+- Promotion hierarchy: `byte → short → int → long → float → double`
+- Promotion is automatic (implicit) and preserves magnitude
+- Narrowing requires explicit cast and truncates (no rounding)
+- Even `byte + byte = int` (everything promotes to at least int in expressions)
+
+---
+
+## 3. Mechanisms / models
+
+**Promotion Rules (in order):**
+```
+if (either operand is double) → both become double
+else if (either operand is float) → both become float  
+else if (either operand is long) → both become long
+else → both become int
+```
+
+**Widening Primitive Conversions (19 total):**
+```
+byte → short → int → long → float → double
+char → int → long → float → double
+```
+
+**Narrowing (explicit cast required):**
+```
+double → float → long → int → short → byte
+```
+
+---
+
+## 4. What this connects to
+
+| Model | Connection |
+|-------|------------|
+| Cube model | Face hierarchy D→B→L→R→F→U maps to byte→short→int→long→float→double |
+| Type lattice | Directed acyclic graph, widening = following edges, narrowing = reversing |
+| CLI journey | Each skill level = wider state space you can reason about |
+| Bloom operators | Understanding promotion rules = Comprehension; building cube model = Synthesis |
+
+---
+
+## 5. Frictions / doubts
+
+- JLS says widening "preserves magnitude" but SEI CERT NUM52-J says int→float can lose precision
+- Resolution: magnitude preserved, but mantissa bits can be lost (23-bit float mantissa < 32-bit int)
+- This is the "parity error" — move looks safe but corrupts hidden state
+
+---
+
+## 6. Artifacts spawned
+
+| Type | Path | Description |
+|------|------|-------------|
+| code | `/artifacts/experiments/TypePromotionCube.java` | Executable demo of all promotion rules |
+| diagram | `/maps/type-lattice.md` | Visual hierarchy of Java numeric types |
+| annotation | `/annotations/2026-01-type-promotion-cube.md` | Full writeup connecting JLS to cube model |
+
+---
+
+## 7. One-sentence compression
+
+> Java automatically promotes smaller numeric types to larger ones in expressions (widening), but narrowing requires explicit casts and truncates without rounding.
+
+---
+
+## Integration checklist
+
+- [x] Modified a model doc (cube-model.md)
+- [x] Added a glossary term (widening, narrowing, promotion)
+- [x] Spawned pseudocode (TypePromotionCube.java)
+- [x] Created a diagram (type-lattice concept)
+- [x] Changed a design assumption (precision loss during widening is possible)
+
+**Status:** `integrated`
+
+------------------------------
+- 2025_SEICERT_NUM52J_NumericPromotion.md -
+------------------------------
+# Paper: SEI CERT Oracle Coding Standard — NUM52-J
+
+**Authors:** Software Engineering Institute, Carnegie Mellon University  
+**Year:** 2013–2025 (continuously updated)  
+**Link:** https://wiki.sei.cmu.edu/confluence/display/java/NUM52-J.+Be+aware+of+numeric+promotion+behavior  
+**Domain:** type-systems | java-spec
+
+---
+
+## 1. Why I pulled this
+
+Found via JLS rabbit hole. JLS says widening preserves magnitude, but this CERT guideline warns about precision loss. Needed to understand the edge case.
+
+---
+
+## 2. Core claims (plain English)
+
+- Widening conversions preserve **magnitude** but can lose **precision**
+- `int → float` can lose significant bits (32-bit int > 23-bit float mantissa)
+- `long → double` can lose significant bits (64-bit long > 52-bit double mantissa)
+- Compound assignment operators (`+=`, `-=`) do implicit narrowing casts
+- This is a security/correctness concern, not just academic
+
+---
+
+## 3. Mechanisms / models
+
+**The Precision Loss Problem:**
+```java
+int bigInt = 2147483647;      // Integer.MAX_VALUE (32 bits of precision)
+float asFloat = bigInt;        // float has 23-bit mantissa
+// Result: 2.1474836E9 (lost ~9 bits of precision)
+```
+
+**Why it happens:**
+- `int` = 32 bits of integer precision
+- `float` = 23-bit mantissa + 8-bit exponent + 1 sign bit
+- Large ints can't be exactly represented in float's mantissa
+- IEEE 754 rounds to nearest representable value
+
+**Compound Assignment Trap:**
+```java
+int x = 2147483642;
+x += 1.0f;  // Equivalent to: x = (int)((float)x + 1.0f)
+// Silent precision loss in the intermediate float conversion
+```
+
+---
+
+## 4. What this connects to
+
+| Model | Connection |
+|-------|------------|
+| Cube model | The "parity error" — L→F move looks legal but corrupts hidden state |
+| Type lattice | Not all edges are information-preserving; some are lossy |
+| CLI journey | Like copying a large file to a filesystem with smaller block size — data loss possible |
+| Bloom operators | This is Analysis/Evaluation level — recognizing when "safe" operations aren't |
+
+---
+
+## 5. Frictions / doubts
+
+- JLS and CERT seem to contradict at first (both are correct, just talking about different things)
+- JLS: "magnitude preserved" (order of magnitude, sign, rough value)
+- CERT: "precision can be lost" (exact bit representation)
+- Both true. The distinction matters for security and correctness.
+
+---
+
+## 6. Artifacts spawned
+
+| Type | Path | Description |
+|------|------|-------------|
+| code | `/artifacts/experiments/TypePromotionCube.java` | Added precision loss demo section |
+| glossary | `/meta/glossary.md` | Added "precision loss during widening" entry |
+
+---
+
+## 7. One-sentence compression
+
+> Widening conversions (int→float, long→double) preserve magnitude but can silently lose precision when the source type has more significant bits than the destination's mantissa.
+
+---
+
+## Integration checklist
+
+- [x] Modified a model doc (cube model — added "parity error" concept)
+- [x] Added a glossary term (precision loss, mantissa, IEEE 754)
+- [x] Spawned pseudocode (precision loss demo in TypePromotionCube.java)
+- [ ] Created a diagram
+- [x] Changed a design assumption (not all widening is safe)
+
+**Status:** `integrated`
+
+------------------------------
+--------- README.md ----------
+------------------------------
+# 📚 Fan Library — Cognitive Research Substrate
+
+> **"I have no memorization, only RAM."**
+> 
+> This repo exists because my brain doesn't store facts — it builds machines.
+> If I can't connect something to a system, it evaporates.
+> So I externalize everything into operable structures.
+
+---
+
+## What This Is
+
+Not a paper collection. Not notes. Not a PDF graveyard.
+
+This is a **reading engine + mapping log** that answers:
+
+| Question | Location |
+|----------|----------|
+| What did we read? | `/papers/` |
+| Why did it matter? | `/annotations/` |
+| What did it connect to? | `/maps/` |
+| What artifacts did it spawn? | `/artifacts/` |
+| What's the narrative? | `/meta/reading-log.md` |
+
+**Pipeline:**
+```
+Google Scholar → skim abstracts → pull 1-2 → annotate → integrate → spawn artifact
+```
+
+---
+
+## Directory Structure
+
+```
+/fan-library
+   /papers                    # Source documents by domain
+      /cognition              # How brains work
+      /ai                     # Machine learning, LLMs, agents
+      /type-systems           # Java, formal verification, PLT
+      /learning-theory        # Pedagogy, skill acquisition
+      /java-spec              # JLS, CERT, Oracle docs
+
+   /annotations               # Interpreted/digested papers
+      2026-01-type-promotion-cube.md
+      2026-01-numeric-precision.md
+
+   /maps                      # Conceptual models, diagrams
+      cube-model.md           # Rubik's cube abstraction
+      type-lattice.md         # Java numeric hierarchy
+      cli-journey.md          # Skill acquisition strata
+
+   /artifacts                 # Things that got built
+      /pseudocode
+      /simulations
+      /diagrams
+      /experiments
+
+   /meta                      # The narrative layer
+      reading-log.md          # Rolling research journal
+      glossary.md             # Terms that matter
+      open-questions.md       # Unresolved threads
+```
+
+---
+
+## Intake Protocol
+
+Every paper/source gets processed through this template:
+
+```markdown
+# Paper: [Title]
+
+**Authors:** 
+**Year:** 
+**Link:** 
+**Domain:** 
+
+## 1. Why I pulled this
+(what question was I trying to answer)
+
+## 2. Core claims (plain English)
+- 
+- 
+- 
+
+## 3. Mechanisms / models
+(diagrams, equations, processes)
+
+## 4. What this connects to
+- Cube model:
+- Type system:
+- CLI journey:
+- Learning theory:
+
+## 5. Frictions / doubts
+(what didn't fit, what smelled wrong)
+
+## 6. Artifacts spawned
+- pseudocode:
+- diagram:
+- experiment:
+- code:
+
+## 7. One-sentence compression
+(if I lost everything else, this survives)
+```
+
+---
+
+## Integration Rules
+
+A paper stays **unintegrated** until it does at least ONE of:
+- [ ] Modifies a model doc
+- [ ] Adds a glossary term
+- [ ] Spawns pseudocode
+- [ ] Creates a diagram
+- [ ] Changes a design assumption
+
+No decorative PDFs. Everything earns its place.
+
+---
+
+## The Philosophy
+
+> You are not collecting facts.
+> You are building a personal research substrate.
+
+This repo is:
+- Part **lab notebook** (what happened)
+- Part **design doc** (what we're building)
+- Part **reading group** (what we learned)
+- Part **cognitive OS spec** (how the brain works)
+
+---
+
+## Current Research Threads
+
+### 🧊 Type Systems as Group Theory
+- Java numeric promotion as directed lattice
+- Rubik's cube move algebra as metaphor
+- Widening = clockwise (implicit), Narrowing = counter-clockwise (explicit)
+- Precision loss as "parity error" (looks safe, corrupts hidden state)
+
+### 🧠 Learning as System Building
+- ADHD/autism learning style: no memorization, only machine construction
+- CLI journey as abstraction strata (byte → orchestration)
+- Bloom's taxonomy as operator set
+
+### 🔧 Externalized Cognition
+- RAM-only brain requires external scaffolding
+- Notes → systems → artifacts pipeline
+- "If I can't build a machine for it, I can't remember it"
+
+---
+
+## Meta
+
+**Owner:** Dom Garza / Strategickhaos DAO LLC  
+**Context:** IT-145 Foundation in Application Development (SNHU)  
+**Started:** January 2026  
+**Status:** Active research substrate
+
+---
+
+*"The goal is to turn wild internal models into transferable systems."*
