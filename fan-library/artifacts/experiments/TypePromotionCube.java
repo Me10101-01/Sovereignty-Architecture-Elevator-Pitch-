@@ -96,6 +96,7 @@ public class TypePromotionCube {
         System.out.println("Precision lost: " + (largeLong != backToLong));
         
         // Potentially lossy widening: long to double
+        // 2^53 + 1 is beyond double's mantissa precision (53 bits), demonstrating where precision loss occurs
         long veryLargeLong = 9007199254740993L; // 2^53 + 1
         double doubleVersion = veryLargeLong;
         long backFromDouble = (long) doubleVersion;
