@@ -30,7 +30,7 @@ class TrigWaveCore:
         self.global_params = self.config['global_params']
         
         # Import here to avoid circular dependency
-        from .neural_tick_clock import NeuralTickClock
+        from neural_tick_clock import NeuralTickClock
         self.scheduler = NeuralTickClock(self.global_params)
         
     def get_source_config(self, source_name: str) -> Optional[Dict[str, Any]]:

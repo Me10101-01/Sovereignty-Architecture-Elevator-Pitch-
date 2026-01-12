@@ -9,10 +9,10 @@ from typing import Dict, List, Any, Optional
 from pathlib import Path
 import numpy as np
 
-from .neural_tick_clock import NeuralTickClock
-from .trig_wave_core import TrigWaveCore
-from .entanglement_core import EntanglementCore
-from .strategickhaos_swarm import StrategickhaosSwarm
+from neural_tick_clock import NeuralTickClock
+from trig_wave_core import TrigWaveCore
+from entanglement_core import EntanglementCore
+from strategickhaos_swarm import StrategickhaosSwarm
 
 
 class GTAEconomySim:

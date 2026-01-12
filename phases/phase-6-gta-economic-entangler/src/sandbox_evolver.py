@@ -10,7 +10,7 @@ from typing import Dict, List, Any, Tuple
 import numpy as np
 from pathlib import Path
 
-from .gta_economy_sim import GTAEconomySim
+from gta_economy_sim import GTAEconomySim
 
 
 class Strategy:
