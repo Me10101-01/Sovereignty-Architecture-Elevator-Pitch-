@@ -1,0 +1,64 @@
+name: Phase Evolution Auto-PR
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: 'Phase number to evolve (1-6)'
+        required: true
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+
+jobs:
+  phase-evolve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f phases/phase-${{ inputs.phase }}-*/requirements.txt ]; then
+            pip install -r phases/phase-${{ inputs.phase }}-*/requirements.txt
+          fi
+
+      - name: Run phase evolution
+        run: |
+          cd phases/phase-${{ inputs.phase }}-*
+          if [ -f src/sandbox_evolver.py ]; then
+            python src/sandbox_evolver.py --iterations 50 --mutate-rate 0.01
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Phase${{ inputs.phase }}: Auto-evolved optimization strategies"
+          branch: phase-${{ inputs.phase }}-evolved
+          title: "Phase ${{ inputs.phase }}: Evolution Results"
+          body: |
+            ## Phase ${{ inputs.phase }} Evolution Results
+            
+            Auto-generated PR from evolution workflow.
+            
+            - Iterations: 50
+            - Mutation rate: 0.01
+            - Triggered by: @${{ github.actor }}
+            
+            ### Next Steps
+            - Review evolution results
+            - Run tests
+            - Merge if performance improved

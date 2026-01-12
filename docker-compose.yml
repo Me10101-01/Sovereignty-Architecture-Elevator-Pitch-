@@ -215,3 +215,82 @@ services:
       - refinory-api
       - grafana
     restart: unless-stopped
+
+  # Phase 1: Symbolic ALU
+  phase1-alu:
+    build:
+      context: ./phases/phase-1-symbolic-alu
+      dockerfile: Dockerfile
+    container_name: quantum-symbolic-alu
+    networks:
+      - strategickhaos_network
+    command: ["python", "src/alu_core.py"]
+
+  # Phase 2: Control Unit
+  phase2-control:
+    build:
+      context: ./phases/phase-2-control-unit
+      dockerfile: Dockerfile
+    container_name: quantum-control-unit
+    networks:
+      - strategickhaos_network
+    depends_on:
+      - phase1-alu
+    command: ["python", "src/control_flow.py"]
+
+  # Phase 3: Entanglement Core
+  phase3-entangle:
+    build:
+      context: ./phases/phase-3-entanglement-core
+      dockerfile: Dockerfile
+    container_name: quantum-entanglement-base
+    networks:
+      - strategickhaos_network
+    depends_on:
+      - phase1-alu
+    command: ["python", "src/qubit_entangle.py"]
+
+  # Phase 4: Register Memory
+  phase4-registers:
+    build:
+      context: ./phases/phase-4-register-memory
+      dockerfile: Dockerfile
+    container_name: quantum-registers
+    networks:
+      - strategickhaos_network
+    depends_on:
+      - phase1-alu
+    command: ["python", "src/quantum_regs.py"]
+
+  # Phase 5: Neural Tick Clocks
+  phase5-ticks:
+    build:
+      context: ./phases/phase-5-neural-tick-clocks
+      dockerfile: Dockerfile
+    container_name: neural-tick-scheduler
+    networks:
+      - strategickhaos_network
+    command: ["python", "src/tick_scheduler.py"]
+
+  # Phase 6: GTA Economic Entangler (Main Component)
+  phase6-gta-economy:
+    build:
+      context: ./phases/phase-6-gta-economic-entangler
+      dockerfile: Dockerfile
+    container_name: gta-economic-entangler
+    volumes:
+      - ./phases/phase-6-gta-economic-entangler/config:/app/config:ro
+      - ./phases/phase-6-gta-economic-entangler/src:/app/src:ro
+      - /var/phase6/outputs:/app/outputs
+    networks:
+      - strategickhaos_network
+    depends_on:
+      - phase1-alu
+      - phase2-control
+      - phase3-entangle
+      - phase4-registers
+      - phase5-ticks
+    environment:
+      PYTHONPATH: /app/src
+    command: ["python", "src/sandbox_evolver.py", "--iterations", "100", "--mutate-rate", "0.01"]
+    restart: unless-stopped

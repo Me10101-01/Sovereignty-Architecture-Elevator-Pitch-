@@ -1,0 +1,95 @@
+name: Recursive Sandbox CI
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Run nightly at 2 AM UTC
+  workflow_dispatch:
+  push:
+    paths:
+      - 'phases/phase-6-gta-economic-entangler/**'
+
+jobs:
+  recursive-sandbox:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: ['3.12']
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r phases/phase-6-gta-economic-entangler/requirements.txt
+      
+      - name: Run sandbox evolver
+        run: |
+          cd phases/phase-6-gta-economic-entangler
+          python src/sandbox_evolver.py --iterations 1000 --mutate-rate 0.01 --output /tmp/evolution_results.json
+        timeout-minutes: 30
+      
+      - name: Run tests
+        run: |
+          cd phases/phase-6-gta-economic-entangler
+          python -m pytest tests/test_passive_loop.py -v --tb=short
+      
+      - name: Upload evolution results
+        uses: actions/upload-artifact@v3
+        with:
+          name: evolution-results-${{ github.run_number }}
+          path: /tmp/evolution_results.json
+          retention-days: 30
+      
+      - name: Check optimization target
+        run: |
+          cd phases/phase-6-gta-economic-entangler
+          python -c "
+          import json
+          import sys
+          
+          with open('/tmp/evolution_results.json', 'r') as f:
+              results = json.load(f)
+          
+          target = 2500000  # $2.5M target
+          best_fitness = results['best_strategy']['fitness']
+          
+          print(f'Best fitness: \${best_fitness:,.0f}')
+          print(f'Target: \${target:,.0f}')
+          
+          if best_fitness >= target:
+              print('✅ Optimization target achieved!')
+              sys.exit(0)
+          else:
+              print('⚠️ Target not reached, but continuing...')
+              sys.exit(0)  # Don't fail, just notify
+          "
+      
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Recursive Sandbox CI Failed',
+              body: `Nightly evolution simulation failed.\n\nRun: ${context.runId}\nWorkflow: ${context.workflow}\n\nPlease investigate.`,
+              labels: ['bug', 'ci', 'phase-6']
+            })
