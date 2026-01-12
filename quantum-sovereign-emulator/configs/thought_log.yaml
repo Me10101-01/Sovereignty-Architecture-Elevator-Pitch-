@@ -1,0 +1,69 @@
+# Cognitive Cube Spec v0.1 - YAML Thought-Log Schema
+# Sessions/thoughts as timestamped qubit states
+
+thought_stream:
+  - id: 1
+    timestamp: "2026-01-12T03:00:00Z"
+    operation: "DECOMPOSE"
+    active_face: "D"
+    description: "Break down complex problem into components"
+    parity_error: false
+    
+  - id: 2
+    timestamp: "2026-01-12T03:15:00Z"
+    operation: "CONSISTENCY_CHECK"
+    active_face: "L"
+    description: "Verify logical consistency across components"
+    parity_error: true
+    error_type: "reference_mismatch"
+    
+  - id: 3
+    timestamp: "2026-01-12T03:30:00Z"
+    operation: "PATTERN_RECOGNITION"
+    active_face: "U"
+    description: "Identify recurring patterns in data"
+    parity_error: false
+    
+  - id: 4
+    timestamp: "2026-01-12T03:45:00Z"
+    operation: "SYNTHESIS"
+    active_face: "R"
+    description: "Combine insights into coherent model"
+    parity_error: false
+    
+  - id: 5
+    timestamp: "2026-01-12T04:00:00Z"
+    operation: "VALIDATION"
+    active_face: "F"
+    description: "Test model against known cases"
+    parity_error: false
+
+bloom_faces:
+  U: "REMEMBER"     # Upper face - Recall facts and basic concepts
+  R: "UNDERSTAND"   # Right face - Explain ideas or concepts
+  F: "APPLY"        # Front face - Use information in new situations
+  D: "ANALYZE"      # Down face - Draw connections among ideas
+  L: "EVALUATE"     # Left face - Justify a stand or decision
+  B: "CREATE"       # Back face - Produce new or original work
+
+reference_hierarchy:
+  Object:
+    - Animal:
+        - Dog: []
+        - Cat: []
+        - Bird: []
+    - Vehicle:
+        - Car: []
+        - Truck: []
+
+parity_events:
+  - type: "downcast_violation"
+    runtime_type: "Cat"
+    target_type: "Dog"
+    severity: "ERROR"
+    wave_threshold: -0.5
+  - type: "upcast_safe"
+    runtime_type: "Dog"
+    target_type: "Animal"
+    severity: "INFO"
+    wave_threshold: 0.7

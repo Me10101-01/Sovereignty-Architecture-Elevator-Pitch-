@@ -1,0 +1,75 @@
+{
+  "hierarchy": {
+    "Object": {
+      "children": ["Animal", "Vehicle", "Structure"],
+      "level": 0
+    },
+    "Animal": {
+      "parent": "Object",
+      "children": ["Dog", "Cat", "Bird", "Fish"],
+      "level": 1
+    },
+    "Dog": {
+      "parent": "Animal",
+      "children": [],
+      "level": 2
+    },
+    "Cat": {
+      "parent": "Animal",
+      "children": [],
+      "level": 2
+    },
+    "Bird": {
+      "parent": "Animal",
+      "children": [],
+      "level": 2
+    },
+    "Fish": {
+      "parent": "Animal",
+      "children": [],
+      "level": 2
+    },
+    "Vehicle": {
+      "parent": "Object",
+      "children": ["Car", "Truck", "Motorcycle"],
+      "level": 1
+    },
+    "Car": {
+      "parent": "Vehicle",
+      "children": [],
+      "level": 2
+    },
+    "Truck": {
+      "parent": "Vehicle",
+      "children": [],
+      "level": 2
+    },
+    "Motorcycle": {
+      "parent": "Vehicle",
+      "children": [],
+      "level": 2
+    }
+  },
+  "reference_examples": [
+    {
+      "runtime_type": "Dog",
+      "target_type": "Animal",
+      "cast_type": "upcast",
+      "valid": true
+    },
+    {
+      "runtime_type": "Cat",
+      "target_type": "Dog",
+      "cast_type": "downcast",
+      "valid": false,
+      "error": "ClassCastException"
+    },
+    {
+      "runtime_type": "Animal",
+      "target_type": "Dog",
+      "cast_type": "downcast",
+      "valid": false,
+      "error": "Runtime type check required"
+    }
+  ]
+}
