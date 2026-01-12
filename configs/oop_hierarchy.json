@@ -1,0 +1,117 @@
+{
+  "hierarchies": [
+    {
+      "name": "Animal Hierarchy",
+      "root": "Object",
+      "nodes": {
+        "Object": {
+          "children": ["Animal"],
+          "depth": 0
+        },
+        "Animal": {
+          "parent": "Object",
+          "children": ["Mammal", "Bird", "Fish"],
+          "depth": 1
+        },
+        "Mammal": {
+          "parent": "Animal",
+          "children": ["Dog", "Cat", "Human"],
+          "depth": 2
+        },
+        "Dog": {
+          "parent": "Mammal",
+          "children": [],
+          "depth": 3
+        },
+        "Cat": {
+          "parent": "Mammal",
+          "children": [],
+          "depth": 3
+        },
+        "Human": {
+          "parent": "Mammal",
+          "children": [],
+          "depth": 3
+        },
+        "Bird": {
+          "parent": "Animal",
+          "children": ["Eagle", "Penguin"],
+          "depth": 2
+        },
+        "Eagle": {
+          "parent": "Bird",
+          "children": [],
+          "depth": 3
+        },
+        "Penguin": {
+          "parent": "Bird",
+          "children": [],
+          "depth": 3
+        },
+        "Fish": {
+          "parent": "Animal",
+          "children": ["Shark", "Salmon"],
+          "depth": 2
+        },
+        "Shark": {
+          "parent": "Fish",
+          "children": [],
+          "depth": 3
+        },
+        "Salmon": {
+          "parent": "Fish",
+          "children": [],
+          "depth": 3
+        }
+      }
+    },
+    {
+      "name": "Numeric Hierarchy",
+      "root": "Number",
+      "nodes": {
+        "Number": {
+          "children": ["Integer", "Float"],
+          "depth": 0
+        },
+        "Integer": {
+          "parent": "Number",
+          "children": ["Short", "Byte"],
+          "depth": 1
+        },
+        "Float": {
+          "parent": "Number",
+          "children": ["Double"],
+          "depth": 1
+        },
+        "Short": {
+          "parent": "Integer",
+          "children": [],
+          "depth": 2
+        },
+        "Byte": {
+          "parent": "Integer",
+          "children": [],
+          "depth": 2
+        },
+        "Double": {
+          "parent": "Float",
+          "children": [],
+          "depth": 2
+        }
+      }
+    }
+  ],
+  "cast_rules": {
+    "upcast": {
+      "description": "Safe - moving up the hierarchy (subtype to supertype)",
+      "examples": ["Dog → Animal", "Byte → Integer"],
+      "parity_safe": true
+    },
+    "downcast": {
+      "description": "Unsafe - moving down the hierarchy (requires runtime check)",
+      "examples": ["Animal → Dog", "Integer → Byte"],
+      "parity_safe": false,
+      "requires_check": true
+    }
+  }
+}

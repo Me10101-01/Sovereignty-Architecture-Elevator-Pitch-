@@ -1,0 +1,118 @@
+# Cognitive Cube Thought-Log Schema v0.1
+# Quantum Register Log Overlay for Timestamped Cognitive States
+
+metadata:
+  version: "0.1"
+  description: "YAML thought-log schema mapping sessions/thoughts to quantum register states"
+  author: "Quantum Sovereign Emulator"
+  timestamp: "2026-01-12T18:28:24Z"
+
+# Thought stream as timestamped qubit states
+thought_stream:
+  - id: 1
+    timestamp: "2026-01-12T03:00:00Z"
+    operation: "DECOMPOSE"
+    active_face: "D"  # DOWN face (Bloom: ANALYZE)
+    description: "Breaking down problem into subcomponents"
+    parity_error: false
+    wave_amplitude: 1.0
+
+  - id: 2
+    timestamp: "2026-01-12T03:15:00Z"
+    operation: "CONSISTENCY_CHECK"
+    active_face: "L"  # LEFT face (Bloom: EVALUATE)
+    description: "Checking logical consistency of decomposition"
+    parity_error: true  # Detected inconsistency
+    wave_amplitude: -0.951
+    error_type: "LOGIC_MISMATCH"
+
+  - id: 3
+    timestamp: "2026-01-12T03:30:00Z"
+    operation: "SYNTHESIS"
+    active_face: "F"  # FRONT face (Bloom: CREATE)
+    description: "Synthesizing new solution from components"
+    parity_error: false
+    wave_amplitude: 0.866
+
+  - id: 4
+    timestamp: "2026-01-12T03:45:00Z"
+    operation: "RECALL"
+    active_face: "U"  # UP face (Bloom: REMEMBER)
+    description: "Retrieving prior knowledge from memory"
+    parity_error: false
+    wave_amplitude: 0.707
+
+# Bloom Taxonomy mapping to cube faces
+bloom_faces:
+  U: "REMEMBER"     # Up face - base knowledge retrieval
+  R: "UNDERSTAND"   # Right face - comprehension
+  F: "APPLY"        # Front face - application
+  D: "ANALYZE"      # Down face - analysis
+  L: "EVALUATE"     # Left face - evaluation
+  B: "CREATE"       # Back face - synthesis
+
+# Reference parity examples for type hierarchies
+reference_types:
+  - hierarchy: "Object → Animal → Dog"
+    safe_casts:
+      - "Dog → Animal (upcast)"
+      - "Dog → Object (upcast)"
+    unsafe_casts:
+      - "Animal → Dog (downcast, requires runtime check)"
+      - "Object → Dog (downcast, requires runtime check)"
+    
+  - hierarchy: "Number → Integer → Byte"
+    safe_casts:
+      - "Byte → Integer (widening)"
+      - "Integer → Number (widening)"
+    unsafe_casts:
+      - "Integer → Byte (narrowing, may overflow)"
+
+# Parity events catalog
+parity_events:
+  - event_id: "PE001"
+    type: "ClassCastException"
+    description: "Runtime type not in target subtree"
+    wave_threshold: -0.5  # Damped collapse indicator
+    severity: "HIGH"
+
+  - event_id: "PE002"
+    type: "ArithmeticException"
+    description: "Numeric overflow in narrowing conversion"
+    wave_threshold: -0.3
+    severity: "MEDIUM"
+
+  - event_id: "PE003"
+    type: "LogicInvariantViolation"
+    description: "Impossible cube state detected"
+    wave_threshold: -0.7
+    severity: "CRITICAL"
+
+# Build order phases (sequencer roadmap)
+build_phases:
+  - phase: 1
+    name: "YAML_SUBSTRATE"
+    description: "Memory initialization with thought-log parsing"
+    tick_range: [0, 2]
+    status: "COMPLETE"
+
+  - phase: 2
+    name: "PARITY_CATALOG"
+    description: "Error core with reference parity checks"
+    tick_range: [3, 5]
+    status: "COMPLETE"
+
+  - phase: 3
+    name: "VIZ_ENGINE"
+    description: "Graph renderer for Hasse/Cayley diagrams"
+    tick_range: [6, 8]
+    status: "IN_PROGRESS"
+
+# Session metadata
+sessions:
+  - session_id: "session-03AM"
+    start_time: "2026-01-12T03:00:00Z"
+    end_time: "2026-01-12T04:00:00Z"
+    thought_count: 4
+    parity_errors: 1
+    dominant_face: "D"  # Analysis-heavy session
