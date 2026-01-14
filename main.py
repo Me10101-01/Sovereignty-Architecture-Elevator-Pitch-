@@ -288,6 +288,9 @@ def calibrate(satellite: float, field: float) -> dict:
 # BEAM WRAP CALCULATIONS
 # ============================================================
 
+# Default shoe size constant
+DEFAULT_SHOE_SIZE = 14.0
+
 @dataclass
 class BeamCalc:
     """Beam wrap calculation results"""
@@ -296,7 +299,7 @@ class BeamCalc:
     shoe_count: int
     boot_final: float
     rise: float
-    shoe_size: float = 14.0
+    shoe_size: float = DEFAULT_SHOE_SIZE
     
     # Calculated
     @property
@@ -398,7 +401,7 @@ def rolling_offset(angle: float, offset: float) -> dict:
     else:
         travel = offset / sin_val
         advance = offset / tan_val if abs(tan_val) > 1e-10 else 0
-        run = offset * math.cos(angle_rad) / sin_val
+        run = offset / tan_val if abs(tan_val) > 1e-10 else 0  # Simplified from offset * cos / sin
     
     return {
         "angle": angle,
@@ -423,7 +426,7 @@ def cutback(angle: float, offset: float) -> dict:
     angle_rad = math.radians(angle)
     
     # Cutback formula from Pipe Trades Pro
-    cut = offset * math.tan(math.radians(angle / 2))
+    cut = offset * math.tan(angle_rad / 2)
     
     return {
         "angle": angle,
@@ -551,8 +554,8 @@ Examples:
             # Direct input mode - calculate shoes/boot equivalent
             beam = BeamCalc(
                 circumference=args.circ,
-                shoe_count=int(args.length // 14),
-                boot_final=args.length % 14,
+                shoe_count=int(args.length // DEFAULT_SHOE_SIZE),
+                boot_final=args.length % DEFAULT_SHOE_SIZE,
                 rise=args.rise,
             )
         else:
