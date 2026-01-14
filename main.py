@@ -85,6 +85,8 @@ def decode_plus_code(code: str) -> CodeArea:
     lat_res, lon_res = PAIR_RESOLUTIONS[0], PAIR_RESOLUTIONS[0]
     
     for i in range(0, min(len(code), 10), 2):
+        if i + 1 >= len(code):
+            break
         lat_res = PAIR_RESOLUTIONS[i // 2]
         lon_res = PAIR_RESOLUTIONS[i // 2]
         south += CODE_ALPHABET.index(code[i]) * lat_res
