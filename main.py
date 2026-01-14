@@ -17,7 +17,6 @@ Usage:
 import argparse
 import math
 import sys
-import re
 from dataclasses import dataclass
 from typing import Tuple, Optional
 
@@ -140,6 +139,11 @@ def decode_plus_code(code: str) -> CodeArea:
     # Remove separator for processing
     code = code_part.replace(SEPARATOR, "")
     
+    # Validate characters
+    for char in code:
+        if char not in CODE_ALPHABET and char != PADDING_CHARACTER:
+            raise ValueError(f"Invalid character '{char}' in Plus Code. Valid characters are: {CODE_ALPHABET}")
+    
     # Pad if necessary
     if len(code) < PAIR_CODE_LENGTH:
         code = code + PADDING_CHARACTER * (PAIR_CODE_LENGTH - len(code))
@@ -151,40 +155,43 @@ def decode_plus_code(code: str) -> CodeArea:
     lon_resolution = PAIR_RESOLUTIONS[0]
     
     # Decode pairs
-    for i in range(0, min(len(code), PAIR_CODE_LENGTH), 2):
-        lat_resolution = PAIR_RESOLUTIONS[i // 2]
-        lon_resolution = PAIR_RESOLUTIONS[i // 2]
+    try:
+        for i in range(0, min(len(code), PAIR_CODE_LENGTH), 2):
+            lat_resolution = PAIR_RESOLUTIONS[i // 2]
+            lon_resolution = PAIR_RESOLUTIONS[i // 2]
+            
+            lat_digit = CODE_ALPHABET.index(code[i])
+            lon_digit = CODE_ALPHABET.index(code[i + 1])
+            
+            south += lat_digit * lat_resolution
+            west += lon_digit * lon_resolution
         
-        lat_digit = CODE_ALPHABET.index(code[i])
-        lon_digit = CODE_ALPHABET.index(code[i + 1])
+        # Adjust for negative coordinates
+        south -= LATITUDE_MAX
+        west -= LONGITUDE_MAX
         
-        south += lat_digit * lat_resolution
-        west += lon_digit * lon_resolution
-    
-    # Adjust for negative coordinates
-    south -= LATITUDE_MAX
-    west -= LONGITUDE_MAX
-    
-    # Calculate bounds
-    north = south + lat_resolution
-    east = west + lon_resolution
-    
-    # Decode grid refinement if present
-    if len(code) > PAIR_CODE_LENGTH:
-        for i in range(PAIR_CODE_LENGTH, len(code)):
-            grid_idx = i - PAIR_CODE_LENGTH
-            if grid_idx < len(GRID_RESOLUTIONS):
-                digit = CODE_ALPHABET.index(code[i])
-                row = digit // 4
-                col = digit % 4
-                
-                lat_resolution = GRID_RESOLUTIONS[grid_idx]
-                lon_resolution = GRID_RESOLUTIONS[grid_idx]
-                
-                south += row * lat_resolution
-                west += col * lon_resolution
-                north = south + lat_resolution
-                east = west + lon_resolution
+        # Calculate bounds
+        north = south + lat_resolution
+        east = west + lon_resolution
+        
+        # Decode grid refinement if present
+        if len(code) > PAIR_CODE_LENGTH:
+            for i in range(PAIR_CODE_LENGTH, len(code)):
+                grid_idx = i - PAIR_CODE_LENGTH
+                if grid_idx < len(GRID_RESOLUTIONS):
+                    digit = CODE_ALPHABET.index(code[i])
+                    row = digit // 4
+                    col = digit % 4
+                    
+                    lat_resolution = GRID_RESOLUTIONS[grid_idx]
+                    lon_resolution = GRID_RESOLUTIONS[grid_idx]
+                    
+                    south += row * lat_resolution
+                    west += col * lon_resolution
+                    north = south + lat_resolution
+                    east = west + lon_resolution
+    except ValueError as e:
+        raise ValueError(f"Error decoding Plus Code: {e}")
     
     return CodeArea(south=south, west=west, north=north, east=east)
 
@@ -380,10 +387,18 @@ def rolling_offset(angle: float, offset: float) -> dict:
         Dict with travel, advance, run
     """
     angle_rad = math.radians(angle)
+    sin_val = math.sin(angle_rad)
+    tan_val = math.tan(angle_rad)
     
-    travel = offset / math.sin(angle_rad) if angle != 0 else 0
-    advance = offset / math.tan(angle_rad) if angle != 0 else 0
-    run = offset * math.cos(angle_rad) / math.sin(angle_rad) if angle != 0 else 0
+    # Check for edge cases
+    if abs(sin_val) < 1e-10:  # Effectively zero
+        travel = 0
+        advance = 0
+        run = 0
+    else:
+        travel = offset / sin_val
+        advance = offset / tan_val if abs(tan_val) > 1e-10 else 0
+        run = offset * math.cos(angle_rad) / sin_val
     
     return {
         "angle": angle,
