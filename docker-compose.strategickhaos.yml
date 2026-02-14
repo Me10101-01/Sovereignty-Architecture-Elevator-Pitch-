@@ -1,0 +1,257 @@
+# docker-compose.strategickhaos.yml
+# STRATEGICKHAOS EMPIRE — FULL SOVEREIGN ECOSYSTEM
+# Strategickhaos DAO LLC | EIN 39-2923503 | Node 137
+# Activates via: "Hey Jarvis, run full recon"
+# Includes: HR, LangChain, Celery, Redis, Tesseract, Obsidian, Crawler, Qdrant, Webhooks, Alexa
+
+version: "3.9"
+
+x-env: &default-env
+  PYTHONUNBUFFERED: "1"
+  REDIS_URL: "redis://redis:6379/0"
+  BROKER_URL: "redis://redis:6379/1"
+  RESULT_BACKEND: "redis://redis:6379/2"
+  OBSIDIAN_VAULT: "/vault"
+  HR_HUMOR: "true"
+  GITHUB_TOKEN: "${GITHUB_TOKEN}"
+  OPENAI_API_KEY: "${OPENAI_API_KEY}"
+  WEBDAV_USER: "${WEBDAV_USER:-obsidian}"
+  WEBDAV_PASS: "${WEBDAV_PASS:-secret}"
+  HA_TOKEN: "${HA_TOKEN}"
+
+networks:
+  ops:
+    driver: bridge
+
+volumes:
+  vault: {}
+  data: {}
+  models: {}
+  qdrant_storage: {}
+
+services:
+  # === ALEXA → JARVIS VOICE TRIGGER ===
+  alexa-jarvis:
+    image: homeassistant/home-assistant:stable
+    container_name: jarvis-voice
+    privileged: true
+    network_mode: host
+    environment:
+      - TZ=America/New_York
+      <<: *default-env
+    volumes:
+      - ./jarvis/config:/config
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    command: >
+      sh -c "
+      echo 'Starting Jarvis voice trigger...' &&
+      while true; do
+        if curl -s http://localhost:8123/api/states/binary_sensor.jarvis_trigger | grep -q 'on'; then
+          echo 'JARVIS: Full recon and DNA synthesis activated!' &&
+          curl -X POST http://legion-orchestrator:8000/trigger -d '{}' &&
+          curl -X POST http://legion-orchestrator:8000/synthesize/windows-tools -d '{}' &&
+          curl -X POST http://localhost:8123/api/services/tts/google_say -H 'Authorization: Bearer $HA_TOKEN' -d '{\"entity_id\":\"media_player.living_room\",\"message\":\"Strategickhaos full recon and DNA synthesis in progress.\"}' &&
+          sleep 300
+        fi
+        sleep 5
+      done
+      "
+
+  # === LEGION ORCHESTRATOR (The Brain) ===
+  legion-orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.legion
+    container_name: legion-orchestrator
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./legion:/app
+      - ./data/legion:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment: *default-env
+    depends_on:
+      - redis
+      - qdrant
+      - hr-api
+    networks: [ops]
+    restart: unless-stopped
+
+  # === QDRANT — MEMORY FOR LICENSES & RECON ===
+  qdrant:
+    image: qdrant/qdrant:v1.12.0
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    networks: [ops]
+    restart: unless-stopped
+
+  # === REDIS — QUEUE & CACHE ===
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command: ["redis-server","--appendonly","yes"]
+    ports: ["6379:6379"]
+    networks: [ops]
+    volumes:
+      - data:/data
+    restart: unless-stopped
+
+  # === HR API + DASHBOARD ===
+  hr-api:
+    image: python:3.12-slim
+    container_name: hr-api
+    working_dir: /app
+    command: sh -c "pip install fastapi uvicorn pyyaml requests redis && uvicorn soc_hr_api:app --host 0.0.0.0 --port 8002"
+    environment: *default-env
+    volumes:
+      - ./hr:/app
+      - data:/data
+    ports:
+      - "8002:8002"
+    depends_on:
+      - redis
+    networks: [ops]
+    restart: unless-stopped
+
+  dashboard:
+    image: python:3.12-slim
+    container_name: soc-dashboard
+    working_dir: /app
+    command: sh -c "pip install streamlit pyyaml pandas && streamlit run soc_dashboard.py --server.port=8502 --server.address=0.0.0.0"
+    environment: { HR_HUMOR: "true" }
+    volumes:
+      - ./hr:/app
+      - data:/data
+    ports:
+      - "8502:8502"
+    depends_on:
+      - hr-api
+    networks: [ops]
+    restart: unless-stopped
+
+  # === PROMPT TEMPLATE SERVICE ===
+  promptsvc:
+    image: python:3.12-slim
+    container_name: promptsvc
+    working_dir: /app
+    command: sh -c "pip install fastapi uvicorn pydantic && uvicorn promptsvc:app --host 0.0.0.0 --port 8010"
+    environment: *default-env
+    volumes:
+      - ./agents:/app
+    ports: ["8010:8010"]
+    networks: [ops]
+    restart: unless-stopped
+
+  # === LANGCHAIN WORKER ===
+  langchain-worker:
+    image: python:3.12-slim
+    container_name: langchain-worker
+    working_dir: /app
+    command: sh -c "pip install langchain langchain-openai langchain-community redis pydantic requests && python worker.py"
+    environment:
+      <<: *default-env
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+    volumes:
+      - ./agents:/app
+      - models:/models
+    depends_on: [redis, promptsvc]
+    networks: [ops]
+    restart: unless-stopped
+
+  # === CELERY TASK QUEUE ===
+  celery:
+    image: python:3.12-slim
+    container_name: celery
+    working_dir: /app
+    command: sh -c "pip install celery redis requests && celery -A tasks worker --loglevel=INFO -Q research,ingest"
+    environment: *default-env
+    volumes:
+      - ./workers:/app
+      - data:/data
+    depends_on: [redis]
+    networks: [ops]
+    restart: unless-stopped
+
+  # === WEBHOOK RELAY ===
+  webhook-relay:
+    image: ghcr.io/adnanh/webhook:2.8.1
+    container_name: webhook-relay
+    command: -hookdir /hooks -verbose
+    volumes:
+      - ./hooks:/hooks
+    ports:
+      - "9000:9000"
+    networks: [ops]
+    restart: unless-stopped
+
+  # === TESSERACT OCR ===
+  tesseract:
+    image: ghcr.io/tesseract-ocr/tesseract:5.4.0
+    container_name: tesseract
+    command: tail -f /dev/null
+    volumes:
+      - data:/data
+    networks: [ops]
+    restart: unless-stopped
+
+  # === CRAWLER (.gov/.edu/.org/Scholar) ===
+  crawler:
+    image: python:3.12-slim
+    container_name: crawler
+    working_dir: /app
+    command: sh -c "pip install scrapy requests beautifulsoup4 trafilatura jq && python crawl.py"
+    environment: *default-env
+    volumes:
+      - ./crawler:/app
+      - data:/data
+    depends_on: [redis]
+    networks: [ops]
+    restart: unless-stopped
+
+  # === OBSIDIAN WEBDAV SYNC ===
+  obsidian-webdav:
+    image: bytemark/webdav
+    container_name: obsidian-webdav
+    environment:
+      AUTH_TYPE: "Basic"
+      USERNAME: "${WEBDAV_USER:-obsidian}"
+      PASSWORD: "${WEBDAV_PASS:-secret}"
+    volumes:
+      - vault:/var/lib/dav
+    ports: ["1900:80"]
+    networks: [ops]
+    restart: unless-stopped
+
+  # === WINDOWS DNA SYNTHESIS ENGINE ===
+  windows-dna-synthesizer:
+    image: python:3.12-slim
+    container_name: windows-dna-synthesizer
+    working_dir: /app
+    command: sh -c "pip install requests pyyaml && python synthesize_windows_dna.py"
+    environment: *default-env
+    volumes:
+      - ./synthesis:/app
+      - data:/data
+    depends_on: [redis, qdrant]
+    networks: [ops]
+    restart: unless-stopped
+
+  # === REFLEXSHELL BRAIN INTEGRATION ===
+  reflexshell-brain:
+    build:
+      context: .
+      dockerfile: Dockerfile.reflexshell
+    container_name: reflexshell-brain
+    ports:
+      - "8081:8080"
+    environment:
+      <<: *default-env
+      REFLEXSHELL_TOKEN: "${REFLEXSHELL_TOKEN}"
+    volumes:
+      - ./data/reflexshell:/data/reflexshell
+    depends_on: [qdrant]
+    networks: [ops]
+    restart: unless-stopped

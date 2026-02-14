@@ -1,0 +1,226 @@
+# docker-compose.cpu-optimized.yml
+# CPU-Optimized Sovereign Empire for Resource-Constrained Systems
+# Designed for systems with 100% CPU saturation
+
+version: '3.9'
+
+networks:
+  empire:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  sovereign-private:
+    driver: bridge
+    internal: true
+
+volumes:
+  redis-data:
+  qdrant-data:
+  empire-logs:
+
+services:
+  # Core Infrastructure - Redis with resource limits
+  redis:
+    image: redis:7-alpine
+    container_name: empire-redis
+    networks:
+      - empire
+      - sovereign-private
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-strategickhaos2024}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'          # Limit to half CPU core
+          memory: 256M         # Conservative memory limit
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Vector Database - Qdrant with minimal resources
+  qdrant:
+    image: qdrant/qdrant:v1.7.0
+    container_name: empire-qdrant
+    networks:
+      - empire
+      - sovereign-private
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'          # Limit to half CPU core
+          memory: 512M         # Conservative for vector operations
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Research Prompt Service - Lightweight
+  research-promptsvc:
+    image: strategickhaos/research-promptsvc:latest
+    container_name: empire-research-promptsvc
+    networks:
+      - empire
+      - sovereign-private
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-strategickhaos2024}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'          # Minimal CPU for prompt processing
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+    restart: unless-stopped
+
+  # Research LangChain Service - CPU-Throttled
+  research-langchain:
+    image: strategickhaos/research-langchain:latest
+    container_name: empire-research-langchain
+    networks:
+      - empire
+      - sovereign-private
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-strategickhaos2024}
+      - QDRANT_URL=http://empire-qdrant:6333
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - redis
+      - qdrant
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'          # Limited for LangChain processing
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    restart: unless-stopped
+
+  # Empire Dashboard - Minimal Web Interface
+  empire-dashboard:
+    image: strategickhaos/empire-dashboard:latest
+    container_name: empire-dashboard
+    networks:
+      - empire
+    ports:
+      - "8088:8088"
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-strategickhaos2024}
+      - QDRANT_URL=http://empire-qdrant:6333
+      - DASHBOARD_PORT=8088
+    depends_on:
+      - redis
+      - qdrant
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'          # Minimal for web interface
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 2
+
+  # Performance Monitor - System Resource Tracking
+  performance-monitor:
+    image: alpine:3.18
+    container_name: empire-performance-monitor
+    networks:
+      - empire
+    volumes:
+      - empire-logs:/logs
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    command: |
+      sh -c "
+      while true; do
+        echo \"[$(date)] System Load: $(cat /host/proc/loadavg)\" >> /logs/performance.log
+        echo \"[$(date)] Memory: $(cat /host/proc/meminfo | grep MemAvailable)\" >> /logs/performance.log
+        sleep 30
+      done
+      "
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'          # Minimal monitoring overhead
+          memory: 64M
+        reservations:
+          cpus: '0.02'
+          memory: 16M
+    restart: unless-stopped
+
+  # Resource Throttler - Dynamic CPU Management
+  resource-throttler:
+    image: alpine:3.18
+    container_name: empire-resource-throttler
+    networks:
+      - empire
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - empire-logs:/logs
+    command: |
+      sh -c "
+      apk add --no-cache docker-cli
+      while true; do
+        load=\$(cat /proc/loadavg | cut -d' ' -f1)
+        if [ \"\$(echo \"\$load > 3\" | bc 2>/dev/null || echo 0)\" = \"1\" ]; then
+          echo \"[$(date)] HIGH LOAD: \$load - Throttling containers\" >> /logs/throttle.log
+          # Could implement dynamic container resource adjustment here
+        fi
+        sleep 60
+      done
+      "
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+        reservations:
+          cpus: '0.02'
+          memory: 16M
+    restart: unless-stopped
+
+# Total Resource Allocation Summary:
+# - Redis: 0.5 CPU, 256M RAM
+# - Qdrant: 0.5 CPU, 512M RAM  
+# - Research Services: 0.7 CPU, 768M RAM
+# - Dashboard: 0.2 CPU, 128M RAM
+# - Monitoring: 0.2 CPU, 128M RAM
+# TOTAL: ~2.1 CPU cores, ~1.8GB RAM (safe for 4+ core systems under load)

@@ -1,0 +1,40 @@
+# comms_orchestrator_v1.yaml
+# Strategickhaos DAO LLC | EIN 39-2923503
+# Sensory Cortex v1 — Unified Comms Ingestion
+
+metadata:
+  name: comms_orchestrator_v1
+  parent: REFLEXSHELL_BRAIN_V1
+  operator: Domenic Garza (@strategickhaos)
+  frequency: creation_sovereignty
+
+inputs:
+  github:
+    enabled: true
+    user: Strategickhaos
+    notifications: true
+    events: true
+    repos:
+      - "Strategickhaos/*"
+
+  twitter:
+    enabled: false
+    accounts: ["@strategickhaos"]
+
+  discord:
+    enabled: false
+    servers: ["StrategickhaosHQ"]
+
+  email:
+    enabled: false
+    imap_host: imap.gmail.com
+
+output:
+  event_log: /data/comms/events.jsonl
+  max_events_per_run: 500
+
+integration:
+  reflexshell_webhook:
+    enabled: true
+    url: http://reflexshell-core:8080/events
+    token_env: REFLEXSHELL_TOKEN

@@ -1,0 +1,48 @@
+FROM python:3.12-slim
+
+# Install system dependencies for reconnaissance tools
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    jq \
+    xmlstarlet \
+    html-xml-utils \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+RUN pip install --no-cache-dir \
+    fastapi \
+    uvicorn \
+    requests \
+    pyyaml \
+    beautifulsoup4 \
+    lxml \
+    qdrant-client \
+    python-multipart
+
+# Install pup for HTML parsing
+RUN wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip \
+    && unzip pup_v0.4.0_linux_amd64.zip \
+    && mv pup /usr/local/bin/ \
+    && rm pup_v0.4.0_linux_amd64.zip
+
+# Create app directory
+WORKDIR /app
+
+# Copy legion files
+COPY legion_orchestrator.py .
+COPY curl_patterns.sh .
+COPY jarvis_config.yaml .
+
+# Make scripts executable
+RUN chmod +x curl_patterns.sh
+
+# Create data directory
+RUN mkdir -p /data/legion
+
+# Expose orchestrator port
+EXPOSE 8000
+
+# Run LEGION orchestrator
+CMD ["uvicorn", "legion_orchestrator:app", "--host", "0.0.0.0", "--port", "8000"]

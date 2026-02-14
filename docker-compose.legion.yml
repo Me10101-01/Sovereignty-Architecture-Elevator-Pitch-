@@ -1,0 +1,79 @@
+# docker-compose.legion.yml
+# LEGION OF MINDS — Ultimate Recon & License Intelligence Swarm
+# Strategickhaos DAO LLC | EIN 39-2923503 | Node 137
+# Activates via: "Hey Jarvis, run legion recon"
+# Uses Alexa → Home Assistant → Docker → Swarm → Report
+
+version: "3.9"
+
+services:
+  # === ALEXA → JARVIS VOICE TRIGGER ===
+  alexa-jarvis:
+    image: homeassistant/home-assistant:stable
+    container_name: jarvis-voice
+    privileged: true
+    network_mode: host
+    environment:
+      - TZ=America/New_York
+    volumes:
+      - ./jarvis/config:/config
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    command: >
+      sh -c "
+      echo 'Starting Jarvis voice trigger...' &&
+      while true; do
+        if curl -s http://localhost:8123/api/states/binary_sensor.jarvis_trigger | grep -q 'on'; then
+          echo 'JARVIS: Legion recon activated!' &&
+          curl -X POST http://legion-orchestrator:8000/trigger -d '{}' &&
+          curl -X POST http://localhost:8123/api/services/tts/google_say -H 'Authorization: Bearer HA_TOKEN' -d '{\"entity_id\":\"media_player.living_room\",\"message\":\"Legion recon in progress.\"}' &&
+          sleep 300
+        fi
+        sleep 5
+      done
+      "
+
+  # === LEGION ORCHESTRATOR (The Brain) ===
+  legion-orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.legion
+    container_name: legion-orchestrator
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./legion:/app
+      - ./data/legion:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - GITHUB_TOKEN
+      - JETBRAINS_TOKEN
+      - HARBOR_TOKEN
+      - OBSIDIAN_TOKEN
+    restart: unless-stopped
+
+  # === QDRANT — MEMORY FOR LICENSES & RECON ===
+  qdrant:
+    image: qdrant/qdrant:v1.12.0
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    restart: unless-stopped
+
+  # === REFLEXSHELL BRAIN INTEGRATION ===
+  reflexshell-legion:
+    build:
+      context: .
+      dockerfile: Dockerfile.reflexshell
+    container_name: reflexshell-legion
+    ports:
+      - "8081:8080"
+    environment:
+      - REFLEXSHELL_TOKEN
+    volumes:
+      - ./data/reflexshell:/data/reflexshell
+    restart: unless-stopped
+
+volumes:
+  qdrant_storage:

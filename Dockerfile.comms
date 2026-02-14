@@ -1,0 +1,17 @@
+FROM python:3.12-slim
+
+# Install dependencies
+RUN pip install --no-cache-dir requests pyyaml python-dateutil
+
+# Create app directory
+WORKDIR /app
+
+# Copy orchestrator files
+COPY comms_orchestrator.py .
+COPY comms_orchestrator_v1.yaml .
+
+# Create data directory
+RUN mkdir -p /data/comms
+
+# Run the orchestrator
+CMD ["python", "comms_orchestrator.py", "--config", "comms_orchestrator_v1.yaml"]

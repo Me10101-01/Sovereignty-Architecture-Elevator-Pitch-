@@ -1,0 +1,917 @@
+# ============================================================================
+# SOVEREIGN DOCKER EMPIRE - UNIFIED INFRASTRUCTURE
+# Complete autonomous container orchestration
+# ============================================================================
+
+version: '3.8'
+
+networks:
+  empire-internal:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  empire-secure:
+    driver: bridge
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+  empire-public:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+
+volumes:
+  redis-data:
+    driver: local
+  qdrant-data:
+    driver: local
+  mongo-data:
+    driver: local
+  postgres-data:
+    driver: local
+  elastic-data:
+    driver: local
+  logs-data:
+    driver: local
+  backup-data:
+    driver: local
+  config-data:
+    driver: local
+
+services:
+  # ============================================================================
+  # CORE INFRASTRUCTURE
+  # ============================================================================
+  
+  redis:
+    image: redis:7-alpine
+    container_name: empire-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-sovereign_key}
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+      - logs-data:/var/log/redis
+    networks:
+      - empire-internal
+      - empire-secure
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-sovereign_key}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: empire-qdrant
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+      - ./config/qdrant:/qdrant/config
+    networks:
+      - empire-internal
+      - empire-secure
+    environment:
+      - QDRANT_SERVICE_HTTP_PORT=6333
+      - QDRANT_SERVICE_GRPC_PORT=6334
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mongodb:
+    image: mongo:7
+    container_name: empire-mongodb
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      - logs-data:/var/log/mongodb
+    networks:
+      - empire-internal
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-empire_admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-sovereign_mongo_key}
+      - MONGO_INITDB_DATABASE=empire_db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres:
+    image: postgres:16
+    container_name: empire-postgres
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - logs-data:/var/log/postgresql
+    networks:
+      - empire-internal
+    environment:
+      - POSTGRES_DB=empire_db
+      - POSTGRES_USER=${POSTGRES_USER:-empire_admin}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sovereign_postgres_key}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-empire_admin}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: empire-elasticsearch
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9200:9200"
+      - "127.0.0.1:9300:9300"
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
+    networks:
+      - empire-internal
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # VISUAL CORTEX SYSTEMS
+  # ============================================================================
+  
+  visual-cortex-motion:
+    build:
+      context: .
+      dockerfile: Dockerfile.visual-cortex
+    container_name: empire-visual-motion
+    restart: unless-stopped
+    volumes:
+      - ./visual_cortex:/app/visual_cortex
+      - logs-data:/app/logs
+      - /tmp:/tmp:ro
+    networks:
+      - empire-internal
+    environment:
+      - CORTEX_MODE=motion_detection
+      - REDIS_URL=redis://empire-redis:6379
+      - QDRANT_URL=http://empire-qdrant:6333
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - qdrant
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+
+  visual-cortex-ocr:
+    build:
+      context: .
+      dockerfile: Dockerfile.visual-cortex
+    container_name: empire-visual-ocr
+    restart: unless-stopped
+    volumes:
+      - ./visual_cortex:/app/visual_cortex
+      - logs-data:/app/logs
+      - /tmp:/tmp:ro
+    networks:
+      - empire-internal
+    environment:
+      - CORTEX_MODE=ocr_processing
+      - REDIS_URL=redis://empire-redis:6379
+      - QDRANT_URL=http://empire-qdrant:6333
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - qdrant
+
+  visual-cortex-watcher-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.visual-cortex
+    container_name: empire-watcher-1
+    restart: unless-stopped
+    volumes:
+      - ./visual_cortex:/app/visual_cortex
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - CORTEX_MODE=screen_watcher
+      - WATCHER_ID=1
+      - REDIS_URL=redis://empire-redis:6379
+      - WATCH_INTERVAL=5
+    depends_on:
+      - redis
+
+  visual-cortex-watcher-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.visual-cortex
+    container_name: empire-watcher-2
+    restart: unless-stopped
+    volumes:
+      - ./visual_cortex:/app/visual_cortex
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - CORTEX_MODE=screen_watcher
+      - WATCHER_ID=2
+      - REDIS_URL=redis://empire-redis:6379
+      - WATCH_INTERVAL=5
+    depends_on:
+      - redis
+
+  visual-cortex-watcher-3:
+    build:
+      context: .
+      dockerfile: Dockerfile.visual-cortex
+    container_name: empire-watcher-3
+    restart: unless-stopped
+    volumes:
+      - ./visual_cortex:/app/visual_cortex
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - CORTEX_MODE=screen_watcher
+      - WATCHER_ID=3
+      - REDIS_URL=redis://empire-redis:6379
+      - WATCH_INTERVAL=5
+    depends_on:
+      - redis
+
+  visual-cortex-watcher-4:
+    build:
+      context: .
+      dockerfile: Dockerfile.visual-cortex
+    container_name: empire-watcher-4
+    restart: unless-stopped
+    volumes:
+      - ./visual_cortex:/app/visual_cortex
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - CORTEX_MODE=screen_watcher
+      - WATCHER_ID=4
+      - REDIS_URL=redis://empire-redis:6379
+      - WATCH_INTERVAL=5
+    depends_on:
+      - redis
+
+  visual-cortex-watcher-5:
+    build:
+      context: .
+      dockerfile: Dockerfile.visual-cortex
+    container_name: empire-watcher-5
+    restart: unless-stopped
+    volumes:
+      - ./visual_cortex:/app/visual_cortex
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - CORTEX_MODE=screen_watcher
+      - WATCHER_ID=5
+      - REDIS_URL=redis://empire-redis:6379
+      - WATCH_INTERVAL=5
+    depends_on:
+      - redis
+
+  visual-cortex-watcher-6:
+    build:
+      context: .
+      dockerfile: Dockerfile.visual-cortex
+    container_name: empire-watcher-6
+    restart: unless-stopped
+    volumes:
+      - ./visual_cortex:/app/visual_cortex
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - CORTEX_MODE=screen_watcher
+      - WATCHER_ID=6
+      - REDIS_URL=redis://empire-redis:6379
+      - WATCH_INTERVAL=5
+    depends_on:
+      - redis
+
+  # ============================================================================
+  # RECONNAISSANCE AND RESEARCH SYSTEMS
+  # ============================================================================
+  
+  recon-scanner:
+    build:
+      context: .
+      dockerfile: Dockerfile.recon
+    container_name: empire-recon-scanner
+    restart: unless-stopped
+    volumes:
+      - ./recon:/app/recon
+      - logs-data:/app/logs
+      - config-data:/app/config
+    networks:
+      - empire-internal
+      - empire-secure
+    environment:
+      - RECON_MODE=scanner
+      - REDIS_URL=redis://empire-redis:6379
+      - MONGO_URL=mongodb://empire-mongodb:27017
+      - SCAN_TARGETS=${SCAN_TARGETS:-localhost}
+    depends_on:
+      - redis
+      - mongodb
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+  recon-analyzer:
+    build:
+      context: .
+      dockerfile: Dockerfile.recon
+    container_name: empire-recon-analyzer
+    restart: unless-stopped
+    volumes:
+      - ./recon:/app/recon
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - RECON_MODE=analyzer
+      - REDIS_URL=redis://empire-redis:6379
+      - MONGO_URL=mongodb://empire-mongodb:27017
+      - ELASTIC_URL=http://empire-elasticsearch:9200
+    depends_on:
+      - redis
+      - mongodb
+      - elasticsearch
+
+  research-swarm-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.research
+    container_name: empire-research-1
+    restart: unless-stopped
+    volumes:
+      - ./research:/app/research
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+      - empire-secure
+    environment:
+      - SWARM_ID=1
+      - REDIS_URL=redis://empire-redis:6379
+      - QDRANT_URL=http://empire-qdrant:6333
+      - RESEARCH_MODE=general
+    depends_on:
+      - redis
+      - qdrant
+
+  research-swarm-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.research
+    container_name: empire-research-2
+    restart: unless-stopped
+    volumes:
+      - ./research:/app/research
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+      - empire-secure
+    environment:
+      - SWARM_ID=2
+      - REDIS_URL=redis://empire-redis:6379
+      - QDRANT_URL=http://empire-qdrant:6333
+      - RESEARCH_MODE=deep_analysis
+    depends_on:
+      - redis
+      - qdrant
+
+  research-swarm-3:
+    build:
+      context: .
+      dockerfile: Dockerfile.research
+    container_name: empire-research-3
+    restart: unless-stopped
+    volumes:
+      - ./research:/app/research
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+      - empire-secure
+    environment:
+      - SWARM_ID=3
+      - REDIS_URL=redis://empire-redis:6379
+      - QDRANT_URL=http://empire-qdrant:6333
+      - RESEARCH_MODE=competitive_intelligence
+    depends_on:
+      - redis
+      - qdrant
+
+  embeddings-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.embeddings
+    container_name: empire-embeddings
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8010:8010"
+    volumes:
+      - ./embeddings:/app/embeddings
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - QDRANT_URL=http://empire-qdrant:6333
+      - MODEL_PATH=${EMBEDDINGS_MODEL_PATH:-sentence-transformers/all-MiniLM-L6-v2}
+    depends_on:
+      - redis
+      - qdrant
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+
+  # ============================================================================
+  # CORE APPLICATIONS
+  # ============================================================================
+  
+  reflexshell:
+    build:
+      context: .
+      dockerfile: Dockerfile.reflexshell
+    container_name: empire-reflexshell
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./reflexshell:/app/reflexshell
+      - logs-data:/app/logs
+      - config-data:/app/config
+    networks:
+      - empire-internal
+      - empire-secure
+      - empire-public
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - QDRANT_URL=http://empire-qdrant:6333
+      - MONGO_URL=mongodb://empire-mongodb:27017
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - qdrant
+      - mongodb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  legion:
+    build:
+      context: .
+      dockerfile: Dockerfile.legion
+    container_name: empire-legion
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8001"
+    volumes:
+      - ./legion:/app/legion
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+      - empire-secure
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - POSTGRES_URL=postgresql://empire-postgres:5432/empire_db
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  comms:
+    build:
+      context: .
+      dockerfile: Dockerfile.comms
+    container_name: empire-comms
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8002:8002"
+    volumes:
+      - ./comms:/app/comms
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+      - empire-secure
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: empire-gateway
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./gateway:/app/gateway
+      - logs-data:/app/logs
+      - config-data:/app/config
+    networks:
+      - empire-internal
+      - empire-secure
+      - empire-public
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - REFLEXSHELL_URL=http://empire-reflexshell:8000
+      - LEGION_URL=http://empire-legion:8001
+      - COMMS_URL=http://empire-comms:8002
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - reflexshell
+      - legion
+      - comms
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  alignment:
+    build:
+      context: .
+      dockerfile: Dockerfile.alignment
+    container_name: empire-alignment
+    restart: unless-stopped
+    volumes:
+      - ./alignment:/app/alignment
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - QDRANT_URL=http://empire-qdrant:6333
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - qdrant
+
+  refinory:
+    build:
+      context: .
+      dockerfile: Dockerfile.refinory
+    container_name: empire-refinory
+    restart: unless-stopped
+    volumes:
+      - ./refinory:/app/refinory
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - POSTGRES_URL=postgresql://empire-postgres:5432/empire_db
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - postgres
+
+  # ============================================================================
+  # AUTOMATION AND FACTORIES
+  # ============================================================================
+  
+  prototype-factory-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.factory
+    container_name: empire-factory-1
+    restart: unless-stopped
+    volumes:
+      - ./factory:/app/factory
+      - logs-data:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - empire-internal
+      - empire-secure
+    environment:
+      - FACTORY_ID=1
+      - REDIS_URL=redis://empire-redis:6379
+      - FACTORY_MODE=rapid_prototype
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+
+  prototype-factory-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.factory
+    container_name: empire-factory-2
+    restart: unless-stopped
+    volumes:
+      - ./factory:/app/factory
+      - logs-data:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - empire-internal
+      - empire-secure
+    environment:
+      - FACTORY_ID=2
+      - REDIS_URL=redis://empire-redis:6379
+      - FACTORY_MODE=quality_assurance
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+
+  automation-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile.automation
+    container_name: empire-automation
+    restart: unless-stopped
+    volumes:
+      - ./automation:/app/automation
+      - logs-data:/app/logs
+      - config-data:/app/config
+    networks:
+      - empire-internal
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - MONGO_URL=mongodb://empire-mongodb:27017
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - mongodb
+
+  voting-engine-consensus:
+    build:
+      context: .
+      dockerfile: Dockerfile.voting
+    container_name: empire-voting-consensus
+    restart: unless-stopped
+    volumes:
+      - ./voting:/app/voting
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - VOTING_MODE=consensus
+      - REDIS_URL=redis://empire-redis:6379
+      - POSTGRES_URL=postgresql://empire-postgres:5432/empire_db
+    depends_on:
+      - redis
+      - postgres
+
+  voting-engine-democracy:
+    build:
+      context: .
+      dockerfile: Dockerfile.voting
+    container_name: empire-voting-democracy
+    restart: unless-stopped
+    volumes:
+      - ./voting:/app/voting
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - VOTING_MODE=democracy
+      - REDIS_URL=redis://empire-redis:6379
+      - POSTGRES_URL=postgresql://empire-postgres:5432/empire_db
+    depends_on:
+      - redis
+      - postgres
+
+  # ============================================================================
+  # MONITORING AND SECURITY
+  # ============================================================================
+  
+  performance-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile.monitor
+    container_name: empire-performance-monitor
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8020:8020"
+    volumes:
+      - ./monitoring:/app/monitoring
+      - logs-data:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - empire-internal
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - ELASTIC_URL=http://empire-elasticsearch:9200
+      - MONITOR_INTERVAL=30
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - elasticsearch
+
+  network-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile.network-monitor
+    container_name: empire-network-monitor
+    restart: unless-stopped
+    volumes:
+      - ./network_monitoring:/app/network_monitoring
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+      - empire-secure
+      - empire-public
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - MONITOR_NETWORKS=empire-internal,empire-secure,empire-public
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+    cap_add:
+      - NET_ADMIN
+
+  security-scanner:
+    build:
+      context: .
+      dockerfile: Dockerfile.security
+    container_name: empire-security-scanner
+    restart: unless-stopped
+    volumes:
+      - ./security:/app/security
+      - logs-data:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - empire-internal
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - SCAN_INTERVAL=3600
+      - SECURITY_LEVEL=high
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+
+  # ============================================================================
+  # DATA PROCESSING AND ANALYTICS
+  # ============================================================================
+  
+  data-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile.processor
+    container_name: empire-data-processor
+    restart: unless-stopped
+    volumes:
+      - ./processor:/app/processor
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - ELASTIC_URL=http://empire-elasticsearch:9200
+      - QDRANT_URL=http://empire-qdrant:6333
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - elasticsearch
+      - qdrant
+
+  analytics-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile.analytics
+    container_name: empire-analytics
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8030:8030"
+    volumes:
+      - ./analytics:/app/analytics
+      - logs-data:/app/logs
+    networks:
+      - empire-internal
+    environment:
+      - REDIS_URL=redis://empire-redis:6379
+      - POSTGRES_URL=postgresql://empire-postgres:5432/empire_db
+      - ELASTIC_URL=http://empire-elasticsearch:9200
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - postgres
+      - elasticsearch
+
+  # ============================================================================
+  # BACKUP AND RECOVERY
+  # ============================================================================
+  
+  backup-service:
+    image: postgres:16
+    container_name: empire-backup-service
+    restart: unless-stopped
+    volumes:
+      - backup-data:/backups
+      - ./scripts/backup:/scripts
+      - logs-data:/var/log/backup
+    networks:
+      - empire-internal
+    environment:
+      - BACKUP_SCHEDULE=${BACKUP_SCHEDULE:-0 2 * * *}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-sovereign_key}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sovereign_postgres_key}
+    command: |
+      bash -c "
+        apt-get update && apt-get install -y cron redis-tools curl &&
+        echo '${BACKUP_SCHEDULE:-0 2 * * *} /scripts/backup_all.sh' | crontab - &&
+        cron -f
+      "
+    depends_on:
+      - redis
+      - postgres
+      - mongodb
+
+  # ============================================================================
+  # LOG AGGREGATION
+  # ============================================================================
+  
+  log-aggregator:
+    image: fluent/fluent-bit:latest
+    container_name: empire-log-aggregator
+    restart: unless-stopped
+    volumes:
+      - logs-data:/fluent-bit/logs
+      - ./config/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+    networks:
+      - empire-internal
+    environment:
+      - ELASTIC_URL=http://empire-elasticsearch:9200
+    depends_on:
+      - elasticsearch
+
+# ============================================================================
+# HEALTHCHECK AND DEPENDENCY DEFINITIONS
+# ============================================================================
+
+x-common-healthcheck: &common-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+
+x-common-logging: &common-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-common-deploy: &common-deploy
+  restart_policy:
+    condition: unless-stopped
+    delay: 5s
+    max_attempts: 3
+    window: 120s

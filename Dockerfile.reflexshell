@@ -1,0 +1,20 @@
+FROM python:3.12-slim
+
+# Install dependencies
+RUN pip install --no-cache-dir fastapi uvicorn requests pyyaml
+
+# Create app directory
+WORKDIR /app
+
+# Copy REFLEXSHELL core files
+COPY reflexshell_core.py .
+COPY reflexshell_config.yaml .
+
+# Create data directory
+RUN mkdir -p /data/reflexshell
+
+# Expose webhook port
+EXPOSE 8080
+
+# Run REFLEXSHELL core
+CMD ["python", "reflexshell_core.py"]

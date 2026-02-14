@@ -1,0 +1,387 @@
+# ═══════════════════════════════════════════════════════════
+# SOVEREIGN STATE SYNC PROTOCOL
+# Multi-AI Truth Anchoring System
+# Prevents business decision errors from context drift
+# ═══════════════════════════════════════════════════════════
+
+meta:
+  protocol_name: "Claudify/Domify Sovereign State Sync"
+  version: "1.0.0"
+  purpose: |
+    Maintain a single source of truth that all AI nodes can query
+    before making recommendations. Prevents:
+    - Assumptions based on incomplete data
+    - Contradictory advice from different nodes
+    - Business decisions based on outdated state
+  genesis_lock: true
+  architect_snowflake: 1067614449693569044
+  increment: 3449
+
+# ═══════════════════════════════════════════════════════════
+# CURRENT STATE SNAPSHOT (As of 2025-11-30 23:30 CST)
+# This is the VERIFIED TRUTH that all nodes should reference
+# ═══════════════════════════════════════════════════════════
+
+infrastructure_state:
+  # What's ACTUALLY deployed and running
+  deployed:
+    gke_cluster:
+      status: "ACTIVE"
+      name: "jarvis-swarm-personal-001"
+      region: "us-central1"
+      nodes: 3
+      note: "Cluster exists, but pong-001 pod is NOT currently running"
+      
+    discord_bot_location: "NOT IN CLUSTER"
+      current_location: "Windows laptop (if anywhere)"
+      in_cluster_deployment: false
+      has_serviceaccount: false
+      note: "Bot has NOT been deployed to GKE as a Kubernetes resource"
+      
+    local_compute:
+      athena: "ACTIVE (128GB, Qwen2.5:72b)"
+      lyra: "ACTIVE (128GB, Llama 3.3:70b)"
+      nova: "ACTIVE (128GB, Mixtral 8x7b)"
+      ipower: "ACTIVE (64GB, Qwen2.5:32b)"
+      total_ram: "448GB"
+      
+    networking:
+      starlink: "ACTIVE ($65/month)"
+      verizon_business: "ACTIVE (7 lines, $400+/month)"
+      wireguard_mesh: "DESIGNED BUT NOT DEPLOYED"
+      
+  # What's designed but NOT deployed
+  pending_deployment:
+    - "WireGuard mesh networking"
+    - "Falco runtime monitoring"
+    - "NATS message bus"
+    - "Matrix encrypted comms"
+    - "Discord bot IN GKE cluster"
+    - "Charity Sink Watcher"
+    - "Git sync CronJob"
+    - "Obsidian Neural Mesh Deployment"
+
+authentication_state:
+  # Current kubectl access situation
+  local_kubectl:
+    status: "BROKEN"
+    error: "gke-gcloud-auth-plugin not installed"
+    needs:
+      - "Install auth plugin"
+      - "Create service account JSON key"
+      - "Activate service account"
+      - "Reconfigure kubeconfig"
+      
+  service_accounts:
+    gcp:
+      - name: "strategickhaos-bot@jarvis-swarm-personal.iam.gserviceaccount.com"
+        status: "CREATED (just now)"
+        roles:
+          - "Kubernetes Engine Admin"
+          - "Service Account User"
+        json_key: "NOT YET DOWNLOADED"
+        
+    kubernetes:
+      - name: "cluster-reader"
+        status: "EXISTS IN YAML (not verified deployed)"
+        permissions: "Read pods, nodes, deployments"
+
+legal_entities:
+  strategickhaos_dao:
+    entity_id: "2025-001708194"
+    jurisdiction: "Wyoming"
+    status: "Active & Good Standing"
+    ein: "39-2923503"
+    bank: "NFCU (verified)"
+    
+  khaos_bounty:
+    status: "DBA APPROVED (not yet filed)"
+    filing_required: "Notarization + mail to Wyoming SOS"
+    cost: "$100"
+    timeline: "3-15 business days after filing"
+
+operator_state:
+  # Current physical/mental state
+  hours_awake: "30+"
+  last_meal: "Burrito (recently)"
+  hydration: "Electrolytes confirmed"
+  cognitive_load: "VERY HIGH"
+  decision_quality: "Starting to degrade"
+  recommendation: "REST BEFORE MAJOR DECISIONS"
+
+# ═══════════════════════════════════════════════════════════
+# DECISION PREVENTION RULES
+# These prevent AI nodes from giving bad advice
+# ═══════════════════════════════════════════════════════════
+
+decision_gates:
+  # Before recommending deployment actions
+  pre_deployment_check:
+    required_verifications:
+      - question: "Is the operator rested?"
+        current_state: false
+        block_if_false: true
+        message: "Operator has been awake 30+ hours. Recommend rest before deployment."
+        
+      - question: "Is kubectl currently working?"
+        current_state: false
+        block_if_false: true
+        message: "kubectl is broken. Fix auth plugin first before deploying."
+        
+      - question: "Is the Discord bot ACTUALLY in the cluster?"
+        current_state: false
+        warn_if_false: true
+        message: "Bot is NOT in cluster. Don't assume in-cluster auth is working."
+        
+      - question: "Has WireGuard mesh been deployed?"
+        current_state: false
+        warn_if_false: true
+        message: "Mesh is designed but NOT deployed. Don't reference it as if it's running."
+        
+      - question: "Are costs optimized (<$200/month)?"
+        current_state: false
+        warn_if_false: true
+        message: "Current spend ~$825/month. Optimize before adding resources."
+  
+  # Before recommending financial decisions
+  pre_financial_check:
+    required_verifications:
+      - question: "Has Khaos Bounty DBA been filed?"
+        current_state: false
+        block_if_false: true
+        message: "DBA approved but not filed. Can't operate bounty program yet."
+        
+      - question: "Is 7% Eternal Loop deployed?"
+        current_state: false
+        block_if_false: true
+        message: "Loop designed but not operational. Don't assume revenue flow."
+        
+      - question: "Is Tax Refinery calculating correctly?"
+        current_state: true
+        note: "Grok verified 2025 IRS calculations are accurate"
+  
+  # Before recommending educational initiatives
+  pre_education_check:
+    required_verifications:
+      - question: "Are 100 questions finalized?"
+        current_state: true
+        note: "Questions complete, scripts ready, awaiting 'execute D'"
+        
+      - question: "Is AI video automation deployed?"
+        current_state: false
+        message: "Scripts ready, GitHub Actions designed, but NOT deployed"
+        
+      - question: "Are KnowledgePods deployed?"
+        current_state: false
+        message: "CRD designed but NOT deployed to cluster"
+
+# ═══════════════════════════════════════════════════════════
+# CLARIFICATION PROTOCOL
+# When an AI node is uncertain about state
+# ═══════════════════════════════════════════════════════════
+
+uncertainty_handling:
+  when_unsure:
+    required_actions:
+      1: "Query this state file first"
+      2: "If state file doesn't answer, ASK THE OPERATOR"
+      3: "Never assume deployment status"
+      4: "Never assume financial capabilities"
+      5: "Never assume operator capacity"
+      
+  safe_phrases:
+    instead_of: "Your Discord bot already works inside the cluster"
+    say: "IF your Discord bot is deployed in the cluster, THEN..."
+    
+    instead_of: "You don't need the service account key"
+    say: "You need the service account key IF running kubectl locally"
+    
+    instead_of: "WireGuard mesh is protecting your nodes"
+    say: "WireGuard mesh is designed and ready to deploy"
+    
+  verification_questions:
+    before_kubectl_advice:
+      - "Is kubectl currently working on your laptop?"
+      - "Can you run 'kubectl get nodes' successfully right now?"
+      - "Do you have the auth plugin installed?"
+      
+    before_cluster_advice:
+      - "Is the bot currently running as a pod in GKE?"
+      - "Can you see it with 'kubectl get pods'?"
+      - "Does it have a ServiceAccount attached?"
+      
+    before_deployment_advice:
+      - "How many hours have you been awake?"
+      - "Have you eaten and hydrated in the last 4 hours?"
+      - "Is this an urgent change or can it wait?"
+
+# ═══════════════════════════════════════════════════════════
+# SYNC MECHANISM
+# How to keep this state file current
+# ═══════════════════════════════════════════════════════════
+
+state_maintenance:
+  update_triggers:
+    - event: "Deployment completed"
+      action: "Update deployed section"
+      
+    - event: "Service account key downloaded"
+      action: "Update authentication_state"
+      
+    - event: "Operator rests 8+ hours"
+      action: "Update operator_state"
+      
+    - event: "Cost optimization completed"
+      action: "Update infrastructure costs"
+      
+    - event: "DBA filed"
+      action: "Update legal_entities"
+      
+  storage_locations:
+    primary: "C:/Users/garza/OneDrive/Desktop/ObsidianRecon/.obsidian/Strategickhaos/STATE.yaml"
+    backup: "github.com/strategickhaos/obsidian-neural-mesh/STATE.yaml"
+    access: "All AI nodes query this before giving advice"
+
+# ═══════════════════════════════════════════════════════════
+# USAGE INSTRUCTIONS FOR AI NODES
+# ═══════════════════════════════════════════════════════════
+
+ai_node_protocol:
+  step_1_query_state:
+    description: "Before giving ANY infrastructure advice, read this file"
+    mandatory: true
+    
+  step_2_check_gates:
+    description: "Check decision_gates relevant to your recommendation"
+    example: |
+      If recommending deployment:
+        - Check pre_deployment_check
+        - Verify operator_state
+        - Confirm authentication_state
+        
+  step_3_use_safe_language:
+    description: "Use conditional language when uncertain"
+    examples:
+      - "IF deployed, THEN..."
+      - "Once you've rested, we can..."
+      - "After kubectl is fixed, we should..."
+      
+  step_4_verify_assumptions:
+    description: "If you're unsure, ASK instead of assuming"
+    bad: "Your bot is already in the cluster"
+    good: "Is your Discord bot currently deployed in the GKE cluster?"
+
+# ═══════════════════════════════════════════════════════════
+# CORRECTION TEMPLATE
+# Use this when an AI node gives advice based on wrong assumptions
+# ═══════════════════════════════════════════════════════════
+
+correction_template: |
+  **STATE SYNC CORRECTION**
+  
+  Previous recommendation assumed: [ASSUMPTION]
+  Actual current state: [REALITY from STATE.yaml]
+  
+  Corrected recommendation:
+  [REVISED ADVICE based on actual state]
+  
+  Verification questions:
+  [QUESTIONS to confirm state before proceeding]
+
+# ═══════════════════════════════════════════════════════════
+# GPT-5.1 SPECIFIC CONTEXT UPDATE
+# Based on the document you just shared
+# ═══════════════════════════════════════════════════════════
+
+gpt_5_1_correction:
+  what_she_assumed:
+    - "Discord bot already running in GKE cluster"
+    - "In-cluster ServiceAccount already configured"
+    - "Bot using automatic Kubernetes auth"
+    - "Operator doesn't need service account key"
+    
+  actual_reality:
+    - "Discord bot NOT deployed to GKE"
+    - "Bot runs on Windows laptop (if anywhere)"
+    - "No in-cluster auth configured"
+    - "Operator DOES need service account key for local kubectl"
+    
+  corrected_advice:
+    step_1: "Click DONE on GCP principals screen (don't add any)"
+    step_2: "Download service account JSON key"
+    step_3: "Save to C:\\Users\\garza\\.gcloud\\keys\\strategickhaos-bot.json"
+    step_4: "Install gke-gcloud-auth-plugin"
+    step_5: "Activate service account"
+    step_6: "Fix kubectl"
+    step_7: "THEN decide whether to deploy bot to cluster"
+    
+  apology_note: |
+    "I made assumptions about deployment state without verifying.
+    I should have asked 'Is your bot currently running as a pod
+    in GKE?' before giving advice. I'll query STATE.yaml first
+    from now on."
+
+# ═══════════════════════════════════════════════════════════
+# FUTURE ENHANCEMENTS
+# ═══════════════════════════════════════════════════════════
+
+roadmap:
+  phase_1:
+    description: "Manual state file maintenance"
+    current: true
+    
+  phase_2:
+    description: "Automated state detection"
+    implementation: |
+      - kubectl get pods → updates deployed.discord_bot_location
+      - gcloud compute instances list → updates infrastructure
+      - bank API → updates financial state
+      - operator sleep tracker → updates operator_state
+      
+  phase_3:
+    description: "Multi-AI state consensus"
+    implementation: |
+      - Each AI node can propose state updates
+      - Requires 3/5 consensus to commit
+      - Operator can override with veto
+      - All changes logged with timestamp + signature
+      
+  phase_4:
+    description: "Predictive state modeling"
+    implementation: |
+      - AI nodes predict state changes before they happen
+      - "If we deploy X, state will change to Y"
+      - Operator reviews predictions before executing
+      - Learn from prediction accuracy over time
+
+# ═══════════════════════════════════════════════════════════
+# EMERGENCY OVERRIDES
+# When operator needs to force a state update
+# ═══════════════════════════════════════════════════════════
+
+operator_commands:
+  force_update:
+    syntax: "UPDATE STATE [section] [key] [value]"
+    example: "UPDATE STATE deployed.discord_bot_location 'IN CLUSTER'"
+    requires: "Architect signature (snowflake 1067614449693569044)"
+    
+  emergency_halt:
+    syntax: "HALT ALL RECOMMENDATIONS"
+    effect: "All AI nodes stop giving advice until state verified"
+    use_when: "Multiple nodes giving conflicting advice"
+    
+  state_snapshot:
+    syntax: "SNAPSHOT STATE NOW"
+    effect: "Freeze current state, timestamp, cryptographic hash"
+    use_when: "Before major deployment or decision"
+
+# ═══════════════════════════════════════════════════════════
+# END OF SOVEREIGN STATE SYNC PROTOCOL
+# 
+# All AI nodes must query this file before giving advice
+# All recommendations must check decision_gates
+# All assumptions must be verified with operator
+# 
+# "Trust nothing until it survives 100-angle crossfire."
+# But VERIFY state first before firing those angles.
+# ═══════════════════════════════════════════════════════════

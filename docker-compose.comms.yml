@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  comms-orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.comms
+    container_name: comms-orchestrator
+    environment:
+      - GITHUB_TOKEN
+      - REFLEXSHELL_TOKEN
+    volumes:
+      - ./comms:/app
+      - ./data/comms:/data/comms
+    restart: on-failure
+    depends_on:
+      - reflexshell-core
+
+  reflexshell-core:
+    build:
+      context: .
+      dockerfile: Dockerfile.reflexshell
+    container_name: reflexshell-core
+    ports:
+      - "8080:8080"
+    environment:
+      - REFLEXSHELL_TOKEN
+    volumes:
+      - ./data/reflexshell:/data/reflexshell
+    restart: on-failure

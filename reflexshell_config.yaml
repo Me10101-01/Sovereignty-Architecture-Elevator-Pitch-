@@ -1,0 +1,23 @@
+# reflexshell_config.yaml
+# REFLEXSHELL BRAIN v1 Configuration
+# Strategickhaos DAO LLC | Node 137
+
+brain:
+  name: REFLEXSHELL_BRAIN_V1
+  operator: "Domenic Garza (@strategickhaos)"
+  cognitive_mode: sovereignty_creation
+  
+processing:
+  contradiction_threshold: 0.7
+  neural_pathway_timeout: 30
+  memory_retention_days: 365
+  
+webhooks:
+  port: 8080
+  authentication: true
+  rate_limit: 1000
+  
+storage:
+  events_log: /data/reflexshell/brain_events.jsonl
+  contradictions_log: /data/reflexshell/contradictions.jsonl
+  neural_state: /data/reflexshell/neural_state.json

@@ -1,0 +1,66 @@
+# jarvis_config.yaml
+# LEGION OF MINDS - Jarvis Voice Configuration
+# Strategickhaos DAO LLC | Node 137
+
+jarvis:
+  name: "JARVIS - Legion Command Interface"
+  operator: "Domenic Garza (@strategickhaos)"
+  activation_phrase: "Hey Jarvis"
+  response_voice: "Google Assistant"
+  
+voice_commands:
+  recon:
+    phrases:
+      - "run legion recon"
+      - "execute recon patterns"
+      - "start intelligence gathering"
+    action: "POST http://legion-orchestrator:8000/trigger"
+    response: "Legion recon in progress. Thirty patterns firing."
+    
+  status:
+    phrases:
+      - "legion status"
+      - "check recon systems"
+      - "system status"
+    action: "GET http://legion-orchestrator:8000/status"
+    response: "Legion systems operational. Standing by."
+    
+  reports:
+    phrases:
+      - "show reports"
+      - "list intelligence"
+      - "generate report"
+    action: "GET http://legion-orchestrator:8000/reports"
+    response: "Intelligence reports available for review."
+    
+  shutdown:
+    phrases:
+      - "quit legion"
+      - "shutdown recon"
+      - "standby mode"
+    action: "docker compose down"
+    response: "Legion systems entering standby mode."
+
+home_assistant:
+  host: "localhost:8123"
+  token_env: "HA_TOKEN"
+  media_player: "media_player.living_room"
+  
+integration:
+  reflexshell_brain: "http://reflexshell-legion:8080"
+  qdrant_memory: "http://qdrant:6333"
+  
+notifications:
+  recon_start: "Legion of Minds activated. Intelligence gathering commenced."
+  recon_complete: "Recon complete. Thirty patterns executed. Intelligence secured."
+  recon_failed: "Recon systems encountered resistance. Retrying protocols."
+  
+security:
+  voice_authentication: false
+  command_confirmation: false
+  restricted_commands: []
+  
+logging:
+  level: "INFO"
+  file: "/data/legion/jarvis.log"
+  rotation: "daily"
