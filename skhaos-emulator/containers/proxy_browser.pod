@@ -1,0 +1,30 @@
+# Podman Pod for Proxy Browser
+apiVersion: v1
+kind: Pod
+metadata:
+  name: skhaos-proxy-browser
+  labels:
+    app: skhaos
+    component: proxy
+spec:
+  containers:
+  - name: proxy-server
+    image: rust:1.75-alpine
+    workingDir: /app
+    command: ["cargo", "run", "--release"]
+    ports:
+    - containerPort: 8080
+      protocol: TCP
+    env:
+    - name: SOVEREIGN_MODE
+      value: "true"
+    - name: TRACKING_BLOCKED
+      value: "true"
+    volumeMounts:
+    - name: proxy-code
+      mountPath: /app
+  volumes:
+  - name: proxy-code
+    hostPath:
+      path: ./src/proxy_browser
+      type: Directory

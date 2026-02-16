@@ -1,0 +1,24 @@
+# Podman Pod for CLI Recon
+apiVersion: v1
+kind: Pod
+metadata:
+  name: skhaos-cli-recon
+  labels:
+    app: skhaos
+    component: recon
+spec:
+  containers:
+  - name: recon-cli
+    image: rust:1.75-alpine
+    workingDir: /app
+    command: ["sh"]
+    stdin: true
+    tty: true
+    volumeMounts:
+    - name: recon-code
+      mountPath: /app
+  volumes:
+  - name: recon-code
+    hostPath:
+      path: ./src/cli_recon
+      type: Directory

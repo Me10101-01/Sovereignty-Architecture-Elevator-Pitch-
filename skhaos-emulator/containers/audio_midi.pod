@@ -1,0 +1,29 @@
+# Podman Pod for Audio MIDI Module
+apiVersion: v1
+kind: Pod
+metadata:
+  name: skhaos-audio-midi
+  labels:
+    app: skhaos
+    component: audio
+spec:
+  containers:
+  - name: midi-processor
+    image: rust:1.75-alpine
+    workingDir: /app
+    command: ["cargo", "run", "--release"]
+    volumeMounts:
+    - name: audio-code
+      mountPath: /app
+    - name: midi-assets
+      mountPath: /assets
+      readOnly: true
+  volumes:
+  - name: audio-code
+    hostPath:
+      path: ./src/audio_midi
+      type: Directory
+  - name: midi-assets
+    hostPath:
+      path: ./assets
+      type: Directory

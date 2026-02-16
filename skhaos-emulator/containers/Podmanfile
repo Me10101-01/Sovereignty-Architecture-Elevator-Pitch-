@@ -1,0 +1,35 @@
+# Podman Container Configuration
+FROM rust:1.75-alpine AS builder
+
+# Install dependencies
+RUN apk add --no-cache musl-dev openssl-dev
+
+WORKDIR /build
+
+# Copy workspace
+COPY Cargo.toml .
+COPY src/ src/
+
+# Build all modules
+RUN cargo build --release
+
+# Runtime image
+FROM alpine:3.19
+
+RUN apk add --no-cache libgcc
+
+WORKDIR /app
+
+# Copy binaries
+COPY --from=builder /build/target/release/skhaos /usr/local/bin/
+
+# Add midly dependency for MIDI parsing
+RUN echo "MIDI support via midly crate (built into binary)"
+
+# No internet access in container
+ENV NO_INTERNET=true
+ENV OFFLINE_MODE=true
+
+EXPOSE 8080
+
+CMD ["skhaos", "list"]
