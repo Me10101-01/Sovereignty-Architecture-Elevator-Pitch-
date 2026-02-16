@@ -1,0 +1,20 @@
+# Prior Art Claims Reference (Pages 1-6)
+# Referenced by Phase 14 for cross-domain hermetic/Qabala/Enochian/Voynich unity
+
+"5":
+  claim: "Cross-domain hermetic/Qabala/Enochian/Voynich unity for quantum wave superposition"
+  description: "Integration of historical alchemical and occult systems into quantum computing architecture"
+  pages: [1, 2, 3, 4, 5, 6]
+
+"7":
+  priors:
+    - name: "IBM"
+      description: "IBM self-managing systems (2001)"
+      relevance: "Autonomous computing evolution"
+    - name: "MIT"
+      description: "MIT AI Lab autonomous systems research"
+      relevance: "Self-organizing architectures"
+    - name: "Tierra"
+      description: "Tierra digital evolution system"
+      relevance: "Self-replicating code patterns"
+  evolution: "From IBM/MIT/Tierra to GSCH with Paracelsus tria prima recharge, Voynich entropy, Enochian invocation, Phaistos incomprehensible correspondences"

@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  # Prior phases would be listed here
+  # ... Prior phases
+
+  # Phase 14: Voynich Manuscript Exploration, Enochian System Mapping, Incomprehensible Artifact
+  voynich_enochian_incomprehensible:
+    build: phase14/
+    depends_on:
+      - tria_hermes_undeciphered_precision
+    volumes:
+      - .:/app
+    entrypoint: python explore_voynich_map_enochian.py
+    networks:
+      - phase_network
+
+networks:
+  phase_network:
+    driver: bridge
