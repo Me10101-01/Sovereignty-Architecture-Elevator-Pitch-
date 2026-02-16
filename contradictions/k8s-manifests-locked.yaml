@@ -1,0 +1,220 @@
+# ANTI-PATTERN: Vendor-Locked Kubernetes Manifests
+# These demonstrate common mistakes that create vendor lock-in
+
+# ❌ DO NOT USE THESE PATTERNS IN PRODUCTION
+# These examples show what to AVOID
+
+---
+# ❌ BAD: GCP-specific Deployment with node selectors
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locked-app
+  annotations:
+    # ❌ Cloud-specific annotations
+    cloud.google.com/gke-nodepool: "high-cpu-pool"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: locked-app
+  template:
+    metadata:
+      labels:
+        app: locked-app
+    spec:
+      # ❌ Cloud-specific node selector
+      nodeSelector:
+        cloud.google.com/gke-nodepool: "high-cpu-pool"
+        iam.gke.io/gke-metadata-server-enabled: "true"
+      
+      # ❌ Cloud-specific service account
+      serviceAccountName: locked-app@project-id.iam.gserviceaccount.com
+      
+      containers:
+      - name: app
+        # ❌ Image in vendor-specific registry
+        image: gcr.io/project-id/locked-app:1.0
+        env:
+        # ❌ Using cloud-specific secret manager
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: database-url  # References GCP Secret Manager
+        # ❌ Hard-coded cloud-specific URLs
+        - name: STORAGE_URL
+          value: "gs://my-gcs-bucket"
+        - name: PUBSUB_TOPIC
+          value: "projects/project-id/topics/my-topic"
+        
+        # ❌ Cloud-specific resource requests
+        resources:
+          requests:
+            # Assumes GCP n1-standard-4 instance
+            memory: "15Gi"
+            cpu: "4000m"
+
+---
+# ❌ BAD: AWS-specific Service with load balancer annotations
+apiVersion: v1
+kind: Service
+metadata:
+  name: locked-app
+  annotations:
+    # ❌ AWS-specific load balancer configuration
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:region:account:certificate/id"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+spec:
+  type: LoadBalancer
+  selector:
+    app: locked-app
+  ports:
+  - port: 443
+    targetPort: 8080
+
+---
+# ❌ BAD: Azure-specific Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: locked-app
+  annotations:
+    # ❌ Azure-specific ingress controller
+    kubernetes.io/ingress.class: "azure/application-gateway"
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/backend-path-prefix: "/"
+    # ❌ Reference to Azure Key Vault
+    appgw.ingress.kubernetes.io/appgw-ssl-certificate: "azure-keyvault-certificate"
+spec:
+  rules:
+  - host: app.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: locked-app
+            port:
+              number: 80
+
+---
+# ❌ BAD: GCP-specific PersistentVolumeClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: locked-data
+spec:
+  accessModes:
+  - ReadWriteOnce
+  # ❌ Hard-coded GCP storage class
+  storageClassName: "pd-ssd"
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# ❌ BAD: Using CustomResourceDefinition for cloud-specific features
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccount
+metadata:
+  name: locked-service-account
+spec:
+  # ❌ GCP Config Connector - only works on GCP
+  displayName: "Locked Service Account"
+
+---
+apiVersion: storage.cnrm.cloud.google.com/v1beta1
+kind: StorageBucket
+metadata:
+  name: locked-bucket
+spec:
+  # ❌ GCP-specific bucket configuration
+  location: us-central1
+  storageClass: STANDARD
+  versioning:
+    enabled: true
+
+---
+# ❌ BAD: Hard-coded environment variables
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: locked-config
+data:
+  # ❌ Hard-coded AWS-specific URLs
+  sqs_queue_url: "https://sqs.us-east-1.amazonaws.com/123456789/my-queue"
+  s3_bucket: "s3://my-aws-bucket"
+  dynamodb_table: "arn:aws:dynamodb:us-east-1:123456789:table/my-table"
+  
+  # ❌ Hard-coded GCP-specific URLs
+  pubsub_subscription: "projects/my-project/subscriptions/my-sub"
+  firestore_collection: "projects/my-project/databases/(default)/documents/users"
+  
+  # ❌ Hard-coded Azure-specific URLs
+  eventhub_namespace: "my-namespace.servicebus.windows.net"
+  cosmosdb_endpoint: "https://my-cosmosdb.documents.azure.com:443/"
+
+---
+# ❌ BAD: Workload Identity binding (GCP-specific)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: locked-sa
+  annotations:
+    # ❌ GCP Workload Identity - doesn't port to other clouds
+    iam.gke.io/gcp-service-account: "my-gsa@project-id.iam.gserviceaccount.com"
+
+---
+# ❌ BAD: AWS IAM for Service Accounts (IRSA)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: locked-sa-aws
+  annotations:
+    # ❌ AWS IRSA - doesn't port to other clouds
+    eks.amazonaws.com/role-arn: "arn:aws:iam::123456789:role/my-role"
+
+---
+# ❌ BAD: Azure AAD Pod Identity
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentity
+metadata:
+  name: locked-identity
+spec:
+  # ❌ Azure-specific identity - doesn't port
+  type: 0
+  resourceID: /subscriptions/sub-id/resourcegroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/my-identity
+  clientID: client-id
+
+---
+# COMPARISON: How to Fix These Anti-Patterns
+# See k8s-manifests-portable.yaml for correct patterns
+
+# Instead of:              Use:
+# ----------------------------------------
+# GCP Secret Manager    →  Kubernetes Secret
+# AWS Parameter Store   →  Kubernetes ConfigMap
+# Azure Key Vault       →  Sealed Secrets / External Secrets Operator
+# 
+# GCP Workload Identity →  Standard ServiceAccount + external auth
+# AWS IRSA              →  Standard ServiceAccount + external auth
+# Azure AAD Pod ID      →  Standard ServiceAccount + external auth
+#
+# cloud.google.com/*    →  Standard Kubernetes annotations
+# eks.amazonaws.com/*   →  Standard Kubernetes annotations
+# azure.com/*           →  Standard Kubernetes annotations
+#
+# GCS buckets (gs://)   →  S3-compatible API (works with GCS, S3, MinIO)
+# S3 buckets (s3://)    →  S3-compatible API
+# Azure Blob            →  S3-compatible API via gateway
+#
+# GCP Load Balancer     →  Standard LoadBalancer + cert-manager
+# AWS NLB/ALB           →  Standard LoadBalancer + cert-manager
+# Azure App Gateway     →  Standard Ingress + nginx/traefik
+
+# PRINCIPLE: Use standard Kubernetes APIs wherever possible
+# PATTERN: Abstract vendor-specific services behind standard interfaces
+# RESULT: Infrastructure as Code that ports to any Kubernetes cluster
