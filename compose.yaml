@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  # Phase 8: Paracelsus Principles Deepening and Alchemy Exploration
+  paracelsus_bench:
+    build:
+      context: ./phase8
+      dockerfile: Dockerfile
+    # depends_on:
+    #   - ripley_sagco_bench  # Uncomment when prior phases are implemented
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - phase8_network
+
+networks:
+  phase8_network:
+    driver: bridge

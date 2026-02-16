@@ -1,0 +1,27 @@
+# Phase 8 Dependencies: Paracelsus Principles Deepening and Alchemy Exploration
+
+# Core scientific computing
+numpy==1.24.3
+scipy==1.11.4
+
+# Arbitrary precision mathematics
+mpmath==1.3.0
+sympy==1.12
+
+# Statistical analysis and precision metrics
+statsmodels==0.14.0
+
+# Quantum computing simulation
+qutip==4.7.3
+
+# Bioinformatics for alkahest solvent simulation
+biopython==1.81
+
+# Graph processing for principle/gate connections
+networkx==3.2.1
+
+# Data handling
+pyyaml==6.0.1
+
+# Optional: For enhanced visualization
+matplotlib==3.8.2

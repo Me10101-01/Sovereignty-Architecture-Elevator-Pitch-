@@ -1,0 +1,42 @@
+principles_deep:
+  Sulphur: Flammability/amplification (energy push in gradients)
+  Mercury: Volatility/fluidity (feedback pull in corrections)
+  Salt: Solidity/permanence (clamp bounds for stability)
+alkahest_explore:
+  Sulphur:
+    gradient: 0.15000000000000002
+    dissolved_seq: AG
+  Mercury:
+    gradient: 0.05
+    dissolved_seq: AG
+  Salt:
+    gradient: 0.1
+    dissolved_seq: AG
+sagco_tie:
+  from: IBM self-managing (2001) to Paracelsus alkahest recharge in GSCH
+  bench: Precision-enhanced drift resolution
+  priors:
+  - IBM self-managing systems (2001)
+  - MIT cognitive architectures
+  - Tierra artificial life
+enhanced_bench:
+  speedup: 47054.05102201081
+  stable_precision:
+  - 0.996173241514445
+  - 1.0
+  variance: 0.5
+  mean: 1.3322676295501879e-18
+  std: 0.7071067811865476
+graph_summary:
+  nodes:
+  - Sulphur
+  - alkahest
+  - Mercury
+  - Salt
+  edges:
+  - - Sulphur
+    - alkahest
+  - - alkahest
+    - Mercury
+  - - alkahest
+    - Salt
