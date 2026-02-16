@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UDAP Address Schema",
+  "description": "Universal Domain Addressing Protocol for SkhaOS Quantum-Symbolic Emulator",
+  "version": "0.1.0",
+  "type": "object",
+  "properties": {
+    "scheme": {
+      "type": "string",
+      "const": "skhaos",
+      "description": "URI scheme identifier for SkhaOS"
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "pipe",
+        "neural",
+        "mood",
+        "chess",
+        "gps",
+        "network",
+        "quantum",
+        "agent",
+        "cache",
+        "temporal",
+        "entangle",
+        "control",
+        "evolved"
+      ],
+      "description": "Top-level domain category"
+    },
+    "path": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Hierarchical path components"
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "number" },
+          { "type": "boolean" }
+        ]
+      },
+      "description": "Query parameters for state/configuration"
+    }
+  },
+  "required": ["scheme", "domain", "path"],
+  "examples": [
+    {
+      "scheme": "skhaos",
+      "domain": "pipe",
+      "path": ["run", "10", "offset", "5", "travel", "15"],
+      "parameters": {
+        "angle": 45.0,
+        "amplitude": 1.0
+      }
+    },
+    {
+      "scheme": "skhaos",
+      "domain": "neural",
+      "path": ["layer", "3", "neuron", "5", "weight", "0"],
+      "parameters": {
+        "value": 0.75,
+        "activated": true
+      }
+    },
+    {
+      "scheme": "skhaos",
+      "domain": "mood",
+      "path": ["alpha", "relaxed"],
+      "parameters": {
+        "hz": 10.0,
+        "color": "green",
+        "intensity": 0.75,
+        "duration": 60
+      }
+    },
+    {
+      "scheme": "skhaos",
+      "domain": "chess",
+      "path": ["file", "e", "rank", "4"],
+      "parameters": {}
+    },
+    {
+      "scheme": "skhaos",
+      "domain": "gps",
+      "path": ["lat", "42.3601", "long", "-71.0589"],
+      "parameters": {
+        "alt": 0.0,
+        "accuracy": 10.0
+      }
+    },
+    {
+      "scheme": "skhaos",
+      "domain": "network",
+      "path": ["ip", "192.168.1.1", "port", "8080"],
+      "parameters": {
+        "protocol": "tcp"
+      }
+    }
+  ],
+  "definitions": {
+    "PipeCoordinate": {
+      "type": "object",
+      "properties": {
+        "run": { "type": "number" },
+        "offset": { "type": "number" },
+        "travel": { "type": "number" },
+        "angle": { "type": "number", "minimum": 0, "maximum": 360 }
+      }
+    },
+    "NeuralCoordinate": {
+      "type": "object",
+      "properties": {
+        "layer": { "type": "integer", "minimum": 0 },
+        "neuron": { "type": "integer", "minimum": 0 },
+        "weight_index": { "type": "integer", "minimum": 0 },
+        "value": { "type": "number", "minimum": -1, "maximum": 1 }
+      }
+    },
+    "MoodState": {
+      "type": "object",
+      "properties": {
+        "wave_type": {
+          "type": "string",
+          "enum": ["delta", "theta", "alpha", "beta", "gamma"]
+        },
+        "frequency_hz": { "type": "number", "minimum": 0.5, "maximum": 100 },
+        "color": { "type": "string" },
+        "intensity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "duration": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "EntangledPair": {
+      "type": "object",
+      "properties": {
+        "domain1": { "type": "string" },
+        "address1": { "type": "string" },
+        "domain2": { "type": "string" },
+        "address2": { "type": "string" },
+        "correlation": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

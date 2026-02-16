@@ -35,3 +35,41 @@ target/
 
 # Workspace data
 workspace/
+
+# SkhaOS Emulator specific
+# Container artifacts
+*.tar
+*.tar.gz
+
+# Sandbox state (generated during evolution)
+sandbox/*.tmp
+sandbox/state/
+sandbox/cache/
+
+# Pod runtime data
+containers/state/
+containers/logs/
+containers/cache/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary files
+/tmp/
+*.tmp
+*.bak
+
+# OS-specific
+Thumbs.db
+.directory
+
+# Generated documentation
+docs/build/
+
+# Podman/Docker volumes
+volumes/

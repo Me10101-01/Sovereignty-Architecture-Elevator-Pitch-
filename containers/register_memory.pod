@@ -1,0 +1,57 @@
+# Register Memory Pod Configuration
+# State persistence with URI cache and mood states
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: skhaos-register-memory
+  labels:
+    app: skhaos-emulator
+    module: register-memory
+    phase: "4"
+spec:
+  containers:
+  - name: memory-container
+    image: localhost/skhaos-emulator:latest
+    env:
+    - name: SKHAOS_MODULE
+      value: "register_memory"
+    - name: URI_CACHE_SIZE
+      value: "10000"
+    - name: MOOD_STATE_TRACKING
+      value: "true"
+    - name: NEURAL_TICK_CLOCK_HZ
+      value: "10.0"
+    volumeMounts:
+    - name: memory-state
+      mountPath: /skhaos/state
+      readOnly: false
+    - name: uri-cache
+      mountPath: /skhaos/cache
+      readOnly: false
+    - name: mood-states
+      mountPath: /skhaos/moods
+      readOnly: false
+    resources:
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL
+  volumes:
+  - name: memory-state
+    emptyDir: {}
+  - name: uri-cache
+    emptyDir:
+      sizeLimit: "500Mi"
+  - name: mood-states
+    emptyDir: {}
+  restartPolicy: Always
