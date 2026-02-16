@@ -1,0 +1,12 @@
+{
+  "name": "queen",
+  "version": "1.0.0",
+  "description": "Estrategi-Khaos Queen - Central Orchestrator",
+  "main": "queen.js",
+  "scripts": {
+    "start": "node queen.js"
+  },
+  "keywords": ["orchestrator", "queen", "strategickhaos"],
+  "author": "Strategickhaos DAO LLC",
+  "license": "MIT"
+}
