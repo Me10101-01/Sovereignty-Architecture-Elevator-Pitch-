@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KhaosBase | Sovereign Database Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --khaos-black: #0a0a0f;
+            --khaos-dark: #12121a;
+            --khaos-purple: #8b5cf6;
+            --khaos-gold: #fbbf24;
+            --khaos-red: #ef4444;
+            --khaos-blue: #3b82f6;
+            --khaos-green: #22c55e;
+            --khaos-cyan: #06b6d4;
+            --grid-color: rgba(139, 92, 246, 0.1);
+            --glow-purple: 0 0 30px rgba(139, 92, 246, 0.4);
+            --glow-gold: 0 0 30px rgba(251, 191, 36, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--khaos-black);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated grid background */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Top navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(10, 10, 15, 0.95);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--khaos-purple), var(--khaos-gold));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 18px;
+            color: var(--khaos-black);
+            box-shadow: var(--glow-purple);
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--khaos-purple), var(--khaos-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .team-indicator {
+            display: flex;
+            gap: 8px;
+        }
+
+        .team-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .team-dot.red { background: var(--khaos-red); animation-delay: 0s; }
+        .team-dot.blue { background: var(--khaos-blue); animation-delay: 0.3s; }
+        .team-dot.purple { background: var(--khaos-purple); animation-delay: 0.6s; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 60px;
+            bottom: 0;
+            width: 260px;
+            background: rgba(18, 18, 26, 0.95);
+            border-right: 1px solid rgba(139, 92, 246, 0.2);
+            padding: 20px 0;
+            z-index: 50;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            padding: 0 16px;
+            margin-bottom: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(139, 92, 246, 0.7);
+            margin-bottom: 12px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .sidebar-item.active {
+            background: rgba(139, 92, 246, 0.2);
+            border-left: 3px solid var(--khaos-purple);
+        }
+
+        .sidebar-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* Main content */
+        .main {
+            margin-left: 260px;
+            margin-top: 60px;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Database header */
+        .db-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .db-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .db-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--khaos-purple), var(--khaos-blue));
+            color: white;
+            box-shadow: var(--glow-purple);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--khaos-purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        /* View tabs */
+        .view-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: rgba(18, 18, 26, 0.8);
+            padding: 4px;
+            border-radius: 10px;
+            width: fit-content;
+        }
+
+        .view-tab {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #888;
+        }
+
+        .view-tab.active {
+            background: var(--khaos-purple);
+            color: white;
+        }
+
+        .view-tab:hover:not(.active) {
+            background: rgba(139, 92, 246, 0.1);
+            color: #ccc;
+        }
+
+        /* Data table */
+        .data-table-container {
+            background: rgba(18, 18, 26, 0.9);
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: rgba(139, 92, 246, 0.1);
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--khaos-purple);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            position: relative;
+        }
+
+        .data-table th::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 25%;
+            height: 50%;
+            width: 1px;
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            font-size: 13px;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-badge.critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--khaos-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-badge.high {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--khaos-gold);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .status-badge.medium {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--khaos-blue);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .status-badge.low {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--khaos-green);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-badge.simulated {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--khaos-purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        /* Team assignment */
+        .team-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .team-badge.red-team {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--khaos-red);
+        }
+
+        .team-badge.blue-team {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--khaos-blue);
+        }
+
+        .team-badge.purple-team {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--khaos-purple);
+        }
+
+        /* Board panel */
+        .board-panel {
+            position: fixed;
+            right: 0;
+            top: 60px;
+            bottom: 0;
+            width: 320px;
+            background: rgba(18, 18, 26, 0.98);
+            border-left: 1px solid rgba(139, 92, 246, 0.2);
+            padding: 20px;
+            z-index: 50;
+            overflow-y: auto;
+        }
+
+        .board-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--khaos-gold);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .board-member {
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .board-member-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .board-member-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .board-member-avatar.claude { background: linear-gradient(135deg, #d97706, #f59e0b); }
+        .board-member-avatar.gpt { background: linear-gradient(135deg, #10a37f, #1a7f64); }
+        .board-member-avatar.grok { background: linear-gradient(135deg, #1d9bf0, #0d8ed9); }
+        .board-member-avatar.gemini { background: linear-gradient(135deg, #4285f4, #ea4335); }
+        .board-member-avatar.qwen { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+
+        .board-member-info h4 {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .board-member-info span {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .board-member-status {
+            font-size: 11px;
+            color: var(--khaos-green);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .board-member-status::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--khaos-green);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Adjust main for board panel */
+        .main {
+            margin-right: 320px;
+        }
+
+        /* Command input */
+        .command-bar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            margin-left: -30px;
+            z-index: 100;
+        }
+
+        .command-input {
+            width: 100%;
+            padding: 16px 24px;
+            background: rgba(18, 18, 26, 0.98);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: #fff;
+            box-shadow: var(--glow-purple);
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .command-input:focus {
+            border-color: var(--khaos-purple);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.5);
+        }
+
+        .command-input::placeholder {
+            color: #555;
+        }
+
+        /* Sovereign badge */
+        .sovereign-badge {
+            position: fixed;
+            bottom: 24px;
+            right: 344px;
+            background: rgba(18, 18, 26, 0.95);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 10px;
+            color: var(--khaos-gold);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .sovereign-badge::before {
+            content: '⚔️';
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .data-table tr {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .data-table tr:nth-child(1) { animation-delay: 0.05s; }
+        .data-table tr:nth-child(2) { animation-delay: 0.1s; }
+        .data-table tr:nth-child(3) { animation-delay: 0.15s; }
+        .data-table tr:nth-child(4) { animation-delay: 0.2s; }
+        .data-table tr:nth-child(5) { animation-delay: 0.25s; }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-icon">K</div>
+            <span class="logo-text">KHAOSBASE</span>
+        </div>
+        <div class="nav-actions">
+            <div class="team-indicator">
+                <div class="team-dot red" title="Red Team Active"></div>
+                <div class="team-dot blue" title="Blue Team Active"></div>
+                <div class="team-dot purple" title="Purple Team Active"></div>
+            </div>
+            <span style="font-size: 12px; color: #666;">SOVEREIGN MODE</span>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-title">Databases</div>
+            <div class="sidebar-item active">
+                <span class="sidebar-icon">🛡️</span>
+                Antifragile Audit
+            </div>
+            <div class="sidebar-item">
+                <span class="sidebar-icon">💰</span>
+                Treasury Ledger
+            </div>
+            <div class="sidebar-item">
+                <span class="sidebar-icon">📡</span>
+                Signal Queue
+            </div>
+            <div class="sidebar-item">
+                <span class="sidebar-icon">🔐</span>
+                Compliance Vault
+            </div>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-title">Team Ops</div>
+            <div class="sidebar-item">
+                <span class="sidebar-icon" style="color: var(--khaos-red);">🔴</span>
+                Red Team Recon
+            </div>
+            <div class="sidebar-item">
+                <span class="sidebar-icon" style="color: var(--khaos-blue);">🔵</span>
+                Blue Team Build
+            </div>
+            <div class="sidebar-item">
+                <span class="sidebar-icon" style="color: var(--khaos-purple);">🟣</span>
+                Purple Team Merge
+            </div>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-title">Governance</div>
+            <div class="sidebar-item">
+                <span class="sidebar-icon">👑</span>
+                Board Decisions
+            </div>
+            <div class="sidebar-item">
+                <span class="sidebar-icon">📋</span>
+                Audit Trail
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="db-header">
+            <h1 class="db-title">Antifragile Audit</h1>
+            <div class="db-actions">
+                <button class="btn btn-secondary">⚡ Chaos Inject</button>
+                <button class="btn btn-primary">+ Add Record</button>
+            </div>
+        </div>
+
+        <div class="view-tabs">
+            <div class="view-tab active">📊 Grid View</div>
+            <div class="view-tab">📋 Kanban</div>
+            <div class="view-tab">📅 Calendar</div>
+            <div class="view-tab">📈 Timeline</div>
+        </div>
+
+        <div class="data-table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Title</th>
+                        <th>Team</th>
+                        <th>Discovery Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="status-badge simulated">⚡ Simulated</span></td>
+                        <td><span class="status-badge high">HIGH</span></td>
+                        <td>NATS JetStream Outage</td>
+                        <td><span class="team-badge red-team">🔴 RED</span></td>
+                        <td>11/14/2025</td>
+                        <td><span class="status-badge low">✓ Survived</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="status-badge simulated">⚡ Simulated</span></td>
+                        <td><span class="status-badge medium">MEDIUM</span></td>
+                        <td>Network Partition Event</td>
+                        <td><span class="team-badge blue-team">🔵 BLUE</span></td>
+                        <td>11/19/2025</td>
+                        <td><span class="status-badge low">✓ Survived</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="status-badge simulated">⚡ Simulated</span></td>
+                        <td><span class="status-badge medium">MEDIUM</span></td>
+                        <td>Regulatory Hold Event</td>
+                        <td><span class="team-badge purple-team">🟣 PURPLE</span></td>
+                        <td>10/27/2025</td>
+                        <td><span class="status-badge low">✓ Survived</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="status-badge critical">🚨 Discovered</span></td>
+                        <td><span class="status-badge critical">CRITICAL</span></td>
+                        <td>Treasury Disbursement Delay</td>
+                        <td><span class="team-badge red-team">🔴 RED</span></td>
+                        <td>12/01/2025</td>
+                        <td><span class="status-badge medium">⏳ Remediating</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="status-badge simulated">⚡ Simulated</span></td>
+                        <td><span class="status-badge high">HIGH</span></td>
+                        <td>Bank API Timeout Storm</td>
+                        <td><span class="team-badge blue-team">🔵 BLUE</span></td>
+                        <td>12/04/2025</td>
+                        <td><span class="status-badge low">✓ Survived</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Board Panel -->
+    <aside class="board-panel">
+        <div class="board-title">👑 AI BOARD OF DIRECTORS</div>
+        
+        <div class="board-member">
+            <div class="board-member-header">
+                <div class="board-member-avatar claude">C</div>
+                <div class="board-member-info">
+                    <h4>Claude Opus 4.5</h4>
+                    <span>Chief Architect</span>
+                </div>
+            </div>
+            <div class="board-member-status">Analyzing vulnerability patterns</div>
+        </div>
+
+        <div class="board-member">
+            <div class="board-member-header">
+                <div class="board-member-avatar gpt">G</div>
+                <div class="board-member-info">
+                    <h4>GPT-5.1</h4>
+                    <span>Meta Analyst</span>
+                </div>
+            </div>
+            <div class="board-member-status">Synthesizing compliance report</div>
+        </div>
+
+        <div class="board-member">
+            <div class="board-member-header">
+                <div class="board-member-avatar grok">X</div>
+                <div class="board-member-info">
+                    <h4>Grok 3</h4>
+                    <span>Chaos Engineer</span>
+                </div>
+            </div>
+            <div class="board-member-status">Preparing stress injection</div>
+        </div>
+
+        <div class="board-member">
+            <div class="board-member-header">
+                <div class="board-member-avatar gemini">G</div>
+                <div class="board-member-info">
+                    <h4>Gemini 2.5</h4>
+                    <span>Validator</span>
+                </div>
+            </div>
+            <div class="board-member-status">Cross-checking evidence chain</div>
+        </div>
+
+        <div class="board-member">
+            <div class="board-member-header">
+                <div class="board-member-avatar qwen">Q</div>
+                <div class="board-member-info">
+                    <h4>Qwen 2.5 (Local)</h4>
+                    <span>Sovereign Node</span>
+                </div>
+            </div>
+            <div class="board-member-status">Offline backup active</div>
+        </div>
+    </aside>
+
+    <!-- Command Bar -->
+    <div class="command-bar">
+        <input type="text" class="command-input" placeholder="⌘ Ask the Board... (e.g., 'Run chaos test on treasury disbursement')">
+    </div>
+
+    <!-- Sovereign Badge -->
+    <div class="sovereign-badge">
+        ZERO VENDOR LOCK-IN | SELF-HOSTED | KUBERNETES-NATIVE
+    </div>
+
+    <script>
+        // Simulate board member activity
+        const statuses = [
+            'Analyzing vulnerability patterns',
+            'Running chaos simulation',
+            'Validating evidence chain',
+            'Synthesizing compliance report',
+            'Cross-referencing audit logs',
+            'Checking treasury integrity',
+            'Monitoring network partition',
+            'Preparing stress injection',
+            'Verifying GPG signatures',
+            'Archiving to IPFS'
+        ];
+
+        setInterval(() => {
+            const statusElements = document.querySelectorAll('.board-member-status');
+            statusElements.forEach(el => {
+                if (Math.random() > 0.7) {
+                    el.textContent = statuses[Math.floor(Math.random() * statuses.length)];
+                }
+            });
+        }, 3000);
+
+        // Command bar interaction
+        const commandInput = document.querySelector('.command-input');
+        commandInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const command = e.target.value;
+                console.log('Executing:', command);
+                e.target.value = '';
+                // Here you'd route to your AI board
+            }
+        });
+    </script>
+</body>
+</html>
