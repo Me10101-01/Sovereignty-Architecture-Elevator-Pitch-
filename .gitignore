@@ -35,3 +35,7 @@ target/
 
 # Workspace data
 workspace/
+
+# AetherLingua output files
+output/
+*.wav
