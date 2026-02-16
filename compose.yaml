@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  # Phase 10: Tria Prima Applications Deepening, Hermetic Qabala Exploration, Precision Enhancement
+  tria_qabala_precision:
+    build:
+      context: .
+      dockerfile: phase10/Dockerfile
+    container_name: phase10-tria-qabala
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    entrypoint: python deepen_tria_applications_explore_qabala.py
+    networks:
+      - phase_network
+
+networks:
+  phase_network:
+    driver: bridge
