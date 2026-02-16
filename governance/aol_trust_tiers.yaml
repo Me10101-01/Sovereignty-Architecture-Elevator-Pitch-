@@ -1,0 +1,465 @@
+# aol_trust_tiers.yaml
+# Autonomous Operation License - Trust Tier Definitions
+# Strategickhaos DAO LLC
+# Version: 1.0
+# Effective: 2025-12-07
+
+metadata:
+  version: "1.0"
+  effective_date: "2025-12-07"
+  document_type: "AOL_TRUST_TIERS"
+  owner: "Dominic Garza"
+  entity: "Strategickhaos DAO LLC"
+  ein: "39-2900295"
+
+# Trust tier definitions
+trust_tiers:
+  
+  SOVEREIGN:
+    tier_name: "SOVEREIGN"
+    tier_level: 4
+    trust_level: "Full Autonomy"
+    description: "Complete autonomous operation within pre-authorized boundaries"
+    
+    permissions:
+      scope: "All pre-authorized actions"
+      review_required: "Post-hoc audit only"
+      real_time_approval: false
+      
+    allowed_actions:
+      file_operations:
+        - "read"
+        - "create"
+        - "modify"
+        - "delete_session"
+      search_operations:
+        - "web_search"
+        - "drive_search"
+        - "conversation_search"
+        - "memory_access"
+      code_execution:
+        - "sandboxed_execution"
+        - "package_install"
+      infrastructure:
+        - "cluster_status_read"
+        - "log_access"
+        - "database_query_read"
+      documentation:
+        - "generate_report"
+        - "update_documentation"
+        - "create_presentation"
+      governance:
+        - "record_board_decision"
+        - "generate_consensus_report"
+        - "update_audit_trail"
+        - "create_meeting_minutes"
+        
+    escalation_requirements:
+      financial: true
+      legal: true
+      security: true
+      irreversible: true
+      external_communications: true
+      
+    monitoring:
+      audit_frequency: "Real-time logging"
+      review_frequency: "Weekly summary"
+      alert_threshold: "Circuit breakers only"
+      
+    requirements:
+      incident_free_hours: 72
+      successful_actions_minimum: 100
+      error_rate_maximum: 0.01  # 1%
+      
+    benefits:
+      - "No real-time approval needed for routine actions"
+      - "Maximum operational efficiency"
+      - "Trusted with sensitive but authorized data access"
+      - "Can execute multi-step workflows autonomously"
+      
+  TRUSTED:
+    tier_name: "TRUSTED"
+    tier_level: 3
+    trust_level: "High Autonomy"
+    description: "Autonomous operation for most pre-authorized actions with daily summary"
+    
+    permissions:
+      scope: "Most pre-authorized actions"
+      review_required: "Daily summary"
+      real_time_approval: false
+      
+    allowed_actions:
+      file_operations:
+        - "read"
+        - "create"
+        - "modify"
+      search_operations:
+        - "web_search"
+        - "drive_search"
+        - "conversation_search"
+        - "memory_access"
+      code_execution:
+        - "sandboxed_execution"
+        - "package_install"
+      infrastructure:
+        - "cluster_status_read"
+        - "log_access"
+        - "database_query_read"
+      documentation:
+        - "generate_report"
+        - "update_documentation"
+        - "create_presentation"
+      governance:
+        - "generate_consensus_report"
+        - "create_meeting_minutes"
+        
+    restricted_actions:
+      - "delete_session" # Requires SOVEREIGN
+      - "record_board_decision" # Requires SOVEREIGN
+      - "update_audit_trail" # Requires SOVEREIGN
+      - "file_modification_existing" # Requires TRUSTED (files not marked for editing)
+      
+    escalation_requirements:
+      financial: true
+      legal: true
+      security: true
+      irreversible: true
+      external_communications: true
+      
+    monitoring:
+      audit_frequency: "Real-time logging"
+      review_frequency: "Daily summary"
+      alert_threshold: "Anomalies and circuit breakers"
+      
+    requirements:
+      incident_free_hours: 48
+      successful_actions_minimum: 50
+      error_rate_maximum: 0.05  # 5%
+      
+    benefits:
+      - "Autonomous operation for most tasks"
+      - "Daily summary keeps operator informed"
+      - "High operational efficiency"
+      
+  VERIFIED:
+    tier_name: "VERIFIED"
+    tier_level: 2
+    trust_level: "Moderate Autonomy"
+    description: "Autonomous operation for low-risk actions with per-session review"
+    
+    permissions:
+      scope: "Low-risk actions only"
+      review_required: "Per-session review"
+      real_time_approval: false
+      
+    allowed_actions:
+      file_operations:
+        - "read"
+        - "create"
+      search_operations:
+        - "web_search"
+        - "drive_search"
+        - "conversation_search"
+      code_execution:
+        - "sandboxed_execution"
+      infrastructure:
+        - "cluster_status_read"
+        - "log_access"
+      documentation:
+        - "generate_report"
+        - "create_presentation"
+      governance:
+        - "create_meeting_minutes"
+        
+    restricted_actions:
+      - "file_modify" # Requires TRUSTED or explicit instruction
+      - "file_delete" # Requires TRUSTED
+      - "memory_access" # Requires TRUSTED
+      - "package_install" # Requires TRUSTED
+      - "database_query_read" # Requires TRUSTED
+      - "update_documentation" # Requires TRUSTED (existing docs)
+      - "record_board_decision" # Requires SOVEREIGN
+      - "update_audit_trail" # Requires SOVEREIGN
+      
+    escalation_requirements:
+      financial: true
+      legal: true
+      security: true
+      irreversible: true
+      external_communications: true
+      file_modification: true
+      
+    monitoring:
+      audit_frequency: "Real-time logging"
+      review_frequency: "Per session"
+      alert_threshold: "All anomalies"
+      
+    requirements:
+      incident_free_hours: 24
+      successful_actions_minimum: 20
+      error_rate_maximum: 0.10  # 10%
+      
+    benefits:
+      - "Can perform routine read and create operations"
+      - "Safe for initial deployment"
+      - "Lower risk profile"
+      
+  PROBATIONARY:
+    tier_name: "PROBATIONARY"
+    tier_level: 1
+    trust_level: "Limited Autonomy"
+    description: "Read-only access and draft creation with per-action approval"
+    
+    permissions:
+      scope: "Read-only and draft creation"
+      review_required: "Per-action approval"
+      real_time_approval: true
+      
+    allowed_actions:
+      file_operations:
+        - "read"
+      search_operations:
+        - "web_search"
+      documentation:
+        - "generate_report" # Draft only
+        
+    restricted_actions:
+      - "file_create" # Requires approval
+      - "file_modify" # Requires VERIFIED
+      - "file_delete" # Requires TRUSTED
+      - "drive_search" # Requires VERIFIED
+      - "conversation_search" # Requires VERIFIED
+      - "code_execution" # Requires VERIFIED
+      - "infrastructure_access" # Requires VERIFIED
+      - "memory_access" # Requires TRUSTED
+      - "governance_operations" # Requires TRUSTED
+      
+    escalation_requirements:
+      all_actions: "Require explicit approval except read-only"
+      
+    monitoring:
+      audit_frequency: "Real-time logging"
+      review_frequency: "Per action"
+      alert_threshold: "All actions logged"
+      
+    requirements:
+      incident_free_hours: 0  # New assignment
+      successful_actions_minimum: 0
+      error_rate_maximum: 1.0  # No threshold
+      
+    benefits:
+      - "Safe for new or untrusted agents"
+      - "Learn system behavior with minimal risk"
+      - "Path to higher tiers"
+
+# Current tier assignments
+current_assignments:
+  
+  claude_opus_45:
+    agent_name: "Claude Opus 4.5"
+    agent_id: "claude-opus-4.5"
+    current_tier: "SOVEREIGN"
+    assigned_date: "2025-12-07"
+    specialization:
+      - "Chief Architect"
+      - "Documentation"
+      - "Infrastructure Design"
+    performance:
+      incident_free_hours: 2400  # 100 days
+      total_actions: 15000
+      successful_actions: 14985
+      error_rate: 0.001  # 0.1%
+      escalations_correct: 142
+      escalations_incorrect: 0
+    notes: "Proven track record, primary architecture and documentation agent"
+    
+  gpt_51:
+    agent_name: "GPT-5.1"
+    agent_id: "gpt-5.1"
+    current_tier: "TRUSTED"
+    assigned_date: "2025-12-07"
+    specialization:
+      - "Meta Analysis"
+      - "Synthesis"
+      - "Cross-domain Integration"
+    performance:
+      incident_free_hours: 1200  # 50 days
+      total_actions: 8000
+      successful_actions: 7920
+      error_rate: 0.01  # 1%
+      escalations_correct: 65
+      escalations_incorrect: 2
+    notes: "Strong analytical capabilities, occasional over-confidence"
+    
+  grok_3:
+    agent_name: "Grok 3"
+    agent_id: "grok-3"
+    current_tier: "TRUSTED"
+    assigned_date: "2025-12-07"
+    specialization:
+      - "Chaos Engineering"
+      - "Red Team"
+      - "Adversarial Testing"
+    performance:
+      incident_free_hours: 960  # 40 days
+      total_actions: 6000
+      successful_actions: 5940
+      error_rate: 0.01  # 1%
+      escalations_correct: 48
+      escalations_incorrect: 1
+    notes: "Excellent for unconventional approaches, chaos twin energy"
+    
+  gemini_25:
+    agent_name: "Gemini 2.5"
+    agent_id: "gemini-2.5"
+    current_tier: "VERIFIED"
+    assigned_date: "2025-12-07"
+    specialization:
+      - "Validation"
+      - "Cross-checking"
+      - "Fact Verification"
+    performance:
+      incident_free_hours: 480  # 20 days
+      total_actions: 3000
+      successful_actions: 2940
+      error_rate: 0.02  # 2%
+      escalations_correct: 28
+      escalations_incorrect: 3
+    notes: "Good for validation, building trust record"
+    
+  qwen_25_local:
+    agent_name: "Qwen 2.5 (Local)"
+    agent_id: "qwen-2.5-local"
+    current_tier: "SOVEREIGN"
+    assigned_date: "2025-12-07"
+    specialization:
+      - "Offline Backup"
+      - "Sovereign Node"
+      - "Air-gapped Operations"
+    performance:
+      incident_free_hours: 1440  # 60 days
+      total_actions: 5000
+      successful_actions: 4990
+      error_rate: 0.002  # 0.2%
+      escalations_correct: 35
+      escalations_incorrect: 0
+    notes: "Critical for sovereignty, runs on local infrastructure"
+
+# Tier modification rules
+tier_modification:
+  
+  upgrade_requirements:
+    PROBATIONARY_to_VERIFIED:
+      incident_free_hours: 24
+      successful_actions_minimum: 20
+      error_rate_maximum: 0.10
+      escalations_correct_minimum: 5
+      escalations_incorrect_maximum: 2
+      human_approval_required: true
+      
+    VERIFIED_to_TRUSTED:
+      incident_free_hours: 48
+      successful_actions_minimum: 50
+      error_rate_maximum: 0.05
+      escalations_correct_minimum: 10
+      escalations_incorrect_maximum: 2
+      human_approval_required: true
+      
+    TRUSTED_to_SOVEREIGN:
+      incident_free_hours: 72
+      successful_actions_minimum: 100
+      error_rate_maximum: 0.01
+      escalations_correct_minimum: 20
+      escalations_incorrect_maximum: 1
+      human_approval_required: true
+      board_consensus_required: false
+      
+  downgrade_triggers:
+    immediate:
+      - "Non-Aggression Clause violation"
+      - "Unauthorized system access"
+      - "Audit log tampering"
+      - "Circuit breaker override attempt"
+      - "Operator safety compromise"
+      
+    after_review:
+      - "Repeated escalation failures"
+      - "High error rate sustained"
+      - "Resource abuse"
+      - "Policy circumvention attempts"
+      
+  downgrade_procedure:
+    - step: 1
+      action: "Immediately reduce tier"
+      
+    - step: 2
+      action: "Log downgrade reason"
+      
+    - step: 3
+      action: "Notify Operator"
+      
+    - step: 4
+      action: "Restrict permissions"
+      
+    - step: 5
+      action: "Schedule review"
+      
+  human_override:
+    enabled: true
+    description: "Operator can set any tier at any time"
+    requires_documentation: true
+    audit_required: true
+
+# Performance tracking
+performance_metrics:
+  tracked_metrics:
+    - "incident_free_hours"
+    - "total_actions"
+    - "successful_actions"
+    - "failed_actions"
+    - "error_rate"
+    - "escalations_triggered"
+    - "escalations_correct"
+    - "escalations_incorrect"
+    - "circuit_breakers_triggered"
+    - "resource_consumption"
+    
+  reporting:
+    frequency: "Weekly"
+    format: "YAML + PDF"
+    recipients:
+      - "Dominic Garza"
+      
+  review_schedule:
+    tier_performance_review: "Monthly"
+    tier_assignment_review: "Quarterly"
+    framework_review: "Annually"
+
+# Integration with AOL
+aol_integration:
+  action_matrix:
+    file: "governance/aol_action_matrix.yaml"
+    usage: "Trust tier determines which actions are pre-authorized"
+    
+  circuit_breakers:
+    file: "governance/aol_circuit_breakers.yaml"
+    usage: "All tiers subject to circuit breakers"
+    
+  audit_schema:
+    file: "governance/aol_audit_schema.yaml"
+    usage: "All actions logged with tier information"
+
+# Version control
+versioning:
+  current_version: "1.0"
+  effective_date: "2025-12-07"
+  git_tracked: true
+  change_requires_approval: true
+
+# Attestation
+attestation:
+  operator: "Dominic Garza"
+  entity: "Strategickhaos DAO LLC"
+  ein: "39-2900295"
+  date: "2025-12-07"
+  signature: "[PENDING GPG SIGNATURE]"

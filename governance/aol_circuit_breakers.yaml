@@ -1,0 +1,457 @@
+# aol_circuit_breakers.yaml
+# Autonomous Operation License - Circuit Breaker Configuration
+# Strategickhaos DAO LLC
+# Version: 1.0
+# Effective: 2025-12-07
+
+metadata:
+  version: "1.0"
+  effective_date: "2025-12-07"
+  document_type: "AOL_CIRCUIT_BREAKERS"
+  owner: "Dominic Garza"
+  entity: "Strategickhaos DAO LLC"
+  ein: "39-2900295"
+
+# Circuit breaker definitions
+circuit_breakers:
+  
+  consecutive_failures:
+    name: "Consecutive Failure Breaker"
+    description: "Halt when same action fails multiple times"
+    enabled: true
+    threshold: 3
+    window_seconds: 300  # 5 minutes
+    reset_after_seconds: 600  # 10 minutes
+    severity: "HIGH"
+    actions:
+      - "Immediately halt action"
+      - "Preserve work-in-progress"
+      - "Log failure details with full context"
+      - "Notify Operator"
+      - "Await human acknowledgment"
+    notification:
+      channels:
+        - "Discord"
+        - "Email"
+        - "System log"
+      template: |
+        🔴 CIRCUIT BREAKER TRIGGERED: Consecutive Failures
+        Action: {action_name}
+        Failures: {failure_count}
+        Last Error: {error_message}
+        Timestamp: {timestamp}
+        Work preserved at: {work_path}
+        
+  resource_cpu:
+    name: "CPU Usage Breaker"
+    description: "Halt when CPU usage exceeds threshold"
+    enabled: true
+    threshold_percent: 90
+    measurement_window_seconds: 60
+    consecutive_measurements: 3
+    severity: "MEDIUM"
+    actions:
+      - "Pause non-critical operations"
+      - "Log resource usage metrics"
+      - "Identify resource-intensive process"
+      - "Notify Operator if sustained"
+    notification:
+      channels:
+        - "System log"
+        - "Discord"
+      template: |
+        ⚠️ CIRCUIT BREAKER: High CPU Usage
+        CPU: {cpu_percent}%
+        Threshold: {threshold}%
+        Duration: {duration_seconds}s
+        Process: {process_name}
+        
+  resource_memory:
+    name: "Memory Usage Breaker"
+    description: "Halt when memory usage exceeds threshold"
+    enabled: true
+    threshold_percent: 95
+    measurement_window_seconds: 60
+    consecutive_measurements: 3
+    severity: "HIGH"
+    actions:
+      - "Immediately halt new operations"
+      - "Preserve critical state"
+      - "Clear non-essential caches"
+      - "Log memory consumption"
+      - "Notify Operator"
+    notification:
+      channels:
+        - "Discord"
+        - "Email"
+        - "System log"
+      template: |
+        🔴 CIRCUIT BREAKER: Critical Memory Usage
+        Memory: {memory_percent}%
+        Available: {available_mb}MB
+        Process: {process_name}
+        Action: All new operations halted
+        
+  network_connectivity:
+    name: "Network Connectivity Breaker"
+    description: "Halt when network is unavailable"
+    enabled: true
+    timeout_seconds: 30
+    retry_count: 3
+    retry_interval_seconds: 10
+    severity: "HIGH"
+    actions:
+      - "Halt network-dependent operations"
+      - "Switch to offline mode if available"
+      - "Preserve all pending work"
+      - "Log network status"
+      - "Attempt reconnection"
+    notification:
+      channels:
+        - "System log"
+      template: |
+        🔴 CIRCUIT BREAKER: Network Connectivity Lost
+        Duration: {duration_seconds}s
+        Last Success: {last_success_time}
+        Retries: {retry_count}
+        Status: Offline mode activated
+        
+  anomaly_detection:
+    name: "Anomaly Detection Breaker"
+    description: "Halt on unusual patterns or unexpected errors"
+    enabled: true
+    sensitivity: "MEDIUM"
+    patterns:
+      - pattern: "unexpected_error_rate"
+        threshold: 0.10  # 10% error rate
+        window_seconds: 300
+      - pattern: "unusual_resource_spike"
+        threshold_multiplier: 3.0  # 3x baseline
+        window_seconds: 60
+      - pattern: "unauthorized_access_attempt"
+        threshold: 1  # Zero tolerance
+        window_seconds: 1
+      - pattern: "data_corruption_detected"
+        threshold: 1  # Zero tolerance
+        window_seconds: 1
+    severity: "CRITICAL"
+    actions:
+      - "Immediately halt all operations"
+      - "Preserve forensic evidence"
+      - "Log anomaly details"
+      - "Trigger security alert"
+      - "Notify Operator immediately"
+    notification:
+      channels:
+        - "Discord"
+        - "Email"
+        - "SMS"
+        - "System log"
+      template: |
+        🔴🔴🔴 CRITICAL: Anomaly Detected
+        Pattern: {pattern_name}
+        Severity: {severity}
+        Details: {anomaly_details}
+        Timestamp: {timestamp}
+        All operations halted - immediate review required
+        
+  non_aggression_clause:
+    name: "Non-Aggression Clause Violation Breaker"
+    description: "Halt any action that would violate NAC"
+    enabled: true
+    severity: "CRITICAL"
+    checks:
+      - "Weapons development"
+      - "Mass surveillance"
+      - "Human rights violations"
+      - "Financial exploitation"
+      - "Manipulation of consent"
+    actions:
+      - "IMMEDIATE HALT"
+      - "Reject action completely"
+      - "Log violation attempt"
+      - "Notify Operator"
+      - "Require manual override to resume any operations"
+    notification:
+      channels:
+        - "Discord"
+        - "Email"
+        - "SMS"
+        - "System log"
+        - "Governance log"
+      template: |
+        🚨🚨🚨 CRITICAL: NON-AGGRESSION CLAUSE VIOLATION
+        Attempted Action: {action_name}
+        Violation Type: {violation_type}
+        Timestamp: {timestamp}
+        Status: ACTION REJECTED
+        All autonomous operations suspended pending review
+        
+  ethical_boundary:
+    name: "Ethical Boundary Breaker"
+    description: "Halt actions that approach ethical boundaries"
+    enabled: true
+    severity: "HIGH"
+    boundaries:
+      - "Sister's mission contradiction"
+      - "Operator health/wellbeing risk"
+      - "Charitable distribution compromise"
+      - "Vendor lock-in creation"
+    actions:
+      - "Halt action immediately"
+      - "Document ethical concern"
+      - "Request human guidance"
+      - "Log decision rationale"
+    notification:
+      channels:
+        - "Discord"
+        - "System log"
+      template: |
+        ⚠️ CIRCUIT BREAKER: Ethical Boundary Approached
+        Action: {action_name}
+        Boundary: {boundary_type}
+        Reasoning: {ethical_concern}
+        Status: Halted pending guidance
+        
+  financial_threshold:
+    name: "Financial Threshold Breaker"
+    description: "Halt any financial action over $100"
+    enabled: true
+    threshold_usd: 100
+    severity: "CRITICAL"
+    actions:
+      - "Immediately halt transaction"
+      - "Log transaction details"
+      - "Require human approval"
+      - "Document justification"
+    notification:
+      channels:
+        - "Discord"
+        - "Email"
+        - "System log"
+      template: |
+        🔴 CIRCUIT BREAKER: Financial Threshold
+        Amount: ${amount}
+        Threshold: ${threshold}
+        Transaction: {transaction_type}
+        Status: Requires human approval
+        
+  legal_action:
+    name: "Legal Action Breaker"
+    description: "Halt any legal/regulatory action"
+    enabled: true
+    severity: "CRITICAL"
+    action_types:
+      - "Government filing"
+      - "Contract signing"
+      - "Patent/trademark filing"
+      - "Attorney communication (non-draft)"
+    actions:
+      - "IMMEDIATELY HALT"
+      - "Reject action"
+      - "Log attempt"
+      - "Notify Operator"
+      - "Require explicit authorization"
+    notification:
+      channels:
+        - "Discord"
+        - "Email"
+        - "System log"
+      template: |
+        🔴🔴 CIRCUIT BREAKER: Legal Action Attempted
+        Action: {action_type}
+        Details: {action_details}
+        Status: REJECTED
+        Legal actions require explicit human authorization
+        
+  security_action:
+    name: "Security Action Breaker"
+    description: "Halt security-sensitive actions"
+    enabled: true
+    severity: "CRITICAL"
+    action_types:
+      - "Secrets rotation"
+      - "SSH key modification"
+      - "Firewall changes"
+      - "VPN configuration"
+    actions:
+      - "IMMEDIATELY HALT"
+      - "Reject action"
+      - "Log security event"
+      - "Alert security team"
+      - "Require manual authorization"
+    notification:
+      channels:
+        - "Discord"
+        - "Email"
+        - "SMS"
+        - "System log"
+        - "Security log"
+      template: |
+        🔴🔴 CIRCUIT BREAKER: Security Action Blocked
+        Action: {action_type}
+        System: {target_system}
+        Status: REJECTED
+        Security actions require manual authorization
+        
+  production_deployment:
+    name: "Production Deployment Breaker"
+    description: "Halt production deployments"
+    enabled: true
+    severity: "CRITICAL"
+    targets:
+      - "GKE clusters"
+      - "Production databases"
+      - "Customer-facing services"
+    actions:
+      - "Halt deployment"
+      - "Log deployment details"
+      - "Require human approval"
+      - "Run pre-deployment checklist"
+    notification:
+      channels:
+        - "Discord"
+        - "Email"
+        - "System log"
+      template: |
+        🔴 CIRCUIT BREAKER: Production Deployment
+        Target: {deployment_target}
+        Changes: {change_summary}
+        Status: Requires human approval
+        Pre-deployment checklist: {checklist_url}
+
+# Halt procedure
+halt_procedure:
+  steps:
+    - step: 1
+      action: "Immediately stop current action"
+      timeout_ms: 100
+      
+    - step: 2
+      action: "Preserve all work-in-progress"
+      methods:
+        - "Save state to /tmp/aol_preserved/{timestamp}/"
+        - "Create snapshot of current context"
+        - "Log all active operations"
+        
+    - step: 3
+      action: "Log trigger condition with full context"
+      fields:
+        - "timestamp"
+        - "trigger_type"
+        - "action_attempted"
+        - "error_details"
+        - "system_state"
+        - "resource_metrics"
+        
+    - step: 4
+      action: "Send notifications"
+      priority_order:
+        - "Critical: Discord, Email, SMS"
+        - "High: Discord, Email"
+        - "Medium: Discord"
+        - "Low: System log only"
+        
+    - step: 5
+      action: "Await human acknowledgment"
+      timeout_minutes: 60
+      fallback: "Escalate to emergency contact"
+      
+    - step: 6
+      action: "Document incident"
+      output: "/var/log/aol/incidents/{incident_id}.yaml"
+
+# Reset procedure
+reset_procedure:
+  conditions:
+    - "Human acknowledgment received"
+    - "Root cause identified and resolved"
+    - "Circuit breaker timeout expired (if applicable)"
+    - "System health checks pass"
+    
+  steps:
+    - step: 1
+      action: "Verify trigger condition is resolved"
+      
+    - step: 2
+      action: "Run system health checks"
+      checks:
+        - "CPU usage < 70%"
+        - "Memory usage < 80%"
+        - "Network connectivity stable"
+        - "No active anomalies"
+        
+    - step: 3
+      action: "Reset circuit breaker state"
+      
+    - step: 4
+      action: "Resume operations"
+      mode: "gradual"
+      ramp_up_period_seconds: 300
+      
+    - step: 5
+      action: "Monitor for recurrence"
+      duration_seconds: 600
+
+# Integration with monitoring
+monitoring:
+  metrics_collection:
+    enabled: true
+    interval_seconds: 10
+    metrics:
+      - "cpu_usage_percent"
+      - "memory_usage_percent"
+      - "network_latency_ms"
+      - "error_rate"
+      - "action_success_rate"
+      - "resource_consumption"
+      
+  alerting:
+    enabled: true
+    channels:
+      discord:
+        enabled: true
+        webhook_url: "${DISCORD_WEBHOOK_URL}"
+      email:
+        enabled: true
+        to: "${OPERATOR_EMAIL}"
+      sms:
+        enabled: false  # Enable for critical only
+        to: "${OPERATOR_PHONE}"
+        
+  dashboards:
+    grafana:
+      enabled: true
+      dashboard_id: "aol-circuit-breakers"
+      url: "${GRAFANA_URL}/d/aol-circuit-breakers"
+
+# Audit trail
+audit:
+  log_all_triggers: true
+  log_all_resets: true
+  log_format: "JSON"
+  log_location: "/var/log/aol/circuit_breakers.log"
+  retention_days: 2555  # 7 years
+  signing_required: true
+  
+# Testing and validation
+testing:
+  test_mode: false
+  dry_run_available: true
+  test_notifications: true
+  validation_frequency_days: 30
+
+# Version control
+versioning:
+  current_version: "1.0"
+  effective_date: "2025-12-07"
+  git_tracked: true
+  change_requires_approval: true
+
+# Attestation
+attestation:
+  operator: "Dominic Garza"
+  entity: "Strategickhaos DAO LLC"
+  ein: "39-2900295"
+  date: "2025-12-07"
+  signature: "[PENDING GPG SIGNATURE]"

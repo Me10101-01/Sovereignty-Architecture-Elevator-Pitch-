@@ -10,6 +10,7 @@ This directory contains the foundational governance documents for **Strategickha
 |------|-------------|--------|
 | `TRUST_DECLARATION.md` | Foundational trust instrument defining principles, governance, and infrastructure | v2.1.0 |
 | `NON_AGGRESSION_CLAUSE.md` | Immutable ethical constraints (cannot be amended) | v2.1.0 IMMUTABLE |
+| `AUTONOMOUS_OPERATION_LICENSE.md` | Pre-authorized AI action framework and autonomy grant | v1.0 |
 | `public-identifier-registry.md` | Verified credentials, EINs, platforms, infrastructure | v2.1.0 |
 
 ## Related Files
@@ -17,6 +18,12 @@ This directory contains the foundational governance documents for **Strategickha
 | File | Location | Description |
 |------|----------|-------------|
 | `sovereign-empire-alert.json` | `../schemas/` | Machine-readable system status with active alerts |
+| `governance/aol_action_matrix.yaml` | `governance/` | AOL action classification and risk levels |
+| `governance/aol_circuit_breakers.yaml` | `governance/` | AOL circuit breaker configurations |
+| `governance/aol_trust_tiers.yaml` | `governance/` | AOL trust tier definitions and assignments |
+| `governance/aol_audit_schema.yaml` | `governance/` | AOL audit log schema and requirements |
+| `governance/AOL_QUICK_REFERENCE.md` | `governance/` | AOL quick reference card for AI agents |
+| `governance/aol_implementation_status.yaml` | `governance/` | AOL implementation progress tracker |
 
 ## Quick Reference
 
@@ -64,8 +71,14 @@ IMMUTABLE (cannot be amended):
 FOUNDATIONAL (amendment requires ratification):
 ├── TRUST_DECLARATION.md (except Article I.1.1, II.4, V.3)
 │
+OPERATIONAL (governance frameworks):
+├── AUTONOMOUS_OPERATION_LICENSE.md
+├── ai_constitution.yaml
+├── governance/aol_*.yaml
+│
 OPERATIONAL (update as needed):
 ├── public-identifier-registry.md
+├── auto_approve_config.yaml
 └── sovereign-empire-alert.json
 ```
 
