@@ -1,0 +1,30 @@
+FROM python:3.12-slim
+
+# Install dependencies for AI scaffolding and swarm bots
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages for quantum/symbolic AI emulator
+RUN pip install --no-cache-dir \
+    pyyaml \
+    requests \
+    sympy \
+    networkx \
+    torch \
+    biopython \
+    rdkit-pypi \
+    qutip \
+    numpy \
+    scipy
+
+# Set up working directory
+WORKDIR /app
+
+# Copy bootstrap script
+COPY bootstrap.py /app/
+
+# Entry point for phased commits
+ENTRYPOINT ["python", "bootstrap.py"]

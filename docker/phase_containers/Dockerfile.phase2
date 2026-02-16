@@ -1,0 +1,28 @@
+FROM python:3.12-slim
+
+# Phase 2: Prior Art Integration Container
+LABEL phase="2"
+LABEL description="Prior art mapping with symbolic modules"
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages for symbolic/quantum simulation
+RUN pip install --no-cache-dir \
+    pyyaml \
+    sympy \
+    networkx \
+    numpy
+
+# Set up working directory
+WORKDIR /app
+
+# Copy integration script
+COPY prior_art_integrate.py /app/
+
+# Entry point
+ENTRYPOINT ["python", "prior_art_integrate.py"]

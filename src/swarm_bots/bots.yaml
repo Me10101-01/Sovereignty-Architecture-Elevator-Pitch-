@@ -1,0 +1,19 @@
+bots:
+- gsch_protected: true
+  id: bot1
+  name: Evolution Monitor
+  task: Monitor entanglement drift and trigger evolution
+  threshold: 0.05
+- claims_mapped:
+  - 5
+  - 6
+  - 2
+  - 3
+  id: bot2
+  name: Novelty Guard
+  task: Enforce prior art claims and reframes
+- id: bot3
+  name: IR Emitter
+  output: chain_breaker_evo.ll
+  task: Generate LLVM IR from evolved methodology
+swarm: strategickhaos

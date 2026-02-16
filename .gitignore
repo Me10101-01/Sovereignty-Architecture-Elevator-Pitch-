@@ -35,3 +35,11 @@ target/
 
 # Workspace data
 workspace/
+
+# Chain Breaker Evolution generated state files
+bootstrap_metadata.yaml
+gpt_contributions.yaml
+gpt_log.txt
+prior_art_mapping.yaml
+src/control_unit/control_unit_state.yaml
+src/register_memory/register_memory_state.yaml

@@ -1,0 +1,27 @@
+# Chain Breaker Evolution Dependencies
+# Quantum-inspired symbolic AI processor emulator
+# Python >= 3.12
+
+# Core dependencies
+pyyaml>=6.0
+requests>=2.31.0
+
+# Symbolic mathematics and quantum simulation
+sympy>=1.12
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Network and graph analysis
+networkx>=3.1
+
+# Quantum physics simulation (optional - falls back to simulation mode)
+qutip>=4.7.0
+
+# Biological/chemical simulation (optional - falls back to simulation mode)
+biopython>=1.81
+
+# Machine learning (for future AI ratification)
+torch>=2.0.0
+
+# Chemical structure handling (optional)
+rdkit-pypi>=2022.9.5
