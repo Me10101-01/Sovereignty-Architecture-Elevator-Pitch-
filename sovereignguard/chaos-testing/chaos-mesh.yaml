@@ -1,0 +1,441 @@
+# SovereignGuard Chaos Testing - Chaos Mesh Installation
+# Phase 6: Security Resilience Testing
+# Addresses exposures: #18, #28, #29
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: chaos-testing
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+---
+# ConfigMap for Chaos Mesh configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sovereignguard-chaos-config
+  namespace: chaos-testing
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+data:
+  # Weekly schedule for chaos experiments
+  schedule: "0 2 * * 0"  # Sundays at 2 AM
+  
+  # Maximum blast radius (percentage of pods affected)
+  max_blast_radius: "25"
+  
+  # Auto-rollback enabled
+  auto_rollback: "true"
+  
+  # Experiment duration
+  default_duration: "5m"
+  
+  # Notification webhook
+  discord_webhook: "${DISCORD_CHAOS_WEBHOOK:-}"
+---
+# Pod Kill Experiment - Test service recovery
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: sovereignguard-pod-kill-test
+  namespace: chaos-testing
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+    experiment: pod-kill
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    namespaces:
+      - ops
+    labelSelectors:
+      sovereignguard: "true"
+  scheduler:
+    cron: "0 2 * * 0"  # Sundays at 2 AM
+  duration: "1m"
+---
+# Network Partition Experiment - Test mesh resilience
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: sovereignguard-network-partition-test
+  namespace: chaos-testing
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+    experiment: network-partition
+spec:
+  action: partition
+  mode: all
+  selector:
+    namespaces:
+      - ops
+    labelSelectors:
+      app: discord-ops-bot
+  direction: both
+  target:
+    selector:
+      namespaces:
+        - ops
+      labelSelectors:
+        app: event-gateway
+    mode: all
+  duration: "2m"
+  scheduler:
+    cron: "0 3 * * 0"  # Sundays at 3 AM
+---
+# Network Delay Experiment - Test latency handling
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: sovereignguard-network-delay-test
+  namespace: chaos-testing
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+    experiment: network-delay
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces:
+      - ops
+    labelSelectors:
+      sovereignguard: "true"
+  delay:
+    latency: "500ms"
+    correlation: "25"
+    jitter: "100ms"
+  duration: "5m"
+  scheduler:
+    cron: "0 4 * * 0"  # Sundays at 4 AM
+---
+# DNS Chaos Experiment - Test DNS failure handling
+apiVersion: chaos-mesh.org/v1alpha1
+kind: DNSChaos
+metadata:
+  name: sovereignguard-dns-chaos-test
+  namespace: chaos-testing
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+    experiment: dns-chaos
+spec:
+  action: error
+  mode: all
+  selector:
+    namespaces:
+      - ops
+    labelSelectors:
+      sovereignguard: "true"
+  duration: "3m"
+  scheduler:
+    cron: "0 5 * * 0"  # Sundays at 5 AM
+---
+# CPU Stress Experiment - Test resource exhaustion
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: sovereignguard-cpu-stress-test
+  namespace: chaos-testing
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+    experiment: cpu-stress
+spec:
+  mode: one
+  selector:
+    namespaces:
+      - ops
+    labelSelectors:
+      sovereignguard: "true"
+  stressors:
+    cpu:
+      workers: 2
+      load: 80
+  duration: "5m"
+  scheduler:
+    cron: "0 6 * * 0"  # Sundays at 6 AM
+---
+# IO Chaos Experiment - Test disk I/O failures
+apiVersion: chaos-mesh.org/v1alpha1
+kind: IOChaos
+metadata:
+  name: sovereignguard-io-chaos-test
+  namespace: chaos-testing
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+    experiment: io-chaos
+spec:
+  action: latency
+  mode: one
+  selector:
+    namespaces:
+      - ops
+    labelSelectors:
+      sovereignguard: "true"
+  volumePath: /var/log
+  path: "*"
+  delay: "100ms"
+  percent: 50
+  duration: "3m"
+  scheduler:
+    cron: "0 7 * * 0"  # Sundays at 7 AM
+---
+# HTTP Chaos Experiment - Test API failure handling
+apiVersion: chaos-mesh.org/v1alpha1
+kind: HTTPChaos
+metadata:
+  name: sovereignguard-http-chaos-test
+  namespace: chaos-testing
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+    experiment: http-chaos
+spec:
+  mode: all
+  selector:
+    namespaces:
+      - ops
+    labelSelectors:
+      app: event-gateway
+  target: Request
+  port: 8080
+  method: GET
+  path: /health
+  abort: true
+  duration: "2m"
+  scheduler:
+    cron: "0 8 * * 0"  # Sundays at 8 AM
+---
+# Security-focused experiment: Credential Leak Test
+# This simulates detection of credential exposure
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: credential-leak-test-config
+  namespace: chaos-testing
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+    experiment: credential-leak
+data:
+  test-script.sh: |
+    #!/bin/bash
+    # Credential Leak Test Script
+    # This script tests the detection of potential credential leaks
+    
+    echo "Starting credential leak detection test..."
+    
+    # Test 1: Check for secrets in environment variables
+    echo "Test 1: Checking environment variables for secrets..."
+    if env | grep -iE "(password|secret|token|key)" > /dev/null 2>&1; then
+      echo "WARNING: Potential secrets found in environment variables"
+      # Trigger alert
+      curl -X POST "${DISCORD_CHAOS_WEBHOOK}" \
+        -H "Content-Type: application/json" \
+        -d '{"content": "⚠️ CHAOS TEST: Credential leak detected in environment variables"}'
+    else
+      echo "PASS: No obvious secrets in environment variables"
+    fi
+    
+    # Test 2: Check for secrets in config files
+    echo "Test 2: Checking config files for secrets..."
+    if grep -rIE "(password|secret|token|api_key)" /etc/ 2>/dev/null | grep -v "^Binary" > /dev/null; then
+      echo "WARNING: Potential secrets found in config files"
+    else
+      echo "PASS: No obvious secrets in config files"
+    fi
+    
+    # Test 3: Check for secrets in logs
+    echo "Test 3: Checking logs for secrets..."
+    if grep -rIE "(password|secret|token)" /var/log/ 2>/dev/null | head -5 | grep -v "^Binary" > /dev/null; then
+      echo "WARNING: Potential secrets found in logs"
+    else
+      echo "PASS: No obvious secrets in logs"
+    fi
+    
+    echo "Credential leak test complete"
+---
+# Workflow for running chaos experiments
+apiVersion: chaos-mesh.org/v1alpha1
+kind: Workflow
+metadata:
+  name: sovereignguard-weekly-chaos
+  namespace: chaos-testing
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+spec:
+  entry: weekly-chaos-entry
+  templates:
+    - name: weekly-chaos-entry
+      templateType: Serial
+      deadline: 1h
+      children:
+        - notify-start
+        - pod-kill-phase
+        - recovery-check-1
+        - network-partition-phase
+        - recovery-check-2
+        - stress-test-phase
+        - recovery-check-3
+        - notify-complete
+        
+    - name: notify-start
+      templateType: Task
+      task:
+        container:
+          name: notify
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              curl -X POST "${DISCORD_CHAOS_WEBHOOK}" \
+                -H "Content-Type: application/json" \
+                -d '{"embeds": [{"title": "🔥 Chaos Testing Started", "description": "Weekly SovereignGuard chaos experiments beginning", "color": 16776960}]}'
+              
+    - name: pod-kill-phase
+      templateType: PodChaos
+      deadline: 5m
+      podChaos:
+        action: pod-kill
+        mode: one
+        selector:
+          namespaces:
+            - ops
+          labelSelectors:
+            sovereignguard: "true"
+            
+    - name: network-partition-phase
+      templateType: NetworkChaos
+      deadline: 5m
+      networkChaos:
+        action: partition
+        mode: all
+        selector:
+          namespaces:
+            - ops
+          labelSelectors:
+            sovereignguard: "true"
+        direction: both
+        target:
+          selector:
+            namespaces:
+              - ops
+            labelSelectors:
+              app: vault
+          mode: all
+          
+    - name: stress-test-phase
+      templateType: StressChaos
+      deadline: 5m
+      stressChaos:
+        mode: all
+        selector:
+          namespaces:
+            - ops
+          labelSelectors:
+            sovereignguard: "true"
+        stressors:
+          cpu:
+            workers: 1
+            load: 50
+            
+    - name: recovery-check-1
+      templateType: Task
+      task:
+        container:
+          name: health-check
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              echo "Checking service health after pod kill..."
+              sleep 30
+              curl -f http://discord-ops-bot.ops:3000/health || echo "Bot unhealthy"
+              curl -f http://event-gateway.ops:8080/health || echo "Gateway unhealthy"
+              
+    - name: recovery-check-2
+      templateType: Task
+      task:
+        container:
+          name: health-check
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              echo "Checking service health after network partition..."
+              sleep 30
+              curl -f http://discord-ops-bot.ops:3000/health || echo "Bot unhealthy"
+              curl -f http://event-gateway.ops:8080/health || echo "Gateway unhealthy"
+              
+    - name: recovery-check-3
+      templateType: Task
+      task:
+        container:
+          name: health-check
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              echo "Checking service health after stress test..."
+              sleep 30
+              curl -f http://discord-ops-bot.ops:3000/health || echo "Bot unhealthy"
+              curl -f http://event-gateway.ops:8080/health || echo "Gateway unhealthy"
+              
+    - name: notify-complete
+      templateType: Task
+      task:
+        container:
+          name: notify
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              curl -X POST "${DISCORD_CHAOS_WEBHOOK}" \
+                -H "Content-Type: application/json" \
+                -d '{"embeds": [{"title": "✅ Chaos Testing Complete", "description": "Weekly SovereignGuard chaos experiments finished", "color": 65280}]}'
+---
+# RBAC for Chaos Mesh
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sovereignguard-chaos-role
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "namespaces"]
+    verbs: ["get", "list", "watch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+  - apiGroups: ["chaos-mesh.org"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch", "create", "update", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sovereignguard-chaos-binding
+  labels:
+    app: sovereignguard
+    component: chaos-testing
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sovereignguard-chaos-role
+subjects:
+  - kind: ServiceAccount
+    name: chaos-controller
+    namespace: chaos-testing
