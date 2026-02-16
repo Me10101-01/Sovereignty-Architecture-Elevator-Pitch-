@@ -1,0 +1,113 @@
+tria_quotes:
+  Sulphur: '"Sulphur is the soul, the combustible principle, which gives life and
+    growth to all things." - Paracelsus, Paramirum (1531)'
+  Mercury: '"Mercury is the spirit, the volatile and changeable essence that permeates
+    and animates." - Paracelsus, Archidoxis (1530)'
+  Salt: '"Salt is the body, the fixed and permanent principle that provides solidity
+    and form." - Paracelsus, De Natura Rerum (1537)'
+tria_principles_deep:
+  Sulphur: '"Sulphur is the soul, the combustible principle, which gives life and
+    growth to all things." - Paracelsus, Paramirum (1531) - Amplify energy recharge
+    in healing gradients (Qabala Binah correspondence)'
+  Mercury: '"Mercury is the spirit, the volatile and changeable essence that permeates
+    and animates." - Paracelsus, Archidoxis (1530) - Fluidize adaptive corrections
+    in cures (Qabala Hod)'
+  Salt: '"Salt is the body, the fixed and permanent principle that provides solidity
+    and form." - Paracelsus, De Natura Rerum (1537) - Solidify permanent clamps in
+    remedies (Qabala Malkuth)'
+signatures_examples:
+  Walnut-Brain: Walnut resembles brain; Sulphur revitalization for head ailments (Paramirum
+    quote tie)
+  Lungwort-Lungs: Spotted leaves like lungs; Mercury fluidity for pulmonary cures
+    (Archidoxis)
+  Liverwort-Liver: Liver-shaped; Salt solidity for jaundice (De Natura Rerum)
+enochian_map:
+  Sulphur:
+    mapped_value: 0.10605
+    healing_metric: 42
+    enochian_graph: !!python/object:networkx.classes.graph.Graph
+      graph: {}
+      _node:
+        TEX: {}
+        RII: {}
+        BAG: {}
+      _adj:
+        TEX: {}
+        RII: {}
+        BAG: {}
+      __networkx_cache__: {}
+    principle: Sulphur
+  Mercury:
+    mapped_value: 0.03535
+    healing_metric: 42
+    enochian_graph: !!python/object:networkx.classes.graph.Graph
+      graph: {}
+      _node:
+        TEX: {}
+        RII: {}
+        BAG: {}
+      _adj:
+        TEX: {}
+        RII: {}
+        BAG: {}
+      __networkx_cache__: {}
+    principle: Mercury
+  Salt:
+    mapped_value: 0.0707
+    healing_metric: 42
+    enochian_graph: !!python/object:networkx.classes.graph.Graph
+      graph: {}
+      _node:
+        TEX: {}
+        RII: {}
+        BAG: {}
+      _adj:
+        TEX: {}
+        RII: {}
+        BAG: {}
+      __networkx_cache__: {}
+    principle: Salt
+sagco_tie:
+  from: IBM self-managing (2001) to Paracelsus tria prima recharge in GSCH with Doctrine
+    signatures/Enochian healing examples/quotes
+  bench: Precision-enhanced ANOVA lm on variance in drift cascades with quote-tied
+    metrics
+  priors:
+  - IBM Autonomic Computing (2001)
+  - MIT Oxygen Project (1999)
+  - Tierra Artificial Life (1991)
+enhanced_metrics:
+  speedup: 2747.9666913445976
+  n_samples: 1000
+  drift_threshold: 0.05
+  precision_dps: 250
+  stable_ci:
+  - 0.996173241514445
+  - 1.0
+  stable_proportion: !!python/object/apply:numpy._core.multiarray.scalar
+  - !!python/object/apply:numpy.dtype
+    args:
+    - f8
+    - false
+    - true
+    state: !!python/tuple
+    - 3
+    - <
+    - null
+    - null
+    - null
+    - -1
+    - -1
+    - 0
+  - !!binary |
+    AAAAAAAA8D8=
+  var_power: 0.0001250736549772702
+  anova_f: 0.9766613396457047
+  anova_p: 0.37692620633612217
+  recall_stable: 1.0
+examples_graph_summary:
+  nodes:
+  - Walnut-Brain
+  - Lungwort-Lungs
+  - Liverwort-Liver
+  has_networkx: true

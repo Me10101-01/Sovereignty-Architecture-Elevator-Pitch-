@@ -1,0 +1,22 @@
+version: '3.8'
+
+networks:
+  strategickhaos_network:
+    driver: bridge
+
+services:
+  # Phase 12: Tria Prima Quotes Extraction, Alchemical Principles Deepening,
+  # Doctrine of Signatures Healing Integration, and Enochian System Mapping
+  tria_quotes_signatures_enochian:
+    build: 
+      context: .
+      dockerfile: phase12/Dockerfile
+    volumes:
+      - .:/app
+    networks:
+      - strategickhaos_network
+    environment:
+      - PYTHONUNBUFFERED=1
+    # Note: depends_on can be added when prior phase services are defined
+    # depends_on:
+    #   - signatures_enochian_precision
