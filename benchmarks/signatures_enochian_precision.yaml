@@ -1,0 +1,31 @@
+enhanced_metrics:
+  anova_f: 0.1626516132645991
+  dps: 200
+  mean_wave: 3.153033389935444e-17
+  recall_stable: 1.0
+  speedup: 133144.05434575584
+  stable_ci_lower: 0.996173241514445
+  stable_ci_upper: 1.0
+  std_wave: 0.7067531393633848
+  var_power: 0.0011182691743688578
+enochian_explore:
+  Mercury: ((0.0707+0j), 25)
+  Salt: ((0.1414+0j), 25)
+  Sulphur: ((0.2121+0j), 25)
+graph_stats:
+  edges: 6
+  nodes: 5
+sagco_tie:
+  bench: Precision-enhanced ANOVA lm on variance in drift cascades
+  from: IBM self-managing (2001) to Paracelsus tria prima recharge in GSCH with Doctrine
+    signatures/Enochian healing correspondences
+  priors:
+  - IBM
+  - MIT
+  - Tierra
+signatures_deep:
+  Mercury: Spirit fluidity - Lungwort for lung cures (adaptive blood/spirit healing)
+  Salt: Body solidity - Eyebright for eye remedies (permanent wound solidification
+    via plant-eye resemblance)
+  Sulphur: Soul amplification - Walnut signature for brain revitalization (healing
+    inflammation via resemblance)
