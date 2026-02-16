@@ -1,0 +1,57 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: queen-ingress
+  namespace: queen-system
+  labels:
+    app.kubernetes.io/name: queen
+    app.kubernetes.io/component: ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+    - hosts:
+        - queen.strategickhaos.ai
+      secretName: queen-tls
+  rules:
+    - host: queen.strategickhaos.ai
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: queen
+                port:
+                  number: 80
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: queen
+                port:
+                  number: 80
+          - path: /signals
+            pathType: Prefix
+            backend:
+              service:
+                name: queen
+                port:
+                  number: 80
+          - path: /webhooks
+            pathType: Prefix
+            backend:
+              service:
+                name: queen
+                port:
+                  number: 80
+          - path: /oauth
+            pathType: Prefix
+            backend:
+              service:
+                name: queen
+                port:
+                  number: 80
