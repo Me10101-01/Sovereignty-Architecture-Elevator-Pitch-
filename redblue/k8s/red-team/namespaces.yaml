@@ -1,0 +1,57 @@
+# Red Team Cluster - Namespace Configuration
+# autopilot-cluster-1
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: attack-simulation
+  labels:
+    team: red-team
+    purpose: attack-testing
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/warn: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: misconfig-lab
+  labels:
+    team: red-team
+    purpose: misconfiguration-testing
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/warn: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: supply-chain-lab
+  labels:
+    team: red-team
+    purpose: supply-chain-testing
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/warn: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: breakout-lab
+  labels:
+    team: red-team
+    purpose: breakout-testing
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/warn: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: synthetic-malware
+  labels:
+    team: red-team
+    purpose: synthetic-malware-testing
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/warn: baseline

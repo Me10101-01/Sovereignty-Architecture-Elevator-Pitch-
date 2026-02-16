@@ -1,0 +1,249 @@
+# Red Team / Blue Team Cluster State Configuration
+# Strategickhaos Sovereign Cyber Lab - Dual Cluster Architecture
+# Version: 1.0.0
+
+version: "1.0"
+metadata:
+  name: "Strategickhaos Red/Blue Team Architecture"
+  description: "Dual-cluster sovereign cyber lab for offensive and defensive security training"
+  owner: "Strategickhaos DAO LLC"
+  created: "2025-12-01"
+  classification: "INTERNAL"
+
+# Cluster Definitions
+clusters:
+  blue_team:
+    name: "jarvis-swarm-personal-001"
+    type: "autopilot"
+    purpose: "defensive"
+    description: "Production-style defensive environment for monitoring, governance, and state enforcement"
+    region: "us-central1"
+    project: "strategickhaos-sovereign"
+    
+    capabilities:
+      - "state_sync_protocol"
+      - "obsidian_neural_mesh"
+      - "defensive_agents"
+      - "falco_defense"
+      - "admission_controllers"
+      - "verification_layer"
+      - "governance_workflows"
+      - "cost_monitoring"
+      - "anomaly_detection"
+    
+    namespaces:
+      - name: "antibody-dept"
+        purpose: "Digital immune system agents"
+      - name: "state-sync"
+        purpose: "State synchronization protocol"
+      - name: "governance"
+        purpose: "Policy engines and admission controllers"
+      - name: "monitoring"
+        purpose: "Observability and alerting"
+      - name: "agents"
+        purpose: "Defensive AI agents"
+    
+    security_policies:
+      pod_security_standard: "restricted"
+      network_policy_mode: "deny-all-ingress"
+      rbac_mode: "least-privilege"
+      audit_logging: true
+      runtime_security: "falco"
+
+  red_team:
+    name: "autopilot-cluster-1"
+    type: "autopilot"
+    purpose: "offensive"
+    description: "Sandbox environment for attack simulations and security testing"
+    region: "us-central1"
+    project: "strategickhaos-sovereign"
+    
+    capabilities:
+      - "exploit_simulations"
+      - "misconfiguration_testing"
+      - "rbac_hardening"
+      - "network_policy_testing"
+      - "pod_breakout_drills"
+      - "container_runtime_attacks"
+      - "supply_chain_simulations"
+      - "cluster_compromise_rehearsals"
+      - "falco_rule_testing"
+      - "bad_actor_injection"
+    
+    namespaces:
+      - name: "attack-simulation"
+        purpose: "Active attack testing"
+      - name: "misconfig-lab"
+        purpose: "Misconfiguration testing"
+      - name: "supply-chain-lab"
+        purpose: "Supply chain security testing"
+      - name: "breakout-lab"
+        purpose: "Container breakout testing"
+      - name: "synthetic-malware"
+        purpose: "Safe synthetic malware testing"
+    
+    security_policies:
+      pod_security_standard: "baseline"
+      network_policy_mode: "permissive"
+      rbac_mode: "experimental"
+      audit_logging: true
+      runtime_security: "falco"
+      isolation: "strict"
+
+# Sync Layer Configuration
+sync_layer:
+  enabled: true
+  direction: "red_to_blue_telemetry"
+  protocol: "grpc"
+  
+  data_flow:
+    allowed:
+      - "attack_telemetry"
+      - "vulnerability_findings"
+      - "detection_events"
+      - "audit_logs"
+    blocked:
+      - "production_data"
+      - "real_credentials"
+      - "external_targets"
+  
+  endpoints:
+    telemetry_collector: "telemetry.blue-team.internal:9090"
+    event_bus: "events.blue-team.internal:4222"
+    state_sync: "state.blue-team.internal:8443"
+
+# Safety Constraints
+safety_constraints:
+  allowed_activities:
+    - description: "Test YOUR OWN infrastructure"
+      scope: "internal_only"
+    - description: "Use synthetic/fake malicious images"
+      scope: "synthetic_only"
+    - description: "Simulate attacks internally"
+      scope: "internal_only"
+    - description: "Harden and patch own systems"
+      scope: "self_only"
+    - description: "Test RBAC, Falco, PodSecurity"
+      scope: "internal_only"
+    - description: "Run digital antibodies and defensive agents"
+      scope: "internal_only"
+  
+  prohibited_activities:
+    - description: "Attack external networks"
+      enforcement: "network_policy"
+    - description: "Probe systems you don't own"
+      enforcement: "network_policy"
+    - description: "Deploy real malware"
+      enforcement: "admission_controller"
+    - description: "Test exploits outside of GCP/local VMs"
+      enforcement: "network_policy"
+    - description: "Simulate harmful biological/medical systems"
+      enforcement: "admission_controller"
+
+  network_isolation:
+    egress_allowed:
+      - "*.googleapis.com"
+      - "*.gcr.io"
+      - "internal.strategickhaos/*"
+    egress_blocked:
+      - "*"
+
+# Evolution Loop
+evolution_loop:
+  enabled: true
+  cycle_duration: "24h"
+  
+  phases:
+    - name: "attack"
+      cluster: "red_team"
+      duration: "8h"
+      activities:
+        - "vulnerability_injection"
+        - "misconfiguration_testing"
+        - "privilege_escalation_attempts"
+    
+    - name: "detect"
+      cluster: "blue_team"
+      duration: "8h"
+      activities:
+        - "falco_detection"
+        - "anomaly_analysis"
+        - "audit_log_review"
+    
+    - name: "heal"
+      cluster: "blue_team"
+      duration: "8h"
+      activities:
+        - "policy_enforcement"
+        - "state_restoration"
+        - "antibody_deployment"
+
+# Antibody Department
+antibody_department:
+  enabled: true
+  cluster: "blue_team"
+  namespace: "antibody-dept"
+  
+  agents:
+    - name: "threat-detector"
+      type: "detection"
+      triggers:
+        - "suspicious_pod_creation"
+        - "rbac_violation"
+        - "network_policy_bypass"
+      actions:
+        - "alert"
+        - "quarantine"
+    
+    - name: "policy-enforcer"
+      type: "enforcement"
+      triggers:
+        - "policy_violation"
+        - "drift_detected"
+      actions:
+        - "remediate"
+        - "report"
+    
+    - name: "state-healer"
+      type: "remediation"
+      triggers:
+        - "state_drift"
+        - "configuration_change"
+      actions:
+        - "restore_state"
+        - "notify"
+    
+    - name: "audit-analyzer"
+      type: "analysis"
+      triggers:
+        - "scheduled"
+        - "on_demand"
+      actions:
+        - "analyze_logs"
+        - "generate_report"
+
+# Metrics and Reporting
+metrics:
+  enabled: true
+  
+  red_team_metrics:
+    - "attacks_simulated"
+    - "vulnerabilities_found"
+    - "misconfigurations_detected"
+    - "escalation_attempts"
+    - "breakout_attempts"
+  
+  blue_team_metrics:
+    - "threats_detected"
+    - "policies_enforced"
+    - "states_restored"
+    - "response_time_ms"
+    - "false_positives"
+  
+  dashboards:
+    - name: "Red Team Operations"
+      url: "grafana.internal/d/redteam"
+    - name: "Blue Team Defense"
+      url: "grafana.internal/d/blueteam"
+    - name: "Evolution Loop Status"
+      url: "grafana.internal/d/evolution"

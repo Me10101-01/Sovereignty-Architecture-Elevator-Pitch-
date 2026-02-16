@@ -1,0 +1,135 @@
+# Red Team Cluster - Network Isolation Policy
+# Blocks all external egress except allowed internal services
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: red-team-isolation
+  namespace: attack-simulation
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow internal cluster communication
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          team: red-team
+  # Allow GCP internal services (metadata, etc)
+  - to:
+    - ipBlock:
+        cidr: 169.254.169.254/32
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/8
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: red-team-isolation
+  namespace: misconfig-lab
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          team: red-team
+  - to:
+    - ipBlock:
+        cidr: 169.254.169.254/32
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/8
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: red-team-isolation
+  namespace: supply-chain-lab
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          team: red-team
+  - to:
+    - ipBlock:
+        cidr: 169.254.169.254/32
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/8
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: red-team-isolation
+  namespace: breakout-lab
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          team: red-team
+  - to:
+    - ipBlock:
+        cidr: 169.254.169.254/32
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/8
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: red-team-isolation
+  namespace: synthetic-malware
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          team: red-team
+  - to:
+    - ipBlock:
+        cidr: 169.254.169.254/32
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/8

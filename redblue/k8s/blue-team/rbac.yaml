@@ -1,0 +1,137 @@
+# Blue Team Cluster - RBAC Configuration
+# Least-privilege access for defensive operations
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: antibody-agent
+  namespace: antibody-dept
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: antibody-agent
+  namespace: antibody-dept
+rules:
+- apiGroups: [""]
+  resources: ["pods", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: antibody-agent-binding
+  namespace: antibody-dept
+subjects:
+- kind: ServiceAccount
+  name: antibody-agent
+  namespace: antibody-dept
+roleRef:
+  kind: Role
+  name: antibody-agent
+  apiGroup: rbac.authorization.k8s.io
+---
+# Cluster-wide read access for threat detection
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: blueteam-detector
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log", "configmaps", "secrets", "services", "endpoints", "events", "namespaces"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies", "ingresses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: blueteam-detector-binding
+subjects:
+- kind: ServiceAccount
+  name: antibody-agent
+  namespace: antibody-dept
+roleRef:
+  kind: ClusterRole
+  name: blueteam-detector
+  apiGroup: rbac.authorization.k8s.io
+---
+# State healer role - can modify resources for remediation
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: state-healer
+  namespace: antibody-dept
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: state-healer
+rules:
+- apiGroups: [""]
+  resources: ["pods", "configmaps", "services"]
+  verbs: ["get", "list", "watch", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: state-healer-binding
+subjects:
+- kind: ServiceAccount
+  name: state-healer
+  namespace: antibody-dept
+roleRef:
+  kind: ClusterRole
+  name: state-healer
+  apiGroup: rbac.authorization.k8s.io
+---
+# Policy enforcer role
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: policy-enforcer
+  namespace: governance
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: policy-enforcer
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch", "delete"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+- apiGroups: ["admissionregistration.k8s.io"]
+  resources: ["validatingwebhookconfigurations", "mutatingwebhookconfigurations"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: policy-enforcer-binding
+subjects:
+- kind: ServiceAccount
+  name: policy-enforcer
+  namespace: governance
+roleRef:
+  kind: ClusterRole
+  name: policy-enforcer
+  apiGroup: rbac.authorization.k8s.io

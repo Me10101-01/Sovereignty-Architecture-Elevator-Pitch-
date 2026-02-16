@@ -15,6 +15,10 @@ discord:
     agents: "#agents"
     prs: "#prs"
     dev_feed: "#dev-feed"
+    # Red Team / Blue Team channels
+    red_team: "#red-team-ops"
+    blue_team: "#blue-team-defense"
+    security_lab: "#security-lab"
   bot:
     app_id: null                    # Discord application ID
     token_secret_ref: "vault://kv/discord/bot_token"
@@ -61,6 +65,31 @@ infra:
         api_server: "https://k8s-dev.strategickhaos.internal"
         auth: "oidc"
         namespaces: ["*"]
+      # Red Team / Blue Team Sovereign Cyber Lab Clusters
+      - name: "blue-team"
+        cluster_name: "jarvis-swarm-personal-001"
+        api_server: "https://k8s-blue.strategickhaos.internal"
+        auth: "oidc"
+        purpose: "defensive"
+        namespaces: ["antibody-dept","state-sync","governance","monitoring","agents"]
+        security_level: "restricted"
+        capabilities:
+          - "state_sync_protocol"
+          - "defensive_agents"
+          - "falco_defense"
+          - "admission_controllers"
+      - name: "red-team"
+        cluster_name: "autopilot-cluster-1"
+        api_server: "https://k8s-red.strategickhaos.internal"
+        auth: "oidc"
+        purpose: "offensive"
+        namespaces: ["attack-simulation","misconfig-lab","supply-chain-lab","breakout-lab","synthetic-malware"]
+        security_level: "experimental"
+        capabilities:
+          - "exploit_simulations"
+          - "misconfiguration_testing"
+          - "network_policy_testing"
+          - "container_runtime_attacks"
   logging:
     provider: "loki"              # loki|elk|datadog|splunk
     endpoint: "https://loki.strategickhaos.internal"  # or null
@@ -223,6 +252,52 @@ commands:
         - name: "request_id"
           type: "string"
           required: true
+    # Red Team / Blue Team Commands
+    - name: "redteam"
+      description: "Execute red team attack simulation"
+      protected: true
+      params:
+        - name: "action"
+          type: "string"
+          enum: ["attack"]
+          required: true
+        - name: "type"
+          type: "string"
+          enum: ["rbac-scan","netpol-bypass","privesc","container-breakout","supply-chain","secret-leak"]
+          required: true
+        - name: "namespace"
+          type: "string"
+          default: "attack-simulation"
+    - name: "blueteam"
+      description: "Activate blue team defensive measures"
+      protected: true
+      params:
+        - name: "action"
+          type: "string"
+          enum: ["defend"]
+          required: true
+        - name: "mode"
+          type: "string"
+          enum: ["active","passive","monitor","respond"]
+          default: "active"
+    - name: "audit"
+      description: "Run cluster security audit"
+      params:
+        - name: "target"
+          type: "string"
+          enum: ["red-team","blue-team","all"]
+          default: "all"
+    - name: "heal"
+      description: "Restore cluster state to desired configuration"
+      protected: true
+      params:
+        - name: "target"
+          type: "string"
+          enum: ["state","policies","secrets"]
+          required: true
+        - name: "force"
+          type: "boolean"
+          default: false
 
 security:
   secrets_manager: "vault"  # vault|aws_ssm|gcp_sm|azure_kv
