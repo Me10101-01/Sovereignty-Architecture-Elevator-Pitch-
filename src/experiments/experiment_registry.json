@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "description": "Registry of experiments conducted in the Sovereign Black Ops Lab",
+  "experiments": [],
+  "schema": {
+    "id": "YYYY-MM-DD_experiment-name",
+    "name": "Human-readable experiment name",
+    "status": "planning | in_progress | complete | archived",
+    "created": "ISO-8601 timestamp",
+    "updated": "ISO-8601 timestamp",
+    "operators": ["list of operator handles"],
+    "agents": ["list of AI agents used"],
+    "tags": ["categorization tags"],
+    "docs_path": "path to experiment folder in docs/experiments/",
+    "artifacts": {
+      "code": ["paths to code created"],
+      "data": ["paths to data files"],
+      "logs": ["paths to log files"]
+    },
+    "handshakes": [
+      {
+        "trace_id": "uuid-v4",
+        "started": "ISO-8601 timestamp",
+        "completed": "ISO-8601 timestamp",
+        "status": "success | failure | abandoned"
+      }
+    ]
+  }
+}

@@ -35,3 +35,16 @@ target/
 
 # Workspace data
 workspace/
+
+# Black Ops Lab - Raw logs (keep derived data)
+logs/raw_gke_audit/*.json
+logs/raw_gke_audit/*.yaml
+!logs/raw_gke_audit/README.md
+
+# Terraform state and sensitive files
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+!*.tfvars.example
