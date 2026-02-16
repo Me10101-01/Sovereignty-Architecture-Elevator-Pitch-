@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # Phase 9: Tria Prima Deepening, Hermetic Exploration, and Precision Enhancement
+  tria_hermetic_precision:
+    build: 
+      context: .
+      dockerfile: phase9/Dockerfile
+    container_name: phase9-tria-hermetic
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - .:/app
+      - ./benchmarks:/app/benchmarks
+      - ./docs:/app/docs
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MPMATH_DPS=100
+    entrypoint: python phase9/deepen_tria_explore_hermetic.py
+    networks:
+      - strategickhaos_network
+
+  # Import existing services from docker-compose.yml
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: strategickhaos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - strategickhaos_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - strategickhaos_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  strategickhaos_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
