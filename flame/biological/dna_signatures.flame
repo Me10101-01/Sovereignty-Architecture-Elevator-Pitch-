@@ -1,0 +1,7 @@
+// flame/biological/dna_signatures.flame
+use flame::dna::{Codon::map, Seq::heal}
+
+let signature = "walnut-brain"  // Doctrine example
+let codon = map(signature, "degenerate")  // ATG for amplification
+let healed_seq = heal(codon, "liverwort-liver")  // Tie texts
+healed_seq.output()  // Evolved: Healing DNA for remedies
