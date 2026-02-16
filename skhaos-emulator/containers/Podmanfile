@@ -1,0 +1,54 @@
+# Podmanfile for Bio-Physics Entanglement Compiler (BPEC)
+# Containerized environment for sandboxed entropy simulations
+
+FROM python:3.11-slim
+
+LABEL maintainer="Strategickhaos DAO LLC <security@strategickhaos.ai>"
+LABEL description="Bio-Physics Entanglement Compiler - Zipf + Dolphin + Physics"
+LABEL version="1.0.0"
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    make \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python scientific libraries
+RUN pip install --no-cache-dir \
+    numpy>=1.24.0 \
+    scipy>=1.10.0 \
+    matplotlib>=3.7.0 \
+    pytest>=7.0.0
+
+# Create working directory
+WORKDIR /bpec
+
+# Copy BPEC modules
+COPY src/bio_physics/ /bpec/src/bio_physics/
+COPY phases/ /bpec/phases/
+COPY schemas/ /bpec/schemas/
+COPY assets/ /bpec/assets/
+COPY *.py /bpec/
+
+# Create sandbox volume mount point
+VOLUME /bpec/sandbox
+
+# Set up non-root user for security
+RUN useradd -m -u 1000 bpec && \
+    chown -R bpec:bpec /bpec
+
+USER bpec
+
+# Default command: run all phases
+CMD ["bash", "-c", "./phases/phase13_zipf.sh && ./phases/phase14_dolphin.sh && ./phases/phase15_physics.sh && ./phases/evolve_recursive.sh"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python3 -c "import sys; sys.exit(0)"
+
+# Expose metadata
+ENV BPEC_VERSION=1.0.0
+ENV INVENTION_ID=INVENTION_074
+ENV PATENT_STATUS="Patent-Pending"

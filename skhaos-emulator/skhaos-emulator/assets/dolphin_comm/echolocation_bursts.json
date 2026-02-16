@@ -1,0 +1,18 @@
+{
+  "bursts": [
+    {
+      "purpose": "navigation",
+      "center_freq_hz": 150000,
+      "click_count": 20,
+      "inter_click_interval_us": 50,
+      "distance_range_m": 100
+    },
+    {
+      "purpose": "prey_detection",
+      "center_freq_hz": 180000,
+      "click_count": 50,
+      "inter_click_interval_us": 30,
+      "distance_range_m": 50
+    }
+  ]
+}

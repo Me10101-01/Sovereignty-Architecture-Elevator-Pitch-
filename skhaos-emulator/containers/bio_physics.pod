@@ -1,0 +1,65 @@
+# Bio-Physics Pod Configuration
+# Defines volumes and network for BPEC container
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bio-physics-pod
+  labels:
+    app: bpec
+    version: "1.0.0"
+    invention: "INVENTION_074"
+spec:
+  containers:
+  - name: bpec-compiler
+    image: localhost/bpec:1.0.0
+    imagePullPolicy: IfNotPresent
+    
+    volumeMounts:
+    - name: sandbox-volume
+      mountPath: /bpec/sandbox
+      readOnly: false
+    - name: assets-volume
+      mountPath: /bpec/assets
+      readOnly: true
+    
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+    
+    env:
+    - name: BPEC_VERSION
+      value: "1.0.0"
+    - name: PYTHONUNBUFFERED
+      value: "1"
+    - name: ZIPF_ALPHA
+      value: "1.0"
+    
+    securityContext:
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      runAsUser: 1000
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop:
+        - ALL
+  
+  volumes:
+  - name: sandbox-volume
+    hostPath:
+      path: ./sandbox
+      type: DirectoryOrCreate
+  - name: assets-volume
+    hostPath:
+      path: ./assets
+      type: Directory
+  
+  restartPolicy: OnFailure
+  
+  # Network isolation (no external network required)
+  hostNetwork: false
+  dnsPolicy: ClusterFirst

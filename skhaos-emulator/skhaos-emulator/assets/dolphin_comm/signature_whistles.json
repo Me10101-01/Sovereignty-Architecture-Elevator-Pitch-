@@ -1,0 +1,25 @@
+{
+  "signatures": [
+    {
+      "dolphin_id": "alpha",
+      "base_freq_hz": 10000,
+      "contour": [10000, 12000, 15000, 12000, 10000],
+      "duration_ms": 1200,
+      "signature_type": "rising_falling"
+    },
+    {
+      "dolphin_id": "beta",
+      "base_freq_hz": 8000,
+      "contour": [8000, 8500, 9000, 8500, 8000],
+      "duration_ms": 1000,
+      "signature_type": "modulated"
+    },
+    {
+      "dolphin_id": "gamma",
+      "base_freq_hz": 15000,
+      "contour": [15000, 16000, 18000, 16000, 15000],
+      "duration_ms": 1500,
+      "signature_type": "high_frequency"
+    }
+  ]
+}
