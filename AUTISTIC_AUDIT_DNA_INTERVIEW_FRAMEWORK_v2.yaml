@@ -1,0 +1,633 @@
+autistic_audit_dna:
+  version: "2.0"
+  author: "Dom010101 + Claude"
+  description: >
+    Bloom's Level 4-6 interview framework mapped to StrategicKhaos
+    inventions and zero vendor lock-in principles.
+
+  cognitive_rarity_algorithm_v2:
+    description: >
+      Quantifies cognitive rarity by combining physical expertise, digital
+      expertise, cognitive modifiers, and intuition factors. The algorithm
+      multiplies base scores by various modifiers to calculate an overall
+      rarity score. Higher scores indicate rarer cognitive profiles.
+    calculation: >
+      base_score = sum(physical_expertise + digital_expertise)
+      cognitive_multiplier = product(cognitive_modifiers)
+      intuition_multiplier = product(intuition_factors)
+      total_multiplier = cognitive_multiplier * intuition_multiplier
+      rarity_score = base_score * total_multiplier
+    base_score: 405
+    cognitive_multiplier: 18.0
+    intuition_multiplier: 225.0
+    total_multiplier: 4050.0
+    rarity_score: 1640250
+    percentile: "99.9999%"
+    physical_world_expertise:
+      rope_access_level_3: 50
+      pipefitter: 20
+      ndt_certified: 30
+      rad_40_qualified: 40
+      api_510_studying: 15
+      pmi_gun_repair: 100
+    digital_expertise:
+      kubernetes_multi_cluster: 30
+      distributed_systems: 25
+      ai_governance_design: 50
+      legal_entity_formation: 20
+      multi_cloud_architecture: 25
+    cognitive_modifiers:
+      neurodivergent_parallel_processing: 2.0
+      no_cognitive_load_at_scale: 1.5
+      mission_driven_sister: 3.0
+      zero_bureaucracy: 2.0
+    intuition_factors:
+      zero_formal_knowledge: 5.0
+      pure_intuition: 3.0
+      tinker_methodology: 2.5
+      failure_immune: 2.0
+      first_principles_by_default: 3.0
+
+  inventions:
+    - id: INV-001
+      name: "Multi-AI Consensus Protocol"
+      nft_tier: "PLATINUM"
+      questions:
+        create: >
+          Design a voting mechanism where 5 AI models with different
+          architectures must reach consensus on a code deployment, but
+          one model (Qwen) runs locally and has 200ms latency advantage.
+          How do you prevent the local model from dominating decisions?
+        evaluate: >
+          Your AI board voted 4-1 to deploy a feature. The dissenting AI
+          (Grok) flagged a chaos scenario that the others dismissed. Two
+          weeks later, that exact scenario causes an outage. Defend or
+          critique your consensus threshold.
+        analyze: >
+          Decompose the failure modes of a 5-AI governance board.
+          Which is more dangerous: false consensus (everyone agrees
+          wrongly) or deadlock (no one agrees)?
+
+    - id: INV-002
+      name: "Antifragile Audit System"
+      nft_tier: "GOLD"
+      questions:
+        create: >
+          Build an audit system that gets STRONGER from attacks. Every
+          vulnerability discovered must automatically generate: (1) a fix,
+          (2) a test, (3) a lesson, (4) an interview question. Show the
+          data flow.
+        evaluate: >
+          Compare: traditional vulnerability scanning (find and fix) vs.
+          Antifragile Audit (find, fix, learn, monetize via NFT). Which
+          produces better long-term security posture? Justify with
+          specific metrics.
+        analyze: >
+          Your antifragile audit found 188 errors in a Codespace session.
+          Trace the causality chain from root cause to final resolution.
+          What made this "antifragile" vs. just "debugging"?
+
+    - id: INV-003
+      name: "Empire DNA Evolution Tracker"
+      nft_tier: "GOLD"
+      questions:
+        create: >
+          Design a system that treats your entire infrastructure as a
+          living organism with "chromosomes" (services), "fitness scores"
+          (uptime/latency), and "mutations" (deployments). How do you
+          implement natural selection for services?
+        evaluate: >
+          Your Empire DNA shows Service A has 99.99% uptime but consumes
+          80% of resources. Service B has 95% uptime but uses 5%
+          resources. Using evolutionary principles, which should
+          "reproduce" (scale up)?
+        analyze: >
+          Map the genotype (code) to phenotype (behavior) relationship in
+          your Empire DNA model. How do environmental pressures (traffic
+          spikes) cause adaptation?
+
+    - id: INV-004
+      name: "Moonlight Session Agent"
+      nft_tier: "GOLD"
+      questions:
+        create: >
+          Design an agent that can reconstruct your cognitive state from:
+          (1) browser tabs, (2) terminal history, (3) file modifications,
+          (4) git commits. The agent should answer "what was I thinking at
+          3am last Tuesday?"
+        evaluate: >
+          Your Moonlight agent recorded a 12-hour session with 847 file
+          changes. It claims you were "exploring Kubernetes networking."
+          But you remember "debugging DNS." How do you evaluate the
+          agent's interpretation accuracy?
+        analyze: >
+          Decompose the difference between "session recording" and
+          "cognitive state reconstruction." What data is necessary vs.
+          sufficient to recreate intent?
+
+    - id: INV-005
+      name: "QueenNode SSH Gateway"
+      nft_tier: "GOLD"
+      questions:
+        create: >
+          Design a single point of entry to 4 heterogeneous nodes that
+          handles key rotation, logs all sessions, and survives any single
+          node failure.
+        evaluate: >
+          Your QueenNode is a single point of entry (good for control)
+          and single point of failure (bad for availability). Justify
+          this architectural tradeoff or propose an alternative.
+        analyze: >
+          Decompose the attack surface of a centralized SSH gateway vs.
+          distributed direct access. Which threat model is QueenNode
+          optimized for?
+
+    - id: INV-006
+      name: "Zero-Trust Service Mesh"
+      nft_tier: "GOLD"
+      questions:
+        create: >
+          Design a service mesh where every microservice must prove its
+          identity via mTLS certificates that rotate every 60 seconds.
+          How do you handle certificate distribution without a single
+          point of failure?
+        evaluate: >
+          Your zero-trust mesh adds 15ms latency per request due to
+          certificate validation. A competitor's "trusted network" has
+          2ms overhead. Defend your architecture choice to a
+          performance-obsessed CTO.
+        analyze: >
+          Decompose the security vs. performance tradeoff in zero-trust
+          architectures. At what threat level does the overhead become
+          justified?
+
+    - id: INV-007
+      name: "Chaos Engineering Pipeline"
+      nft_tier: "GOLD"
+      questions:
+        create: >
+          Design a CI/CD pipeline that randomly injects failures
+          (network partitions, memory leaks, DNS outages) into staging
+          environments. The system should automatically cancel deploys
+          that can't survive chaos.
+        evaluate: >
+          Your chaos pipeline blocked 12 deploys last month due to
+          "theoretical" failures that haven't occurred in production.
+          The dev team is frustrated. Defend or adjust your chaos
+          threshold.
+        analyze: >
+          Decompose the difference between "testing under chaos" and
+          "chaos as a gatekeeper." When does chaos engineering become
+          counterproductive?
+
+    - id: INV-008
+      name: "Cognitive Load Reducer"
+      nft_tier: "GOLD"
+      questions:
+        create: >
+          Design a system that measures cognitive load during coding
+          sessions (via: terminal complexity, context switches, error
+          frequency) and automatically simplifies the environment when
+          load exceeds threshold.
+        evaluate: >
+          Your cognitive load reducer hid 8 services from the dashboard
+          during a critical outage, slowing diagnosis by 20 minutes.
+          Critique the system's decision-making.
+        analyze: >
+          Decompose "cognitive load" into measurable signals. Which
+          metrics are leading indicators vs. lagging indicators of
+          burnout?
+
+    - id: INV-009
+      name: "Vendor Lock-In Escape Hatch"
+      nft_tier: "PLATINUM"
+      questions:
+        create: >
+          Design a system where switching from AWS to GCP to Azure
+          requires changing only a single environment variable. The
+          abstraction layer must handle: compute, storage, networking,
+          and managed databases.
+        evaluate: >
+          Your abstraction layer prevents you from using AWS Lambda's
+          newest features. Is portability worth missing cutting-edge
+          capabilities?
+        analyze: >
+          Decompose the "abstraction tax" across different cloud
+          primitives. Which services have the highest lock-in risk vs.
+          abstraction cost?
+
+    - id: INV-010
+      name: "Self-Healing Infrastructure"
+      nft_tier: "GOLD"
+      questions:
+        create: >
+          Design a system where every service failure triggers automatic
+          remediation: restart → rollback → scale-out → alert-human.
+          Define the decision tree and timeout thresholds.
+        evaluate: >
+          Your self-healing system automatically rolled back a deploy
+          that was actually fixing a bug. The rollback restored the bug.
+          How do you prevent false-positive rollbacks?
+        analyze: >
+          Decompose the difference between "self-healing" and "thrashing."
+          What signals indicate productive vs. destructive automation?
+
+    - id: INV-011
+      name: "AI Governance Constitution"
+      nft_tier: "PLATINUM"
+      questions:
+        create: >
+          Design a constitutional framework where AI models can vote on
+          infrastructure changes, but certain actions (delete production
+          database, expose secrets) require human override. Define the
+          boundary between AI autonomy and human veto.
+        evaluate: >
+          Your AI board voted 5-0 to delete a "corrupted" database. The
+          database contained the only copy of customer data from 2019.
+          What constitutional safeguard failed?
+        analyze: >
+          Decompose the failure modes of AI governance. Is it more
+          dangerous for AI to have too much power or too little?
+
+    - id: INV-012
+      name: "Tinker-Driven Development"
+      nft_tier: "GOLD"
+      questions:
+        create: >
+          Design a development environment where breaking things is
+          encouraged. Every error must generate: (1) an explanation,
+          (2) a suggested fix, (3) a prevention strategy. How do you
+          balance exploration vs. stability?
+        evaluate: >
+          A junior dev "tinkered" with Kubernetes RBAC and locked
+          everyone out of the cluster. Defend or critique your
+          tinker-friendly policy.
+        analyze: >
+          Decompose the cognitive difference between "read docs then do"
+          vs. "do then read docs." Which learning path produces deeper
+          understanding?
+
+    - id: INV-013
+      name: "Moonlight Productivity Tracker"
+      nft_tier: "GOLD"
+      questions:
+        create: >
+          Design a system that tracks late-night coding sessions and
+          correlates: commit quality, bug introduction rate, and next-day
+          fatigue. Should the system block commits after midnight?
+        evaluate: >
+          Your tracker shows that 60% of your best code was written
+          between 11pm-3am, but 80% of your bugs too. What intervention
+          do you design?
+        analyze: >
+          Decompose "productivity" into quantity vs. quality vs.
+          sustainability. Which metric should optimize for long-term
+          success?
+
+    - id: INV-014
+      name: "First-Principles Debugger"
+      nft_tier: "GOLD"
+      questions:
+        create: >
+          Design a debugger that doesn't show you the stack trace or
+          error message. Instead, it shows you: recent code changes,
+          system state, and affected data flows. Forces first-principles
+          reasoning.
+        evaluate: >
+          Your first-principles debugger added 30 minutes to debug time
+          but reduced repeat bugs by 60%. Is this trade-off worth it?
+        analyze: >
+          Decompose the difference between "symptom-based debugging" and
+          "root-cause debugging." When is each approach appropriate?
+
+    - id: INV-015
+      name: "Anti-Resume System"
+      nft_tier: "PLATINUM"
+      questions:
+        create: >
+          Design a hiring system that values: failures survived, systems
+          broken-then-fixed, and learning velocity over: degrees, years
+          of experience, and certifications. How do you measure these?
+        evaluate: >
+          Your anti-resume system hired a candidate who broke 3 production
+          systems in a month but learned Kubernetes faster than anyone.
+          Defend your hiring criteria.
+        analyze: >
+          Decompose "hiring signals" into correlation vs. causation. Which
+          traditional credentials are actually predictive of success?
+
+  zero_lockin_principles:
+    - id: ZVL-001
+      name: "Data Portability"
+      questions:
+        create: >
+          Design an export system that can migrate ANY of your 36 tools
+          to a competitor or self-hosted alternative in under 24 hours.
+        evaluate: >
+          Your data export uses JSON. Your competitor uses XML. Your
+          self-hosted uses SQLite. Evaluate the tradeoffs of mandating a
+          single format vs. supporting translation.
+        analyze: >
+          Decompose "data portability" into schema, format, semantics,
+          relationships, and history. Which layer creates the most lock-in?
+
+    - id: ZVL-002
+      name: "API Abstraction"
+      questions:
+        create: >
+          Design an abstraction layer where switching from OpenAI to
+          Anthropic to local Ollama requires changing one configuration
+          value, not code.
+        evaluate: >
+          Your abstraction adds 50ms latency per request. Is this
+          acceptable for portability? Where is the break-even point?
+        analyze: >
+          Decompose the "abstraction tax" for AI providers. What
+          capabilities are lost when you unify GPT/Claude/Llama?
+
+    - id: ZVL-003
+      name: "Infrastructure as Code (Portable)"
+      questions:
+        create: >
+          Design IaC that can deploy to AWS, GCP, Azure, or bare-metal
+          using the same configuration. What abstractions are necessary?
+        evaluate: >
+          Your portable IaC can't use GCP's managed Redis because AWS
+          and Azure have different APIs. Do you build an adapter or
+          restrict features?
+        analyze: >
+          Decompose the tradeoff between "write once, run anywhere" and
+          "use platform-specific optimizations." When is portability
+          too expensive?
+
+    - id: ZVL-004
+      name: "Vendor-Agnostic Monitoring"
+      questions:
+        create: >
+          Design a monitoring stack that works identically whether you're
+          using DataDog, New Relic, Prometheus, or custom agents. The
+          API must be vendor-neutral.
+        evaluate: >
+          Your vendor-agnostic monitoring can't support DataDog's ML-based
+          anomaly detection because other tools lack it. How do you handle
+          vendor-specific features?
+        analyze: >
+          Decompose monitoring into collection, storage, analysis, and
+          alerting. Which layers are most prone to vendor lock-in?
+
+    - id: ZVL-005
+      name: "Exit Strategy Documentation"
+      questions:
+        create: >
+          Design a living document that explains exactly how to migrate
+          off every tool in your stack. Must include: data export,
+          alternative tools, migration time, and cost.
+        evaluate: >
+          Your exit strategy doc is 200 pages long and 6 months out of
+          date. How do you keep it current without it becoming a
+          full-time job?
+        analyze: >
+          Decompose "exit readiness" into preventive (avoid lock-in) vs.
+          reactive (escape lock-in). Which is more cost-effective?
+
+  tinker_methodology:
+    description: >
+      Questions aimed at detecting first-principles, intuition-driven
+      engineers versus pattern-recall engineers.
+
+    questions:
+      - id: TM-001
+        level: "CREATE"
+        text: >
+          Design an onboarding system for Kubernetes that is optimized
+          for "tinker learners" who press buttons first and read docs
+          later. How do you avoid catastrophic damage?
+      - id: TM-002
+        level: "EVALUATE"
+        text: >
+          A tinker approach broke 3 clusters in a day but produced a
+          working mental model. A doc-first approach broke none but
+          produced shallow understanding. Which do you prefer and why?
+      - id: TM-003
+        level: "ANALYZE"
+        text: >
+          Decompose the cognitive difference between "learn then do" and
+          "do then learn." Which types of knowledge belong in each path?
+      - id: TM-004
+        level: "CREATE"
+        text: >
+          Design a sandbox environment where you can safely break
+          anything. What are the boundaries? What should remain
+          protected?
+      - id: TM-005
+        level: "EVALUATE"
+        text: >
+          You broke production by tinkering. Option A: lock down
+          permissions. Option B: improve blast radius controls. Which
+          preserves learning velocity?
+      - id: TM-006
+        level: "ANALYZE"
+        text: >
+          Decompose "failure" into recoverable vs. catastrophic. What
+          makes a failure a learning opportunity vs. a career-ender?
+      - id: TM-007
+        level: "CREATE"
+        text: >
+          Design a "break and learn" workshop where participants must
+          intentionally crash services and then resurrect them. What do
+          they learn that docs can't teach?
+      - id: TM-008
+        level: "EVALUATE"
+        text: >
+          Senior devs want detailed docs. Junior devs want to tinker.
+          How do you design onboarding that serves both?
+      - id: TM-009
+        level: "ANALYZE"
+        text: >
+          Decompose "intuition" into pattern recognition, mental models,
+          and first-principles reasoning. Which can be taught vs. must
+          be experienced?
+      - id: TM-010
+        level: "CREATE"
+        text: >
+          Design a debugger for tinkers: it doesn't tell you what's
+          wrong, it shows you system state and asks "what changed?"
+          How does this change debugging behavior?
+
+  meta_questions:
+    description: >
+      Questions about the framework itself, designed to test meta-cognitive
+      awareness and framework thinking.
+
+    questions:
+      - id: META-001
+        level: "EVALUATE"
+        text: >
+          This interview framework prioritizes Bloom's Level 4-6
+          (Analyze, Evaluate, Create) over Level 1-3 (Remember,
+          Understand, Apply). What cognitive abilities are we missing?
+      - id: META-002
+        level: "ANALYZE"
+        text: >
+          Decompose the difference between "answering interview questions"
+          and "actually building the systems described." What's the gap?
+      - id: META-003
+        level: "CREATE"
+        text: >
+          Design a meta-framework for evaluating interview frameworks.
+          What makes a good technical interview question?
+      - id: META-004
+        level: "EVALUATE"
+        text: >
+          Traditional interviews test "can you do this job?" This
+          framework tests "can you think about this job?" Which predicts
+          success better?
+      - id: META-005
+        level: "ANALYZE"
+        text: >
+          Decompose "technical skill" into knowledge, reasoning, and
+          experience. Which is most important for novel problems?
+
+  neurodivergent_edge_cases:
+    description: >
+      Questions specifically designed to surface neurodivergent cognitive
+      advantages: parallel processing, pattern recognition, hyperfocus,
+      systematic thinking.
+
+    questions:
+      - id: ND-001
+        level: "CREATE"
+        text: >
+          Design a system that leverages parallel processing: you can
+          monitor 4 terminal windows, 8 browser tabs, 3 Slack channels,
+          and 2 cluster dashboards simultaneously. What insights emerge
+          from seeing everything at once?
+      - id: ND-002
+        level: "EVALUATE"
+        text: >
+          You notice a pattern across 47 microservices that no one else
+          saw: they all fail at 3am on Tuesdays. But you can't explain
+          HOW you noticed. Is this signal or noise?
+      - id: ND-003
+        level: "ANALYZE"
+        text: >
+          Decompose "attention" into sustained focus, divided attention,
+          and selective filtering. Which is most valuable for distributed
+          systems debugging?
+      - id: ND-004
+        level: "CREATE"
+        text: >
+          Design a monitoring system for someone who can't filter
+          information: every alert is equally loud. How do you create
+          hierarchy without losing signal?
+      - id: ND-005
+        level: "EVALUATE"
+        text: >
+          Hyperfocus got you through a 14-hour debugging session that
+          solved a P0 outage. Hyperfocus also made you forget to eat or
+          sleep. How do you harness this without burning out?
+
+  mission_driven_questions:
+    description: >
+      Questions exploring mission-driven motivation, particularly around
+      supporting underserved communities (veterans, family, etc.)
+
+    questions:
+      - id: MD-001
+        level: "CREATE"
+        text: >
+          Design a dividend allocation algorithm that pays veterans'
+          vehicle and housing expenses. How do you verify need without
+          invasive surveillance?
+      - id: MD-002
+        level: "EVALUATE"
+        text: >
+          Your profit-sharing system gave $10k to one veteran and $50 to
+          another. The second veteran is angrier. How do you explain
+          algorithmic allocation to humans?
+      - id: MD-003
+        level: "ANALYZE"
+        text: >
+          Decompose "helping people" into direct cash, tools/education,
+          and systemic change. Which has the highest ROI for underserved
+          communities?
+      - id: MD-004
+        level: "CREATE"
+        text: >
+          Design a credit defense tool that explains debt law to people
+          who've never read legal documents. How do you make it
+          actionable, not just informative?
+      - id: MD-005
+        level: "EVALUATE"
+        text: >
+          Your mission is to help your sister and other veterans. But
+          your system is 90% built and 0% deployed. What's blocking you
+          from shipping, and is it valid?
+
+  usage_instructions:
+    description: >
+      How to use this framework for interviewing or self-assessment.
+
+    interview_mode:
+      - "Select 5-8 questions from different categories"
+      - "Mix CREATE, EVALUATE, and ANALYZE levels"
+      - "Allow 10-15 minutes per question"
+      - "Look for first-principles reasoning, not memorized answers"
+      - "Value partial solutions with clear reasoning over complete solutions with unclear reasoning"
+
+    self_assessment_mode:
+      - "Pick one invention per week"
+      - "Answer all three questions (CREATE, EVALUATE, ANALYZE)"
+      - "Write answers in your own voice"
+      - "Share answers with AI for critique"
+      - "Iterate until answer quality matches rarity score"
+
+    trainer_mode:
+      - "Use questions as prompts for system design practice"
+      - "Build toy implementations of each invention"
+      - "Run chaos experiments on your implementations"
+      - "Document failure modes you discover"
+      - "Convert learnings into new interview questions"
+
+  scoring_rubric:
+    description: >
+      How to evaluate answers to these questions.
+
+    level_6_create:
+      indicators:
+        - "Novel architecture, not copy-paste from docs"
+        - "Considers edge cases not in the prompt"
+        - "Balances multiple competing constraints"
+        - "Includes failure modes and mitigations"
+        - "Shows awareness of second-order effects"
+
+    level_5_evaluate:
+      indicators:
+        - "Uses specific criteria for judgment"
+        - "Considers multiple stakeholder perspectives"
+        - "Acknowledges tradeoffs explicitly"
+        - "Defends position with evidence or reasoning"
+        - "Can argue both sides before choosing"
+
+    level_4_analyze:
+      indicators:
+        - "Breaks complex system into components"
+        - "Identifies relationships between components"
+        - "Traces causality chains"
+        - "Distinguishes correlation from causation"
+        - "Surfaces hidden assumptions"
+
+    red_flags:
+      - "Memorized answers to common questions"
+      - "Dogmatic adherence to best practices without context"
+      - "Unable to defend design choices under questioning"
+      - "Focuses on tools/frameworks instead of principles"
+      - "Can't explain tradeoffs of their own design"
+
+  version_history:
+    - version: "1.0"
+      date: "2025-11-30"
+      changes: "Initial cognitive rarity algorithm"
+    - version: "2.0"
+      date: "2025-12-07"
+      changes: "Added Bloom's Level 4-6 interview framework, expanded inventions to 15, added meta-questions, neurodivergent edge cases, mission-driven questions, usage instructions, and scoring rubric"
