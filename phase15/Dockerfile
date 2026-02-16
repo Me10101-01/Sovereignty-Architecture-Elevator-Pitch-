@@ -1,0 +1,29 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+RUN pip install --no-cache-dir \
+    numpy \
+    mpmath \
+    sympy \
+    pandas \
+    statsmodels \
+    scipy \
+    qutip \
+    biopython \
+    rdkit \
+    networkx \
+    pyyaml
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Default command
+CMD ["python", "explore_voynich_incorporate_rongorongo.py"]
