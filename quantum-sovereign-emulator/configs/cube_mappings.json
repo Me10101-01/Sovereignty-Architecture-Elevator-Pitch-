@@ -1,0 +1,31 @@
+{
+  "bloom_faces": {
+    "U": "REMEMBER",
+    "R": "UNDERSTAND",
+    "F": "APPLY",
+    "D": "ANALYZE",
+    "L": "EVALUATE",
+    "B": "CREATE"
+  },
+  "face_to_trig": {
+    "REMEMBER": "sin",
+    "UNDERSTAND": "cos",
+    "APPLY": "sin_harmonic",
+    "ANALYZE": "cos_harmonic",
+    "EVALUATE": "exp",
+    "CREATE": "damped_sin"
+  },
+  "type_promotions": {
+    "byte": ["short", "int", "long", "float", "double"],
+    "short": ["int", "long", "float", "double"],
+    "char": ["int", "long", "float", "double"],
+    "int": ["long", "float", "double"],
+    "long": ["float", "double"],
+    "float": ["double"]
+  },
+  "parity_thresholds": {
+    "safe_upcast": 0.5,
+    "warning_threshold": 0.0,
+    "error_threshold": -0.5
+  }
+}
