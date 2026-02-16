@@ -1,0 +1,35 @@
+{
+  "fan_library": {
+    "description": "External knowledge intake for cognitive cube evolution",
+    "sources": [
+      {
+        "type": "academic",
+        "topic": "Bloom Taxonomy",
+        "url": "https://en.wikipedia.org/wiki/Bloom%27s_taxonomy",
+        "relevance": "Cognitive dimension mapping"
+      },
+      {
+        "type": "academic",
+        "topic": "Type Systems",
+        "url": "https://en.wikipedia.org/wiki/Type_system",
+        "relevance": "Reference parity foundations"
+      },
+      {
+        "type": "research",
+        "topic": "Quantum Computing",
+        "url": "https://en.wikipedia.org/wiki/Quantum_computing",
+        "relevance": "Wave function analogies"
+      }
+    ],
+    "intake_processing": {
+      "parser": "src/utils/agent_scaffold.py",
+      "validator": "src/entanglement_core/reference_parity_checker.py",
+      "integrator": "src/cube_simulator/type_promotion_cube.py"
+    }
+  },
+  "extraction_patterns": {
+    "cognitive_keywords": "configs/artifact_keywords.json",
+    "hierarchy_patterns": "configs/oop_hierarchy.json",
+    "wave_formulas": "configs/cube_mappings.json"
+  }
+}

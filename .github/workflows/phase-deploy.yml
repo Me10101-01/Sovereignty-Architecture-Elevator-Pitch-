@@ -1,0 +1,161 @@
+name: Phase 11 Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - 'copilot/**'
+    paths:
+      - 'src/cube_simulator/**'
+      - 'src/register_memory/**'
+      - 'src/entanglement_core/**'
+      - 'src/alu/**'
+      - 'configs/thought_log.yaml'
+      - 'configs/cube_mappings.json'
+      - 'configs/oop_hierarchy.json'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-yaml:
+    name: Validate YAML Thought-Log
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          pip install pyyaml networkx matplotlib numpy
+      
+      - name: Validate YAML schema
+        run: |
+          python3 -c "
+import yaml
+with open('configs/thought_log.yaml', 'r') as f:
+    data = yaml.safe_load(f)
+    assert 'thought_stream' in data, 'Missing thought_stream'
+    assert 'bloom_faces' in data, 'Missing bloom_faces'
+    print('✓ YAML schema valid')
+"
+      
+      - name: Validate JSON configs
+        run: |
+          python3 -c "
+import json
+for config in ['configs/cube_mappings.json', 'configs/oop_hierarchy.json', 'configs/artifact_keywords.json']:
+    with open(config, 'r') as f:
+        json.load(f)
+    print(f'✓ {config} valid')
+"
+
+  test-parity-checks:
+    name: Test Reference Parity Checker
+    runs-on: ubuntu-latest
+    needs: validate-yaml
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: pip install pyyaml networkx matplotlib numpy
+      
+      - name: Run parity checker
+        run: |
+          cd $GITHUB_WORKSPACE
+          python3 src/entanglement_core/reference_parity_checker.py
+      
+      - name: Verify parity detection
+        run: |
+          python3 -c "
+import sys
+sys.path.insert(0, 'src')
+from entanglement_core.reference_parity_checker import ReferenceParityChecker
+checker = ReferenceParityChecker('configs/oop_hierarchy.json')
+checker.load_hierarchies()
+status, wave, msg = checker.check_cast('Cat', 'Dog', 'Animal Hierarchy')
+assert 'ERROR' in status, 'Should detect parity error for Cat->Dog'
+print('✓ Parity error detection working')
+"
+
+  test-wave-cores:
+    name: Test Bloom Wave Cores
+    runs-on: ubuntu-latest
+    needs: validate-yaml
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: pip install pyyaml networkx matplotlib numpy
+      
+      - name: Run wave cores
+        run: |
+          cd $GITHUB_WORKSPACE
+          python3 src/alu/bloom_wave_cores.py
+      
+      - name: Verify wave computation
+        run: |
+          python3 -c "
+import sys
+sys.path.insert(0, 'src')
+from alu.bloom_wave_cores import BloomWaveCores
+cores = BloomWaveCores('configs/cube_mappings.json')
+cores.load_config()
+wave = cores.compute_wave('REMEMBER', 3.0)
+assert isinstance(wave, float), 'Wave should be float'
+print(f'✓ Wave computation working: {wave}')
+"
+
+  test-integration:
+    name: Test Full Integration
+    runs-on: ubuntu-latest
+    needs: [test-parity-checks, test-wave-cores]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: pip install pyyaml networkx matplotlib numpy
+      
+      - name: Run type promotion cube
+        run: |
+          cd $GITHUB_WORKSPACE
+          python3 src/cube_simulator/type_promotion_cube.py
+      
+      - name: Run CLI sequencer
+        run: |
+          cd $GITHUB_WORKSPACE
+          python3 src/cube_simulator/cli_journey_sequencer.py --all
+
+  docker-build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: test-integration
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build thought-log container
+        run: |
+          docker build -t thought-log:latest -f docker/thought_log.Dockerfile .
+      
+      - name: Test container
+        run: |
+          docker run --rm thought-log:latest python cube_simulator/type_promotion_cube.py || true

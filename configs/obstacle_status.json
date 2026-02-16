@@ -1,0 +1,25 @@
+{
+  "obstacles": [
+    {
+      "id": "CSO-001",
+      "status": "mitigated",
+      "last_check": "2026-01-12T18:28:24Z",
+      "wave_amplitude": 0.7
+    },
+    {
+      "id": "CSO-002",
+      "status": "mitigated",
+      "last_check": "2026-01-12T18:28:24Z",
+      "wave_amplitude": 0.6
+    },
+    {
+      "id": "CSO-003",
+      "status": "in_progress",
+      "last_check": "2026-01-12T18:28:24Z",
+      "wave_amplitude": -0.3
+    }
+  ],
+  "overall_status": "OPERATIONAL",
+  "parity_errors_detected": 1,
+  "last_update": "2026-01-12T18:28:24Z"
+}

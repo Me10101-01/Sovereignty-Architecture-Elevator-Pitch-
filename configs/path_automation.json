@@ -1,0 +1,33 @@
+{
+  "automation_paths": [
+    {
+      "name": "thought_log_replay",
+      "trigger": "on_commit",
+      "command": "python3 src/register_memory/thought_log_overlay.py",
+      "enabled": true
+    },
+    {
+      "name": "parity_validation",
+      "trigger": "on_cast_operation",
+      "command": "python3 src/entanglement_core/reference_parity_checker.py",
+      "enabled": true
+    },
+    {
+      "name": "wave_computation",
+      "trigger": "on_cognitive_operation",
+      "command": "python3 src/alu/bloom_wave_cores.py",
+      "enabled": true
+    },
+    {
+      "name": "build_sequence",
+      "trigger": "on_phase_deploy",
+      "command": "python3 src/cube_simulator/cli_journey_sequencer.py --all",
+      "enabled": true
+    }
+  ],
+  "path_validation": {
+    "yaml_schema": "configs/thought_log.yaml",
+    "hierarchy_graph": "configs/oop_hierarchy.json",
+    "wave_mappings": "configs/cube_mappings.json"
+  }
+}

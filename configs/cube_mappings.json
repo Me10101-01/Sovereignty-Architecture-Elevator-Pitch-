@@ -1,0 +1,30 @@
+{
+  "bloom_faces": {
+    "U": "REMEMBER",
+    "R": "UNDERSTAND",
+    "F": "APPLY",
+    "D": "ANALYZE",
+    "L": "EVALUATE",
+    "B": "CREATE"
+  },
+  "wave_formulas": {
+    "REMEMBER": "sin(π * depth / 6)",
+    "UNDERSTAND": "cos(π * depth / 6)",
+    "APPLY": "sin(x) + 0.5*sin(2*x)",
+    "ANALYZE": "cos(x) + 0.3*cos(3*x)",
+    "EVALUATE": "exp(-x/10)",
+    "CREATE": "sin(x) * exp(-x/4)"
+  },
+  "face_rotations": {
+    "U": [0, 1, 0],
+    "D": [0, -1, 0],
+    "R": [1, 0, 0],
+    "L": [-1, 0, 0],
+    "F": [0, 0, 1],
+    "B": [0, 0, -1]
+  },
+  "cognitive_dimensions": {
+    "complexity": ["REMEMBER", "UNDERSTAND", "APPLY"],
+    "synthesis": ["ANALYZE", "EVALUATE", "CREATE"]
+  }
+}

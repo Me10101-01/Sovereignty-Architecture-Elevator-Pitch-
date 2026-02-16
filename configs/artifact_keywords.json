@@ -1,0 +1,47 @@
+{
+  "cognitive_keywords": [
+    "bloom",
+    "taxonomy",
+    "cognitive_cube",
+    "parity_event",
+    "thought_stream",
+    "wave_core",
+    "entanglement",
+    "superposition"
+  ],
+  "type_system_keywords": [
+    "cast",
+    "upcast",
+    "downcast",
+    "hierarchy",
+    "inheritance",
+    "polymorphism",
+    "type_promotion",
+    "narrowing",
+    "widening"
+  ],
+  "parity_keywords": [
+    "parity_error",
+    "invariant",
+    "ClassCastException",
+    "ArithmeticException",
+    "overflow",
+    "underflow",
+    "precision_loss"
+  ],
+  "quantum_keywords": [
+    "qubit",
+    "quantum_register",
+    "wave_collapse",
+    "damped_oscillation",
+    "neural_tick",
+    "tick_sequence"
+  ],
+  "visualization_keywords": [
+    "hasse_diagram",
+    "cayley_graph",
+    "graph_render",
+    "cube_scramble",
+    "diffable_graph"
+  ]
+}
