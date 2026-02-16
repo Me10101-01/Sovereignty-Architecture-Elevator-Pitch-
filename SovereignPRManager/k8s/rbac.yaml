@@ -1,0 +1,97 @@
+# SovereignPRManager Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: automation
+  labels:
+    name: automation
+    purpose: sovereignprmanager
+---
+# RBAC for SovereignPRManager
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: sovereignprmanager-role
+  namespace: automation
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sovereignprmanager-rolebinding
+  namespace: automation
+subjects:
+- kind: ServiceAccount
+  name: sovereignprmanager
+  namespace: automation
+roleRef:
+  kind: Role
+  name: sovereignprmanager-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Network Policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sovereignprmanager-network
+  namespace: automation
+spec:
+  podSelector:
+    matchLabels:
+      app: sovereignprmanager
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: ingress-controller
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow HTTPS to GitHub, Anthropic, OpenAI
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow NATS
+  - to:
+    - podSelector:
+        matchLabels:
+          app: nats
+    ports:
+    - protocol: TCP
+      port: 4222
+  # Allow Elasticsearch
+  - to:
+    - podSelector:
+        matchLabels:
+          app: elasticsearch
+    ports:
+    - protocol: TCP
+      port: 9200
+---
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: sovereignprmanager-pdb
+  namespace: automation
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app: sovereignprmanager

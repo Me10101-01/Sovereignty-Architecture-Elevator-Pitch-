@@ -1,0 +1,187 @@
+# SovereignPRManager Kubernetes Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sovereignprmanager
+  namespace: automation
+  labels:
+    app: sovereignprmanager
+    version: v1.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sovereignprmanager
+  template:
+    metadata:
+      labels:
+        app: sovereignprmanager
+        version: v1.0.0
+    spec:
+      serviceAccountName: sovereignprmanager
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: sovereignprmanager
+        image: ghcr.io/strategickhaos-swarm-intelligence/sovereignprmanager:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: sovereignprmanager-secrets
+              key: github-token
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sovereignprmanager-secrets
+              key: anthropic-api-key
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sovereignprmanager-secrets
+              key: openai-api-key
+        - name: DISCORD_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: sovereignprmanager-secrets
+              key: discord-webhook-url
+        - name: SIGNING_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sovereignprmanager-secrets
+              key: signing-key
+        - name: GITHUB_REPO
+          valueFrom:
+            configMapKeyRef:
+              name: sovereignprmanager-config
+              key: github-repo
+        - name: NATS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: sovereignprmanager-config
+              key: nats-url
+        - name: ELASTICSEARCH_URL
+          valueFrom:
+            configMapKeyRef:
+              name: sovereignprmanager-config
+              key: elasticsearch-url
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: config
+          mountPath: /app/config.yaml
+          subPath: config.yaml
+          readOnly: true
+        - name: declaration
+          mountPath: /declaration
+          readOnly: true
+        - name: logs
+          mountPath: /var/log/sovereignprmanager
+      volumes:
+      - name: config
+        configMap:
+          name: sovereignprmanager-config
+      - name: declaration
+        configMap:
+          name: technical-declaration
+      - name: logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sovereignprmanager
+  namespace: automation
+  labels:
+    app: sovereignprmanager
+spec:
+  selector:
+    app: sovereignprmanager
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sovereignprmanager
+  namespace: automation
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sovereignprmanager-config
+  namespace: automation
+data:
+  github-repo: "Me10101-01/Sovereignty-Architecture-Elevator-Pitch-"
+  nats-url: "nats://nats:4222"
+  elasticsearch-url: "http://elasticsearch:9200"
+  config.yaml: |
+    # See SovereignPRManager/config.yaml for full configuration
+    github:
+      repo: "Me10101-01/Sovereignty-Architecture-Elevator-Pitch-"
+    
+    merge_thresholds:
+      auto_merge: 0.90
+      security_veto: 0.80
+      sovereignty_minimum: 0.70
+    
+    nats:
+      url: "nats://nats:4222"
+    
+    audit:
+      elasticsearch:
+        url: "http://elasticsearch:9200"
+        index: "sovereignprmanager-audit"
+---
+# Secrets template - DO NOT commit actual secrets!
+# Create with: kubectl create secret generic sovereignprmanager-secrets \
+#   --from-literal=github-token=<token> \
+#   --from-literal=anthropic-api-key=<key> \
+#   --from-literal=openai-api-key=<key> \
+#   --from-literal=discord-webhook-url=<url> \
+#   --from-literal=signing-key=<key>
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sovereignprmanager-secrets
+  namespace: automation
+type: Opaque
+stringData:
+  github-token: "REPLACE_WITH_GITHUB_TOKEN"
+  anthropic-api-key: "REPLACE_WITH_ANTHROPIC_KEY"
+  openai-api-key: "REPLACE_WITH_OPENAI_KEY"
+  discord-webhook-url: "REPLACE_WITH_DISCORD_WEBHOOK"
+  signing-key: "REPLACE_WITH_SIGNING_KEY"
