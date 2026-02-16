@@ -1,0 +1,92 @@
+{
+  "name": "Moonlight Telemetry Agent",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "moonlight-agent",
+  "workspaceFolder": "/app",
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker",
+        "GitHub.copilot",
+        "GitHub.copilot-chat"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.formatting.provider": "black",
+        "python.formatting.blackArgs": [
+          "--line-length=100"
+        ],
+        "editor.formatOnSave": true,
+        "editor.rulers": [100],
+        "files.exclude": {
+          "**/__pycache__": true,
+          "**/*.pyc": true,
+          "**/.pytest_cache": true
+        },
+        "yaml.schemas": {
+          "./telemetry_schema.yaml": "telemetry_*.yaml"
+        }
+      }
+    }
+  },
+  
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    }
+  },
+  
+  "forwardPorts": [
+    8080,
+    9090,
+    3001
+  ],
+  
+  "portsAttributes": {
+    "8080": {
+      "label": "KhaosBase API",
+      "onAutoForward": "notify"
+    },
+    "9090": {
+      "label": "Prometheus",
+      "onAutoForward": "silent"
+    },
+    "3001": {
+      "label": "Grafana",
+      "onAutoForward": "notify"
+    }
+  },
+  
+  "postCreateCommand": "pip install -r requirements.txt && pip install -e .",
+  
+  "remoteEnv": {
+    "OBSIDIAN_VAULT": "Athena",
+    "BOARD_MEMBER": "Claude Opus 4.5",
+    "NODE_NAME": "${localEnv:COMPUTERNAME}",
+    "TELEMETRY_DIR": "/data/telemetry",
+    "AUTO_PUSH_TELEMETRY": "false"
+  },
+  
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  
+  "runArgs": [
+    "--network=moonlight-network"
+  ],
+  
+  "containerEnv": {
+    "PYTHONUNBUFFERED": "1"
+  }
+}
