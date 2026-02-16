@@ -1,0 +1,52 @@
+```mermaid
+graph TD
+    A[Game Session Start] --> B[Neural Ticks: Trig Waves Fill Safes]
+    B --> C{Cap Reached?}
+    C -->|Yes| D[Swarm Bots: Queue Sell Mission]
+    C -->|No| E[Entanglement: Linked Biz Accrue]
+    D --> F[Deposit → Bank Qubit]
+    E --> B
+    F --> G[Recursive Evolve: GA Next Gen]
+    G --> H{Optimization Target Met?}
+    H -->|No| I[Mutate Strategy Parameters]
+    I --> B
+    H -->|Yes| J[Evolution Complete: $2.5M+ Achieved]
+    
+    style B fill:#f9f,stroke:#333,stroke-width:2px
+    style D fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bfb,stroke:#333,stroke-width:2px
+    style J fill:#fbf,stroke:#333,stroke-width:2px
+    
+    subgraph Phase6_Components
+        K[Neural Tick Clock]
+        L[Trig Wave Core]
+        M[Entanglement Core]
+        N[Strategickhaos Swarm]
+        O[Economy Simulator]
+        P[Sandbox Evolver]
+    end
+    
+    subgraph Income_Sources
+        Q[Nightclub Safe - $250k cap]
+        R[Agency Safe - $250k cap]
+        S[Arcade Safe - $100k cap]
+        T[Salvage Yard - $250k cap]
+        U[Garment Factory - $50k cap]
+        V[Car Wash - $100k cap]
+    end
+    
+    B --> K
+    K --> L
+    L --> M
+    M --> O
+    D --> N
+    N --> P
+    P --> G
+    
+    O --> Q
+    O --> R
+    O --> S
+    O --> T
+    O --> U
+    O --> V
+```

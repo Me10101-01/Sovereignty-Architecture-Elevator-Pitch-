@@ -1,0 +1,77 @@
+# GTA Online Passive Income Sources Configuration
+# Rates verified for 2026 game state (per 48min in-game day)
+# Dependencies trigger entanglement boosts
+
+income_sources:
+  truly_passive:  # No input required post-setup
+    - name: nightclub_safe
+      cap: 250000
+      max_rate_per_48min: 50000  # 100% pop + staff + 5 techs
+      avg_rate_per_irl_hour: 62500
+      dependencies: [popularity_max, staff_upgrade, technicians_5]
+      notes: "Warehouse passive gold: Linked biz goods accrue w/o supplies"
+      
+    - name: agency_safe
+      cap: 250000
+      max_rate_per_48min: 20000  # Post-200+ security contracts
+      dependencies: [security_contracts_200plus]
+      notes: "Security contracts unlock passive income"
+      
+    - name: arcade_safe
+      cap: 100000
+      max_rate_per_48min: 5000  # All machines equipped
+      dependencies: [all_arcade_machines]
+      notes: "All arcade machines must be purchased"
+      
+    - name: salvage_yard_safe
+      cap: 250000
+      rate_per_48min: 24000  # Post-tows/reputation
+      dependencies: [tow_missions_completed]
+      notes: "Tow missions and reputation required"
+      
+    - name: garment_factory_safe
+      cap: 50000  # Estimated
+      rate_per_48min: 1750  # Random 1500-2000
+      dependencies: [factory_owned]
+      notes: "Random rate between 1500-2000 per 48min"
+      
+    - name: hands_on_car_wash
+      cap: 100000
+      base_rate_per_48min: 2250  # 750 x3 properties
+      boosted_rate_per_48min: 4500  # Post-15 laundering missions each
+      dependencies: [money_laundering_15_per_biz]
+      notes: "3 car wash properties, boosted after laundering missions"
+
+  semi_passive:  # Minimal action (e.g., collect/sell)
+    - name: acid_lab
+      cap: 300000  # Full sell value estimate
+      production_per_irl_min: 0.25  # 1 unit / 4min base; boosts accelerate
+      dependencies: [first_dose_unlock, equipment_upgrade]
+      notes: "Production rate increases with upgrades"
+      
+    - name: auto_shop_customer_cars
+      spawn_rate_per_irl_min: 0.067  # ~1 every 15min
+      payout_per_car: [20000, 50000]  # Mod+deliver range
+      dependencies: [staff_hired]
+      notes: "Customer cars spawn approximately every 15 minutes"
+      
+    - name: payphone_hits
+      payout: 45000  # Base 15k + 30k bonus (leader)
+      cooldown_irl_min: 10
+      dependencies: [agency_owned]
+      notes: "15k base + 30k bonus for assassination bonus"
+
+  active_high_yield:  # For context (not simulated here)
+    - name: kosatka_cayo_perico
+      payout_per_hour: 1300000  # Solo
+      notes: "Active heist - not part of passive simulation"
+
+# Neural Tick Integration: Rates modulated by wave cores
+global_params:
+  in_game_day_irl_min: 48
+  popularity_decay_formula: "cos(2π * t / 3600)"  # Trig formula for sim
+  base_tick_rate: 1.0  # Neural clock base frequency
+  wave_amplitude_range: [0.5, 1.5]  # Min/max wave modulation
+  evolution_mutation_rate: 0.01  # GA mutation rate
+  swarm_particle_count: 50  # Particle swarm bot count
+  optimization_target: 2500000  # $2.5M+ optimized passive yield (24h)
