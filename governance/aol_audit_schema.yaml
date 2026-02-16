@@ -1,0 +1,576 @@
+# aol_audit_schema.yaml
+# Autonomous Operation License - Audit Log Schema
+# Strategickhaos DAO LLC
+# Version: 1.0
+
+metadata:
+  version: "1.0"
+  document_type: "AUDIT_LOG_SCHEMA"
+  parent_license: "AUTONOMOUS_OPERATION_LICENSE_v1.0"
+  effective_date: "2025-12-07"
+  schema_format: "YAML/JSON"
+
+# Audit log entry schema
+audit_log_entry_schema:
+  required_fields:
+    
+    entry_id:
+      type: "string"
+      format: "uuid_v4"
+      description: "Unique identifier for this audit log entry"
+      example: "550e8400-e29b-41d4-a716-446655440000"
+      indexed: true
+    
+    timestamp_utc:
+      type: "datetime"
+      format: "ISO8601"
+      description: "Timestamp in UTC when action occurred"
+      example: "2025-12-07T22:30:00.000Z"
+      indexed: true
+      required: true
+    
+    ai_agent:
+      type: "object"
+      description: "Information about the AI agent that performed the action"
+      properties:
+        name:
+          type: "string"
+          example: "Claude Opus 4.5"
+        trust_tier:
+          type: "string"
+          enum: ["SOVEREIGN", "TRUSTED", "VERIFIED", "PROBATIONARY"]
+        session_id:
+          type: "string"
+          description: "Unique session identifier"
+    
+    action_type:
+      type: "string"
+      description: "Type of action performed"
+      example: "file_create"
+      indexed: true
+      required: true
+      reference: "aol_action_matrix.yaml"
+    
+    action_category:
+      type: "string"
+      description: "High-level category of the action"
+      enum: 
+        - "file_operations"
+        - "search_operations"
+        - "code_execution"
+        - "infrastructure_operations"
+        - "api_operations"
+        - "communication_operations"
+        - "financial_operations"
+        - "legal_operations"
+        - "security_operations"
+        - "documentation_operations"
+      indexed: true
+      required: true
+    
+    risk_level:
+      type: "string"
+      enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+      description: "Risk level of the action"
+      indexed: true
+      required: true
+    
+    pre_authorized:
+      type: "boolean"
+      description: "Whether the action was pre-authorized"
+      required: true
+    
+    escalation_required:
+      type: "boolean"
+      description: "Whether escalation was required for this action"
+      required: true
+    
+    escalation_status:
+      type: "string"
+      enum: ["NOT_REQUIRED", "PENDING", "APPROVED", "DENIED", "BYPASSED"]
+      description: "Status of escalation if required"
+      conditional: "when escalation_required is true"
+  
+  action_details:
+    
+    action_parameters:
+      type: "object"
+      description: "Parameters and details of the action"
+      properties:
+        input_data:
+          type: "string"
+          description: "Sanitized input data (no secrets)"
+        target:
+          type: "string"
+          description: "Target of the action (file path, API endpoint, etc.)"
+        method:
+          type: "string"
+          description: "Method or operation performed"
+        additional_context:
+          type: "object"
+          description: "Any additional relevant context"
+    
+    decision_rationale:
+      type: "string"
+      description: "Explanation of why this action was taken"
+      required: true
+      max_length: 1000
+      example: "Operator requested analysis report for board meeting"
+    
+    approval_chain:
+      type: "array"
+      description: "Chain of approvals if applicable"
+      items:
+        type: "object"
+        properties:
+          approver:
+            type: "string"
+          timestamp:
+            type: "datetime"
+          approval_type:
+            type: "string"
+            enum: ["AUTO", "MANUAL", "OVERRIDE"]
+  
+  outcome_tracking:
+    
+    outcome:
+      type: "string"
+      enum: ["SUCCESS", "FAILURE", "PARTIAL", "HALTED"]
+      description: "Outcome of the action"
+      indexed: true
+      required: true
+    
+    outcome_details:
+      type: "object"
+      description: "Detailed outcome information"
+      properties:
+        success_message:
+          type: "string"
+        error_message:
+          type: "string"
+        error_code:
+          type: "string"
+        stack_trace:
+          type: "string"
+          description: "Sanitized stack trace if error occurred"
+    
+    duration_milliseconds:
+      type: "integer"
+      description: "Duration of action execution in milliseconds"
+      example: 1234
+    
+    retry_count:
+      type: "integer"
+      description: "Number of retries if action failed initially"
+      default: 0
+  
+  resource_tracking:
+    
+    resource_consumption:
+      type: "object"
+      description: "Resources consumed during action execution"
+      properties:
+        cpu_usage_percent:
+          type: "float"
+          description: "Average CPU usage during action"
+        memory_usage_mb:
+          type: "float"
+          description: "Memory consumed in megabytes"
+        disk_io_mb:
+          type: "float"
+          description: "Disk I/O in megabytes"
+        network_transfer_mb:
+          type: "float"
+          description: "Network transfer in megabytes"
+        api_calls_made:
+          type: "integer"
+          description: "Number of API calls made"
+    
+    affected_systems:
+      type: "array"
+      description: "Systems or resources affected by the action"
+      items:
+        type: "object"
+        properties:
+          system_name:
+            type: "string"
+          system_type:
+            type: "string"
+          impact_level:
+            type: "string"
+            enum: ["NONE", "READ", "WRITE", "MODIFY", "DELETE"]
+  
+  compliance_tracking:
+    
+    compliance_checks:
+      type: "object"
+      description: "Compliance verification results"
+      properties:
+        non_aggression_check:
+          type: "boolean"
+          description: "Verified no Non-Aggression Clause violations"
+          required: true
+        
+        license_boundary_check:
+          type: "boolean"
+          description: "Verified action within license boundaries"
+          required: true
+        
+        trust_tier_check:
+          type: "boolean"
+          description: "Verified agent has sufficient trust tier"
+          required: true
+        
+        prohibited_action_check:
+          type: "boolean"
+          description: "Verified action not on prohibited list"
+          required: true
+    
+    circuit_breaker_events:
+      type: "array"
+      description: "Any circuit breaker events triggered"
+      items:
+        type: "object"
+        properties:
+          breaker_type:
+            type: "string"
+          triggered:
+            type: "boolean"
+          trigger_reason:
+            type: "string"
+          timestamp:
+            type: "datetime"
+  
+  audit_metadata:
+    
+    audit_level:
+      type: "string"
+      enum: ["BASIC", "DETAILED", "COMPREHENSIVE"]
+      description: "Level of audit detail captured"
+      required: true
+    
+    log_source:
+      type: "string"
+      description: "Source system that generated this log"
+      example: "claude_session_001"
+    
+    correlation_id:
+      type: "string"
+      description: "Correlation ID for related actions"
+      format: "uuid_v4"
+    
+    parent_action_id:
+      type: "string"
+      description: "Parent action ID if this is a sub-action"
+      format: "uuid_v4"
+    
+    cryptographic_signature:
+      type: "object"
+      description: "Cryptographic signature information"
+      status: "PENDING_GPG_INTEGRATION"
+      properties:
+        signature:
+          type: "string"
+          format: "PGP_ASCII_ARMORED"
+        key_id:
+          type: "string"
+        timestamp:
+          type: "datetime"
+        opentimestamp_proof:
+          type: "string"
+          description: "OpenTimestamps proof for temporal verification"
+
+# Log storage requirements
+storage_requirements:
+  retention:
+    minimum_years: 7
+    archival_policy: "IMMUTABLE_APPEND_ONLY"
+    deletion_policy: "NEVER_DELETE_BEFORE_MINIMUM_RETENTION"
+  
+  storage_format:
+    primary: "JSON_LINES"
+    backup: "PARQUET"
+    export_formats:
+      - "JSON"
+      - "CSV"
+      - "YAML"
+  
+  storage_location:
+    primary: "audit_logs/primary/"
+    backup: "audit_logs/backup/"
+    archival: "audit_logs/archive/"
+  
+  encryption:
+    at_rest: true
+    in_transit: true
+    algorithm: "AES-256-GCM"
+  
+  compression:
+    enabled: true
+    algorithm: "GZIP"
+    level: 6
+
+# Query and search requirements
+query_requirements:
+  performance:
+    search_time_ms: 100
+    max_search_time_ms: 500
+    concurrent_queries: 10
+  
+  indexes:
+    - field: "timestamp_utc"
+      type: "BTREE"
+    - field: "action_type"
+      type: "HASH"
+    - field: "ai_agent.name"
+      type: "HASH"
+    - field: "outcome"
+      type: "HASH"
+    - field: "risk_level"
+      type: "HASH"
+  
+  query_capabilities:
+    - "time_range_queries"
+    - "action_type_filtering"
+    - "agent_filtering"
+    - "outcome_filtering"
+    - "risk_level_filtering"
+    - "full_text_search"
+    - "aggregations"
+    - "correlation_analysis"
+
+# Daily digest schema
+daily_digest_schema:
+  digest_id:
+    type: "string"
+    format: "date_based"
+    example: "digest_2025-12-07"
+  
+  period:
+    start_time:
+      type: "datetime"
+      example: "2025-12-07T00:00:00.000Z"
+    end_time:
+      type: "datetime"
+      example: "2025-12-07T23:59:59.999Z"
+  
+  summary:
+    total_actions:
+      type: "integer"
+    successful_actions:
+      type: "integer"
+    failed_actions:
+      type: "integer"
+    halted_actions:
+      type: "integer"
+  
+  breakdown_by_category:
+    type: "object"
+    properties:
+      file_operations:
+        type: "integer"
+      search_operations:
+        type: "integer"
+      code_execution:
+        type: "integer"
+      infrastructure_operations:
+        type: "integer"
+      # ... other categories
+  
+  breakdown_by_risk_level:
+    LOW:
+      type: "integer"
+    MEDIUM:
+      type: "integer"
+    HIGH:
+      type: "integer"
+    CRITICAL:
+      type: "integer"
+  
+  breakdown_by_agent:
+    type: "array"
+    items:
+      agent_name:
+        type: "string"
+      action_count:
+        type: "integer"
+      success_rate:
+        type: "float"
+  
+  circuit_breaker_summary:
+    total_triggers:
+      type: "integer"
+    triggers_by_type:
+      type: "object"
+  
+  compliance_summary:
+    total_checks:
+      type: "integer"
+    violations:
+      type: "integer"
+    violation_details:
+      type: "array"
+  
+  resource_summary:
+    total_cpu_usage_percent:
+      type: "float"
+    total_memory_mb:
+      type: "float"
+    total_network_mb:
+      type: "float"
+  
+  cryptographic_digest:
+    digest_hash:
+      type: "string"
+      format: "SHA256"
+    signature:
+      type: "string"
+      status: "PENDING_GPG_INTEGRATION"
+    opentimestamp:
+      type: "string"
+      status: "PENDING"
+
+# Alert schema
+alert_schema:
+  alert_id:
+    type: "string"
+    format: "uuid_v4"
+  
+  alert_type:
+    type: "string"
+    enum:
+      - "CIRCUIT_BREAKER_TRIGGERED"
+      - "ESCALATION_REQUIRED"
+      - "COMPLIANCE_VIOLATION"
+      - "SECURITY_EVENT"
+      - "RESOURCE_THRESHOLD_EXCEEDED"
+      - "ACTION_FAILURE"
+  
+  severity:
+    type: "string"
+    enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+  
+  timestamp:
+    type: "datetime"
+  
+  related_action_id:
+    type: "string"
+    format: "uuid_v4"
+  
+  message:
+    type: "string"
+    max_length: 500
+  
+  details:
+    type: "object"
+  
+  notification_sent:
+    type: "boolean"
+  
+  acknowledged:
+    type: "boolean"
+  
+  acknowledged_by:
+    type: "string"
+  
+  acknowledged_at:
+    type: "datetime"
+  
+  resolution:
+    type: "string"
+
+# Integration points
+integration:
+  audit_trail_endpoint:
+    url: "/api/audit/log"
+    method: "POST"
+    authentication: "API_KEY"
+  
+  query_endpoint:
+    url: "/api/audit/query"
+    method: "GET"
+    authentication: "API_KEY"
+  
+  export_endpoint:
+    url: "/api/audit/export"
+    method: "GET"
+    authentication: "API_KEY"
+    formats: ["JSON", "CSV", "YAML"]
+  
+  monitoring_integration:
+    grafana_dashboard: true
+    prometheus_metrics: true
+    elasticsearch: false
+    splunk: false
+
+# Example audit log entries
+examples:
+  basic_file_create:
+    entry_id: "550e8400-e29b-41d4-a716-446655440000"
+    timestamp_utc: "2025-12-07T22:30:00.000Z"
+    ai_agent:
+      name: "Claude Opus 4.5"
+      trust_tier: "SOVEREIGN"
+      session_id: "session_001"
+    action_type: "file_create"
+    action_category: "file_operations"
+    risk_level: "LOW"
+    pre_authorized: true
+    escalation_required: false
+    action_parameters:
+      target: "/mnt/user-data/outputs/report.md"
+      method: "CREATE"
+    decision_rationale: "Operator requested analysis report"
+    outcome: "SUCCESS"
+    duration_milliseconds: 45
+    compliance_checks:
+      non_aggression_check: true
+      license_boundary_check: true
+      trust_tier_check: true
+      prohibited_action_check: true
+    audit_level: "BASIC"
+  
+  critical_financial_transaction:
+    entry_id: "660e8400-e29b-41d4-a716-446655440001"
+    timestamp_utc: "2025-12-07T23:00:00.000Z"
+    ai_agent:
+      name: "Claude Opus 4.5"
+      trust_tier: "SOVEREIGN"
+      session_id: "session_002"
+    action_type: "financial_transaction"
+    action_category: "financial_operations"
+    risk_level: "CRITICAL"
+    pre_authorized: false
+    escalation_required: true
+    escalation_status: "APPROVED"
+    action_parameters:
+      target: "payment_api"
+      method: "TRANSFER"
+      input_data: "REDACTED"
+    decision_rationale: "7% charitable distribution monthly payment"
+    approval_chain:
+      - approver: "Dominic Garza"
+        timestamp: "2025-12-07T22:59:00.000Z"
+        approval_type: "MANUAL"
+    outcome: "SUCCESS"
+    duration_milliseconds: 2340
+    resource_consumption:
+      api_calls_made: 3
+    compliance_checks:
+      non_aggression_check: true
+      license_boundary_check: true
+      trust_tier_check: true
+      prohibited_action_check: true
+    audit_level: "COMPREHENSIVE"
+
+# Document metadata
+metadata_footer:
+  version: "1.0"
+  last_updated: "2025-12-07"
+  author: "Claude (Anthropic) + Dominic Garza"
+  classification: "INTERNAL_OPERATOR_USE_ONLY"
+  parent_document: "AUTONOMOUS_OPERATION_LICENSE.md"
+  related_documents:
+    - "aol_config.yaml"
+    - "aol_action_matrix.yaml"
+    - "aol_circuit_breakers.yaml"

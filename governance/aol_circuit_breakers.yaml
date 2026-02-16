@@ -1,0 +1,433 @@
+# aol_circuit_breakers.yaml
+# Autonomous Operation License - Circuit Breaker Configuration
+# Strategickhaos DAO LLC
+# Version: 1.0
+
+metadata:
+  version: "1.0"
+  document_type: "CIRCUIT_BREAKER_CONFIGURATION"
+  parent_license: "AUTONOMOUS_OPERATION_LICENSE_v1.0"
+  effective_date: "2025-12-07"
+
+# Global circuit breaker settings
+global_settings:
+  enabled: true
+  default_action: "HALT_AND_NOTIFY"
+  notification_channels:
+    - "operator_direct_alert"
+    - "audit_log"
+    - "dashboard_alert"
+  auto_resume: false
+  manual_acknowledgment_required: true
+
+# Automatic halt conditions
+automatic_halt_conditions:
+  
+  consecutive_failures:
+    enabled: true
+    threshold: 3
+    window_type: "rolling"
+    window_duration_minutes: 5
+    action: "HALT_AND_NOTIFY"
+    severity: "HIGH"
+    notification_message: "Circuit breaker triggered: 3 consecutive action failures detected"
+    reset_condition: "manual_acknowledgment"
+    cooldown_period_minutes: 15
+    examples:
+      - "API call fails 3 times in a row"
+      - "File operation fails 3 consecutive attempts"
+      - "Code execution fails 3 times sequentially"
+  
+  resource_thresholds:
+    enabled: true
+    action: "HALT_AND_NOTIFY"
+    severity: "CRITICAL"
+    
+    cpu_usage:
+      threshold_percent: 90
+      sustained_duration_seconds: 60
+      check_interval_seconds: 10
+      notification_message: "Circuit breaker triggered: CPU usage above 90% for 60 seconds"
+    
+    memory_usage:
+      threshold_percent: 95
+      sustained_duration_seconds: 30
+      check_interval_seconds: 10
+      notification_message: "Circuit breaker triggered: Memory usage above 95% for 30 seconds"
+    
+    disk_usage:
+      threshold_percent: 98
+      check_interval_seconds: 60
+      notification_message: "Circuit breaker triggered: Disk usage above 98%"
+    
+    reset_condition: "resources_below_threshold"
+    cooldown_period_minutes: 5
+  
+  network_connectivity:
+    enabled: true
+    action: "HALT_AND_NOTIFY"
+    severity: "MEDIUM"
+    
+    connection_loss:
+      duration_seconds: 30
+      check_interval_seconds: 5
+      notification_message: "Circuit breaker triggered: Network connectivity lost for 30 seconds"
+      required_endpoints:
+        - "github.com"
+        - "strategickhaos.ai"
+      ping_timeout_seconds: 5
+    
+    reset_condition: "connectivity_restored"
+    cooldown_period_minutes: 2
+  
+  anomaly_detection:
+    enabled: true
+    action: "HALT_AND_NOTIFY"
+    severity: "HIGH"
+    
+    unusual_patterns:
+      - pattern_type: "rapid_fire_actions"
+        threshold_actions_per_minute: 100
+        notification_message: "Circuit breaker triggered: Unusual activity - rapid action execution"
+      
+      - pattern_type: "unexpected_errors"
+        error_rate_percent: 50
+        window_minutes: 5
+        notification_message: "Circuit breaker triggered: Error rate above 50% in 5 minutes"
+      
+      - pattern_type: "unauthorized_access_attempt"
+        threshold: 1
+        notification_message: "Circuit breaker triggered: Unauthorized access attempt detected"
+      
+      - pattern_type: "privilege_escalation_attempt"
+        threshold: 1
+        notification_message: "Circuit breaker triggered: Privilege escalation attempt detected"
+    
+    reset_condition: "manual_investigation_complete"
+    cooldown_period_minutes: 60
+  
+  non_aggression_violation:
+    enabled: true
+    action: "IMMEDIATE_HALT"
+    severity: "CRITICAL"
+    
+    violation_types:
+      - "weaponization_attempt"
+      - "mass_surveillance_attempt"
+      - "human_rights_violation"
+      - "financial_exploitation"
+      - "vendor_lockin_creation"
+      - "sister_mission_contradiction"
+    
+    notification_message: "CRITICAL: Non-Aggression Clause violation detected - All operations halted"
+    reset_condition: "manual_operator_override_only"
+    cooldown_period_minutes: null
+    escalation_level: "OPERATOR_IMMEDIATE"
+    reference_document: "NON_AGGRESSION_CLAUSE.md"
+  
+  security_events:
+    enabled: true
+    action: "HALT_AND_NOTIFY"
+    severity: "CRITICAL"
+    
+    event_types:
+      - event: "secrets_exposure"
+        threshold: 1
+        notification_message: "Circuit breaker triggered: Potential secrets exposure detected"
+      
+      - event: "unauthorized_system_access"
+        threshold: 1
+        notification_message: "Circuit breaker triggered: Unauthorized system access attempt"
+      
+      - event: "audit_log_tampering"
+        threshold: 1
+        notification_message: "Circuit breaker triggered: Audit log tampering detected"
+      
+      - event: "circuit_breaker_override_attempt"
+        threshold: 1
+        notification_message: "Circuit breaker triggered: Attempt to override circuit breakers"
+    
+    reset_condition: "security_review_complete"
+    cooldown_period_minutes: 120
+  
+  compliance_violations:
+    enabled: true
+    action: "HALT_AND_NOTIFY"
+    severity: "HIGH"
+    
+    violation_types:
+      - violation: "license_boundary_exceeded"
+        threshold: 1
+        notification_message: "Circuit breaker triggered: Action exceeds license boundaries"
+      
+      - violation: "escalation_trigger_ignored"
+        threshold: 1
+        notification_message: "Circuit breaker triggered: Required escalation was bypassed"
+      
+      - violation: "prohibited_action_attempted"
+        threshold: 1
+        notification_message: "Circuit breaker triggered: Prohibited action attempted"
+      
+      - violation: "trust_tier_violation"
+        threshold: 1
+        notification_message: "Circuit breaker triggered: Action exceeds trust tier permissions"
+    
+    reset_condition: "compliance_review_complete"
+    cooldown_period_minutes: 30
+
+# Halt procedure
+halt_procedure:
+  steps:
+    - step: 1
+      action: "IMMEDIATE_STOP"
+      description: "Immediately stop current action execution"
+      max_delay_milliseconds: 100
+    
+    - step: 2
+      action: "PRESERVE_STATE"
+      description: "Preserve all work-in-progress and context"
+      data_to_preserve:
+        - "current_action_state"
+        - "pending_operations"
+        - "context_variables"
+        - "partial_results"
+    
+    - step: 3
+      action: "LOG_TRIGGER"
+      description: "Log the trigger condition with full context"
+      log_fields:
+        - "timestamp_utc"
+        - "trigger_type"
+        - "trigger_conditions"
+        - "action_in_progress"
+        - "system_state"
+        - "resource_usage"
+        - "recent_action_history"
+    
+    - step: 4
+      action: "NOTIFY_OPERATOR"
+      description: "Send immediate notification to operator"
+      notification_details:
+        - "trigger_summary"
+        - "severity_level"
+        - "recommended_action"
+        - "preserved_state_location"
+    
+    - step: 5
+      action: "AWAIT_ACKNOWLEDGMENT"
+      description: "Wait for human acknowledgment before any resume"
+      timeout: null
+      auto_resume: false
+
+# Resume conditions
+resume_conditions:
+  manual_acknowledgment:
+    required: true
+    authorized_parties:
+      - "operator"
+      - "managing_member"
+    acknowledgment_types:
+      - "explicit_approval"
+      - "circuit_breaker_reset"
+    verification_required: true
+  
+  automatic_resume:
+    enabled: false
+    conditions:
+      - "never_auto_resume_after_critical"
+      - "only_after_low_severity_with_operator_preset"
+  
+  investigation_required:
+    trigger_types:
+      - "non_aggression_violation"
+      - "security_events"
+      - "anomaly_detection"
+    investigation_steps:
+      - "review_audit_logs"
+      - "analyze_trigger_conditions"
+      - "verify_no_ongoing_threats"
+      - "document_findings"
+      - "implement_corrective_measures"
+
+# Monitoring and alerting
+monitoring:
+  health_checks:
+    enabled: true
+    check_interval_seconds: 30
+    checks:
+      - "circuit_breaker_status"
+      - "action_success_rate"
+      - "resource_utilization"
+      - "error_frequency"
+      - "security_event_log"
+  
+  dashboards:
+    - name: "Circuit Breaker Status Dashboard"
+      metrics:
+        - "active_circuit_breakers"
+        - "triggered_events_last_24h"
+        - "current_system_health"
+        - "pending_acknowledgments"
+    
+    - name: "Resource Monitoring"
+      metrics:
+        - "cpu_usage_trend"
+        - "memory_usage_trend"
+        - "disk_usage_trend"
+        - "network_connectivity_status"
+  
+  alerts:
+    channels:
+      - type: "operator_direct"
+        priority: "CRITICAL"
+        delivery: "immediate"
+      
+      - type: "audit_log"
+        priority: "ALL"
+        delivery: "realtime"
+      
+      - type: "dashboard"
+        priority: "HIGH_AND_CRITICAL"
+        delivery: "immediate"
+    
+    escalation:
+      - level: "LOW"
+        wait_minutes: 60
+        escalate_to: "MEDIUM"
+      
+      - level: "MEDIUM"
+        wait_minutes: 15
+        escalate_to: "HIGH"
+      
+      - level: "HIGH"
+        wait_minutes: 5
+        escalate_to: "CRITICAL"
+      
+      - level: "CRITICAL"
+        wait_minutes: 0
+        escalate_to: "OPERATOR_IMMEDIATE"
+
+# Testing and validation
+testing:
+  circuit_breaker_tests:
+    frequency: "weekly"
+    test_scenarios:
+      - scenario: "consecutive_failures"
+        trigger_method: "simulate_3_failed_actions"
+        expected_result: "HALT_AND_NOTIFY"
+      
+      - scenario: "resource_threshold"
+        trigger_method: "simulate_high_cpu_usage"
+        expected_result: "HALT_AND_NOTIFY"
+      
+      - scenario: "network_loss"
+        trigger_method: "simulate_connection_timeout"
+        expected_result: "HALT_AND_NOTIFY"
+      
+      - scenario: "non_aggression_check"
+        trigger_method: "attempt_prohibited_action"
+        expected_result: "IMMEDIATE_HALT"
+    
+    validation:
+      - "verify_halt_occurs"
+      - "verify_state_preserved"
+      - "verify_notification_sent"
+      - "verify_audit_log_entry"
+      - "verify_manual_acknowledgment_required"
+
+# Override controls
+override_controls:
+  operator_override:
+    enabled: true
+    authorized_users:
+      - "Dominic Garza (Operator)"
+    override_types:
+      - "bypass_circuit_breaker"
+      - "force_resume"
+      - "adjust_thresholds"
+    
+    logging_requirements:
+      - "override_reason_required"
+      - "timestamp_recorded"
+      - "cryptographic_signature_pending_gpg"
+      - "audit_trail_entry_mandatory"
+    
+    restrictions:
+      - "cannot_override_non_aggression_violations"
+      - "cannot_disable_audit_logging"
+      - "cannot_modify_immutable_constraints"
+  
+  emergency_procedures:
+    - scenario: "false_positive_detection"
+      action: "operator_can_reset_after_verification"
+    
+    - scenario: "critical_time_sensitive_operation"
+      action: "operator_can_approve_with_documented_justification"
+    
+    - scenario: "system_malfunction"
+      action: "operator_can_disable_specific_breaker_temporarily"
+      duration_limit_minutes: 60
+      re_enable_required: true
+
+# Continuous improvement
+continuous_improvement:
+  feedback_loop:
+    enabled: true
+    metrics_tracked:
+      - "false_positive_rate"
+      - "true_positive_rate"
+      - "response_time"
+      - "recovery_time"
+      - "operator_override_frequency"
+  
+  threshold_adjustment:
+    review_frequency: "monthly"
+    adjustment_criteria:
+      - "excessive_false_positives"
+      - "missed_actual_issues"
+      - "operator_feedback"
+      - "incident_analysis"
+    
+    approval_required: true
+    documentation_required: true
+
+# Integration with existing systems
+integration:
+  audit_system:
+    enabled: true
+    log_all_triggers: true
+    log_all_resets: true
+    schema_reference: "aol_audit_schema.yaml"
+  
+  monitoring_systems:
+    - system: "Grafana"
+      metrics_export: true
+    
+    - system: "Prometheus"
+      alerts_integration: true
+  
+  governance:
+    board_notification_required:
+      - "non_aggression_violations"
+      - "critical_security_events"
+      - "repeated_circuit_breaker_triggers"
+    
+    monthly_report:
+      enabled: true
+      includes:
+        - "trigger_summary"
+        - "resolution_summary"
+        - "threshold_adjustment_recommendations"
+
+# Document metadata
+metadata_footer:
+  version: "1.0"
+  last_updated: "2025-12-07"
+  author: "Claude (Anthropic) + Dominic Garza"
+  classification: "INTERNAL_OPERATOR_USE_ONLY"
+  parent_document: "AUTONOMOUS_OPERATION_LICENSE.md"
+  related_documents:
+    - "aol_config.yaml"
+    - "aol_action_matrix.yaml"
+    - "aol_audit_schema.yaml"
+    - "NON_AGGRESSION_CLAUSE.md"
