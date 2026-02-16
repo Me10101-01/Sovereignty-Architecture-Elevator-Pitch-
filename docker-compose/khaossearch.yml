@@ -1,0 +1,93 @@
+# docker-compose/khaossearch.yml
+# KhaosSearch - Sovereign Search Engine
+# Based on SearXNG for meta-search aggregation
+
+version: '3.8'
+
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: khaossearch
+    restart: unless-stopped
+    ports:
+      - "8888:8080"
+    volumes:
+      - ./searxng:/etc/searxng:rw
+      - searxng-data:/var/lib/searxng
+    environment:
+      - SEARXNG_BASE_URL=https://search.strategickhaos.ai
+      - SEARXNG_SECRET=${SEARXNG_SECRET:-change_me_in_production}
+      - SEARXNG_HOSTNAME=khaossearch
+      - SEARXNG_TLS=false  # Use reverse proxy for TLS
+    networks:
+      - khaosnet
+    depends_on:
+      - redis
+    labels:
+      - "com.strategickhaos.service=khaossearch"
+      - "com.strategickhaos.tier=core"
+
+  # Redis for caching search results
+  redis:
+    image: redis:7-alpine
+    container_name: khaossearch-cache
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
+    networks:
+      - khaosnet
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      - "com.strategickhaos.service=khaossearch-cache"
+
+  # Tor proxy for anonymous search queries (optional)
+  tor-proxy:
+    image: dperson/torproxy:latest
+    container_name: khaossearch-tor
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9050:9050"  # SOCKS5 proxy
+      - "127.0.0.1:9051:9051"  # Control port
+    networks:
+      - khaosnet
+    environment:
+      - TOR_MaxCircuitDirtiness=60
+    labels:
+      - "com.strategickhaos.service=khaossearch-tor"
+
+  # Nginx reverse proxy (optional - for TLS termination)
+  nginx:
+    image: nginx:alpine
+    container_name: khaossearch-nginx
+    restart: unless-stopped
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - khaosnet
+    depends_on:
+      - searxng
+    labels:
+      - "com.strategickhaos.service=khaossearch-nginx"
+
+volumes:
+  searxng-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  khaosnet:
+    driver: bridge
+    name: khaosnet
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
