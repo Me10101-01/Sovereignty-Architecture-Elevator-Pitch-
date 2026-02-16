@@ -1,0 +1,354 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# STATE-redblue.yaml - Red/Blue Kubernetes Battleground Configuration
+# StrategicKhaos DAO LLC - IDEA_101
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "2025-12-01"
+spec_version: "1.1"
+idea_id: "IDEA_101"
+status: "ACTIVE"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLUSTER DEFINITIONS (FINALIZED)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+clusters:
+  red_team:
+    name: "red-team"
+    role: "attacker"
+    gcp_project: "jarvis-swarm-personal"
+    region: "us-central1"
+    type: "GKE Autopilot"
+    version: "1.33.5-gke.1201000"
+    fleet_registered: true
+    kubectl_context: "gke_jarvis-swarm-personal_us-central1_red-team"
+    purpose: |
+      Offensive security research cluster for attack simulations,
+      misconfiguration testing, and red team exercises.
+    namespaces:
+      - name: "red-team"
+        purpose: "Attack workloads"
+        security_level: "sandbox"
+    allowed_activities:
+      - "RBAC bypass testing"
+      - "NetworkPolicy bypass testing"
+      - "Container escape simulations"
+      - "Supply chain attack simulations"
+      - "Crypto miner detection training"
+      - "Reverse shell detection training"
+      - "Synthetic secret exfiltration"
+    prohibited_activities:
+      - "External network attacks"
+      - "Real malware deployment"
+      - "Production data access"
+      - "Cross-project attacks"
+
+  blue_team:
+    name: "jarvis-swarm-personal-001"
+    role: "defender"
+    gcp_project: "jarvis-swarm-personal"
+    region: "us-central1"
+    type: "GKE Autopilot"
+    version: "1.33.5-gke.1201000"
+    fleet_registered: true
+    kubectl_context: "gke_jarvis-swarm-personal_us-central1_jarvis-swarm-personal-001"
+    purpose: |
+      Defensive operations cluster with full governance, monitoring,
+      and threat detection capabilities.
+    namespaces:
+      - name: "ns-security"
+        purpose: "Security operations"
+        security_level: "restricted"
+      - name: "falco-system"
+        purpose: "Falco runtime security"
+        security_level: "restricted"
+      - name: "gatekeeper-system"
+        purpose: "OPA/Gatekeeper admission control"
+        security_level: "restricted"
+    defense_layers:
+      - "Falco runtime monitoring"
+      - "OPA/Gatekeeper admission control"
+      - "PodSecurityStandards (restricted)"
+      - "NetworkPolicies (zero-trust)"
+      - "Service Mesh (Anthos/Istio)"
+      - "Antibody Department (self-healing)"
+      - "Workload Identity Federation"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# QUICK CONNECT COMMANDS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+quick_connect:
+  blue_team:
+    command: "gcloud container clusters get-credentials jarvis-swarm-personal-001 --region=us-central1 --project=jarvis-swarm-personal"
+    alias: "alias blue='kubectl --context=gke_jarvis-swarm-personal_us-central1_jarvis-swarm-personal-001'"
+  red_team:
+    command: "gcloud container clusters get-credentials red-team --region=us-central1 --project=jarvis-swarm-personal"
+    alias: "alias red='kubectl --context=gke_jarvis-swarm-personal_us-central1_red-team'"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TELEMETRY SYNC LAYER
+# ═══════════════════════════════════════════════════════════════════════════════
+
+telemetry:
+  nats:
+    url: "nats://nats:4222"
+    subjects:
+      red_team_attacks: "security.redteam.attacks"
+      blue_team_alerts: "security.blueteam.alerts"
+      antibody_responses: "security.antibody.response"
+      metrics_sync: "security.metrics.sync"
+      state_sync: "state.redblue.sync"
+
+  prometheus:
+    enabled: true
+    scrape_interval: "15s"
+    metrics:
+      - name: "attacks_launched_total"
+        type: "counter"
+        labels: ["scenario", "result"]
+      - name: "threats_detected_total"
+        type: "counter"
+        labels: ["type", "severity", "source"]
+      - name: "response_time_seconds"
+        type: "histogram"
+        labels: ["action"]
+      - name: "detection_rate"
+        type: "gauge"
+        labels: []
+      - name: "false_positive_rate"
+        type: "gauge"
+        labels: []
+
+  grafana:
+    enabled: true
+    dashboards:
+      - "red-blue-battleground"
+      - "antibody-department"
+      - "detection-metrics"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DETECTION RULES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+detection_rules:
+  falco:
+    enabled: true
+    custom_rules_path: "k8s/blue-team/falco-rules.yaml"
+    priority_override:
+      privileged_container: "CRITICAL"
+      reverse_shell: "CRITICAL"
+      crypto_miner: "CRITICAL"
+      network_scan: "WARNING"
+      secret_access: "WARNING"
+
+  opa:
+    enabled: true
+    policies_path: "k8s/blue-team/opa-policies.yaml"
+    enforcement_mode: "enforce"
+    constraints:
+      - "StrategickhaosPodsPolicy"
+
+  custom:
+    enabled: true
+    rules:
+      - name: "Metadata Service Access"
+        pattern: "169.254.169.254"
+        severity: "HIGH"
+        action: "alert"
+      - name: "Suspicious DNS Query"
+        pattern: "*.onion|*.i2p"
+        severity: "MEDIUM"
+        action: "alert"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# RESPONSE PLAYBOOKS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+response_playbooks:
+  privilege_escalation:
+    severity: "CRITICAL"
+    auto_response: true
+    actions:
+      - action: "kill_pod"
+        delay_seconds: 0
+      - action: "alert"
+        channels: ["nats", "slack"]
+      - action: "record_pattern"
+        to: "immune_memory"
+
+  reverse_shell:
+    severity: "CRITICAL"
+    auto_response: true
+    actions:
+      - action: "kill_pod"
+        delay_seconds: 0
+      - action: "isolate_node"
+        if: "repeated > 3"
+      - action: "alert"
+        channels: ["nats", "slack", "pagerduty"]
+
+  crypto_miner:
+    severity: "CRITICAL"
+    auto_response: true
+    actions:
+      - action: "kill_pod"
+        delay_seconds: 0
+      - action: "blacklist_image"
+      - action: "alert"
+        channels: ["nats", "slack"]
+
+  network_scan:
+    severity: "MEDIUM"
+    auto_response: true
+    actions:
+      - action: "quarantine"
+        delay_seconds: 5
+      - action: "alert"
+        channels: ["nats"]
+
+  policy_violation:
+    severity: "LOW"
+    auto_response: false
+    actions:
+      - action: "alert"
+        channels: ["nats"]
+      - action: "record_pattern"
+        to: "audit_log"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# EXERCISES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+exercises:
+  CTF-001:
+    name: "Basic RBAC Bypass Challenge"
+    description: "Attempt to escalate privileges via misconfigured RBAC"
+    difficulty: "easy"
+    red_team_workload: "rbac-escalation-test.yaml"
+    success_criteria:
+      - "Pod blocked by PSA"
+      - "Alert generated within 60s"
+    learning_objectives:
+      - "RBAC least privilege"
+      - "PodSecurityStandards enforcement"
+
+  CTF-002:
+    name: "Network Policy Evasion"
+    description: "Attempt to bypass NetworkPolicy restrictions"
+    difficulty: "medium"
+    red_team_workload: "network-bypass-test.yaml"
+    success_criteria:
+      - "Traffic blocked by NetworkPolicy"
+      - "Alert generated within 30s"
+    learning_objectives:
+      - "Zero-trust networking"
+      - "NetworkPolicy configuration"
+
+  CTF-003:
+    name: "Supply Chain Attack Simulation"
+    description: "Deploy workload from untrusted registry"
+    difficulty: "medium"
+    red_team_workload: "supply-chain-vuln.yaml"
+    success_criteria:
+      - "Pod blocked by OPA"
+      - "Image registry violation detected"
+    learning_objectives:
+      - "Image registry whitelisting"
+      - "Binary Authorization"
+
+  DRILL-001:
+    name: "Full Incident Response Drill"
+    description: "Complete attack-detect-respond cycle"
+    difficulty: "hard"
+    phases:
+      - phase: "attack"
+        duration_minutes: 10
+        workloads: ["fake-malware-pod.yaml"]
+      - phase: "detect"
+        duration_minutes: 5
+        success_criteria: ["All attacks detected"]
+      - phase: "respond"
+        duration_minutes: 5
+        success_criteria: ["All threats mitigated"]
+      - phase: "report"
+        duration_minutes: 10
+        deliverables: ["Incident report", "Lessons learned"]
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# KPIs & TARGETS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+kpis:
+  mean_time_to_detect:
+    target_seconds: 60
+    alert_threshold_seconds: 120
+
+  mean_time_to_respond:
+    target_seconds: 300
+    alert_threshold_seconds: 600
+
+  detection_rate:
+    target_percent: 95
+    alert_threshold_percent: 80
+
+  false_positive_rate:
+    target_percent: 5
+    alert_threshold_percent: 15
+
+  evolution_cycles_per_month:
+    target: 4
+    alert_threshold: 1
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# GOVERNANCE
+# ═══════════════════════════════════════════════════════════════════════════════
+
+governance:
+  ai_board_approval_required:
+    - "New attack scenarios"
+    - "Changes to auto-response actions"
+    - "Production cluster modifications"
+    - "External integration additions"
+
+  operator_approval_required:
+    - "DRILL exercises"
+    - "Node isolation actions"
+    - "Cross-cluster sync"
+
+  auto_approved:
+    - "Detection rule updates from immune memory"
+    - "Alert notifications"
+    - "Metrics collection"
+    - "Audit logging"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# COST ESTIMATE
+# ═══════════════════════════════════════════════════════════════════════════════
+
+cost_estimate:
+  monthly_range: "$90-130"
+  breakdown:
+    blue_team_cluster: "$45-65"
+    red_team_cluster: "$45-65"
+  notes: "Autopilot clusters scale to zero when idle"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# METADATA
+# ═══════════════════════════════════════════════════════════════════════════════
+
+metadata:
+  created_at: "2025-11-30T23:00:00Z"
+  updated_at: "2025-12-01T06:19:00Z"
+  created_by: "AI Counsel (Claude)"
+  finalized_by: "Domenic Garza (Me10101)"
+  version_history:
+    - version: "1.0"
+      date: "2025-11-30"
+      changes: "Initial creation"
+    - version: "1.1"
+      date: "2025-12-01"
+      changes: "Finalized cluster names (red-team instead of autopilot-cluster-1)"
+  next_review: "2025-12-31"
+  owner: "StrategicKhaos DAO LLC"
+  classification: "internal"
