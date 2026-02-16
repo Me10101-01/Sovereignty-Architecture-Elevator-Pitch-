@@ -1,0 +1,41 @@
+claims:
+- id: 1
+  reframe: Differentiate via full ISA/LLVM
+  status: PRIOR ART
+- id: 2
+  reframe: ISA persistence with GSCH reconciliation
+  status: NOVEL VARIANT
+- id: 3
+  reframe: BellState primitives with superposition
+  status: NOVEL VARIANT
+- id: 4
+  reframe: APL ack + Hebrew morphology delta
+  status: PRIOR ART
+- id: 5
+  position: Lead patent - Cross-domain with superposition
+  status: TRUE FIRST
+- id: 6
+  position: Lead patent - AI ratification with gate chains
+  status: TRUE FIRST
+- id: 7
+  reframe: Evolved SAGCO to SHAGCO with Ripley optimization
+  status: PRIOR ART
+- expand: 'GSCH superposition: Gradients in BellState until ratified'
+  id: 8
+  status: TRUE FIRST CANDIDATE
+summary:
+  lead_candidates:
+  - 5
+  - 6
+  prior_art:
+  - 1
+  - 4
+  - 7
+  total_claims: 8
+  true_firsts:
+  - 5
+  - 6
+  - 8
+  variants:
+  - 2
+  - 3

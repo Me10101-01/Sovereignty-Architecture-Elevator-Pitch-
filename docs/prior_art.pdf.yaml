@@ -1,0 +1,68 @@
+# Prior Art Claims extracted from PDF (pages 1-6)
+# Mixed profile: True firsts on 5/6, variants on 2/3, priors on 1/4/7
+
+novelty: 0.8
+
+claims:
+  1:
+    status: PRIOR ART
+    description: Symbolic ISA with trigonometric operations
+    reframe: Differentiate via full ISA/LLVM integration
+    priors:
+      - APL (1960s)
+      - Mathematical notation systems
+      
+  2:
+    status: NOVEL VARIANT
+    description: ISA persistence with GSCH reconciliation
+    reframe: ISA persistence with GSCH reconciliation mechanism
+    base: Prior persistent ISAs
+    novelty: GSCH gradient reconciliation integration
+    
+  3:
+    status: NOVEL VARIANT
+    description: BellState primitives with superposition
+    reframe: BellState primitives with superposition mechanics
+    base: Quantum computing primitives
+    novelty: Superposition gradient states until ratification
+    
+  4:
+    status: PRIOR ART
+    description: Linguistic morphology in computation
+    reframe: APL acknowledgment + Hebrew morphology delta
+    priors:
+      - APL linguistic notation
+      - Computational linguistics systems
+      
+  5:
+    status: TRUE FIRST
+    position: Lead patent candidate
+    description: Cross-domain pipeline with superposition integration
+    novelty: Cross-domain with superposition mechanics
+    
+  6:
+    status: TRUE FIRST
+    position: Lead patent candidate
+    description: AI ratification with gate chains
+    novelty: AI ratification with alchemical gate optimization
+    
+  7:
+    status: PRIOR ART
+    description: Self-organizing systems evolution
+    reframe: Evolved SAGCO to SHAGCO with Ripley optimization
+    priors:
+      - IBM self-managing systems (2001)
+      - MIT amorphous computing (1996)
+      - Tierra digital organisms (1991)
+      
+  8:
+    status: TRUE FIRST CANDIDATE
+    description: GSCH superposition gradients
+    expand: GSCH superposition - Gradients in BellState until ratified
+    novelty: Gradient Synchronous Coherence Homeostasis with quantum superposition
+
+pages_processed: 1-6
+profile: mixed
+true_firsts: [5, 6, 8]
+variants: [2, 3]
+prior_art: [1, 4, 7]

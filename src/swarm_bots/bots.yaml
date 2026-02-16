@@ -1,0 +1,25 @@
+# Swarm Bot Configuration for Recursive Evolution
+bots:
+  - id: bot1
+    name: ALU Evolution Bot
+    task: ALU evolution
+    target: symbolic_alu
+    claim_ref: Claim 3 BellState
+    
+  - id: bot2
+    name: Control Evolution Bot
+    task: Control evolution
+    target: entanglement_core
+    claim_ref: Claim 5 pipeline integration
+    
+  - id: bot3
+    name: Memory Evolution Bot
+    task: Memory evolution
+    target: dna_register
+    claim_ref: Claim 8 GSCH stability
+    
+  - id: bot4
+    name: Wave Generator Bot
+    task: Wave generation optimization
+    target: neural_tick
+    claim_ref: Isochronic 40Hz wave
