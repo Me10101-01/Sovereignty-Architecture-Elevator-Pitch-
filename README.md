@@ -11,6 +11,7 @@ This directory contains the foundational governance documents for **Strategickha
 | `TRUST_DECLARATION.md` | Foundational trust instrument defining principles, governance, and infrastructure | v2.1.0 |
 | `NON_AGGRESSION_CLAUSE.md` | Immutable ethical constraints (cannot be amended) | v2.1.0 IMMUTABLE |
 | `public-identifier-registry.md` | Verified credentials, EINs, platforms, infrastructure | v2.1.0 |
+| `DOMINATORFIED_INTERVIEW_QUESTIONS.md` | 36-question sovereignty assessment (Bloom's Taxonomy CREATE/EVALUATE/ANALYZE) | v1.0.0 |
 
 ## Related Files
 
