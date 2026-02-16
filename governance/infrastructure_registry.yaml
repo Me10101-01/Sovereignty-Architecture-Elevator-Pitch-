@@ -1,0 +1,256 @@
+# Strategickhaos Empire Infrastructure Registry
+# Full topology documentation for the Sovereign Mesh
+# Last Updated: 2025-12-03
+# Version: 1.0.0
+
+version: "1.0.0"
+updated_at: "2025-12-03T00:00:00Z"
+owner: "Domenic Garza"
+organization: "Strategickhaos DAO LLC / Valoryield Engine"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LAYER 1: CLOUD COMPUTE — GKE Clusters
+# ═══════════════════════════════════════════════════════════════════════════════
+cloud_infrastructure:
+  provider: google_cloud
+  project: jarvis-swarm-personal
+  
+  gke_clusters:
+    - name: jarvis-swarm-personal-001
+      endpoint: "34.29.28.27"
+      region: us-central1
+      mode: Autopilot
+      version: "1.33.5-gke.1201000"
+      zones:
+        - us-central1-a
+        - us-central1-b
+        - us-central1-c
+        - us-central1-f
+      status: running
+      role: primary
+      description: "Primary production cluster for Queen orchestrator and sovereign services"
+      namespaces:
+        - ops
+        - queen
+        - agents
+        - observability
+      
+    - name: autopilot-cluster-1
+      endpoint: "35.192.28.199"
+      region: us-central1
+      mode: Autopilot
+      version: "1.33.5-gke.1201000"
+      zones:
+        - us-central1-a
+        - us-central1-b
+        - us-central1-c
+        - us-central1-f
+      status: running
+      role: secondary
+      description: "Secondary/Development cluster for testing and staging environments"
+      namespaces:
+        - dev
+        - staging
+        - testing
+  
+  azure_devops:
+    organization: garzadomenic101
+    url: "https://dev.azure.com/garzadomenic101"
+    status: active
+    role: owner
+
+  observability:
+    gke_logs:
+      project: jarvis-swarm-personal
+      event_count: 17176
+      status: streaming
+      retention_days: 30
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LAYER 2: ORCHESTRATION — Queen Deployment
+# ═══════════════════════════════════════════════════════════════════════════════
+orchestration:
+  queen:
+    name: queen
+    domain: queen.strategickhaos.ai
+    status: pending_deployment
+    target_cluster: jarvis-swarm-personal-001
+    target_endpoint: "34.29.28.27"
+    namespace: queen
+    image: node:18-alpine
+    port: 3000
+    service_type: LoadBalancer
+    replicas: 2
+    description: "Queen Orchestrator - Central control plane for sovereign mesh"
+    
+    endpoints:
+      - type: api
+        path: /api/v1
+        description: "REST API for orchestration commands"
+      - type: health
+        path: /health
+        description: "Health check endpoint"
+      - type: metrics
+        path: /metrics
+        description: "Prometheus metrics endpoint"
+      - type: websocket
+        path: /ws
+        description: "WebSocket for real-time events"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LAYER 3: CI/CD Pipeline
+# ═══════════════════════════════════════════════════════════════════════════════
+cicd:
+  github:
+    organization: Me10101-01
+    enterprise_owner: true
+    repositories:
+      - name: Sovereignty-Architecture-Elevator-Pitch-
+        type: infrastructure
+        ci: github_actions
+      
+  github_app:
+    name: Queen App
+    id: 1884781
+    status: active
+    permissions:
+      - contents: read
+      - metadata: read
+      - pull_requests: write
+      - checks: write
+      - issues: write
+
+  azure_devops:
+    organization: garzadomenic101
+    owner: true
+    pipelines:
+      - name: sovereign-pipeline
+        status: active
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LAYER 4: OBSERVABILITY
+# ═══════════════════════════════════════════════════════════════════════════════
+observability:
+  gcp_logs_explorer:
+    project: jarvis-swarm-personal
+    event_count: 17176
+    status: streaming
+    
+  pushcut:
+    notification_name: "Sovereign Empire Alert"
+    target: phone
+    status: active
+    
+  grafana:
+    status: active
+    description: "Observability dashboards for the sovereign mesh"
+    datasources:
+      - prometheus
+      - loki
+      
+  alertmanager:
+    status: active
+    routes:
+      - name: discord_alerts
+        channel: "#alerts"
+      - name: phone_push
+        service: pushcut
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LAYER 5: IDENTITY & SOCIAL
+# ═══════════════════════════════════════════════════════════════════════════════
+identity:
+  email:
+    - service: snhu_outlook
+      account: domenic.garza@snhu.edu
+      status: active
+      notes: "Level 12 nesting achieved"
+      
+    - service: personal_gmail
+      account: garza.domenic101@gmail.com
+      status: active
+      linked_services:
+        - azure_devops
+        - github
+        
+  ai_services:
+    - name: grok
+      status: active
+      capabilities:
+        - email_integration
+        - api_ready
+
+social:
+  twitch:
+    handle: strategickhaos10101
+    status: channel_exists
+    content: pending
+    
+  discord:
+    handle: strategickhaos
+    status: active
+    login_location: "Purvis, MS"
+    login_ip: "174.203.67.232"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DNS CONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════════
+dns:
+  domain: strategickhaos.ai
+  registrar: cloudflare # or route53, namecheap, etc.
+  
+  records:
+    - name: queen.strategickhaos.ai
+      type: A
+      value: "PENDING_LOADBALANCER_IP"
+      ttl: 300
+      description: "Queen orchestrator endpoint - to be updated after LoadBalancer provisioning"
+      
+    - name: events.strategickhaos.ai
+      type: A
+      value: "PENDING_GATEWAY_IP"
+      ttl: 300
+      description: "Event gateway for webhooks"
+      
+    - name: grafana.strategickhaos.ai
+      type: CNAME
+      value: queen.strategickhaos.ai
+      ttl: 300
+      description: "Grafana dashboards via Queen ingress"
+      
+    - name: api.strategickhaos.ai
+      type: CNAME  
+      value: queen.strategickhaos.ai
+      ttl: 300
+      description: "API endpoint via Queen ingress"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DEPLOYMENT INSTRUCTIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+deployment:
+  prerequisites:
+    - gcloud_cli_installed
+    - kubectl_installed
+    - cluster_credentials_configured
+    
+  commands:
+    get_credentials: |
+      gcloud container clusters get-credentials jarvis-swarm-personal-001 \
+        --region us-central1 \
+        --project jarvis-swarm-personal
+        
+    deploy_queen: |
+      kubectl apply -f bootstrap/k8s/queen/
+      
+    get_loadbalancer_ip: |
+      kubectl get svc queen -n queen -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+      
+    configure_dns: |
+      # After getting LoadBalancer IP, update DNS:
+      # queen.strategickhaos.ai → <LoadBalancer IP>
+      
+  verification:
+    check_pods: "kubectl get pods -n queen"
+    check_services: "kubectl get svc -n queen"
+    check_ingress: "kubectl get ingress -n queen"
+    health_check: "curl -k https://queen.strategickhaos.ai/health"
