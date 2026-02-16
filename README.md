@@ -40,6 +40,12 @@ This directory contains the foundational governance documents for **Strategickha
 - **Local Nodes:** 4 (Athena, Lyra, Nova, iPower)
 - **Routers:** 8 (SOC inference nodes)
 
+### Technology Innovations
+
+- **AetherForge Protocol Suite**: Sovereign technology stack for transmuting ancient wisdom into cryptographic proof systems
+  - **GlyphSonix Resonance Core**: FlameLang (Mojo 🔥) audio engine that treats hieroglyphic text as executable sonic DNA
+  - See: [`src/aetherforge/`](./src/aetherforge/) for complete documentation
+
 ## Verification
 
 ```bash

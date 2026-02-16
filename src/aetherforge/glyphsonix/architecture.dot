@@ -1,0 +1,90 @@
+digraph GlyphSonix {
+    rankdir=TB;
+    node [shape=box, style=rounded, fontname="Helvetica"];
+    
+    // Color scheme
+    node [fillcolor=lightblue, style="rounded,filled"];
+    
+    // Input layer
+    subgraph cluster_input {
+        label="Input Layer";
+        style=filled;
+        fillcolor=lightgray;
+        
+        ancient_text [label="Ancient Text\n(Kemetic, Sanskrit, etc.)"];
+        ritual [label="Ritual Invocation"];
+        identity_claim [label="Identity Claim"];
+    }
+    
+    // Processing layer
+    subgraph cluster_processing {
+        label="GlyphSonix Core Processing";
+        style=filled;
+        fillcolor=lightyellow;
+        
+        tokenizer [label="Tokenizer\n(Phonetic Analysis)", fillcolor=gold];
+        carrier [label="Carrier Synthesis\n(432 Hz)", fillcolor=gold];
+        fm [label="FM Modulation\n(Phoneme-driven)", fillcolor=gold];
+        special [label="Special Motifs\n(7%, Node 137)", fillcolor=gold];
+        envelope [label="ADSR + Reverb", fillcolor=gold];
+    }
+    
+    // Integration layer
+    subgraph cluster_integration {
+        label="AetherForge Integration";
+        style=filled;
+        fillcolor=lightgreen;
+        
+        swarmgate [label="SwarmGate\n(Treasury)"];
+        vfasp [label="VFASP\n(Speculation)"];
+        sonic_id [label="Sonic Identity\n(Auth)"];
+        registry [label="Proof Registry\n(Blockchain)"];
+    }
+    
+    // Output layer
+    subgraph cluster_output {
+        label="Output Layer";
+        style=filled;
+        fillcolor=lightcoral;
+        
+        wav [label="WAV File\n(IPFS)"];
+        hash [label="Sonic Hash\n(SHA-256)"];
+        allocation [label="Treasury\nAllocation"];
+        spec_seed [label="Speculation\nSeed"];
+    }
+    
+    // Connections
+    ancient_text -> tokenizer;
+    ritual -> tokenizer;
+    identity_claim -> tokenizer;
+    
+    tokenizer -> carrier;
+    carrier -> fm;
+    fm -> special;
+    special -> envelope;
+    
+    envelope -> swarmgate [label="7% motif"];
+    envelope -> vfasp [label="Node 137"];
+    envelope -> sonic_id [label="fingerprint"];
+    envelope -> registry [label="proof"];
+    
+    swarmgate -> allocation;
+    vfasp -> spec_seed;
+    sonic_id -> hash;
+    registry -> wav;
+    
+    envelope -> wav [style=bold];
+    
+    // Legend
+    {
+        rank=same;
+        legend [shape=plaintext, label=<
+            <table border="0" cellborder="1" cellspacing="0">
+                <tr><td colspan="2"><b>Legend</b></td></tr>
+                <tr><td bgcolor="gold">Core</td><td>Audio synthesis</td></tr>
+                <tr><td bgcolor="lightgreen">Integration</td><td>Protocol hooks</td></tr>
+                <tr><td bgcolor="lightcoral">Output</td><td>Final artifacts</td></tr>
+            </table>
+        >];
+    }
+}
