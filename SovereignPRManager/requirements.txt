@@ -1,0 +1,8 @@
+# SovereignPRManager Dependencies
+# Author: SovereignPRManager Legion
+
+# GitHub API
+PyGithub>=2.1.1
+
+# Typing extensions for Python 3.11+
+typing_extensions>=4.12.0
