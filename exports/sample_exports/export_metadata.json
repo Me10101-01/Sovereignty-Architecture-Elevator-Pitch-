@@ -1,0 +1,98 @@
+{
+  "export_metadata": {
+    "document_id": "EXPORT-2025-12-07-001",
+    "timestamp": "2025-12-07T20:00:00Z",
+    "system": "strategickhaos-governance",
+    "version": "2.1.0",
+    "format": "json",
+    "schema_version": "1.0",
+    "export_type": "sample",
+    "data_classification": "public"
+  },
+  "export_manifest": {
+    "total_records": 150,
+    "total_size_bytes": 2048576,
+    "compression": "none",
+    "encryption": "none",
+    "checksum_algorithm": "sha256",
+    "checksum": "placeholder_hash_value"
+  },
+  "data_portability_compliance": {
+    "zvli_principal": 1,
+    "export_format": "open",
+    "proprietary_encoding": false,
+    "documented_schema": true,
+    "import_tested": true,
+    "export_time_hours": 4.2,
+    "guarantee_hours": 24,
+    "compliant": true
+  },
+  "sample_records": [
+    {
+      "record_id": "001",
+      "type": "governance_document",
+      "title": "Zero Vendor Lock-in Principals",
+      "document_id": "ZVLI-2025-001",
+      "version": "1.0",
+      "effective_date": "2025-12-07",
+      "status": "active"
+    },
+    {
+      "record_id": "002",
+      "type": "entity",
+      "name": "Strategickhaos DAO LLC",
+      "ein": "39-2900295",
+      "state": "Wyoming",
+      "status": "active",
+      "formation_date": "2025-11-15"
+    },
+    {
+      "record_id": "003",
+      "type": "infrastructure",
+      "name": "Local Kubernetes Cluster",
+      "nodes": 4,
+      "status": "operational",
+      "certification_level": "platinum"
+    }
+  ],
+  "export_verification": {
+    "data_integrity_check": "passed",
+    "schema_validation": "passed",
+    "completeness_check": "passed",
+    "import_test_platform": "postgresql",
+    "import_test_result": "success",
+    "verification_date": "2025-12-07"
+  },
+  "alternative_formats_available": [
+    "json",
+    "csv",
+    "yaml",
+    "xml",
+    "markdown"
+  ],
+  "export_locations": [
+    {
+      "location": "local_backup",
+      "path": "/backups/exports/2025-12-07",
+      "status": "synced"
+    },
+    {
+      "location": "s3_bucket",
+      "path": "s3://strategickhaos-backups/exports/2025-12-07",
+      "status": "synced"
+    },
+    {
+      "location": "backup_server",
+      "path": "backup-server:/backups/2025-12-07",
+      "status": "synced"
+    }
+  ],
+  "attestation": {
+    "exported_by": "StrategicKhaos Export Service",
+    "verified_by": "Data Compliance Team",
+    "compliant_with": "ZVLI-2025-001 Principal 1",
+    "no_vendor_lockin": true,
+    "portable": true,
+    "open_format": true
+  }
+}
