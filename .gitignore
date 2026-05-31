@@ -35,3 +35,5 @@ target/
 
 # Workspace data
 workspace/
+__pycache__/
+*.pyc
