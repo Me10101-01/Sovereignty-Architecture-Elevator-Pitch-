@@ -1,0 +1,231 @@
+name: SAGCO RPI Autodeploy
+
+on:
+  push:
+    branches:
+      - main
+      - "claude/fellowship-audit-sagco-*"
+    paths:
+      - "sagco/**"
+      - ".github/workflows/sagco-rpi-deploy.yml"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Deploy target"
+        required: false
+        default: "rpi"
+      crawl_depth:
+        description: "Stepper crawler depth"
+        required: false
+        default: "3"
+
+env:
+  PYTHON_VERSION: "3.11"
+  SAGCO_BRANCH: ${{ github.ref_name }}
+
+jobs:
+  # ── Job 1: Lint & lex check ─────────────────────────────────────────────
+  sagco-lint:
+    name: SAGCO Lexer / Parser Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Run SAGCO lexer self-test
+        run: |
+          python -c "
+          from sagco.lexer import lex
+          from sagco.parser import parse
+
+          cmds = [
+            'sagco boot default',
+            'sagco crawl ./sagco --depth=3 --emit=tokens',
+            'sagco ingest README.md --convert=dna',
+            'sagco crawl ./src | sagco dna README.md',
+            'sagco deploy --target=rpi --branch=main',
+            'sagco vm status',
+          ]
+          for src in cmds:
+            tokens = lex(src)
+            ast = parse(src)
+            print(f'OK  {src[:60]}')
+          print('All SAGCO parse checks passed.')
+          "
+
+  # ── Job 2: Stepper Crawl + DNA cell generation ──────────────────────────
+  sagco-crawl:
+    name: Stepper Crawler + DNA Ingest
+    runs-on: ubuntu-latest
+    needs: sagco-lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run stepper crawler
+        run: |
+          python -c "
+          import json
+          from sagco.crawler import crawl_to_pipeline
+
+          depth = int('${{ github.event.inputs.crawl_depth || 3 }}')
+          result = crawl_to_pipeline('.', max_depth=depth, output_path='sagco-pipeline.json')
+          s = result['summary']
+          print(f'Steps : {s[\"total_steps\"]}')
+          print(f'Files : {s[\"total_files\"]}')
+          print(f'DNA   : {s[\"dna_cells\"]}')
+          print(f'Head  : {s[\"chain_head\"]}')
+          print(f'Tail  : {s[\"chain_tail\"]}')
+          "
+
+      - name: Upload pipeline artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sagco-pipeline
+          path: sagco-pipeline.json
+          retention-days: 14
+
+  # ── Job 3: DNA cell smoke test ───────────────────────────────────────────
+  sagco-dna:
+    name: DNA Cell Ingest (README → Cell)
+    runs-on: ubuntu-latest
+    needs: sagco-lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Ingest all READMEs
+        run: |
+          python -c "
+          import json, pathlib
+          from sagco.dna_cell import ingest_to_dna
+
+          readmes = list(pathlib.Path('.').rglob('README*'))
+          readmes = [r for r in readmes if '.git' not in str(r)]
+          cells = []
+          parent = None
+          for i, r in enumerate(readmes[:20]):
+            content = r.read_text(errors='replace')
+            cell = ingest_to_dna(r.name, content, str(r),
+                                  parent_id=parent, generation=i+1)
+            parent = cell['cell_id']
+            cells.append(cell)
+            print(f'Cell {i+1:02d}: {cell[\"cell_id\"]}  {r}')
+
+          # write cell registry
+          pathlib.Path('sagco-dna-registry.json').write_text(
+            json.dumps({'cells': cells}, indent=2))
+          print(f'Total DNA cells: {len(cells)}')
+          "
+
+      - name: Upload DNA registry
+        uses: actions/upload-artifact@v4
+        with:
+          name: sagco-dna-registry
+          path: sagco-dna-registry.json
+          retention-days: 14
+
+  # ── Job 4: RPI deploy signal ─────────────────────────────────────────────
+  sagco-rpi-signal:
+    name: Signal RPI Autodeploy
+    runs-on: ubuntu-latest
+    needs: [sagco-crawl, sagco-dna]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Emit deploy token via SAGCO VM
+        run: |
+          python -c "
+          import json
+          from sagco import VM
+
+          vm = VM('.')
+          procs = vm.execute(
+            'sagco boot default | sagco deploy --target=rpi --branch=${{ env.SAGCO_BRANCH }} --sha=${{ github.sha }}'
+          )
+          for p in procs:
+            print(json.dumps({'pid': p.pid, 'verb': p.verb, 'status': p.status}, indent=2))
+          print(f'Bus tokens: {len(vm.bus)}')
+          "
+
+      # If you have a self-hosted runner on the Pi, it will pick this up.
+      # Alternatively, use SSH or a webhook to trigger the rpi_autodeploy.sh.
+      - name: Write deploy manifest
+        run: |
+          python -c "
+          import json, time
+          manifest = {
+            'sha': '${{ github.sha }}',
+            'branch': '${{ env.SAGCO_BRANCH }}',
+            'target': '${{ github.event.inputs.target || \"rpi\" }}',
+            'triggered_by': '${{ github.actor }}',
+            'timestamp': time.time(),
+          }
+          print(json.dumps(manifest, indent=2))
+          " > sagco-deploy-manifest.json
+
+      - name: Upload deploy manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: sagco-deploy-manifest
+          path: sagco-deploy-manifest.json
+          retention-days: 7
+
+  # ── Job 5: VM audit summary ──────────────────────────────────────────────
+  sagco-audit:
+    name: SAGCO VM Audit
+    runs-on: ubuntu-latest
+    needs: sagco-rpi-signal
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Full pipeline audit
+        run: |
+          python -c "
+          import json
+          from sagco import VM
+
+          vm = VM('.')
+          script = '''
+          sagco boot default
+          sagco crawl ./sagco --depth=3 --emit=tokens
+          sagco ingest README.md --convert=dna
+          sagco audit ./sagco
+          sagco vm status
+          '''
+          for line in script.strip().splitlines():
+            line = line.strip()
+            if line:
+              vm.execute(line)
+
+          print('=== PID TABLE ===')
+          print(json.dumps(vm.pid_table_dump(), indent=2))
+          print(f'=== BUS: {len(vm.bus)} tokens ===')
+          for tok in vm.bus[-5:]:
+            print(f'  {tok.token_id}  {tok.source}  {tok.tags}')
+          "
