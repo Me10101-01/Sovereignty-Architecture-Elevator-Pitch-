@@ -1,0 +1,21 @@
+{
+  "stamp": "20260601_171351",
+  "variant": "standard",
+  "tag": "compose_probe",
+  "to": "internal",
+  "source_type": "text",
+  "token_count": 1,
+  "char_count": 24,
+  "line_count": 1,
+  "fingerprint": "ded721c0fa7e3160",
+  "antibody": "RECON_PROBE_ANTIBODY",
+  "trajectory": "stabilized",
+  "content_preview": "SAGCO_COMPOSE_RUN_PROBE",
+  "sagco_dna": "a364ca9f90356c85",
+  "status": "SAGCO_SEND_PASS",
+  "wave": {
+    "tokens": 54,
+    "fingerprint": "537996cb0ca250c8",
+    "status": "SAGCO_WAVE_PASS"
+  }
+}

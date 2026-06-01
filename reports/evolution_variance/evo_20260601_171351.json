@@ -1,0 +1,13 @@
+{
+  "stamp": "20260601_171351",
+  "variant": "workspace",
+  "tag": "untagged",
+  "target": ".",
+  "target_type": "directory",
+  "token_count": 176222,
+  "fingerprint": "3f1b2a157e29958a",
+  "antibody": "MONOLITH_ANTIBODY",
+  "bypass": "plugin_split",
+  "sagco_dna": "a364ca9f90356c85",
+  "status": "SAGCO_EVO_PASS"
+}
