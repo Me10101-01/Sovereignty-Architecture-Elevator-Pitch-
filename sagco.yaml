@@ -1,0 +1,214 @@
+# sagco.yaml — SAGCO Compose v1.0
+# SAGCO-OS Native Service Orchestration
+# No Docker. No Kubernetes. No vendor lock-in. No NDA.
+# License: Strategickhaos Sovereign License v1.0 (SSL-1.0)
+# Entity: Strategickhaos DAO LLC — EIN 39-2900295
+# Inventor: Domenic Gabriel Garza
+# DNA: SAGCO-ATG-FLM2-MSMC2-P16-CMD23-ISO102-MESH5
+# Sealed: 2026-06-01 — Corpus Christi TX 27°50'48"N 97°33'58"W
+
+sagco_compose: "1.0"
+
+identity:
+  entity: "Strategickhaos DAO LLC"
+  ein: "39-2900295"
+  inventor: "Domenic Gabriel Garza"
+  node: "DOM010101"
+  mesh_code: 137
+  wyoming_filing: "2025-001708194"
+  dna_strand: "SAGCO-ATG-FLM2-MSMC2-P16-CMD23-ISO102-MESH5"
+
+# ── sandbox definition ────────────────────────────────────────────────────────
+sandbox:
+  name: "SAGCO_HEADLESS_VM_FUZZ"
+  artifact: "SAGCO_HEADLESS_VM_FUZZ_CASE_STUDY.tar.gz"
+  sha256: "9d95f793179bd6d8b80bb2e035aa00ca46fccd58696855d52d0ef1476926206f"
+  platform: "Android/Termux (aarch64)"
+  build_host: "u0_a512"
+  sealed: "2026-06-01T06:26:00-05:00"
+
+# ── services ──────────────────────────────────────────────────────────────────
+services:
+
+  rust_compiler:
+    name: "sagco-rust-compiler"
+    binary: "target/release/sagco_rust_command_compiler"
+    alias: "~/bin/sagco"
+    build:
+      tool: "cargo"
+      profile: "release"
+      edition: "2021"
+    commands:
+      - "sagco past"
+      - "sagco past-fuzz"
+      - "sagco cmd dna"
+      - "sagco wave"
+      - "sagco weather"
+      - "sagco treasure"
+      - "sagco agent plan"
+      - "sagco bottleneck"
+      - "sagco bill"
+    health_check: "sagco cmd dna"
+    expected_dna: "a364ca9f90356c85"
+    antibody: "sagco_mainrs_antibody.sh"
+
+  memory_compiler:
+    name: "sagco-past"
+    command: "sagco past"
+    inputs:
+      - "README.md"
+      - "FLAMELANG_SPECIFICATION.md"
+      - "EMPIRE_GENOME_v1.7.yaml"
+      - "SWARM_DNA_v12.0-born-from-the-womb_Version2.yaml"
+      - "RATIO_EX_NIHILO_CONSTITUTION_V1.PDF"
+    outputs:
+      - path: "reports/sagco_past_*.md"
+        format: "memory_graph"
+    chain_index: "reports/SAGCO_PAST_CHAIN_INDEX.md"
+    chain_sha256: "b8fa135d85b60795c36f07c5e77f163eeca2d05dca2510750cade34525a1ef0f"
+    total_tokens: 7069
+    fingerprints:
+      README.md: "f3ffe8c9e81acfdf"
+      FLAMELANG_SPECIFICATION.md: "76ef539efbcac668"
+      EMPIRE_GENOME_v1.7.yaml: "07311699b684a150"
+      SWARM_DNA_v12.0: "b89e9963e0315f0d"
+      RATIO_EX_NIHILO: "92268810debbbe60"
+      fuzz: "acdac2b3c817d2d5"
+
+  reverse_engineer:
+    name: "sagco-ghidra"
+    tool: "Ghidra 12.1 PUBLIC"
+    path: "~/downloads/ghidra_12.1_PUBLIC"
+    java_home: "$PREFIX/lib/jvm/java-21-openjdk"
+    java_version: "21.0.10"
+    binutils: "2.46.0-3"
+    pipeline:
+      - step: "readelf"
+        output: "reports/ghidra/elf_headers.txt"
+      - step: "nm"
+        output: "reports/ghidra/elf_symbols.txt"
+      - step: "strings"
+        output: "reports/ghidra/flametokens.txt"
+      - step: "analyzeHeadless"
+        output: "reports/ghidra/ghidra_sagco.log"
+    script: "sagco_ghidra_flametoken.sh"
+
+  ocr_pipeline:
+    name: "sagco-ocr"
+    tools:
+      - tesseract: "5.5.2"
+      - pdftotext: "poppler 26.02.0"
+      - strings: "binutils 2.46.0-3"
+    inputs: ["*.jpg", "*.png", "*.pdf"]
+    outputs: ["reports/status_archeologist/*.report.md"]
+    script: "sagco_status_archeologist.sh"
+
+  pr_triage:
+    name: "sagco-pr-triage"
+    total_prs: 1278
+    triaged: 25
+    smoke_tests:
+      - python_compile: "python3 -m compileall -q -x benchmarks/test_comprehensive ."
+      - shell_syntax: "bash -n"
+      - rust_check: "cargo check"
+    script: "sagco_pr_triage.sh"
+    reports: "reports/pr_triage/"
+
+  darwin_antibody:
+    name: "sagco-darwin"
+    antibody_types:
+      - PASS_IMMUNITY
+      - PATH_DISCOVERY_ANTIBODY
+      - PROJECT_ROOT_ANTIBODY
+      - JDK_GATE_ANTIBODY
+      - DEPENDENCY_ANTIBODY
+      - STUB_DETECTED_ANTIBODY
+      - UNKNOWN_VARIANCE_ANTIBODY
+    trajectories:
+      - stabilized
+      - adaptation
+      - evolution
+      - mutation
+    last_run: "20260601_063459"
+    last_dna: "ab56f83e93a9d3d11088ae12858c150cc420c5904a664c76aac7c3cde3689485"
+    score: "3/5 PASS_IMMUNITY"
+    script: "sagco_darwin_antibody.sh"
+
+  bill:
+    name: "sagco-bill"
+    command: "sagco bill"
+    format: "CPA_ITEMIZED"
+    outputs:
+      - "reports/bill/SAGCO_CPA_BILL.md"
+      - "reports/bill/SAGCO_BOM.md"
+    script: "sagco_bill.sh"
+
+  cad:
+    name: "sagco-cad"
+    outputs:
+      - "reports/cad/SAGCO_ISOMETRIC_PID.md"
+      - "reports/cad/SAGCO_ISOMETRIC_CAD.md"
+    format: "ASCII_ISOMETRIC"
+
+# ── volumes (persistent state) ───────────────────────────────────────────────
+volumes:
+  reports:
+    path: "reports/"
+    includes:
+      - "sagco_past_*.md"
+      - "SAGCO_PAST_CHAIN_INDEX.md"
+      - "SAGCO_CASE_STUDY_MANIFEST.md"
+      - "SAGCO_DISTINGUISHED_ENGINEER_REPORT.md"
+      - "darwin_antibody/"
+      - "ghidra/"
+      - "pr_triage/"
+      - "bill/"
+      - "cad/"
+  obsidian_vault:
+    name: "SAGCO-OS Computable Consciousness"
+    files: 22
+    hub_node: "Fingerprint recon"
+
+# ── network (no vendor lock-in) ──────────────────────────────────────────────
+network:
+  mode: "sovereign"
+  protocol: "SAGCO-MESH-5"
+  no_cloud_dependency: true
+  no_docker: true
+  no_kubernetes: true
+  no_nda: true
+  license: "SSL-1.0"
+
+# ── environmental seal ───────────────────────────────────────────────────────
+environment:
+  gps: "27°50'48.06\"N, 97°33'58.42\"W"
+  location: "Corpus Christi, TX"
+  altitude: "66 ft"
+  compass: "267°W magnetic / 265°W true"
+  weather_sha: "101fb3bd0c10dc6f"
+  command_dna: "a364ca9f90356c85"
+  session_date: "2026-06-01"
+  session_duration: "midnight to 06:35 CDT"
+
+# ── chain of custody ─────────────────────────────────────────────────────────
+chain:
+  - event: "Rust compiler build"
+    timestamp: "2026-05-31"
+    tool: "cargo build --release"
+    sha256: "6b1924a45f5c68cb2b5a6a5e3cfc83bc2413521cee69817e8267ea59095491dc"
+  - event: "Archive seal"
+    timestamp: "2026-06-01T00:02:00-05:00"
+    artifact: "SAGCO_COMMAND_DNA_20260531.tar.gz"
+  - event: "PAST chain seal"
+    timestamp: "2026-06-01T05:48:00-05:00"
+    sha256: "b8fa135d85b60795c36f07c5e77f163eeca2d05dca2510750cade34525a1ef0f"
+  - event: "Case study seal"
+    timestamp: "2026-06-01T06:26:00-05:00"
+    artifact: "SAGCO_HEADLESS_VM_FUZZ_CASE_STUDY.tar.gz"
+    sha256: "9d95f793179bd6d8b80bb2e035aa00ca46fccd58696855d52d0ef1476926206f"
+  - event: "Darwin antibody v1"
+    timestamp: "2026-06-01T06:34:59-05:00"
+    dna: "ab56f83e93a9d3d11088ae12858c150cc420c5904a664c76aac7c3cde3689485"
+  - event: "sagco.yaml compose sealed"
+    timestamp: "2026-06-01"
+    branch: "claude/sagco-rust-compiler-archive-ZQXKs"
