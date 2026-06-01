@@ -49,6 +49,11 @@ plugins:
     output: reports/gcloud
     compose_args: "config"
 
+  - name: gcp_project_pass
+    script: ./sagco_gcp_project_pass.sh
+    output: reports/gcp_project_pass
+    compose_args: "sagco-oscomputconsciousness"
+
 pipeline:
   - detect
   - tokenize
