@@ -61,14 +61,28 @@ Chain SHA256: `b8fa135d85b60795c36f07c5e77f163eeca2d05dca2510750cade34525a1ef0f`
 
 ---
 
-## Active Blockers (as of 2026-06-01 06:30 CDT)
+## Binary Restored — 2026-06-01 06:30 CDT
+
+| Event | Status |
+|-------|--------|
+| `cp src/main.rs.backup src/main.rs` | DONE |
+| `cargo build --release` (2.21s) | DONE |
+| `./target/release/sagco_rust_command_compiler past` | PASS — `cdab4e8e1e1c7adb` |
+| `./target/release/sagco_rust_command_compiler past-fuzz` | PASS — `acdac2b3c817d2d5` |
+| `./target/release/sagco_rust_command_compiler cmd dna` | PASS — `a364ca9f90356c85` |
+| `cp sagco_rust_command_compiler ~/bin/sagco` | DONE — `sagco` aliased globally |
+| `export PATH="$HOME/bin:$PATH"` | DONE |
+
+Binary size: 974K  
+Antibody: `sagco_mainrs_antibody.sh` — auto-detects stubs, restores from backup, seals `.backup` as read-only
+
+## Active Blockers (as of 2026-06-01 06:35 CDT)
 
 | Blocker | Fix |
 |---------|-----|
-| `src/main.rs` overwritten with stub | `cp src/main.rs.backup src/main.rs && cargo build --release` |
-| Binary path confusion (`sagco` vs `sagco_rust_command_compiler`) | Use `target/release/sagco_rust_command_compiler` |
-| `sagco_ghidra_flametoken.sh` not in Termux repo | `cd ~/sagco_pr_lab/repo && git pull` |
-| Ghidra FlameToken run not yet executed | Run after main.rs restore |
+| FlameToken extraction not yet run | `strings target/release/sagco_rust_command_compiler \| grep -iE "sagco\|flame"` |
+| Ghidra headless not yet run | `bash ~/sagco_pr_lab/repo/sagco_ghidra_flametoken.sh` |
+| `$HOME/bin` not in persistent PATH | Add to `~/.bashrc`: `export PATH="$HOME/bin:$PATH"` |
 
 ---
 
