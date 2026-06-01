@@ -1,0 +1,51 @@
+version: "0.1"
+daemon: sagco_command_daemon
+
+# Who starts first, who talks to who, who writes where.
+
+boot_sequence:
+
+  - id: recon
+    run: sagco recon
+    writes: reports/
+    description: scan artifacts, build command index
+
+  - id: compile
+    run: sagco compile
+    writes: compiled/
+    description: tokenize and emit bytecode ticks
+
+  - id: command_eater
+    run: sagco eater
+    reads: compiled/
+    writes: reports/SAGCO_TOP_COMMAND_INDEX.txt
+    description: ingest bytecode, classify commands
+
+  - id: daemon
+    run: sagco daemon
+    reads:
+      - reports/
+      - compiled/
+      - ticks/
+    description: watch, notify, ask — nothing else
+
+outputs:
+  command_index: reports/SAGCO_TOP_COMMAND_INDEX.txt
+  dna:           reports/SAGCO_COMMAND_DNA.yaml
+  bytecode:      compiled/
+  ticks:         ticks/
+
+watch:
+  - reports/
+  - compiled/
+  - ticks/
+
+# These actions require explicit human approval before execution.
+# The daemon will not run them autonomously under any circumstances.
+approval_required:
+  - deploy
+  - delete
+  - push
+  - commit
+  - reset
+  - wipe

@@ -24,25 +24,16 @@ from sagco_daemon_core import (
     PRIM_MAP,
 )
 
-VERSION     = "0.3"
-DAEMON_NAME = "sagco_command_daemon"
-CONFIG_PATH = Path(__file__).parent / "sagco_daemon_config.yaml"
-EVENT_QUEUE = Path(__file__).parent / "ticks" / "pending_events.yaml"
+VERSION      = "0.3"
+DAEMON_NAME  = "sagco_command_daemon"
+MASTER_PATH  = Path(__file__).parent / "MASTER.COMMAND.yaml"
+CONFIG_PATH  = Path(__file__).parent / "sagco_daemon_config.yaml"
 
 # ── ANSI ─────────────────────────────────────────────────────────────────────
 GRN = "\033[32m"; YLW = "\033[33m"; CYN = "\033[36m"; RED = "\033[31m"
 BLD = "\033[1m";  DIM = "\033[2m";  RST = "\033[0m";  MGT = "\033[35m"
-WHT = "\033[37m"
 
 def c(text, *codes): return "".join(codes) + str(text) + RST
-
-BANNER = f"""
-{c('╔═══════════════════════════════════════════════════════╗', BLD)}
-{c('║', BLD)}  {c('SAGCO COMMAND DAEMON  v' + VERSION, BLD, GRN)}                          {c('║', BLD)}
-{c('║', BLD)}  {c('mode: human-in-the-loop', DIM)}                              {c('║', BLD)}
-{c('║', BLD)}  {c('entity: Strategickhaos DAO LLC', DIM)}                       {c('║', BLD)}
-{c('╚═══════════════════════════════════════════════════════╝', BLD)}
-"""
 
 # ── Safety gate ───────────────────────────────────────────────────────────────
 DESTRUCTIVE = (
@@ -158,33 +149,31 @@ def execute_macro(steps: list):
 # ── Main HITL prompt ──────────────────────────────────────────────────────────
 def hitl_prompt(events: list) -> str:
     """
-    Present [SAGCO-DAEMON] notification and wait for user decision.
+    Minimal HITL prompt — watch, notify, ask. Nothing else.
     Returns: "allow" | "macro" | "defer" | "quit"
     """
-    count = len(events)
     macro = best_macro(events)
 
-    print(f"\n{c('╔══════════════════════════════════════════════════════╗', BLD)}")
-    print(f"{c('║', BLD)}  {c('[SAGCO-DAEMON]', BLD + GRN)}                                     {c('║', BLD)}")
-    print(f"{c('╚══════════════════════════════════════════════════════╝', BLD)}")
-    print(f"\n  {c('New artifacts discovered: ' + str(count), BLD)}\n")
+    # One artifact per line, clean
+    print(f"\n{c('SAGCO>', BLD + GRN)}\n")
+    if len(events) == 1:
+        print(f"  New artifact discovered\n")
+        print(f"  {c(events[0]['path'], YLW)}\n")
+    else:
+        print(f"  New artifacts discovered: {c(str(len(events)), BLD)}\n")
+        for e in events:
+            print(f"  {c(e['path'], YLW)}")
+        print()
 
-    for i, e in enumerate(events, 1):
-        kind = c(f"[{e['kind']}]", CYN)
-        print(f"  {c(str(i) + '.', YLW)} {kind} {e['name']}")
-
-    print()
-    divider("ACTION")
-    print(f"\n  {c('[a]', GRN)}  allow    — run full pipeline now")
-    print(f"  {c('[s]', CYN)}  show     — show artifact details")
+    print(f"  {c('[a]', GRN)} allow")
+    print(f"  {c('[s]', CYN)} show")
     if macro:
-        print(f"  {c('[m]', MGT)}  macro    — {macro[0]}")
-    print(f"  {c('[d]', YLW)}  defer    — skip this batch")
-    print(f"  {c('[q]', DIM)}  quit     — stop daemon")
+        print(f"  {c('[m]', MGT)} macro")
+    print(f"  {c('[q]', DIM)} quit")
     print()
 
     while True:
-        key = ask(f"  {c('>', GRN)} ")
+        key = ask(f"{c('> ', GRN)}")
 
         if key == "a":
             return "allow"
@@ -193,7 +182,7 @@ def hitl_prompt(events: list) -> str:
             show_event_list(events)
             print(f"  {c('[a]', GRN)} allow  "
                   + (f"{c('[m]', MGT)} macro  " if macro else "")
-                  + f"{c('[d]', YLW)} defer  {c('[q]', DIM)} quit")
+                  + f"{c('[q]', DIM)} quit")
 
         elif key == "m":
             if macro:
@@ -202,21 +191,21 @@ def hitl_prompt(events: list) -> str:
                     execute_macro(macro[1])
                     return "macro"
                 else:
-                    print(f"  {c('Macro deferred.', YLW)}")
+                    print(f"  {c('deferred.', YLW)}")
                     return "defer"
             else:
-                print(f"  {c('No macro available for this artifact set.', DIM)}")
+                print(f"  {c('no macro for this artifact set.', DIM)}")
 
-        elif key == "d":
-            print(f"  {c('Batch deferred. Watching for next change...', YLW)}")
+        elif key in ("d", ""):
+            print(f"  {c('deferred.', YLW)}")
             return "defer"
 
         elif key == "q":
-            print(f"\n  {c('Daemon stopped.', DIM)}\n")
+            print(f"\n  {c('stopped.', DIM)}\n")
             sys.exit(0)
 
         else:
-            print(f"  {c('?', RED)} unknown — try: a / s / m / d / q")
+            print(f"  {c('?', RED)} a / s / m / q")
 
 
 # ── Event builder (diff file_state → event list) ──────────────────────────────
@@ -340,28 +329,44 @@ def _has_changes(watched: list, file_state: dict) -> bool:
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 def main():
-    print(BANNER)
-
+    # Load MASTER.COMMAND.yaml first, fall back to sagco_daemon_config.yaml
+    master = {}
+    if MASTER_PATH.exists():
+        with open(MASTER_PATH) as fh:
+            master = import_yaml(fh)
     cfg = {}
     if CONFIG_PATH.exists():
         with open(CONFIG_PATH) as fh:
             cfg = import_yaml(fh)
 
-    watched       = [d.rstrip("/") for d in cfg.get("watch", ["reports", "compiled", "ticks", "archives"])]
+    # MASTER.COMMAND.yaml is the source of truth for watch dirs
+    watched = [d.rstrip("/") for d in (
+        master.get("watch") or cfg.get("watch") or ["reports", "compiled", "ticks"]
+    )]
     poll_interval = int(cfg.get("poll_interval", 5))
+    approval_required = master.get("approval_required", ["deploy", "delete", "push"])
 
     for d in watched + ["ticks"]:
         Path(d).mkdir(parents=True, exist_ok=True)
 
-    print(f"  {c('watching :', DIM)}  {', '.join(watched)}")
-    print(f"  {c('interval :', DIM)}  {poll_interval}s")
-    print(f"  {c('mode     :', DIM)}  human-in-the-loop  (auto-exec: OFF)")
-    print(f"  {c('safety   :', DIM)}  destructive actions require explicit [y]")
-    print(f"\n  {c('Press Ctrl+C to stop.', DIM)}\n")
+    # ── Boot screen ────────────────────────────────────────────────────────────
+    print(f"\n{c('[SAGCO DAEMON]', BLD + GRN)}\n")
+    print("Watching:")
+    for d in watched:
+        print(f"  {d}/")
+    print()
+    print(f"Approval required for: {', '.join(approval_required)}")
+    print()
+    print(f"{c('Status: ONLINE', BLD + GRN)}")
+    print()
+    print(c("─" * 40, DIM))
+    print(f"{c('Ctrl+C to stop.', DIM)}")
+    print(c("─" * 40, DIM))
+    print()
 
     file_state: dict = {}
 
-    # Initial scan — check for existing artifacts on startup
+    # Initial scan
     artifacts, bytecode_lines = eater(watched, file_state)
     if artifacts or bytecode_lines:
         events = build_events(artifacts, bytecode_lines)
@@ -369,10 +374,6 @@ def main():
         if decision == "allow":
             print()
             run_pipeline_approved(cfg, artifacts, bytecode_lines)
-    else:
-        print(f"  {c('No existing artifacts — watching...', DIM)}\n")
-
-    print(f"\n{c('[daemon]', GRN)} watching for changes...")
 
     try:
         while True:
@@ -386,9 +387,8 @@ def main():
                 if decision == "allow":
                     print()
                     run_pipeline_approved(cfg, artifacts, bytecode_lines)
-                print(f"\n{c('[daemon]', GRN)} watching for changes...")
     except KeyboardInterrupt:
-        print(f"\n{c('[daemon]', DIM)} stopped. goodbye.\n")
+        print(f"\n{c('stopped.', DIM)}\n")
         sys.exit(0)
 
 
