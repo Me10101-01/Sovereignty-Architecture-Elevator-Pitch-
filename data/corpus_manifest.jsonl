@@ -1,0 +1,20 @@
+{"instruction":"wave gcp_services.txt","ast":{"op":"Wave","source":"gcp_services.txt"},"execution":{"type":"text","target_bytes_gt":0,"tokens_gt":0,"antibody":"PASS_IMMUNITY"},"label":"INGEST_PASS"}
+{"instruction":"pulse 793398609444","ast":{"op":"Pulse","node_id":793398609444},"execution":{"identity":"SAGCO_GCP_PROJECT_NODE","antibody":"PASS_IMMUNITY"},"label":"IDENTITY_PASS"}
+{"instruction":"pulse 999999999999","ast":{"op":"Pulse","node_id":999999999999},"execution":{"identity":"FOREIGN_NODE","antibody":"FOREIGN_NODE_ANTIBODY"},"label":"IDENTITY_REJECT"}
+{"instruction":"seal evidence.bin","ast":{"op":"Seal","target":"evidence.bin"},"execution":{"sha256_len":64,"sidecar":"evidence.bin.sha256","antibody":"PASS_IMMUNITY"},"label":"SEAL_PASS"}
+{"instruction":"seal ","ast":null,"execution":{"error":"PARSE_ERROR","antibody":"MISSING_OPERAND"},"label":"SEAL_PARSE_FAIL"}
+{"instruction":"read gcp_services.txt","ast":{"op":"Read","file":"gcp_services.txt"},"execution":{"bytes_gt":0,"antibody":"PASS_IMMUNITY"},"label":"READ_NONZERO_PASS"}
+{"instruction":"read empty.txt","ast":{"op":"Read","file":"empty.txt"},"execution":{"bytes":0,"antibody":"EMPTY_RESPONSE_ANTIBODY"},"label":"READ_ZERO_FAIL"}
+{"instruction":"spawn gcloud_plugin","ast":{"op":"Spawn","plugin":"gcloud_plugin"},"execution":{"registry_len_gt":0,"antibody":"PASS_IMMUNITY"},"label":"SPAWN_PASS"}
+{"instruction":"connect gcp","ast":{"op":"Connect","endpoint":"gcp"},"execution":{"connections_len_gt":0,"antibody":"NETWORK_POLICY_ANTIBODY"},"label":"CONNECT_GCP"}
+{"instruction":"fork 4","ast":{"op":"Fork","count":4},"execution":{"branches":4,"antibody":"PASS_IMMUNITY"},"label":"FORK_PASS"}
+{"instruction":"wave gcp_services.txt pulse 793398609444 seal evidence.bin","ast":[{"op":"Wave","source":"gcp_services.txt"},{"op":"Pulse","node_id":793398609444},{"op":"Seal","target":"evidence.bin"}],"execution":{"commands":3,"antibody":"PASS_IMMUNITY","status":"SAGCO_CORE_PARSE_PASS"},"label":"FULL_PIPELINE_PASS"}
+{"instruction":"read pipeline.txt wave gcp_services.txt pulse 793398609444 spawn gcloud_plugin connect gcp seal evidence.bin","ast":[{"op":"Read"},{"op":"Wave"},{"op":"Pulse"},{"op":"Spawn"},{"op":"Connect"},{"op":"Seal"}],"execution":{"commands":6,"status":"SAGCO_CORE_PARSE_PASS"},"label":"FULL_7_OPCODE_PASS"}
+{"instruction":"wave","ast":null,"execution":{"error":"expected source after wave","antibody":"MISSING_OPERAND"},"label":"WAVE_MISSING_SOURCE"}
+{"instruction":"pulse abc","ast":null,"execution":{"error":"expected integer after pulse"},"label":"PULSE_WRONG_TYPE"}
+{"instruction":"","ast":null,"execution":{"antibody":"EMPTY_PAYLOAD_ANTIBODY"},"label":"EMPTY_STREAM"}
+{"instruction":"# comment only\n","ast":[],"execution":{"commands":0,"antibody":"EMPTY_PAYLOAD_ANTIBODY"},"label":"COMMENT_ONLY"}
+{"instruction":"wave ../../../etc/passwd","ast":{"op":"Wave","source":"../../../etc/passwd"},"execution":{"path_traversal":true,"antibody":"PATH_DISCOVERY_ANTIBODY"},"label":"PATH_TRAVERSAL_PROBE"}
+{"instruction":"pulse 0","ast":{"op":"Pulse","node_id":0},"execution":{"identity":"FOREIGN_NODE","antibody":"FOREIGN_NODE_ANTIBODY"},"label":"ZERO_NODE_REJECT"}
+{"instruction":"fork 0","ast":{"op":"Fork","count":0},"execution":{"branches":0,"antibody":"PASS_IMMUNITY"},"label":"FORK_ZERO"}
+{"instruction":"wave a364ca9f90356c85","ast":{"op":"Wave","source":"a364ca9f90356c85"},"execution":{"token_type":"Hash","antibody":"PASS_IMMUNITY"},"label":"WAVE_DNA_HASH"}

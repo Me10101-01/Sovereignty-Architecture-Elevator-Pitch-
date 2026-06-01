@@ -1,0 +1,7 @@
+# libfuzzer crash artifacts — do NOT commit (large binary blobs)
+artifacts/
+# save crashes/ to regression tests instead
+crashes/
+# local fuzz run outputs
+*.profdata
+*.profraw

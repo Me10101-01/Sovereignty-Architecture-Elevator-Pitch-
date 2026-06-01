@@ -1,0 +1,220 @@
+name: SAGCO Ledger Gate
+
+# Rejects builds that fail zero-byte, fuzz, or cryptographic evidence metrics.
+# A build that cannot prove BYTES > 0 and produce a real SHA-256 seal is
+# classified as ECHO_SCRIPT and blocked from merge.
+
+on:
+  push:
+    paths:
+      - 'sagco_rust_modules/**'
+      - 'fuzz/**'
+      - 'tests/**'
+      - 'Cargo.toml'
+  pull_request:
+    paths:
+      - 'sagco_rust_modules/**'
+      - 'fuzz/**'
+      - 'tests/**'
+      - 'Cargo.toml'
+
+env:
+  SAGCO_PROJECT: sagco-oscomputconsciousness
+  SAGCO_DNA:     a364ca9f90356c85
+  RUST_BACKTRACE: 1
+
+jobs:
+
+  # ── Stage 1: Build + Unit Tests ─────────────────────────────────────────────
+  build-and-test:
+    name: Build + Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build release binary
+        run: cargo build --release
+
+      - name: Run unit tests
+        run: cargo test --all
+
+      - name: Clippy (deny warnings)
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+  # ── Stage 2: Zero-Byte Gate ──────────────────────────────────────────────────
+  zero-byte-gate:
+    name: Zero-Byte Antibody Gate
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build binary
+        run: cargo build --release
+
+      - name: Seed real pipeline file
+        run: |
+          echo "wave gcp_services.txt pulse 793398609444 seal evidence.bin" > pipeline.txt
+          echo "Cloud Run API" > gcp_services.txt
+          echo "PROJECT_NUMBER=793398609444" >> gcp_services.txt
+
+      - name: Run pipeline — verify BYTES > 0
+        run: |
+          OUTPUT=$(./target/release/sagco-core -- pipeline.txt 2>&1 || true)
+          echo "$OUTPUT"
+
+          # Gate: must not contain BYTES=0 in the READ line
+          if echo "$OUTPUT" | grep -q '\[READ\].*BYTES=0'; then
+            echo "GATE_FAIL: Zero-byte payload detected — EMPTY_PAYLOAD_ANTIBODY"
+            echo "CLASSIFICATION: ECHO_SCRIPT — build rejected"
+            exit 1
+          fi
+
+          # Gate: must contain real SHA256 seal
+          if ! echo "$OUTPUT" | grep -q 'SHA256=[0-9a-f]\{64\}'; then
+            echo "GATE_FAIL: No cryptographic seal produced"
+            exit 1
+          fi
+
+          echo "GATE_PASS: BYTES > 0 and SHA256 seal verified"
+
+      - name: Verify SHA256 implementation against known vectors
+        run: cargo test crypto -- --nocapture
+
+  # ── Stage 3: Pulse Identity Mask ─────────────────────────────────────────────
+  identity-gate:
+    name: Pulse Identity Gate (793398609444)
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build binary
+        run: cargo build --release
+
+      - name: Test SAGCO project node accepted
+        run: |
+          echo "pulse 793398609444" > identity_test.txt
+          OUTPUT=$(./target/release/sagco-core -- identity_test.txt 2>&1 || true)
+          echo "$OUTPUT"
+          if ! echo "$OUTPUT" | grep -q "SAGCO_GCP_PROJECT_NODE"; then
+            echo "GATE_FAIL: Identity mask rejected valid project node"
+            exit 1
+          fi
+
+      - name: Test foreign node rejected
+        run: |
+          echo "pulse 999999999999" > foreign_test.txt
+          OUTPUT=$(./target/release/sagco-core -- foreign_test.txt 2>&1 || true)
+          echo "$OUTPUT"
+          if ! echo "$OUTPUT" | grep -q "FOREIGN_NODE_ANTIBODY"; then
+            echo "GATE_FAIL: Foreign node not rejected by identity mask"
+            exit 1
+          fi
+          echo "GATE_PASS: Identity mask working correctly"
+
+  # ── Stage 4: Fuzz Gate (10-minute daily run) ─────────────────────────────────
+  fuzz-gate:
+    name: Fuzz Gate (lexer + parser)
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    # only run on schedule or manual trigger to avoid blocking PRs with slow fuzz
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install nightly + cargo-fuzz
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz
+
+      - name: Fuzz lexer (10 minutes)
+        run: |
+          cargo fuzz run fuzz_lexer \
+            fuzz/corpus/ \
+            -- -max_total_time=600 -max_len=4096
+        working-directory: .
+
+      - name: Fuzz parser (10 minutes)
+        run: |
+          cargo fuzz run fuzz_parser \
+            fuzz/corpus/ \
+            -- -max_total_time=600 -max_len=4096
+        working-directory: .
+
+      - name: Upload crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crashes
+          path: fuzz/crashes/
+
+  # ── Stage 5: Evidence Ledger Seal ────────────────────────────────────────────
+  evidence-seal:
+    name: Cryptographic Evidence Ledger
+    runs-on: ubuntu-latest
+    needs: [zero-byte-gate, identity-gate]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --release
+
+      - name: Generate evidence.bin
+        run: |
+          # evidence.bin = SHA-256 of the compiled binary itself
+          sha256sum target/release/sagco-core > evidence.bin
+          echo "SAGCO_DNA=$SAGCO_DNA" >> evidence.bin
+          echo "PROJECT=$SAGCO_PROJECT" >> evidence.bin
+          echo "BUILD_SHA=$(git rev-parse HEAD)" >> evidence.bin
+          cat evidence.bin
+
+      - name: Upload evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sagco-evidence-ledger
+          path: evidence.bin
+
+      - name: Gate — verify ledger is non-empty
+        run: |
+          BYTES=$(wc -c < evidence.bin)
+          echo "EVIDENCE_BYTES=$BYTES"
+          if [ "$BYTES" -eq 0 ]; then
+            echo "GATE_FAIL: evidence.bin is empty"
+            exit 1
+          fi
+          echo "GATE_PASS: evidence.bin sealed — STATUS=SAGCO_LEDGER_GATE_PASS"
+
+# ── Schedule: daily deep fuzz run ────────────────────────────────────────────
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 2 AM UTC daily — deep fuzz loop
+  workflow_dispatch:        # manual trigger

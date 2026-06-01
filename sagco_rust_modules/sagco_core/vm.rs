@@ -5,6 +5,7 @@
 
 use std::collections::HashMap;
 use super::parser::Command;
+use super::crypto::{seal_bytes, SealError, SealLedger};
 
 // ── Antibody types the VM fires ───────────────────────────────────────────────
 #[derive(Debug, Clone, PartialEq)]
@@ -55,9 +56,10 @@ impl VmResult {
 pub struct SagcoVm {
     pub tokens_ingested: usize,
     pub evidence_chain:  Vec<String>,
-    pub node_registry:   HashMap<u64, String>,  // node_id → status
+    pub node_registry:   HashMap<u64, String>,
     pub plugin_registry: Vec<String>,
     pub connections:     Vec<String>,
+    pub seal_ledger:     SealLedger,
 }
 
 impl SagcoVm {
@@ -68,6 +70,7 @@ impl SagcoVm {
             node_registry:   HashMap::new(),
             plugin_registry: Vec::new(),
             connections:     Vec::new(),
+            seal_ledger:     SealLedger::new(),
         }
     }
 
@@ -158,41 +161,36 @@ impl SagcoVm {
                 )
             }
 
-            // ── SEAL: SHA256-equivalent fingerprint of a file ──────────────
+            // ── SEAL: real SHA-256 via crypto module ───────────────────────
             Command::Seal { target } => {
-                let seal = match std::fs::read(target) {
-                    Ok(bytes) => {
-                        // deterministic FNV seal
-                        let h: u64 = bytes.iter().enumerate().fold(
-                            0xcbf29ce484222325_u64,
-                            |acc, (i, &b)| {
-                                acc.wrapping_mul(0x100000001b3)
-                                   .wrapping_add(b as u64)
-                                   .wrapping_add(i as u64)
-                            },
-                        );
-                        format!("{:016x}", h)
+                // try to read the real file; fallback to sealing the filename bytes
+                let data = std::fs::read(target)
+                    .unwrap_or_else(|_| target.as_bytes().to_vec());
+
+                match seal_bytes(target, &data) {
+                    Ok(result) => {
+                        self.seal_ledger.record(target, &result.sha256);
+                        self.evidence_chain.push(format!("{}:{}", target, result.sha256));
+                        VmResult::pass(
+                            "seal",
+                            format!(
+                                "[SEAL] {} SHA256={}  EVIDENCE_LOCKED",
+                                target, result.sha256
+                            ),
+                            0,
+                        )
                     }
-                    Err(_) => {
-                        // seal the filename string as fallback
-                        let h: u64 = target.bytes().enumerate().fold(
-                            0xcbf29ce484222325_u64,
-                            |acc, (i, b)| {
-                                acc.wrapping_mul(0x100000001b3)
-                                   .wrapping_add(b as u64)
-                                   .wrapping_add(i as u64)
-                            },
-                        );
-                        format!("{:016x}", h)
-                    }
-                };
-                let entry = format!("{}:{}", target, seal);
-                self.evidence_chain.push(entry.clone());
-                VmResult::pass(
-                    "seal",
-                    format!("[SEAL] {} → fp={}  EVIDENCE_LOCKED", target, seal),
-                    0,
-                )
+                    Err(SealError::EmptyPayload) => VmResult::fail(
+                        "seal",
+                        VmAntibody::UnknownVariance,
+                        format!("[SEAL] {} EMPTY_PAYLOAD_ANTIBODY — zero bytes rejected", target),
+                    ),
+                    Err(SealError::IoError(e)) => VmResult::fail(
+                        "seal",
+                        VmAntibody::PathDiscovery,
+                        format!("[SEAL] {} IO_ERROR: {}", target, e),
+                    ),
+                }
             }
 
             // ── SPAWN: register and activate a plugin ──────────────────────

@@ -5,13 +5,15 @@
 pub mod lexer;
 pub mod parser;
 pub mod vm;
+pub mod crypto;
+pub mod cloud_io;
 
 pub use lexer::{Lexer, Token};
 pub use parser::{Command, Parser};
 pub use vm::{SagcoVm, VmAntibody, VmResult};
+pub use crypto::{sha256_hex, seal_file, seal_bytes, verify_seal, SealLedger};
 
 /// Run a SAGCO bytecode stream through the full Lex → Parse → Execute pipeline.
-/// Returns the VM state after execution for inspection.
 pub fn run_stream(stream: &str) -> SagcoVm {
     let lexer  = Lexer::new(stream);
     let mut parser = Parser::new(lexer);

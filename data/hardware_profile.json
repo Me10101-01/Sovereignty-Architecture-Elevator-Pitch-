@@ -1,0 +1,43 @@
+{
+  "node_id": "sagco-node-termux-01",
+  "platform": "android-arm64",
+  "arch": "aarch64",
+  "os": "Android (Termux)",
+  "project": "sagco-oscomputconsciousness",
+  "project_number": 793398609444,
+  "sagco_dna": "a364ca9f90356c85",
+  "rust_target": "aarch64-linux-android",
+  "binary": "target/release/sagco_rust_command_compiler",
+  "binary_format": "ELF 64-bit LSB pie executable",
+  "baseline": {
+    "compile_time_seconds": 3.19,
+    "binary_size_kb": 974,
+    "tokens_per_second_estimate": 50000,
+    "max_input_bytes": 4096,
+    "max_commands_per_stream": 100,
+    "sha256_ops_per_second_estimate": 1000000
+  },
+  "capabilities": {
+    "gcloud_available": false,
+    "pdftotext_available": false,
+    "tesseract_available": false,
+    "sqlite3_available": false,
+    "network_policy": "NETWORK_POLICY_ANTIBODY"
+  },
+  "maturity": {
+    "rust_runtime": 80,
+    "plugin_system": 65,
+    "compose_runner": 55,
+    "evidence_pipeline": 85,
+    "cloud_integration": 20,
+    "crypto_engine": 90,
+    "fuzz_coverage": 0,
+    "os_total": 56
+  },
+  "evidence_chain": [
+    "SAGCO_COMMAND_DNA=a364ca9f90356c85",
+    "BINARY_SHA256=0044542e3ef9bcb65a0f1c8176297543b71d93205bb07822ca10b35dde3e7a29"
+  ],
+  "license": "SSL-1.0",
+  "entity": "Strategickhaos DAO LLC"
+}
