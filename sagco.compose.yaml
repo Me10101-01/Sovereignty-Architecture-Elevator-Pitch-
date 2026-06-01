@@ -1,0 +1,57 @@
+version: "0.1"
+name: SAGCO Evidence Engineering OS
+entity: Strategickhaos DAO LLC
+license: SSL-1.0
+dna: a364ca9f90356c85
+
+runtime:
+  root: .
+  binary: target/release/sagco_rust_command_compiler
+
+plugins:
+  - name: send
+    script: ./sagco_send.sh
+    output: reports/send_protocol
+    compose_args: "--variant standard --tag compose_probe SAGCO_COMPOSE_RUN_PROBE"
+
+  - name: trinity_recon
+    script: ./sagco_trinity_recon.sh
+    output: reports/trinity_recon
+    compose_args: ""
+
+  - name: evo
+    script: ./sagco_evo.sh
+    output: reports/evolution_variance
+    compose_args: ""
+
+  - name: ghidra_flametoken
+    script: ./sagco_ghidra_flametoken.sh
+    output: reports/ghidra
+    compose_args: ""
+
+  - name: purple_efficiency_audit
+    script: ./sagco_purple_efficiency_audit.sh
+    output: reports/purple_efficiency_audit
+    compose_args: ""
+
+  - name: terminal_antibody
+    script: ./sagco_terminal_antibody.sh
+    output: reports/terminal_antibody
+    compose_args: ""
+
+  - name: bloodhound
+    script: ./sagco_bloodhound.sh
+    output: reports/bloodhound
+    compose_args: ""
+
+pipeline:
+  - detect
+  - tokenize
+  - fingerprint
+  - variance
+  - antibody
+  - evidence
+  - project
+  - seal
+
+status: SAGCO_COMPOSE_V0_CREATED

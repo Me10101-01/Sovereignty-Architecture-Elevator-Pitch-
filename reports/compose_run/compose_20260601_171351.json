@@ -1,0 +1,55 @@
+{
+  "stamp": "20260601_171351",
+  "compose": "sagco.compose.yaml",
+  "total": 7,
+  "pass": 5,
+  "skip": 1,
+  "fail": 1,
+  "pass_rate": 71,
+  "results": [
+    {
+      "plugin": "send",
+      "status": "PASS",
+      "antibody": "PASS_IMMUNITY",
+      "trajectory": "stabilized"
+    },
+    {
+      "plugin": "trinity_recon",
+      "status": "SKIP",
+      "antibody": "SKIP_ANTIBODY",
+      "trajectory": "skipped"
+    },
+    {
+      "plugin": "evo",
+      "status": "PASS",
+      "antibody": "PASS_IMMUNITY",
+      "trajectory": "stabilized"
+    },
+    {
+      "plugin": "ghidra_flametoken",
+      "status": "FAIL",
+      "antibody": "PLATFORM_LIMITATION_ANTIBODY",
+      "trajectory": "adaptation"
+    },
+    {
+      "plugin": "purple_efficiency_audit",
+      "status": "PASS",
+      "antibody": "PASS_IMMUNITY",
+      "trajectory": "stabilized"
+    },
+    {
+      "plugin": "terminal_antibody",
+      "status": "PASS",
+      "antibody": "PASS_IMMUNITY",
+      "trajectory": "stabilized"
+    },
+    {
+      "plugin": "bloodhound",
+      "status": "PASS",
+      "antibody": "PASS_IMMUNITY",
+      "trajectory": "stabilized"
+    }
+  ],
+  "sagco_dna": "a364ca9f90356c85",
+  "status": "SAGCO_COMPOSE_RUN_PASS"
+}
