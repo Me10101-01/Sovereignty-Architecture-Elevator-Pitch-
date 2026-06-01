@@ -247,7 +247,7 @@ impl SagcoVm {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::sagco_core::parser::Command;
+    use crate::parser::Command;
 
     #[test]
     fn vm_pulse_gcp_project() {

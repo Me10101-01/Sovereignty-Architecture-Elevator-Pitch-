@@ -67,7 +67,7 @@ fn sha256_empty_string_vector() {
 fn sha256_abc_vector() {
     assert_eq!(
         sha256_hex(b"abc"),
-        "ba7816bf8f01cfea414140de5dae2ec73b00361bbef0469432f1cc029d8da14e"
+        "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
     );
 }
 
@@ -141,7 +141,7 @@ fn corpus_manifest_is_valid_jsonl() {
 
     for (i, line) in lines.iter().enumerate() {
         assert!(line.starts_with('{'), "line {} must be JSON object", i);
-        assert!(line.ends_with('}'),   "line {} must end with }",   i);
+        assert!(line.ends_with('}'),   "line {} must end with }}",  i);
         assert!(line.contains("\"instruction\""), "line {} must have instruction field", i);
         assert!(line.contains("\"label\""),       "line {} must have label field",       i);
     }

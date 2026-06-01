@@ -1,0 +1,14 @@
+[package]
+name = "sagco-core"
+version = "0.1.0"
+edition = "2021"
+description = "SAGCO-Core — bare-metal instruction compiler and VM"
+license = "SSL-1.0"
+
+# fuzz and sagco_shell are standalone crates — excluded from this workspace
+[workspace]
+exclude = ["fuzz", "sagco_shell"]
+
+[[bin]]
+name = "sagco-core"
+path = "sagco_rust_modules/sagco_core/main.rs"

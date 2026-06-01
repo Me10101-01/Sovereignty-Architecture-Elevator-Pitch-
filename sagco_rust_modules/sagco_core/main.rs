@@ -2,10 +2,13 @@
 // Usage:  cargo run -- pipeline.txt
 //         cargo run              (uses default stream)
 // License: SSL-1.0 — Strategickhaos DAO LLC
+mod antibody;
+mod crypto;
 mod lexer;
 mod parser;
 mod vm;
 
+use antibody::Antibody;
 use lexer::Lexer;
 use parser::{Command, Parser};
 use vm::{SagcoVm, VmAntibody};
@@ -56,16 +59,14 @@ fn main() {
                 let bytes = content.len();
                 println!("[READ]: {} BYTES={}", path, bytes);
                 if bytes == 0 {
-                    println!("  ANTIBODY=EMPTY_RESPONSE_ANTIBODY");
                     println!("  HINT: echo 'wave gcp_services.txt pulse 793398609444 seal evidence.bin' > {}", path);
-                    std::process::exit(1);
+                    Antibody::EmptyResponse.fire("SAGCO_CORE_VARIANCE_FAIL");
                 }
                 (content, path.clone())
             }
             Err(e) => {
                 println!("[FATAL_IO]: {} — {}", path, e);
-                println!("  ANTIBODY=PATH_DISCOVERY_ANTIBODY");
-                std::process::exit(1);
+                Antibody::PathDiscovery.fire("SAGCO_CORE_VARIANCE_FAIL");
             }
         }
     } else {
@@ -97,6 +98,11 @@ fn main() {
                         match read_target_file(target) {
                             Ok(content) => {
                                 let bytes = content.len();
+                                if bytes == 0 {
+                                    println!("[WAVE]: {} TARGET_BYTES=0", target);
+                                    println!("  HINT: gcloud services list --enabled > {}", target);
+                                    Antibody::EmptyPayload.fire("SAGCO_CORE_VARIANCE_FAIL");
+                                }
                                 let tokens = wave_tokenize(&content);
                                 println!("[WAVE]: {} TARGET_BYTES={}  TOKENS={}",
                                     target, bytes, tokens.len());

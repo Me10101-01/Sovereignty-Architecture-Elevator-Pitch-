@@ -63,8 +63,9 @@ pub fn sha256(data: &[u8]) -> [u8; 32] {
             w[i] = w[i-16].wrapping_add(s0).wrapping_add(w[i-7]).wrapping_add(s1);
         }
 
-        // compression
-        let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut hh] = h;
+        // compression — explicit assignments avoid any array-destructure ambiguity
+        let mut a = h[0]; let mut b = h[1]; let mut c = h[2]; let mut d = h[3];
+        let mut e = h[4]; let mut f = h[5]; let mut g = h[6]; let mut hh = h[7];
 
         for i in 0..64 {
             let s1  = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
@@ -206,8 +207,10 @@ mod tests {
 
     #[test]
     fn sha256_abc() {
-        let h = sha256_hex(b"abc");
-        assert_eq!(h, "ba7816bf8f01cfea414140de5dae2ec73b00361bbef0469432f1cc029d8da14e");
+        assert_eq!(
+            sha256_hex(b"abc"),
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+        );
     }
 
     #[test]
