@@ -44,7 +44,7 @@ git for-each-ref --format='%(refname:short)' refs/remotes/origin/pr \
   if find . -name '*.sh' | head -1 | grep -q .; then
     echo "shell syntax:" >> "$REPORT"
     find . -name '*.sh' ! -path './.git/*' -print0 \
-      | xargs -0 -n1 sh -n >> "$REPORT" 2>&1 && echo "PASS" >> "$REPORT" || echo "FAIL" >> "$REPORT"
+      | xargs -0 -n1 bash -n >> "$REPORT" 2>&1 && echo "PASS" >> "$REPORT" || echo "FAIL" >> "$REPORT"
   fi
 
   if [ -f Cargo.toml ]; then
