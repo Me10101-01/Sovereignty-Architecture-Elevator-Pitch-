@@ -1,0 +1,11 @@
+NAME=bloodhound
+VERSION=1.0.0
+OPCODE=sagco bloodhound
+DOMAIN=circuit_data
+EXTRACTOR=sagco_circuit.db query
+TOKENIZER=frequency_histogram
+FINGERPRINTER=sha256sum
+ANTIBODY_ENGINE=sagco_bloodhound.sh
+PROJECTIONS=renko_chart,candlestick,report
+LICENSE=SSL-1.0
+ENTITY=Strategickhaos DAO LLC

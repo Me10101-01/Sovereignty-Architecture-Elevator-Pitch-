@@ -1,0 +1,11 @@
+NAME=ingest
+VERSION=1.0.0
+OPCODE=sagco ingest
+DOMAIN=any
+EXTRACTOR=PluginKind::from_path auto-detect
+TOKENIZER=SagcoInput trait dispatch
+FINGERPRINTER=sha256sum
+ANTIBODY_ENGINE=sagco_darwin_antibody.sh
+PROJECTIONS=all
+LICENSE=SSL-1.0
+ENTITY=Strategickhaos DAO LLC

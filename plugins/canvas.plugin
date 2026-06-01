@@ -1,0 +1,11 @@
+NAME=canvas
+VERSION=1.0.0
+OPCODE=sagco agent canvas
+DOMAIN=any
+EXTRACTOR=token edge graph
+TOKENIZER=graph_layout
+FINGERPRINTER=sha256sum
+ANTIBODY_ENGINE=none
+PROJECTIONS=canvas_json,report
+LICENSE=SSL-1.0
+ENTITY=Strategickhaos DAO LLC

@@ -1,0 +1,11 @@
+NAME=ghidra
+VERSION=1.0.0
+OPCODE=analyzeHeadless
+DOMAIN=elf_binary
+EXTRACTOR=strings+readelf+nm
+TOKENIZER=symbol_extract
+FINGERPRINTER=sha256sum
+ANTIBODY_ENGINE=sagco_darwin_antibody.sh
+PROJECTIONS=flametokens,report
+LICENSE=SSL-1.0
+ENTITY=Strategickhaos DAO LLC

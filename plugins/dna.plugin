@@ -1,0 +1,11 @@
+NAME=dna
+VERSION=1.0.0
+OPCODE=sagco cmd dna
+DOMAIN=any
+EXTRACTOR=sagco binary
+TOKENIZER=fnv64_hash
+FINGERPRINTER=sha256sum
+ANTIBODY_ENGINE=none
+PROJECTIONS=circuit_ledger,archive
+LICENSE=SSL-1.0
+ENTITY=Strategickhaos DAO LLC

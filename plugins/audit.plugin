@@ -1,0 +1,11 @@
+NAME=audit
+VERSION=1.0.0
+OPCODE=sagco eur probe
+DOMAIN=any
+EXTRACTOR=expected/actual compare
+TOKENIZER=delta_score
+FINGERPRINTER=sha256sum
+ANTIBODY_ENGINE=sagco_eur_engine.sh
+PROJECTIONS=report,circuit_ledger
+LICENSE=SSL-1.0
+ENTITY=Strategickhaos DAO LLC

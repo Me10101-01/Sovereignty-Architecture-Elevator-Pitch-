@@ -1,0 +1,11 @@
+NAME=obsidian
+VERSION=1.0.0
+OPCODE=sagco agent obsidian
+DOMAIN=markdown
+EXTRACTOR=find vault -name *.md \
+TOKENIZER= xargs cat
+FINGERPRINTER=whitespace_tokenize
+ANTIBODY_ENGINE=sha256sum
+PROJECTIONS=sagco_darwin_antibody.sh|vault_node,past_chain
+LICENSE=SSL-1.0
+ENTITY=Strategickhaos DAO LLC

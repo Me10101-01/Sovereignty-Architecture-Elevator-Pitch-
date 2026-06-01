@@ -1,0 +1,11 @@
+NAME=terminal
+VERSION=1.0.0
+OPCODE=sagco_shell
+DOMAIN=shell_command
+EXTRACTOR=bash -c CMD 2>&1
+TOKENIZER=stderr_lines
+FINGERPRINTER=sha256sum
+ANTIBODY_ENGINE=sagco_terminal_antibody.sh
+PROJECTIONS=circuit_ledger,report
+LICENSE=SSL-1.0
+ENTITY=Strategickhaos DAO LLC
