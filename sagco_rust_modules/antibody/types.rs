@@ -3,14 +3,31 @@
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Antibody {
+    // core (all domains)
     PassImmunity,
+    UnknownVariance,
+    // shell / path
     PathDiscovery,
     ProjectRoot,
-    JdkGate,
     Dependency,
+    // rust
+    BorrowChecker,
+    CompileError,
     StubDetected,
+    // python
+    SyntaxError,
+    ImportError,
+    // sql
+    SchemaError,
+    // ghidra / binary
+    JdkGate,
     PlatformLimitation,
-    UnknownVariance,
+    // ai / llm
+    ContextCollapse,
+    RateLimit,
+    // academic
+    PrerequisiteGate,
+    CurriculumBottleneck,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -46,14 +63,23 @@ pub struct CircuitRow {
 impl Antibody {
     pub fn as_str(&self) -> &'static str {
         match self {
-            Antibody::PassImmunity      => "PASS_IMMUNITY",
-            Antibody::PathDiscovery     => "PATH_DISCOVERY_ANTIBODY",
-            Antibody::ProjectRoot       => "PROJECT_ROOT_ANTIBODY",
-            Antibody::JdkGate           => "JDK_GATE_ANTIBODY",
-            Antibody::Dependency        => "DEPENDENCY_ANTIBODY",
-            Antibody::StubDetected      => "STUB_DETECTED_ANTIBODY",
-            Antibody::PlatformLimitation=> "PLATFORM_LIMITATION_ANTIBODY",
-            Antibody::UnknownVariance   => "UNKNOWN_VARIANCE_ANTIBODY",
+            Antibody::PassImmunity          => "PASS_IMMUNITY",
+            Antibody::UnknownVariance       => "UNKNOWN_VARIANCE_ANTIBODY",
+            Antibody::PathDiscovery         => "PATH_DISCOVERY_ANTIBODY",
+            Antibody::ProjectRoot           => "PROJECT_ROOT_ANTIBODY",
+            Antibody::Dependency            => "DEPENDENCY_ANTIBODY",
+            Antibody::BorrowChecker         => "BORROW_CHECKER_ANTIBODY",
+            Antibody::CompileError          => "COMPILE_ERROR_ANTIBODY",
+            Antibody::StubDetected          => "STUB_DETECTED_ANTIBODY",
+            Antibody::SyntaxError           => "SYNTAX_ANTIBODY",
+            Antibody::ImportError           => "IMPORT_ANTIBODY",
+            Antibody::SchemaError           => "SCHEMA_ANTIBODY",
+            Antibody::JdkGate               => "JDK_GATE_ANTIBODY",
+            Antibody::PlatformLimitation    => "PLATFORM_LIMITATION_ANTIBODY",
+            Antibody::ContextCollapse       => "CONTEXT_COLLAPSE_ANTIBODY",
+            Antibody::RateLimit             => "RATE_LIMIT_ANTIBODY",
+            Antibody::PrerequisiteGate      => "PREREQUISITE_ANTIBODY",
+            Antibody::CurriculumBottleneck  => "CURRICULUM_BOTTLENECK_ANTIBODY",
         }
     }
 }
