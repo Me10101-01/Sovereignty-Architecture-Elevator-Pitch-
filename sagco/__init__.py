@@ -11,6 +11,7 @@ from .parser import parse, parse_command, CommandNode, PipelineNode, ScriptNode
 from .vm import VM, SAGCOToken, Process
 from .dna_cell import ingest_to_dna, ingest_folder, DNACell
 from .crawler import StepperCrawler, crawl_to_pipeline, PipelineGraph
+from .provenance import provenance_fingerprint, inject_soul, generate_obsidian_note
 
 __all__ = [
     "lex", "token_stream", "Token", "TT",
@@ -18,4 +19,5 @@ __all__ = [
     "VM", "SAGCOToken", "Process",
     "ingest_to_dna", "ingest_folder", "DNACell",
     "StepperCrawler", "crawl_to_pipeline", "PipelineGraph",
+    "provenance_fingerprint", "inject_soul", "generate_obsidian_note",
 ]

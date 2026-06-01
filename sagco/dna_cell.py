@@ -206,7 +206,17 @@ def ingest_to_dna(
     }
 
     cell.finalize()
-    return cell.to_dict()
+    result = cell.to_dict()
+
+    # ── genesis cells get a soul organelle from PROVENANCE.yaml ───────────
+    if generation == 1 or generation == 0:
+        try:
+            from .provenance import inject_soul
+            result = inject_soul(result)
+        except Exception:
+            pass
+
+    return result
 
 
 # ── Folder-level batch ingest ──────────────────────────────────────────────

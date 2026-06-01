@@ -1,0 +1,97 @@
+# sagco/reach.yaml
+# Honest runtime registry — updated 2026-06-01.
+# Generated from the Fellowship Audit evidence.
+# This file is the source of truth for what SAGCO can actually reach today.
+
+schema_version: "1.0"
+audit_date: "2026-06-01"
+auditor: "Fellowship Review Board + Dom"
+
+# The chain that actually ran:
+confirmed_pipeline:
+  - node: ZFold
+    role: "portable memory layer / remote artifact archive"
+  - node: Termux / iSH
+    role: "execution shell on mobile"
+  - node: sagco-master.yaml
+    role: "master YAML registry (confirmed: sagco-master.sh init → PASS)"
+  - node: artifact_inventory
+    role: "treasure hunter (TREASURES: 142)"
+  - node: Obsidian graph
+    role: "filesystem graph (orange nodes = files/folders, not semantic yet)"
+  - node: Claude Code workspace
+    role: "reasoning + code generation node"
+  - node: Git repository
+    role: "version-control node"
+  - node: Windows tools enumeration
+    role: "native capability mapping"
+  - node: PowerShell agents
+    role: "execution node"
+  - node: VM / VirtualBox
+    role: "sandbox / hypervisor layer"
+  - node: Research corpus
+    role: "knowledge input"
+
+# Node register — what each MIDI slot actually maps to:
+midi_register:
+  MIDI-21: PowerShell
+  MIDI-22: Remote Desktop
+  MIDI-24: Diagnostics
+  MIDI-26: Administration
+  MIDI-27: Command routing
+
+# What is actually true today:
+capabilities:
+  workflow_orchestration: true      # this is the correct label
+  filesystem_graph: true
+  artifact_inventory: true
+  yaml_registry: true
+  shell_dispatch: true
+  ai_reasoning: true
+  version_control: true
+  hypervisor: true
+  semantic_graph: false             # next step
+  kernel: false
+  pid_allocator: false              # SAGCO VM is a simulation, not kernel-level
+  custom_os: false                  # partial, not yet
+
+# ZFold node descriptor (first real runtime registry entry):
+sagco_zfold_node:
+  device: ZFold
+  root: "~/downloads"
+  master_yaml: sagco-master.yaml
+  master_runner: sagco-master.sh
+  confirmed_commands:
+    - "sagco-master.sh init    → STATUS: PASS"
+    - "sagco-master.sh treasure → TREASURES: 142"
+
+# The honest trajectory:
+evolution:
+  observed:
+    - "Tool Collector"
+    - "Workflow Builder"
+    - "System Mapper"
+    - "Agent Architect"
+  current_stage: "System Mapper / early Agent Architect"
+  evidence: "ZFold acts as portable memory; desktop acts as execution layer"
+
+# What closes the gap to the full SAGCO vision:
+gap_closure:
+  step_1:
+    action: "SAGCO lexer ingests markdown/yaml/txt/pdf"
+    status: "built (sagco/lexer.py)"
+  step_2:
+    action: "Parser extracts entities, commands, agents, paths"
+    status: "built (sagco/parser.py)"
+  step_3:
+    action: "VM assigns agents to MIDI IDs"
+    status: "built (sagco/vm.py — register file maps to MIDI_*)"
+  step_4:
+    action: "Crawler builds semantic links (not just folder links)"
+    status: "partial — DNA cell organelles carry semantic structure"
+  step_5:
+    action: "Obsidian graph receives auto-generated links from SAGCO"
+    status: "not yet — requires Obsidian plugin or dataview query output"
+  step_6:
+    action: "Pi as always-on deploy node"
+    status: "built (sagco/rpi_autodeploy.sh)"
