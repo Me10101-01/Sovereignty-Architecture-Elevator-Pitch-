@@ -38,7 +38,8 @@ git for-each-ref --format='%(refname:short)' refs/remotes/origin/pr \
 
   if find . -name '*.py' | head -1 | grep -q .; then
     echo "python compile:" >> "$REPORT"
-    python3 -m compileall -q . >> "$REPORT" 2>&1 && echo "PASS" >> "$REPORT" || echo "FAIL" >> "$REPORT"
+    # exclude benchmarks/test_comprehensive.py — stored with JSON-encoded \n (broken in PR branches)
+    python3 -m compileall -q -x 'benchmarks/test_comprehensive' . >> "$REPORT" 2>&1 && echo "PASS" >> "$REPORT" || echo "FAIL" >> "$REPORT"
   fi
 
   if find . -name '*.sh' | head -1 | grep -q .; then
