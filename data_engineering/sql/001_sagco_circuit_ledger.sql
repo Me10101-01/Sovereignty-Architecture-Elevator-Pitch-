@@ -189,7 +189,15 @@ VALUES
     ('sagco-rust-compiler-archive',
      'SAGCO_HEADLESS_VM_FUZZ_CASE_STUDY.tar.gz',
      '9d95f793179bd6d8b80bb2e035aa00ca46fccd58696855d52d0ef1476926206f',
-     'tarball', '20260601_062600');
+     'tarball', '20260601_062600'),
+    ('sagco-rust-compiler-archive',
+     'SAGCO_HEADLESS_VM_FUZZ_CASE_STUDY_v2.tar.gz',
+     '8c42a6f6b9656d8a6447e752a5985a0ce09edee9f31657f9286ca24418dea6d8',
+     'tarball', '20260601_070000'),
+    ('sagco-rust-compiler-archive',
+     'reports/SAGCO_OS_VV_METHODOLOGY.md',
+     '0e1e86a4aacdba324a196c0f897676f98e25c011be65061f88d39bfb6dbd097e',
+     'report', '20260601_070000');
 
 INSERT OR IGNORE INTO sagco_maturity
     (session, prototype_score, validation_score, audit_score,
@@ -201,6 +209,23 @@ VALUES
      324, 'a364ca9f90356c85',
      'EVOLUTION_WITH_PLATFORM_SPECIALIZATION',
      '20260601_063500');
+
+-- ── seed circuit rows from live Darwin run 20260601_081824 ──────────────────
+INSERT OR IGNORE INTO sagco_circuit
+  (stamp, session, command, expected, actual, exit_code, antibody, trajectory, variance, score)
+VALUES
+  ('20260601_081824','sagco-rust-compiler-archive','sagco past','SAGCO_PAST_PASS','SAGCO_PAST_PASS',0,'PASS_IMMUNITY','stabilized',0,'PASS'),
+  ('20260601_081824','sagco-rust-compiler-archive','sagco past-fuzz','SHA256: ...','SHA256: acdac2b3c817d2d5',0,'PASS_IMMUNITY','stabilized',0,'PASS'),
+  ('20260601_081824','sagco-rust-compiler-archive','sagco cmd dna','SAGCO_COMMAND_DNA=...','SAGCO_COMMAND_DNA=a364ca9f90356c85',0,'PASS_IMMUNITY','stabilized',0,'PASS'),
+  ('20260601_081824','sagco-rust-compiler-archive','./target/release/sagco past','FOUND','No such file or directory',127,'PATH_DISCOVERY_ANTIBODY','adaptation',1,'FAIL'),
+  ('20260601_081824','sagco-rust-compiler-archive','analyzeHeadless -import target/release/sagco','IMPORT_SUCCESS','not a valid directory or file (wrong binary name)',1,'PATH_DISCOVERY_ANTIBODY','adaptation',1,'FAIL');
+
+INSERT OR IGNORE INTO sagco_darwin_run
+  (stamp, session, pass_count, warn_count, fail_count, adapt_count, evolve_count, darwin_dna, report_path)
+VALUES
+  ('20260601_081824','sagco-rust-compiler-archive',3,0,2,0,0,
+   '7254ff2ed1800657db37073c31f7ac42b2afd2b526fca73452160dfc60919624',
+   'reports/darwin_antibody/darwin_20260601_081824.md');
 
 -- verify
 SELECT 'SAGCO_CIRCUIT_LEDGER_INITIALIZED' AS status;

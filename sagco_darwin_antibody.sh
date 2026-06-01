@@ -19,11 +19,12 @@ LOG="$OUT/darwin_${STAMP}.md"
 # ── antibody classifier ──────────────────────────────────────────────────────
 classify() {
   local text="$1" code="$2"
-  if   echo "$text" | grep -qi "No such file or directory"; then echo "PATH_DISCOVERY_ANTIBODY|adaptation"
+  if   echo "$text" | grep -qi "No such file or directory\|not a valid directory or file\|InvalidInputException"; then echo "PATH_DISCOVERY_ANTIBODY|adaptation"
   elif echo "$text" | grep -qi "could not find.*Cargo.toml"; then echo "PROJECT_ROOT_ANTIBODY|adaptation"
   elif echo "$text" | grep -qi "JDK 21\|JDK.*not be found"; then echo "JDK_GATE_ANTIBODY|evolution"
   elif echo "$text" | grep -qi "command not found\|not installed"; then echo "DEPENDENCY_ANTIBODY|adaptation"
   elif echo "$text" | grep -qi "stub\|fn main.*println"; then echo "STUB_DETECTED_ANTIBODY|mutation"
+  elif echo "$text" | grep -qi "decompil.*not exist\|os/linux_arm_64/decompile\|Could not find decompiler"; then echo "PLATFORM_LIMITATION_ANTIBODY|evolution"
   elif [ "$code" -eq 0 ]; then echo "PASS_IMMUNITY|stabilized"
   else echo "UNKNOWN_VARIANCE_ANTIBODY|mutation"
   fi
