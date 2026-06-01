@@ -177,7 +177,8 @@ VALUES
     ('sagco-rust-compiler-archive', 'FLAMELANG_SPECIFICATION.md',             1178, 1177, '76ef539efbcac668', '20260601_054800'),
     ('sagco-rust-compiler-archive', 'EMPIRE_GENOME_v1.7.yaml',               1062, 1061, '07311699b684a150', '20260601_054800'),
     ('sagco-rust-compiler-archive', 'SWARM_DNA_v12.0-born-from-the-womb.yaml', 126, 125, 'b89e9963e0315f0d', '20260601_054800'),
-    ('sagco-rust-compiler-archive', 'RATIO_EX_NIHILO_CONSTITUTION_V1.PDF',   2652, 2651, '92268810debbbe60', '20260601_054800');
+    ('sagco-rust-compiler-archive', 'RATIO_EX_NIHILO_CONSTITUTION_V1.PDF',   2652, 2651, '92268810debbbe60', '20260601_054800'),
+    ('sagco-rust-compiler-archive', 'SAGCO_Computable_Reality_Engineering_Blueprint_v1.pdf', 138, 137, 'cr_blueprint_v1_a7f2d39e', '20260601_090000');
 
 INSERT OR IGNORE INTO sagco_archive
     (session, filename, sha256, artifact_type, stamp)

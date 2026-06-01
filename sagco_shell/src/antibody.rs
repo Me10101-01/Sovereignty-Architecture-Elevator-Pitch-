@@ -61,6 +61,15 @@ pub fn classify_error(text: &str) -> AntibodyResult {
             trajectory: Trajectory::Evolution,
             recovery:   "pkg install gcc make pkg-config; build Ghidra native decompiler",
         }
+    } else if t.contains("is a shell builtin")
+        || (["cd", "pwd", "export", "source"].iter().any(|b| t.starts_with(b))
+            && t.contains("not found"))
+    {
+        AntibodyResult {
+            name:       "SHELL_BUILTIN_ANTIBODY",
+            trajectory: Trajectory::Adaptation,
+            recovery:   "cd/pwd are now native builtins in sagco_shell; pipes use sh -c fallback",
+        }
     } else if t.contains("context") && t.contains("limit") {
         AntibodyResult {
             name:       "CONTEXT_COLLAPSE_ANTIBODY",
