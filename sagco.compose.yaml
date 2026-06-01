@@ -44,6 +44,11 @@ plugins:
     output: reports/bloodhound
     compose_args: ""
 
+  - name: gcloud
+    script: ./sagco_gcloud.sh
+    output: reports/gcloud
+    compose_args: "config"
+
 pipeline:
   - detect
   - tokenize

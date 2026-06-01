@@ -1,0 +1,25 @@
+NAME=gcloud
+VERSION=1.0.0
+OPCODE=sagco gcloud
+DOMAIN=cloud
+EXTRACTOR=terminal:gcloud <command> 2>&1
+TOKENIZER=strings+grep
+FINGERPRINTER=sha256sum
+ANTIBODY_ENGINE=sagco_ingest.sh
+PROJECTIONS=report,past_chain,evidence_ledger
+RUNTIME=termux+cloud-sdk
+PLATFORM=android-arm64,linux-x86_64
+DEPENDENCY=gcloud CLI (Cloud SDK)
+RECOVERY=curl https://sdk.cloud.google.com | bash
+
+GCP_PROBES=auth_status,active_config,projects,services_enabled,service_accounts,storage_buckets,cloud_run
+VERTICAL_SLICE=Termux→sagco_gcloud→sagco_ingest→terminal_extractor→GCP→SagcoArtifact
+SAGCO_MAPPING_API_KEY=Agent Identity Plugin
+SAGCO_MAPPING_CLOUD_RUN=Runtime Plugin
+SAGCO_MAPPING_STORAGE_BUCKET=Evidence Ledger
+SAGCO_MAPPING_CLOUD_LOGGING=sagco_past_chain
+SAGCO_MAPPING_CLOUD_MONITORING=sagco_bloodhound
+SAGCO_MAPPING_GEMINI=AI-tier SagcoInput plugin
+
+LICENSE=SSL-1.0
+ENTITY=Strategickhaos DAO LLC
