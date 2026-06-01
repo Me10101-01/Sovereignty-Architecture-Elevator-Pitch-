@@ -227,6 +227,45 @@ VALUES
    '7254ff2ed1800657db37073c31f7ac42b2afd2b526fca73452160dfc60919624',
    'reports/darwin_antibody/darwin_20260601_081824.md');
 
+-- ── seed: Quad Collapse Product — CUI field EUR probes 20260601_082500 ────────
+INSERT OR IGNORE INTO sagco_circuit
+  (stamp, session, command, expected, actual, exit_code, antibody, trajectory, variance, score, notes)
+VALUES
+  ('20260601_082500','sagco-rust-compiler-archive',
+   'sagco eur probe --expected 1366 --actual 232 --unit LNFT',
+   'LNFT_COMPLETE_GATE_PASS','WARN -- 17% complete (232/1366 LNFT)',
+   0,'SCOPE_DELTA_ANTIBODY','adaptation',1,'WARN',
+   'CUI insulation scope: RA Cost Savings Summary 2026 Q1'),
+  ('20260601_082500','sagco-rust-compiler-archive',
+   'sagco eur probe --expected 4882.2 --actual 1774.2 --unit SQFT',
+   'SQFT_COMPLETE_GATE_PASS','WARN -- 36% complete (1774.2/4882.2 SQFT)',
+   0,'SCOPE_DELTA_ANTIBODY','adaptation',1,'WARN',
+   'CUI insulation scope: 230213 C1602O1B CUI SCOPE.pdf'),
+  ('20260601_082500','sagco-rust-compiler-archive',
+   'sagco eur probe --tag C-1602-O-1B --expected 112 --actual 112',
+   'LNFT_AT_SPEC','PASS -- LNFT=112 SQFT=380.8 verified',
+   0,'PASS_IMMUNITY','stabilized',0,'PASS',
+   'FURNACE circuit at spec'),
+  ('20260601_082500','sagco-rust-compiler-archive',
+   'sagco eur probe --tag F-1763-PR-1A --expected 89 --actual 0',
+   'LNFT_AT_SPEC','FAIL -- 0 LNFT installed (not started)',
+   1,'SCOPE_DELTA_ANTIBODY','adaptation',1,'FAIL',
+   'COLD FRAC circuit not started'),
+  ('20260601_082500','sagco-rust-compiler-archive',
+   'sagco eur probe --expected CREW_4 --actual CREW_4',
+   'CREW_4_ON_SITE','PASS -- 4-person rope access crew confirmed',
+   0,'PASS_IMMUNITY','stabilized',0,'PASS',
+   'Crew manning at spec');
+
+INSERT OR IGNORE INTO sagco_archive
+  (session, filename, sha256, artifact_type, stamp, notes)
+VALUES
+  ('sagco-rust-compiler-archive',
+   'reports/quad_collapse_product/RA_CUI_ERU_REPORT.md',
+   '5928b3089994b0de5e9969b2951641ae3886d658680f45e15ebfd0a8b01bc16a',
+   'report', '20260601_082500',
+   'Quad Collapse Product: CUI insulation EUR report');
+
 -- verify
 SELECT 'SAGCO_CIRCUIT_LEDGER_INITIALIZED' AS status;
 SELECT COUNT(*) AS past_chain_seeds FROM sagco_past_chain;
