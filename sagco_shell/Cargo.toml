@@ -1,0 +1,6 @@
+[package]
+name = "sagco_shell"
+version = "0.1.0"
+edition = "2021"
+description = "SAGCO-OS Terminal Embedded Engine — quote-preserving REPL with antibody error classifier"
+license = "SSL-1.0"
