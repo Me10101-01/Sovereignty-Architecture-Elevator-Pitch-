@@ -1,0 +1,155 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║   SAGCO TOP COMMAND INDEX — v0.2                                    ║
+║   Generated: 2026-06-01 04:31:38                              ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  Commands indexed : 22
+  Bytecode lines   : 4,660
+
+─── DISPATCH TABLE ─────────────────────────────────────────────────────
+
+  [ACTIVE    ]  SAGCO_COMMAND_DNA.yaml
+               handler    : reports/SAGCO_COMMAND_DNA.yaml
+               primitives : DNA_ENCODE
+               type       : config
+
+  [DISCOVERED]  sagco-deploy
+               handler    : virtual/sagco-deploy
+               primitives : DEPLOY_EXEC
+               type       : virtual_command
+
+  [DISCOVERED]  sagco-dna
+               handler    : virtual/sagco-dna
+               primitives : DNA_ENCODE
+               type       : virtual_command
+
+  [FOSSIL    ]  sagco-efi-factory.sh
+               handler    : artifacts/sagco-efi-factory.sh
+               primitives : EFI_WRITE
+               type       : shell_artifact
+
+  [DISCOVERED]  sagco-evolution
+               handler    : virtual/sagco-evolution
+               primitives : EVOLVE_STEP
+               type       : virtual_command
+
+  [DISCOVERED]  sagco-manifest
+               handler    : virtual/sagco-manifest
+               primitives : MANIFEST_READ
+               type       : virtual_command
+
+  [FOSSIL    ]  sagco-master.sh
+               handler    : artifacts/sagco-master.sh
+               primitives : ORCHESTRATE
+               type       : shell_artifact
+
+  [DISCOVERED]  sagco-recon
+               handler    : virtual/sagco-recon
+               primitives : RECON_SCAN
+               type       : virtual_command
+
+  [DISCOVERED]  sagco-status
+               handler    : virtual/sagco-status
+               primitives : STATUS_QUERY
+               type       : virtual_command
+
+  [DISCOVERED]  sagco-verify
+               handler    : virtual/sagco-verify
+               primitives : VERIFY_PROOF
+               type       : virtual_command
+
+  [DISCOVERED]  sagco_agent_canvas
+               handler    : virtual/sagco_agent_canvas
+               primitives : AGENT_SPAWN → RENDER_CANVAS
+               type       : virtual_command
+
+  [DISCOVERED]  sagco_agent_obsidian
+               handler    : virtual/sagco_agent_obsidian
+               primitives : AGENT_SPAWN → VAULT_WRITE
+               type       : virtual_command
+
+  [FOSSIL    ]  sagco_agent_phone_fleet_v1
+               handler    : artifacts/sagco_agent_phone_fleet_v1
+               primitives : AGENT_SPAWN → COMMS_INIT → FLEET_DEPLOY
+               type       : shell_artifact
+
+  [DISCOVERED]  sagco_agent_plan
+               handler    : virtual/sagco_agent_plan
+               primitives : AGENT_SPAWN → PLAN_EMIT
+               type       : virtual_command
+
+  [FOSSIL    ]  sagco_baby_kernel_v0.2
+               handler    : artifacts/sagco_baby_kernel_v0.2
+               primitives : KERNEL_INIT → KERNEL_EXEC
+               type       : shell_artifact
+
+  [ACTIVE    ]  sagco_command_ticks_20260601_043133.sagco
+               handler    : compiled/sagco_command_ticks_20260601_043133.sagco
+               primitives : PASSTHROUGH
+               type       : bytecode
+
+  [ACTIVE    ]  sagco_command_ticks_20260601_043134.sagco
+               handler    : compiled/sagco_command_ticks_20260601_043134.sagco
+               primitives : PASSTHROUGH
+               type       : bytecode
+
+  [FOSSIL    ]  sagco_custom_conversion
+               handler    : artifacts/sagco_custom_conversion
+               primitives : TRANSFORM_OP
+               type       : shell_artifact
+
+  [FOSSIL    ]  sagco_dispatch_patch.sh
+               handler    : artifacts/sagco_dispatch_patch.sh
+               primitives : DISPATCH_CALL → PATCH_APPLY
+               type       : shell_artifact
+
+  [FOSSIL    ]  sagco_ems_dispatch
+               handler    : artifacts/sagco_ems_dispatch
+               primitives : EMS_ROUTE → DISPATCH_CALL
+               type       : shell_artifact
+
+  [ACTIVE    ]  tick_20260601_043133.yaml
+               handler    : ticks/tick_20260601_043133.yaml
+               primitives : TICK_EMIT
+               type       : config
+
+  [ACTIVE    ]  tick_20260601_043134.yaml
+               handler    : ticks/tick_20260601_043134.yaml
+               primitives : TICK_EMIT
+               type       : config
+
+─── BYTECODE SAMPLE (first 30 lines) ──────────────────────────────────
+
+  ; SAGCO COMMAND TICKS — daemon v0.2
+  ; daemon: sagco_command_daemon
+  ; generated: 2026-06-01T04:31:33.567325
+  ; lines: 1660
+  ; strand: ATG ... TGG
+  
+  ; SAGCO COMMAND TICKS — daemon v0.2
+  ; daemon: sagco_command_daemon
+  ; generated: 2026-06-01T04:31:28.554489
+  ; lines: 332
+  ; strand: ATG ... TGG
+  
+  ; SAGCO COMMAND TICKS — daemon v0.2
+  ; daemon: sagco_command_daemon
+  ; generated: 2026-06-01T04:31:23.542572
+  ; lines: 326
+  ; strand: ATG ... TGG
+  
+  ; SAGCO COMMAND TICKS — daemon v0.2
+  ; daemon: sagco_command_daemon
+  ; generated: 2026-06-01T04:31:18.528324
+  ; lines: 320
+  ; strand: ATG ... TGG
+  
+  ; SAGCO COMMAND TICKS — stepper-crawler output
+  ; source: sagco_stepper_crawler v0.1
+  ; entity: Strategickhaos DAO LLC (EIN: 39-2900295)
+  ; generated: 2026-05-31T23:17:33Z
+  ; lines: 78359 (seed excerpt — first 200 representative lines)
+  ; strand: ATG-CMD23-FLM2-MSMC2-P16-ISO102-MESH5-TGG
+  ... [4,630 more lines]
+
+─── END OF INDEX ───────────────────────────────────────────────────────

@@ -1,0 +1,160 @@
+version: '0.2'
+daemon: sagco_command_daemon
+generated: '2026-06-01T04:31:38.580920'
+strand: ATG-SAGCOM22-SAGDEP12-SAGDNA9-SAGEFI20-SAGEVO15-SAGMAN14-SAGMAS15-SAGREC11-SAGSTA12-SAGVER12-SAGAGE18-SAGAGE20-TGG
+signature: 3008fa5d5169a788
+stats:
+  total_artifacts: 5
+  bytecode_lines: 4660
+  dispatch_entries: 22
+  artifact_types:
+    config: 3
+    bytecode: 2
+  chromosome_count: 22
+workflow:
+- eater
+- primitive_resolver
+- dispatch_mapper
+- command_dna
+- archive
+chromosomes:
+- gene: SAGCO_COMMAND_DNA.yaml
+  codon: SAGCOM22
+  primitives:
+  - DNA_ENCODE
+  type: config
+  status: active
+- gene: sagco-deploy
+  codon: SAGDEP12
+  primitives:
+  - DEPLOY_EXEC
+  type: virtual_command
+  status: discovered
+- gene: sagco-dna
+  codon: SAGDNA9
+  primitives:
+  - DNA_ENCODE
+  type: virtual_command
+  status: discovered
+- gene: sagco-efi-factory.sh
+  codon: SAGEFI20
+  primitives:
+  - EFI_WRITE
+  type: shell_artifact
+  status: fossil
+- gene: sagco-evolution
+  codon: SAGEVO15
+  primitives:
+  - EVOLVE_STEP
+  type: virtual_command
+  status: discovered
+- gene: sagco-manifest
+  codon: SAGMAN14
+  primitives:
+  - MANIFEST_READ
+  type: virtual_command
+  status: discovered
+- gene: sagco-master.sh
+  codon: SAGMAS15
+  primitives:
+  - ORCHESTRATE
+  type: shell_artifact
+  status: fossil
+- gene: sagco-recon
+  codon: SAGREC11
+  primitives:
+  - RECON_SCAN
+  type: virtual_command
+  status: discovered
+- gene: sagco-status
+  codon: SAGSTA12
+  primitives:
+  - STATUS_QUERY
+  type: virtual_command
+  status: discovered
+- gene: sagco-verify
+  codon: SAGVER12
+  primitives:
+  - VERIFY_PROOF
+  type: virtual_command
+  status: discovered
+- gene: sagco_agent_canvas
+  codon: SAGAGE18
+  primitives:
+  - AGENT_SPAWN
+  - RENDER_CANVAS
+  type: virtual_command
+  status: discovered
+- gene: sagco_agent_obsidian
+  codon: SAGAGE20
+  primitives:
+  - AGENT_SPAWN
+  - VAULT_WRITE
+  type: virtual_command
+  status: discovered
+- gene: sagco_agent_phone_fleet_v1
+  codon: SAGAGE26
+  primitives:
+  - AGENT_SPAWN
+  - COMMS_INIT
+  - FLEET_DEPLOY
+  type: shell_artifact
+  status: fossil
+- gene: sagco_agent_plan
+  codon: SAGAGE16
+  primitives:
+  - AGENT_SPAWN
+  - PLAN_EMIT
+  type: virtual_command
+  status: discovered
+- gene: sagco_baby_kernel_v0.2
+  codon: SAGBAB22
+  primitives:
+  - KERNEL_INIT
+  - KERNEL_EXEC
+  type: shell_artifact
+  status: fossil
+- gene: sagco_command_ticks_20260601_043133.sagco
+  codon: SAGCOM41
+  primitives:
+  - PASSTHROUGH
+  type: bytecode
+  status: active
+- gene: sagco_command_ticks_20260601_043134.sagco
+  codon: SAGCOM41
+  primitives:
+  - PASSTHROUGH
+  type: bytecode
+  status: active
+- gene: sagco_custom_conversion
+  codon: SAGCUS23
+  primitives:
+  - TRANSFORM_OP
+  type: shell_artifact
+  status: fossil
+- gene: sagco_dispatch_patch.sh
+  codon: SAGDIS23
+  primitives:
+  - DISPATCH_CALL
+  - PATCH_APPLY
+  type: shell_artifact
+  status: fossil
+- gene: sagco_ems_dispatch
+  codon: SAGEMS18
+  primitives:
+  - EMS_ROUTE
+  - DISPATCH_CALL
+  type: shell_artifact
+  status: fossil
+- gene: tick_20260601_043133.yaml
+  codon: TIC20225
+  primitives:
+  - TICK_EMIT
+  type: config
+  status: active
+- gene: tick_20260601_043134.yaml
+  codon: TIC20225
+  primitives:
+  - TICK_EMIT
+  type: config
+  status: active

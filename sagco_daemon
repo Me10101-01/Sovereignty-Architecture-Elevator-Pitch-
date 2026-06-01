@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# sagco_command_daemon v0.2 — entry point
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+# Pass any args through (e.g. --once for a single pipeline run and exit)
+if [[ "${1:-}" == "--once" ]]; then
+    exec python3 sagco_daemon_core.py --once
+fi
+
+exec python3 sagco_daemon_core.py "$@"

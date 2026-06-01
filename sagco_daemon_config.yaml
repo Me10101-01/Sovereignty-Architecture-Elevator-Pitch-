@@ -1,0 +1,74 @@
+version: "0.2"
+daemon: sagco_command_daemon
+
+watch:
+  - reports/
+  - compiled/
+  - ticks/
+  - archives/
+
+poll_interval: 5
+
+pipeline:
+  - eater
+  - primitive_resolver
+  - dispatch_mapper
+  - command_dna
+  - archive
+
+outputs:
+  command_index:
+    path: reports/SAGCO_TOP_COMMAND_INDEX.txt
+  bytecode:
+    path: compiled/sagco_command_ticks.sagco
+  dna:
+    path: reports/SAGCO_COMMAND_DNA.yaml
+  archive:
+    path: archives/sagco_command_fossil_record.tar.gz
+
+primitives:
+  - PLAN_EMIT
+  - RENDER_CANVAS
+  - VAULT_WRITE
+  - DISPATCH_CALL
+  - AGENT_SPAWN
+  - EFI_WRITE
+  - KERNEL_EXEC
+  - TRANSFORM_OP
+  - EMS_ROUTE
+  - COMMS_INIT
+  - ORCHESTRATE
+  - INGEST
+  - ARCHIVE_WRITE
+  - DNA_ENCODE
+  - TICK_EMIT
+  - RECON_SCAN
+  - CRAWL_EXEC
+  - FOSSIL_RECORD
+  - BYTECODE_EMIT
+  - RESOLVE_PRIM
+  - MAP_DISPATCH
+  - WATCH_INODE
+  - FLEET_DEPLOY
+  - PATCH_APPLY
+
+known_artifacts:
+  - sagco-master.sh
+  - sagco-efi-factory.sh
+  - sagco_custom_conversion
+  - sagco_dispatch_patch.sh
+  - sagco_ems_dispatch
+  - sagco_agent_phone_fleet_v1
+  - sagco_baby_kernel_v0.2
+
+known_commands:
+  - sagco agent plan
+  - sagco agent canvas
+  - sagco agent obsidian
+  - sagco-status
+  - sagco-deploy
+  - sagco-dna
+  - sagco-evolution
+  - sagco-recon
+  - sagco-manifest
+  - sagco-verify

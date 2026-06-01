@@ -1,0 +1,19 @@
+daemon: sagco_command_daemon
+version: '0.2'
+timestamp: '2026-06-01T04:31:38.600976'
+result:
+  stages:
+  - eater
+  - primitive_resolver
+  - dispatch_mapper
+  - command_dna
+  - archive
+  artifacts: 5
+  bytecode_lines: 4660
+  dispatch_entries: 22
+  dna_signature: 3008fa5d5169a788
+  outputs:
+    index: reports/SAGCO_TOP_COMMAND_INDEX.txt
+    dna: reports/SAGCO_COMMAND_DNA.yaml
+    bytecode: compiled/sagco_command_ticks_20260601_043138.sagco
+    archive: archives/sagco_command_fossil_record.tar.gz
