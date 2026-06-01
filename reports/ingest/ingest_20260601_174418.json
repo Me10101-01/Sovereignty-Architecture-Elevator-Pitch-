@@ -1,0 +1,17 @@
+{
+  "stamp": "20260601_174418",
+  "artifact": "sagco_evo.sh",
+  "type": "text",
+  "token_count": 515,
+  "char_count": 8833,
+  "line_count": 264,
+  "fingerprint": "d10b2dea0bd129a6",
+  "antibody": "PASS_IMMUNITY",
+  "trajectory": "stabilized",
+  "eur_score": "PASS",
+  "verify": "PASS",
+  "variance": 0,
+  "dependency": "none",
+  "sagco_dna": "a364ca9f90356c85",
+  "status": "SAGCO_INGEST_PASS"
+}

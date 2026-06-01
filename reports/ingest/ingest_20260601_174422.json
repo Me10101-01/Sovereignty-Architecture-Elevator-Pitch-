@@ -1,0 +1,17 @@
+{
+  "stamp": "20260601_174422",
+  "artifact": "terminal:echo SAGCO_COMPOSE_TEST && ls reports/ | head -5",
+  "type": "terminal",
+  "token_count": 6,
+  "char_count": 148,
+  "line_count": 6,
+  "fingerprint": "2192f1065c5eeac6",
+  "antibody": "PASS_IMMUNITY",
+  "trajectory": "stabilized",
+  "eur_score": "PASS",
+  "verify": "PASS",
+  "variance": 0,
+  "dependency": "none",
+  "sagco_dna": "a364ca9f90356c85",
+  "status": "SAGCO_INGEST_PASS"
+}

@@ -1,0 +1,17 @@
+{
+  "stamp": "20260601_174423",
+  "artifact": "reports/",
+  "type": "directory",
+  "token_count": 4474,
+  "char_count": 82841,
+  "line_count": 2000,
+  "fingerprint": "cba9a0d4ef8255e0",
+  "antibody": "PATH_DISCOVERY_ANTIBODY",
+  "trajectory": "adaptation",
+  "eur_score": "ADAPT",
+  "verify": "PASS",
+  "variance": 0,
+  "dependency": "none",
+  "sagco_dna": "a364ca9f90356c85",
+  "status": "SAGCO_INGEST_PASS"
+}
