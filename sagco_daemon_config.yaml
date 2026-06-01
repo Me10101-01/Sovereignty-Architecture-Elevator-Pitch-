@@ -1,4 +1,4 @@
-version: "0.2"
+version: "0.3"
 daemon: sagco_command_daemon
 
 watch:
@@ -72,3 +72,35 @@ known_commands:
   - sagco-recon
   - sagco-manifest
   - sagco-verify
+
+# Human-in-the-loop event routing
+# notify_phone  → surface in HITL prompt, wait for keypress
+# ask_user      → present action menu (a/s/m/d/q)
+# require_approval → hard gate, no auto-proceed
+events:
+  new_artifact:
+    action: notify_phone
+    description: new artifact discovered in watched directories
+  contradiction:
+    action: notify_phone
+    description: expected vs actual mismatch detected in bytecode or recon
+  macro_available:
+    action: ask_user
+    description: a macro chain has been suggested based on artifact types
+  deploy_request:
+    action: require_approval
+    description: any deploy or push action — always requires explicit y
+
+# Safety rule — this is immutable
+safety:
+  rule: never_execute_destructive_without_confirmation
+  destructive_prefixes:
+    - sagco delete
+    - sagco reset
+    - sagco push --force
+    - sagco commit
+    - git reset --hard
+    - git push
+    - sagco deploy prod
+    - sagco wipe
+    - rm -rf
