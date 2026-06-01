@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 # SAGCO Ghidra + FlameToken extraction pipeline
 # Run from: ~/downloads/sagco_rust_command_compiler
-# Prereqs: pkg install openjdk-21 && pkg install ghidra OR manual ghidra install
+# Prereqs: pkg install openjdk-21 binutils tesseract poppler
+# JDK21 status: INSTALLED (openjdk-21 21.0.10)
+# binutils status: INSTALLED (2.46.0-3) — strings/readelf/nm available
 set -eu
 
-BINARY="target/release/sagco"
+# Termux Cargo package name is sagco_rust_command_compiler (not sagco)
+BINARY="target/release/sagco_rust_command_compiler"
 REPORT_DIR="${HOME}/sagco_pr_lab/repo/reports/ghidra"
 GHIDRA_HOME="${GHIDRA_HOME:-${HOME}/downloads/ghidra_12.1_PUBLIC}"
-JAVA_HOME="${JAVA_HOME:-/data/data/com.termux/files/usr/lib/jvm/java-21-openjdk}"
+# Termux JDK path uses $PREFIX, not /usr
+JAVA_HOME="${JAVA_HOME:-${PREFIX}/lib/jvm/java-21-openjdk}"
 GHIDRA_PROJ="${HOME}/ghidra_projects"
 
 mkdir -p "$REPORT_DIR"
@@ -20,17 +24,25 @@ echo ""
 # ── Step 0: verify binary exists ────────────────────────────────────────────
 if [ ! -f "$BINARY" ]; then
   echo "[SAGCO] binary not found at $BINARY"
-  echo "[SAGCO] searching..."
-  FOUND=$(find "${HOME}/downloads" -name sagco -type f 2>/dev/null | head -1)
-  if [ -n "$FOUND" ]; then
-    echo "[SAGCO] found at: $FOUND"
-    BINARY="$FOUND"
-  else
-    echo "[SAGCO] not found — rebuilding with cargo..."
-    cargo build --release
-    BINARY="target/release/sagco"
+  # Check for backup main.rs FIRST — if it was overwritten, restore it
+  if [ -f src/main.rs.backup ] && ! grep -q "spl::" src/main.rs 2>/dev/null; then
+    echo "[SAGCO] main.rs appears to be stub — restoring from backup..."
+    cp src/main.rs.backup src/main.rs
+    echo "[SAGCO] main.rs restored. Rebuilding..."
   fi
+  echo "[SAGCO] running cargo build --release..."
+  cargo build --release
 fi
+
+if [ ! -f "$BINARY" ]; then
+  echo "[SAGCO] ERROR: binary still not found after build"
+  echo "[SAGCO] ls target/release:"
+  ls -lh target/release/ 2>/dev/null | head -20
+  exit 1
+fi
+
+sha256sum "$BINARY" > "$REPORT_DIR/target.sha256"
+echo "[SAGCO] binary: $(cat "$REPORT_DIR/target.sha256")"
 
 # ── Step 1: ELF headers ──────────────────────────────────────────────────────
 echo "[SAGCO] readelf headers..."
@@ -54,23 +66,23 @@ echo "[SAGCO] nm symbol table..."
 } > "$REPORT_DIR/elf_symbols.txt"
 echo "  -> elf_symbols.txt ($(wc -l < "$REPORT_DIR/elf_symbols.txt") lines)"
 
-# ── Step 3: llvm-strings FlameToken extraction ───────────────────────────────
-echo "[SAGCO] llvm-strings FlameToken pass..."
-STRINGS_CMD="llvm-strings"
-if ! command -v llvm-strings > /dev/null 2>&1; then
-  if command -v strings > /dev/null 2>&1; then
-    STRINGS_CMD="strings"
-  elif command -v gstrings > /dev/null 2>&1; then
-    STRINGS_CMD="gstrings"
-  else
-    echo "[SAGCO] WARNING: no strings tool found — skipping FlameToken pass"
-    STRINGS_CMD=""
+# ── Step 3: strings FlameToken extraction ───────────────────────────────────
+# Priority: strings (binutils) > llvm-strings > gstrings
+echo "[SAGCO] FlameToken string extraction..."
+STRINGS_CMD=""
+for CMD in strings llvm-strings gstrings; do
+  if command -v "$CMD" > /dev/null 2>&1; then
+    STRINGS_CMD="$CMD"
+    break
   fi
-fi
+done
 
-if [ -n "$STRINGS_CMD" ]; then
+if [ -z "$STRINGS_CMD" ]; then
+  echo "[SAGCO] WARNING: no strings tool — run: pkg install binutils"
+else
+  echo "[SAGCO] using: $STRINGS_CMD"
   $STRINGS_CMD "$BINARY" \
-    | grep -iE "sagco|past|wave|weather|agent|flame|treasure|cmd|dna|evolution|matrix|deploy|swarm|empire|genome|ratio|constitution|flamelang" \
+    | grep -iE "sagco|past|wave|weather|agent|flame|treasure|cmd|dna|evolution|matrix|deploy|swarm|empire|genome|ratio|constitution|flamelang|bottleneck|fuzz" \
     | sort -u \
     > "$REPORT_DIR/flametokens.txt"
   TOKEN_COUNT=$(wc -l < "$REPORT_DIR/flametokens.txt")
@@ -108,7 +120,6 @@ fi
 echo "[SAGCO] Ghidra headless analysis..."
 if [ ! -d "$GHIDRA_HOME" ]; then
   echo "[SAGCO] Ghidra not found at $GHIDRA_HOME — skipping"
-  echo "[SAGCO] Download: https://github.com/NationalSecurityAgency/ghidra/releases"
 else
   export JAVA_HOME
   export PATH="$JAVA_HOME/bin:$PATH"

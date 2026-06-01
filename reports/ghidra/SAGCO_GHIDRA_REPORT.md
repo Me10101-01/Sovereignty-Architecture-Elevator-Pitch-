@@ -1,5 +1,5 @@
 # SAGCO Ghidra Headless Analysis Report
-## Target: `target/release/sagco` (SAGCO-OS Rust binary)
+## Target: `target/release/sagco_rust_command_compiler`
 ## Session: sagco-rust-compiler-archive — 2026-06-01, Corpus Christi TX
 
 ---
@@ -7,155 +7,150 @@
 ## Status
 
 ```
-STATUS: BINUTILS_PASS_GHIDRA_WAITING_FOR_JDK21
+STATUS: JDK21_PASS — BINARY_RESTORE_REQUIRED — GHIDRA_READY
 ```
 
-| Stage | Tool | Result |
-|-------|------|--------|
-| Archive seal | `sha256sum` | PASS — `6b1924a45f5c68cb2b5a6a5e3cfc83bc2413521cee69817e8267ea59095491dc` |
-| ELF headers | `readelf -h` | PASS — ARM64 ELF64 LE |
-| Symbol table | `nm -D` | PASS — dynamic symbols extracted |
-| String extraction | `llvm-strings` | PASS (see `flametokens.txt`) |
-| Ghidra headless | `analyzeHeadless` | BLOCKED — JDK 21+ required (JDK 17 installed) |
+| Stage | Tool | Result | Notes |
+|-------|------|--------|-------|
+| Archive seal | `sha256sum` | PASS | `6b1924a45f5c68cb2b5a6a5e3cfc83bc2413521cee69817e8267ea59095491dc` |
+| JDK 21 install | `pkg install openjdk-21` | **PASS** | 21.0.10 aarch64 installed |
+| binutils install | `pkg install binutils` | **PASS** | 2.46.0-3 — `strings`/`readelf`/`nm` live |
+| tesseract install | `pkg install tesseract` | **PASS** | 5.5.2 — OCR pipeline live |
+| Ghidra download | `wget ghidra_12.1_PUBLIC` | **PASS** | 541.52MB at 30MB/s |
+| Binary name | `sagco_rust_command_compiler` | CORRECTED | NOT `sagco` — Cargo package name |
+| `src/main.rs` | stub overwrite | **CRITICAL** | Restore from `src/main.rs.backup` immediately |
+| ELF headers | `readelf -h` | READY | binutils installed, binary needs restore |
+| Symbol table | `nm -D` | READY | binutils installed |
+| String extraction | `strings` | READY | binutils installed |
+| Ghidra headless | `analyzeHeadless` | READY | JDK 21 satisfied |
 
 ---
 
-## Blocker: JDK Version
+## CRITICAL: Restore main.rs Before Running
 
-```
-******************************************************************
-JDK 21+ (64-bit) could not be found and must be manually chosen!
-******************************************************************
-Ghidra 12.1 requires Java 21+
-Installed:  openjdk-17 (jdk-17.0.x)
-Available:  openjdk-21/stable 21.0.10 aarch64 (confirmed in pkg search)
-```
-
-**Fix (run in Termux):**
+The session accidentally overwrote `src/main.rs` with a 3-line stub.
+The real source is in `src/main.rs.backup`. **Run this first:**
 
 ```sh
-pkg install openjdk-21
-export JAVA_HOME=/data/data/com.termux/files/usr/lib/jvm/java-21-openjdk
-export GHIDRA_HOME=~/downloads/ghidra_12.1_PUBLIC
+cd ~/downloads/sagco_rust_command_compiler
+cp src/main.rs.backup src/main.rs
+cargo build --release
+# confirm real binary: ./target/release/sagco_rust_command_compiler past
+```
 
-# Verify JDK
-java -version   # must show 21.x
+---
 
-# Locate or rebuild SAGCO binary
-find ~/downloads/sagco_rust_command_compiler -name sagco -type f 2>/dev/null
-# If missing: cd ~/downloads/sagco_rust_command_compiler && cargo build --release
+## Binary Name Correction
 
-# Run Ghidra headless
+The Cargo package name is `sagco_rust_command_compiler`. The binary at:
+
+```
+target/release/sagco_rust_command_compiler   ← CORRECT
+target/release/sagco                          ← DOES NOT EXIST
+```
+
+The `sagco` command in PATH is a **separate installed binary** (at `~/sagco/` or `~/bin/`).
+The Rust compiler project builds to `sagco_rust_command_compiler`.
+
+---
+
+## Run the Full Pipeline
+
+After restoring main.rs:
+
+```sh
+cd ~/downloads/sagco_rust_command_compiler
+
+# Set JDK (Termux $PREFIX path — NOT /usr/lib)
+export JAVA_HOME="$PREFIX/lib/jvm/java-21-openjdk"
+export GHIDRA_HOME="$HOME/downloads/ghidra_12.1_PUBLIC"
+export PATH="$JAVA_HOME/bin:$PATH"
+
+# Verify JDK 21 is active
+java -version    # must show 21.0.10
+
+# Run full pipeline (auto-restores main.rs if stub detected)
+bash ~/sagco_pr_lab/repo/sagco_ghidra_flametoken.sh
+```
+
+Or step by step:
+
+```sh
+BINARY="target/release/sagco_rust_command_compiler"
+
+# ELF
+readelf -h "$BINARY"
+
+# Symbols
+nm -D "$BINARY" 2>/dev/null | head -40
+
+# FlameTokens
+strings "$BINARY" \
+  | grep -iE "sagco|past|wave|weather|agent|flame|treasure|cmd|dna|evolution" \
+  | sort -u | tee reports/ghidra/flametokens.txt
+echo "TOKENS: $(wc -l < reports/ghidra/flametokens.txt)"
+sha256sum reports/ghidra/flametokens.txt
+
+# Ghidra
 mkdir -p ~/ghidra_projects
 $GHIDRA_HOME/support/analyzeHeadless \
   ~/ghidra_projects SAGCO_FLAMETOKEN \
-  -import ~/downloads/sagco_rust_command_compiler/target/release/sagco \
+  -import "$BINARY" \
   -overwrite \
-  2>&1 | tee ~/sagco_pr_lab/repo/reports/ghidra/ghidra_sagco.log
+  2>&1 | tee reports/ghidra/ghidra_sagco.log
 ```
 
 ---
 
-## FlameToken Extraction Pipeline
+## Case Study Portfolio Seal
 
-**Step 1 — llvm-strings extraction (run from sagco binary dir):**
-
-```sh
-llvm-strings target/release/sagco \
-  | grep -iE "sagco|past|wave|weather|agent|flame|treasure|cmd|dna|evolution|matrix|deploy" \
-  | sort -u \
-  | tee ~/sagco_pr_lab/repo/reports/ghidra/flametokens.txt
-echo "TOKENS: $(wc -l < ~/sagco_pr_lab/repo/reports/ghidra/flametokens.txt)"
-sha256sum ~/sagco_pr_lab/repo/reports/ghidra/flametokens.txt
+```
+SAGCO_HEADLESS_VM_FUZZ_CASE_STUDY.tar.gz
+SHA256: 9d95f793179bd6d8b80bb2e035aa00ca46fccd58696855d52d0ef1476926206f
+Size: 15M
+Sealed: 2026-06-01 06:26 CDT
 ```
 
-**Step 2 — readelf symbol inventory:**
-
-```sh
-readelf -s target/release/sagco 2>/dev/null \
-  | grep -v "UND\|NOTYPE" \
-  | awk '{print $NF}' \
-  | sort -u \
-  | tee ~/sagco_pr_lab/repo/reports/ghidra/elf_symbols.txt
-echo "SYMBOLS: $(wc -l < ~/sagco_pr_lab/repo/reports/ghidra/elf_symbols.txt)"
-```
-
-**Step 3 — Command DNA cross-reference:**
-
-```sh
-# Verify all 23 SAGCO commands appear in binary strings
-COMMANDS="sagco-status sagco-info sagco-help sagco-manifest sagco-verify \
-  sagco-memmon sagco-cpumon sagco-net sagco-tcpmon sagco-diskmon \
-  sagco-procs sagco-ports sagco-load sagco-dmesg sagco-debug \
-  sagco-handles sagco-svcmon sagco-retmon sagco-matrix sagco-dash \
-  sagco-evolution sagco-dna sagco-deploy sagco-one"
-
-echo "## Command DNA Presence Check" >> flametokens_verified.txt
-for CMD in $COMMANDS; do
-  if llvm-strings target/release/sagco | grep -q "$CMD"; then
-    echo "FOUND: $CMD" >> flametokens_verified.txt
-  else
-    echo "MISSING: $CMD" >> flametokens_verified.txt
-  fi
-done
-```
+**Contains:**
+- `portfolio_case_study/reports/` — all SAGCO PAST memory reports, ghidra reports
+- `portfolio_case_study/proofs/` — Cargo.toml, Cargo.lock
+- `portfolio_case_study/sandbox/sagco` — binary copy
+- `portfolio_case_study/commands/` — sagco_status_archeologist.sh
+- `portfolio_case_study/README.md` — pipeline description
 
 ---
 
-## Reverse Engineering Pipeline Diagram
-
-```
-target/release/sagco (ARM64 ELF64 Rust binary)
-        │
-        ├── readelf -h ────────────► ELF header: arch, entry point, sections
-        ├── nm -D ─────────────────► dynamic symbol table
-        ├── llvm-strings ──────────► FlameToken string candidates
-        │       │
-        │       └── grep filter ──► flametokens.txt (SAGCO vocab)
-        │
-        └── Ghidra 12.1 headless ─► SAGCO_FLAMETOKEN project
-                │
-                ├── auto-analysis: ARM64 Rust decompilation
-                ├── function detection
-                ├── call graph
-                └── ghidra_sagco.log
-```
-
----
-
-## Binary Provenance
+## Environmental Record
 
 | Field | Value |
 |-------|-------|
-| Source archive | `SAGCO_COMMAND_DNA_20260531.tar.gz` |
-| Archive SHA-256 | `6b1924a45f5c68cb2b5a6a5e3cfc83bc2413521cee69817e8267ea59095491dc` |
-| Build host | Android/Termux (ARM64, `u0_a512`) |
-| Compiled | `cargo build --release` — 2026-05-31 |
-| Target arch | `aarch64-linux-android` |
-| Ghidra version | 12.1 PUBLIC |
-| Ghidra SHA256 | `fec7a4dccd7e57a1f0d51b81ae4c06d36b7c39c5a70a8f6a07eec3c8ef2d61d9` (541MB) |
+| JDK | `openjdk-21 21.0.10 aarch64` — INSTALLED |
+| binutils | `2.46.0-3` — INSTALLED |
+| tesseract | `5.5.2` — INSTALLED |
+| poppler | `26.02.0` — INSTALLED |
+| Ghidra | `12.1 PUBLIC` — DOWNLOADED @ `~/downloads/ghidra_12.1_PUBLIC` |
+| JAVA_HOME | `$PREFIX/lib/jvm/java-21-openjdk` (Termux path) |
+| GPS | 27°50'48"N, 97°33'58"W — Corpus Christi TX |
+| Weather SHA | `101fb3bd0c10dc6f` |
+| Session seal | `2026-06-01` |
 
 ---
 
-## PR Triage Python Fix (companion record)
-
-The `benchmarks/test_comprehensive.py` file was stored with JSON-encoded
-literal `\n` and `\"` sequences (39 lines → should be 495 lines). This caused
-`python3 -m compileall` to fail across all 1,278 PRs with:
+## Reverse Engineering Pipeline
 
 ```
-IndentationError: expected an indented block after 'try' statement on line 36
-SyntaxError: unexpected character after line continuation character
-```
-
-**Fix applied to branch `claude/sagco-rust-compiler-archive-ZQXKs`:**
-Python content decoded in-place, file expanded from 39 → 495 lines.
-Commit: `2172c35`
-
-**For Termux triage (PR branches still carry broken copy):**
-```sh
-# Exclude the broken file from compileall:
-python3 -m compileall -q -x 'benchmarks/test_comprehensive' .
+src/main.rs.backup (RESTORE FIRST)
+        │
+        └── cargo build --release
+                │
+                └── target/release/sagco_rust_command_compiler (ARM64 ELF64 Rust)
+                        │
+                        ├── readelf -h ────────────► elf_headers.txt
+                        ├── nm -D ─────────────────► elf_symbols.txt
+                        ├── strings ───────────────► flametokens.txt
+                        │       └── grep filter ──► 23-command DNA check
+                        └── Ghidra 12.1 headless ─► ghidra_sagco.log
+                                (JDK 21 ✓ READY)
 ```
 
 ---
