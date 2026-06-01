@@ -161,9 +161,8 @@ impl SagcoVm {
                 )
             }
 
-            // ── SEAL: real SHA-256 via crypto module ───────────────────────
+            // ── SEAL: SHA-256 + write .seal artifact to disk ──────────────
             Command::Seal { target } => {
-                // try to read the real file; fallback to sealing the filename bytes
                 let data = std::fs::read(target)
                     .unwrap_or_else(|_| target.as_bytes().to_vec());
 
@@ -171,14 +170,32 @@ impl SagcoVm {
                     Ok(result) => {
                         self.seal_ledger.record(target, &result.sha256);
                         self.evidence_chain.push(format!("{}:{}", target, result.sha256));
-                        VmResult::pass(
-                            "seal",
-                            format!(
-                                "[SEAL] {} SHA256={}  EVIDENCE_LOCKED",
-                                target, result.sha256
+
+                        // Write physical artifact — EVIDENCE_LOCKED must be on disk
+                        let artifact_path = format!("{}.seal", target);
+                        let artifact = format!(
+                            "SAGCO_SEAL_ARTIFACT=1\nTARGET={}\nSHA256={}\nDNA=a364ca9f90356c85\n",
+                            target, result.sha256
+                        );
+                        match std::fs::write(&artifact_path, artifact.as_bytes()) {
+                            Ok(_) => VmResult::pass(
+                                "seal",
+                                format!(
+                                    "[SEAL] {} SHA256={}  EVIDENCE_LOCKED  artifact={}",
+                                    target, result.sha256, artifact_path
+                                ),
+                                0,
                             ),
-                            0,
-                        )
+                            Err(e) => VmResult::fail(
+                                "seal",
+                                VmAntibody::PathDiscovery,
+                                format!(
+                                    "[SEAL] {} SHA256_OK but artifact write failed: {}  \
+                                     MISSING_SEAL_ARTIFACT_ANTIBODY",
+                                    target, e
+                                ),
+                            ),
+                        }
                     }
                     Err(SealError::EmptyPayload) => VmResult::fail(
                         "seal",
@@ -258,12 +275,23 @@ mod tests {
     }
 
     #[test]
-    fn vm_seal_fallback() {
+    fn vm_seal_writes_artifact_file() {
+        let target = "/tmp/sagco_test_seal_artifact.bin";
+        let artifact = format!("{}.seal", target);
+        let _ = std::fs::remove_file(&artifact); // clean slate
+
         let mut vm = SagcoVm::new();
-        let result = vm.execute(&Command::Seal { target: "nonexistent.bin".to_string() });
-        // seal falls back to fingerprinting the filename — still passes
+        let result = vm.execute(&Command::Seal { target: target.to_string() });
+
         assert_eq!(result.antibody, VmAntibody::PassImmunity);
-        assert!(result.message.contains("[SEAL]"));
+        assert!(result.message.contains("EVIDENCE_LOCKED"));
+        assert!(std::path::Path::new(&artifact).exists(),
+            "MISSING_SEAL_ARTIFACT_ANTIBODY: {} was not written to disk", artifact);
+
+        let content = std::fs::read_to_string(&artifact).unwrap();
+        assert!(content.contains("SAGCO_SEAL_ARTIFACT=1"));
+        assert!(content.contains("SHA256="));
+        let _ = std::fs::remove_file(&artifact);
     }
 
     #[test]

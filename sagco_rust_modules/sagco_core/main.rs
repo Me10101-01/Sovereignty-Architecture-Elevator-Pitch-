@@ -4,8 +4,10 @@
 // License: SSL-1.0 — Strategickhaos DAO LLC
 mod antibody;
 mod crypto;
+mod fuzz_state;
 mod lexer;
 mod parser;
+mod state_verify;
 mod vm;
 
 use antibody::Antibody;
