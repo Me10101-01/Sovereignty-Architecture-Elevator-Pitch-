@@ -9,6 +9,30 @@ license = "SSL-1.0"
 [workspace]
 exclude = ["fuzz", "sagco_shell"]
 
+[lib]
+name = "sagco_core"
+path = "sagco_rust_modules/sagco_core/lib.rs"
+
 [[bin]]
 name = "sagco-core"
 path = "sagco_rust_modules/sagco_core/main.rs"
+
+[[bin]]
+name = "sagco-observe"
+path = "sagco_rust_modules/sagco_core/bin/observe.rs"
+
+[[bin]]
+name = "sagco-tokenize"
+path = "sagco_rust_modules/sagco_core/bin/tokenize.rs"
+
+[[bin]]
+name = "sagco-binscan"
+path = "sagco_rust_modules/sagco_core/bin/binscan.rs"
+
+[[bin]]
+name = "sagco-evidence"
+path = "sagco_rust_modules/sagco_core/bin/evidence.rs"
+
+[[bin]]
+name = "sagco-topology"
+path = "sagco_rust_modules/sagco_core/bin/topology.rs"
