@@ -185,6 +185,7 @@ impl SealLedger {
 
     pub fn len(&self) -> usize { self.entries.len() }
     pub fn is_empty(&self) -> bool { self.entries.is_empty() }
+    pub fn entries(&self) -> &[(String, String)] { &self.entries }
 
     pub fn export(&self) -> String {
         self.entries.iter()

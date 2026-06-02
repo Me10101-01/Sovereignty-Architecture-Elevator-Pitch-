@@ -7,12 +7,14 @@ mod crypto;
 mod fuzz_state;
 mod lexer;
 mod parser;
+mod sentinel;
 mod state_verify;
 mod vm;
 
 use antibody::Antibody;
 use lexer::Lexer;
 use parser::{Command, Parser};
+use sentinel::SentinelDaemon;
 use vm::{SagcoVm, VmAntibody};
 use std::env;
 use std::fs::File;
@@ -157,4 +159,23 @@ fn main() {
     println!("--- SAGCO CORE SUMMARY ---");
     println!("{}", vm.summary());
     println!("STATUS=SAGCO_CORE_PARSE_PASS");
+
+    // ── Step 4: Sentinel probe — reality check after execution ────────────────
+    // Every claim made by SEAL is verified against the file system right now.
+    let daemon  = SentinelDaemon::new(&vm.seal_ledger);
+    let alerts  = daemon.probe();
+    let n_seals = vm.seal_ledger.len();
+    println!();
+    println!("--- SAGCO SENTINEL ---");
+    if alerts.is_empty() {
+        println!("REALITY_HOLDS  artifacts_verified={}", n_seals);
+    } else {
+        for alert in &alerts {
+            println!();
+            println!("{}", alert.report());
+        }
+        println!();
+        println!("SAGCO_CREEP_ALERT  variances={}", alerts.len());
+        Antibody::PathDiscovery.fire("SAGCO_SENTINEL_VARIANCE_FAIL");
+    }
 }
