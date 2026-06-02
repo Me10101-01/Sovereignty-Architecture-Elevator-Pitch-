@@ -36,3 +36,7 @@ path = "sagco_rust_modules/sagco_core/bin/evidence.rs"
 [[bin]]
 name = "sagco-topology"
 path = "sagco_rust_modules/sagco_core/bin/topology.rs"
+
+[[bin]]
+name = "sagco-persist"
+path = "sagco_rust_modules/sagco_core/bin/persist.rs"
