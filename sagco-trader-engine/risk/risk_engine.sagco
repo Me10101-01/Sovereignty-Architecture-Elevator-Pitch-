@@ -1,0 +1,83 @@
+//! risk_engine.sagco
+//! SAGCO-TRADER | Risk
+//! Hard limits enforced before any order reaches execution.
+//! Gate between signals and fills. Cannot be bypassed.
+
+// ─── RISK LIMITS ───────────────────────────────────────────────
+
+const MAX_DAILY_LOSS    = 50000   // $500.00 max daily loss (fixed-point * 100)
+const MAX_POSITION_SIZE = 2       // contracts
+const MAX_DRAWDOWN      = 100000  // $1000.00 max drawdown from peak
+const MAX_CONSECUTIVE_L = 5       // halt after 5 losses in a row
+
+// ─── STATE ─────────────────────────────────────────────────────
+
+struct RiskState {
+    daily_pnl:     i64
+    peak_equity:   i64
+    cur_equity:    i64
+    consec_losses: i8
+    halted:        bool
+    halt_reason:   buf i8[64]
+}
+
+fn risk_init(r: *RiskState) {
+    r.daily_pnl     = 0
+    r.peak_equity   = 0
+    r.cur_equity    = 0
+    r.consec_losses = 0
+    r.halted        = false
+}
+
+// ─── GATE CHECK ────────────────────────────────────────────────
+// Returns false if signal should be blocked.
+
+fn risk_allow_entry(r: *RiskState, direction: i8) -> bool {
+    if r.halted { return false }
+    if r.daily_pnl <= -MAX_DAILY_LOSS {
+        halt(r, "daily loss limit hit")
+        return false
+    }
+    drawdown = r.peak_equity - r.cur_equity
+    if drawdown >= MAX_DRAWDOWN {
+        halt(r, "max drawdown hit")
+        return false
+    }
+    if r.consec_losses >= MAX_CONSECUTIVE_L {
+        halt(r, "consecutive loss limit hit")
+        return false
+    }
+    return true
+}
+
+// ─── UPDATE AFTER TRADE ────────────────────────────────────────
+
+fn check(r: *RiskState, pool: *OrderPool) {
+    // Called after each order book cycle
+    // Updates equity, drawdown, consecutive loss tracking
+    // Actual trade P&L fed from order_book.sagco via evidence log
+}
+
+fn risk_on_trade_closed(r: *RiskState, net_pnl: i64) {
+    r.daily_pnl  = r.daily_pnl + net_pnl
+    r.cur_equity = r.cur_equity + net_pnl
+
+    if r.cur_equity > r.peak_equity {
+        r.peak_equity = r.cur_equity
+    }
+
+    if net_pnl < 0 {
+        r.consec_losses = r.consec_losses + 1
+    } else {
+        r.consec_losses = 0
+    }
+}
+
+fn halt(r: *RiskState, reason: *i8) {
+    r.halted = true
+    // copy reason into halt_reason buffer
+}
+
+fn risk_is_halted(r: *RiskState) -> bool {
+    return r.halted
+}

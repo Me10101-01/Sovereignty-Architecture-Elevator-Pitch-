@@ -1,0 +1,166 @@
+//! order_book.sagco
+//! SAGCO-TRADER | Execution
+//! Simulated order matching against Renko brick prices.
+//! No broker. No live orders. Evidence-first.
+
+use core::memory
+use renko_dojo::ranko_generator
+
+// ─── FILL MODEL ────────────────────────────────────────────────
+
+const SLIPPAGE_TICKS  = 1     // 1-tick slippage on simulated fills
+const COMMISSION_FLAT = 500   // $5.00 per contract (500 = $5.00 * 100)
+const MAX_POSITION    = 2     // never exceed 2 contracts in sim
+
+// ─── TRADE RECORD ──────────────────────────────────────────────
+
+struct Trade {
+    entry_price:  i64
+    exit_price:   i64
+    direction:    i8      // +1 long, -1 short
+    quantity:     i32
+    entry_time:   i64
+    exit_time:    i64
+    pnl:          i64     // fixed-point: cents * 100
+    commission:   i64
+    net_pnl:      i64
+    entry_brick:  i64     // brick index at entry
+    exit_brick:   i64
+}
+
+const MAX_TRADES = 65536
+
+struct TradeLog {
+    trades: buf Trade[MAX_TRADES]
+    count:  i32
+    open:   Trade     // current open position (if any)
+    in_pos: bool
+}
+
+ptr TRADE_LOG: *TradeLog
+
+// ─── POSITION STATE ────────────────────────────────────────────
+
+fn sim_fill(pool: *OrderPool, sig: Signal, chain: *BrickChain) {
+    log = TRADE_LOG
+
+    if sig.direction == 0 {
+        // Exit signal
+        if log.in_pos == false { return }
+        close_position(log, sig, chain)
+        return
+    }
+
+    // Entry signal
+    if log.in_pos == true {
+        // Already in position — check for reversal
+        if sig.direction != log.open.direction {
+            close_position(log, sig, chain)
+            open_position(log, sig, chain)
+        }
+        return
+    }
+
+    open_position(log, sig, chain)
+}
+
+fn open_position(log: *TradeLog, sig: Signal, chain: *BrickChain) {
+    brick = ranko_generator::get_last_brick(chain, 0)
+    if brick == none { return }
+
+    fill_price = sim_entry_price(brick, sig.direction)
+
+    log.open.entry_price = fill_price
+    log.open.direction   = sig.direction
+    log.open.quantity    = 1
+    log.open.entry_time  = brick.timestamp
+    log.open.entry_brick = chain.count - 1
+    log.in_pos           = true
+}
+
+fn close_position(log: *TradeLog, sig: Signal, chain: *BrickChain) {
+    brick = ranko_generator::get_last_brick(chain, 0)
+    if brick == none { return }
+
+    fill_price = sim_exit_price(brick, log.open.direction)
+
+    log.open.exit_price  = fill_price
+    log.open.exit_time   = brick.timestamp
+    log.open.exit_brick  = chain.count - 1
+
+    // P&L calculation (NQ: each point = $20, tick = $5)
+    // pnl_ticks = direction * (exit - entry) / TICK_SIZE
+    ticks = (log.open.direction * (fill_price - log.open.entry_price)) / TICK_SIZE
+    log.open.pnl       = ticks * 500         // $5/tick * 100 for fixed-point
+    log.open.commission = COMMISSION_FLAT
+    log.open.net_pnl   = log.open.pnl - log.open.commission
+
+    // Record trade
+    if log.count < MAX_TRADES {
+        log.trades[log.count] = log.open
+        log.count = log.count + 1
+    }
+
+    log.in_pos = false
+}
+
+// ─── FILL PRICE WITH SLIPPAGE ──────────────────────────────────
+
+fn sim_entry_price(brick: *Brick, direction: i8) -> i64 {
+    if direction == 1 {
+        // Buy: fill at brick close + 1 slippage tick (realistic for breakout)
+        return brick.close + (SLIPPAGE_TICKS * TICK_SIZE)
+    }
+    // Sell: fill at brick close - 1 slippage tick
+    return brick.close - (SLIPPAGE_TICKS * TICK_SIZE)
+}
+
+fn sim_exit_price(brick: *Brick, direction: i8) -> i64 {
+    // Exit fills opposite of entry direction
+    return sim_entry_price(brick, -direction)
+}
+
+// ─── AGGREGATE STATS ───────────────────────────────────────────
+
+struct BookStats {
+    total_trades: i32
+    wins:         i32
+    losses:       i32
+    gross_pnl:    i64
+    total_comm:   i64
+    net_pnl:      i64
+    max_drawdown: i64
+    win_rate:     i32   // percent * 100 (e.g. 5250 = 52.50%)
+}
+
+fn compute_stats(log: *TradeLog) -> BookStats {
+    s = BookStats {}
+    s.total_trades = log.count
+    peak = 0
+    equity = 0
+
+    i = 0
+    loop {
+        if i >= log.count { break }
+        t = &log.trades[i]
+        s.gross_pnl  = s.gross_pnl + t.pnl
+        s.total_comm = s.total_comm + t.commission
+        s.net_pnl    = s.net_pnl + t.net_pnl
+
+        if t.net_pnl > 0 { s.wins   = s.wins + 1 }
+        if t.net_pnl < 0 { s.losses = s.losses + 1 }
+
+        equity = equity + t.net_pnl
+        if equity > peak { peak = equity }
+        dd = peak - equity
+        if dd > s.max_drawdown { s.max_drawdown = dd }
+
+        i = i + 1
+    }
+
+    if s.total_trades > 0 {
+        s.win_rate = (s.wins * 10000) / s.total_trades
+    }
+
+    return s
+}

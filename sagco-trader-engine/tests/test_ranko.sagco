@@ -1,0 +1,96 @@
+//! test_ranko.sagco
+//! SAGCO-TRADER | Tests
+//! Unit tests for ranko_generator.sagco
+//! Run: sagco-run tests/test_ranko --assert
+
+use renko_dojo::ranko_generator
+
+fn test_single_bull_brick() {
+    chain = BrickChain {}
+    ranko_init(&chain, 1500000)   // seed = 15000.00
+
+    t = Tick { price: 1500200, volume: 100, timestamp: 1000 }
+    n = process_tick(&chain, &t)
+
+    assert(n == 1, "expected 1 brick")
+    b = get_last_brick(&chain, 0)
+    assert(b.direction == 1, "expected bullish brick")
+    assert(b.open  == 1500000, "wrong open")
+    assert(b.close == 1500200, "wrong close")   // +BRICK_SIZE (200)
+}
+
+fn test_single_bear_brick() {
+    chain = BrickChain {}
+    ranko_init(&chain, 1500000)
+
+    t = Tick { price: 1499800, volume: 100, timestamp: 1000 }
+    n = process_tick(&chain, &t)
+
+    assert(n == 1, "expected 1 brick")
+    b = get_last_brick(&chain, 0)
+    assert(b.direction == -1, "expected bearish brick")
+    assert(b.close == 1499800, "wrong close")
+}
+
+fn test_no_brick_below_threshold() {
+    chain = BrickChain {}
+    ranko_init(&chain, 1500000)
+
+    t = Tick { price: 1500100, volume: 100, timestamp: 1000 }   // only 1 tick move, need 8
+    n = process_tick(&chain, &t)
+
+    assert(n == 0, "expected 0 bricks — price moved less than BRICK_SIZE")
+}
+
+fn test_gap_multiple_bricks() {
+    chain = BrickChain {}
+    ranko_init(&chain, 1500000)
+
+    // Price gaps up 4x BRICK_SIZE = 4 bricks
+    t = Tick { price: 1500800, volume: 500, timestamp: 1000 }
+    n = process_tick(&chain, &t)
+
+    assert(n == 4, "expected 4 bricks on gap")
+    assert(chain.count == 4, "brick count mismatch")
+}
+
+fn test_phase1_throughput() {
+    chain = BrickChain {}
+    ranko_init(&chain, 1500000)
+
+    ticks = buf Tick[1000000]
+    // Fill with alternating up/flat movement at BRICK_SIZE intervals
+    i = 0
+    price = 1500000
+    loop {
+        if i >= 1000000 { break }
+        ticks[i] = Tick { price: price, volume: 1, timestamp: i }
+        if i mod 8 == 0 { price = price + BRICK_SIZE }
+        i = i + 1
+    }
+
+    start_ns = clock_ns()
+    total_bricks = process_batch(&chain, ticks, 1000000)
+    elapsed_ns = clock_ns() - start_ns
+
+    tps = (1000000 * 1000000000) / elapsed_ns
+    assert(tps >= 1000000, "PHASE 1 THROUGHPUT FAIL: below 1M ticks/sec")
+    // If this passes, Phase 1 target is met.
+}
+
+fn main() {
+    test_no_brick_below_threshold()
+    test_single_bull_brick()
+    test_single_bear_brick()
+    test_gap_multiple_bricks()
+    test_phase1_throughput()
+    print("ALL RANKO TESTS PASSED")
+}
+
+fn assert(cond: bool, msg: *i8) {
+    if cond == false {
+        print("FAIL: ")
+        print(msg)
+        exit(1)
+    }
+}

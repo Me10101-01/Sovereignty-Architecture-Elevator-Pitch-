@@ -1,0 +1,88 @@
+//! simulator.sagco
+//! SAGCO-TRADER | Execution
+//! Strategy layer: reads brick chain, emits signals.
+//! Start simple — 3-brick momentum. Prove it before adding complexity.
+
+use renko_dojo::ranko_generator
+use core::memory
+
+// ─── STRATEGY CONFIG ───────────────────────────────────────────
+
+const TREND_CONFIRM_BRICKS = 3    // need 3 same-direction bricks to enter
+const EXIT_REVERSAL_BRICKS  = 1   // exit on first opposing brick
+
+// ─── STRATEGY: RENKO MOMENTUM ──────────────────────────────────
+// Rule: Enter on 3 consecutive bricks in same direction.
+//       Exit on 1 brick in opposite direction.
+// This is the baseline — evidence log will tell us if it works.
+
+fn on_new_bricks(chain: *BrickChain, queue: *SignalQueue) {
+    n = chain.count
+    if n < 3 { return }
+
+    b0 = ranko_generator::get_last_brick(chain, 0)   // newest
+    b1 = ranko_generator::get_last_brick(chain, 1)
+    b2 = ranko_generator::get_last_brick(chain, 2)
+
+    if b0 == none or b1 == none or b2 == none { return }
+
+    // 3-brick momentum long
+    if b0.direction == 1 and b1.direction == 1 and b2.direction == 1 {
+        sig = Signal {
+            brick_idx:  n - 1
+            direction:  1
+            strength:   75
+            strategy:   0    // strategy ID 0 = renko_momentum
+            timestamp:  b0.timestamp
+        }
+        memory::signal_push(queue, sig)
+        return
+    }
+
+    // 3-brick momentum short
+    if b0.direction == -1 and b1.direction == -1 and b2.direction == -1 {
+        sig = Signal {
+            brick_idx:  n - 1
+            direction:  -1
+            strength:   75
+            strategy:   0
+            timestamp:  b0.timestamp
+        }
+        memory::signal_push(queue, sig)
+        return
+    }
+
+    // Exit signal: opposing brick while in position
+    // (order_book.sagco handles position awareness)
+    sig = Signal {
+        brick_idx:  n - 1
+        direction:  0     // 0 = exit
+        strength:   0
+        strategy:   0
+        timestamp:  b0.timestamp
+    }
+    memory::signal_push(queue, sig)
+}
+
+// ─── STRATEGY REGISTRY (future expansion) ──────────────────────
+// Add new strategies here as they pass evidence requirements.
+
+const MAX_STRATEGIES = 16
+
+struct StrategyMeta {
+    id:      i8
+    name:    buf i8[32]
+    enabled: bool
+    wins:    i32
+    losses:  i32
+}
+
+struct StrategyRegistry {
+    strategies: buf StrategyMeta[MAX_STRATEGIES]
+    count:      i8
+}
+
+// Strategy IDs
+const STRAT_RENKO_MOMENTUM = 0
+const STRAT_RENKO_PULLBACK = 1   // not yet implemented
+const STRAT_RENKO_REVERSAL = 2   // not yet implemented

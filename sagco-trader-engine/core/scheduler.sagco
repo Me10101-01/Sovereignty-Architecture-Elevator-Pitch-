@@ -1,0 +1,112 @@
+//! scheduler.sagco
+//! SAGCO-TRADER | Core
+//! Headless task scheduler. No threads — deterministic tick-driven loop.
+//! Phase 1: 1M ticks/sec | Phase 2: 10M ticks/sec
+
+// ─── TASK REGISTRY ─────────────────────────────────────────────
+
+const MAX_TASKS = 32
+
+struct Task {
+    id:        i8
+    name:      buf i8[32]    // task label (ASCII)
+    enabled:   bool
+    priority:  i8            // 0=highest, 255=lowest
+    last_run:  i64           // timestamp of last execution
+    run_count: i64
+}
+
+// Task IDs — deterministic execution order
+const TASK_TICK_INGEST  = 0   // read ticks from NT bridge or replay
+const TASK_RANKO_BUILD  = 1   // convert ticks → bricks
+const TASK_STRATEGY_RUN = 2   // evaluate strategy on new bricks
+const TASK_ORDER_SIM    = 3   // simulate order fill in order book
+const TASK_RISK_CHECK   = 4   // enforce risk limits
+const TASK_EVIDENCE_LOG = 5   // write results to evidence/
+const TASK_TELEMETRY    = 6   // stream stats to console
+
+struct Scheduler {
+    tasks:      buf Task[MAX_TASKS]
+    task_count: i8
+    tick_count: i64       // total ticks processed this session
+    brick_count: i64      // total bricks emitted this session
+    phase:      i8        // 1 = Phase1 (1M/s), 2 = Phase2 (10M/s)
+    running:    bool
+}
+
+ptr SCHEDULER: *Scheduler
+
+// ─── INIT ──────────────────────────────────────────────────────
+
+fn scheduler_init(s: *Scheduler, phase: i8) {
+    s.task_count = 0
+    s.tick_count = 0
+    s.brick_count = 0
+    s.phase      = phase
+    s.running    = false
+    register_core_tasks(s)
+}
+
+fn register_core_tasks(s: *Scheduler) {
+    scheduler_add_task(s, TASK_TICK_INGEST,  "tick_ingest",  true,  0)
+    scheduler_add_task(s, TASK_RANKO_BUILD,  "ranko_build",  true,  1)
+    scheduler_add_task(s, TASK_STRATEGY_RUN, "strategy_run", true,  2)
+    scheduler_add_task(s, TASK_ORDER_SIM,    "order_sim",    true,  3)
+    scheduler_add_task(s, TASK_RISK_CHECK,   "risk_check",   true,  4)
+    scheduler_add_task(s, TASK_EVIDENCE_LOG, "evidence_log", true,  5)
+    scheduler_add_task(s, TASK_TELEMETRY,    "telemetry",    true, 10)
+}
+
+fn scheduler_add_task(s: *Scheduler, id: i8, name: *i8, enabled: bool, priority: i8) {
+    t = &s.tasks[s.task_count]
+    t.id       = id
+    t.enabled  = enabled
+    t.priority = priority
+    t.last_run = 0
+    t.run_count = 0
+    s.task_count = s.task_count + 1
+}
+
+// ─── MAIN LOOP ─────────────────────────────────────────────────
+// Deterministic: tasks run in priority order on every loop tick.
+// Loop continues until tick source is exhausted or running = false.
+
+fn scheduler_run(s: *Scheduler) {
+    s.running = true
+
+    loop {
+        if s.running == false { break }
+
+        run_task(s, TASK_TICK_INGEST)    // 1. pull ticks
+        run_task(s, TASK_RANKO_BUILD)    // 2. emit bricks
+        run_task(s, TASK_STRATEGY_RUN)   // 3. generate signals
+        run_task(s, TASK_ORDER_SIM)      // 4. simulate fills
+        run_task(s, TASK_RISK_CHECK)     // 5. check limits
+        run_task(s, TASK_EVIDENCE_LOG)   // 6. log everything
+        run_task(s, TASK_TELEMETRY)      // 7. stream stats
+
+        s.tick_count = s.tick_count + 1
+
+        // Phase throttle check — in sim mode, run as fast as possible
+        // Phase 1: assert throughput >= 1_000_000 ticks/min in test
+        // Phase 2: assert throughput >= 10_000_000 ticks/min in test
+    }
+}
+
+fn run_task(s: *Scheduler, task_id: i8) {
+    t = &s.tasks[task_id]
+    if t.enabled == false { return }
+    t.run_count = t.run_count + 1
+    // dispatch handled by main.sagco via fn pointer table
+}
+
+fn scheduler_stop(s: *Scheduler) {
+    s.running = false
+}
+
+// ─── STATS ─────────────────────────────────────────────────────
+
+fn scheduler_ticks_per_sec(s: *Scheduler, elapsed_ns: i64) -> i64 {
+    if elapsed_ns == 0 { return 0 }
+    return (s.tick_count * 1000000000) / elapsed_ns
+}

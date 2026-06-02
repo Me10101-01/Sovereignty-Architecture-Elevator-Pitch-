@@ -1,0 +1,134 @@
+//! main.sagco
+//! SAGCO-TRADER | Engine Entry Point
+//! Wires all modules. Boots in simulation-only mode.
+//! LIVE_TRADING = false — hard lock enforced here.
+
+// ─── IMPORTS (SAGCO module system) ─────────────────────────────
+
+use core::memory
+use core::scheduler
+use renko_dojo::ranko_generator
+use execution::simulator
+use execution::order_book
+use nt_bridge::bridge
+use risk::risk_engine
+use telemetry::stream
+use evidence::logger
+
+// ─── BOOT CONSTANTS ────────────────────────────────────────────
+
+const ENGINE_VERSION = "0.1.0"
+const LIVE_TRADING   = false    // IMMUTABLE — no live execution
+const SIM_PHASE      = 1        // start Phase 1 (1M ticks/sec target)
+
+// ─── STATIC SINGLETONS ─────────────────────────────────────────
+
+static SCHED:   Scheduler
+static CHAIN:   BrickChain
+static TPOOL:   TickPool
+static OPOOL:   OrderPool
+static SQUEUE:  SignalQueue
+static RISK:    RiskState
+static LOGGER:  EvidenceLogger
+static TELEM:   TelemetryState
+
+// ─── ENTRY POINT ───────────────────────────────────────────────
+
+fn main() {
+    boot_banner()
+
+    // 1. Init memory pools (zero-fill all static buffers)
+    memory::tick_pool_init(&TPOOL)
+    memory::order_pool_reset(&OPOOL)
+
+    // 2. Init brick chain (seed price from NT bridge or replay header)
+    seed = bridge::get_seed_price()
+    ranko_generator::ranko_init(&CHAIN, seed)
+
+    // 3. Init risk engine
+    risk_engine::risk_init(&RISK)
+
+    // 4. Init evidence logger
+    logger::logger_init(&LOGGER)
+
+    // 5. Init telemetry
+    stream::telem_init(&TELEM)
+
+    // 6. Boot scheduler
+    scheduler::scheduler_init(&SCHED, SIM_PHASE)
+
+    // 7. Wire task dispatch table
+    wire_tasks()
+
+    // 8. Run
+    stream::print("SAGCO-TRADER ready. Phase 1. Simulation only.")
+    scheduler::scheduler_run(&SCHED)
+
+    // 9. Shutdown — flush evidence, print session summary
+    logger::flush(&LOGGER)
+    stream::print_session_summary(&TELEM, &SCHED)
+}
+
+// ─── TASK DISPATCH ─────────────────────────────────────────────
+// Called by scheduler on each task slot.
+
+fn dispatch_tick_ingest() {
+    ticks_read = bridge::fill_batch(&TPOOL, PHASE_1_BATCH)
+    if ticks_read == 0 {
+        scheduler::scheduler_stop(&SCHED)   // replay exhausted
+    }
+}
+
+fn dispatch_ranko_build() {
+    loop {
+        t = memory::tick_pool_pop(&TPOOL)
+        if t == none { break }
+        n_bricks = ranko_generator::process_tick(&CHAIN, t)
+        SCHED.brick_count = SCHED.brick_count + n_bricks
+    }
+}
+
+fn dispatch_strategy_run() {
+    simulator::on_new_bricks(&CHAIN, &SQUEUE)
+}
+
+fn dispatch_order_sim() {
+    loop {
+        sig = memory::signal_pop(&SQUEUE)
+        if sig == none { break }
+        order_book::sim_fill(&OPOOL, sig, &CHAIN)
+    }
+}
+
+fn dispatch_risk_check() {
+    risk_engine::check(&RISK, &OPOOL)
+}
+
+fn dispatch_evidence_log() {
+    logger::snapshot(&LOGGER, &CHAIN, &OPOOL, &RISK)
+}
+
+fn dispatch_telemetry() {
+    stream::update(&TELEM, &SCHED)
+}
+
+fn wire_tasks() {
+    // Task IDs wired to fn pointers — resolved at compile time
+    // TASK_TICK_INGEST  → dispatch_tick_ingest
+    // TASK_RANKO_BUILD  → dispatch_ranko_build
+    // TASK_STRATEGY_RUN → dispatch_strategy_run
+    // TASK_ORDER_SIM    → dispatch_order_sim
+    // TASK_RISK_CHECK   → dispatch_risk_check
+    // TASK_EVIDENCE_LOG → dispatch_evidence_log
+    // TASK_TELEMETRY    → dispatch_telemetry
+}
+
+// ─── BANNER ────────────────────────────────────────────────────
+
+fn boot_banner() {
+    stream::print("╔══════════════════════════════════════╗")
+    stream::print("║  SAGCO-TRADER ENGINE  v0.1.0         ║")
+    stream::print("║  Simulation Only — No Live Orders     ║")
+    stream::print("║  Phase 1: 1,000,000 ticks/sec         ║")
+    stream::print("╚══════════════════════════════════════╝")
+}

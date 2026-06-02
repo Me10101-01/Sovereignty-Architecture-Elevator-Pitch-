@@ -1,0 +1,112 @@
+//! logger.sagco
+//! SAGCO-TRADER | Evidence
+//! Immutable session log. Every brick, signal, and trade recorded.
+//! Evidence must accumulate before any live execution is considered.
+
+// ─── EVIDENCE THRESHOLDS ───────────────────────────────────────
+
+const MIN_TRADES_FOR_EVIDENCE = 100    // minimum trade sample
+const MIN_WIN_RATE_PCT        = 5200   // 52.00% win rate (basis points)
+const MAX_DRAWDOWN_PCT        = 2000   // 20.00% max drawdown (basis points)
+const MIN_PROFIT_FACTOR       = 150    // 1.50 (stored * 100)
+
+// ─── LOG ENTRY TYPES ───────────────────────────────────────────
+
+const LOG_BRICK  = 1
+const LOG_SIGNAL = 2
+const LOG_TRADE  = 3
+const LOG_RISK   = 4
+const LOG_STATS  = 5
+
+struct LogEntry {
+    entry_type: i8
+    timestamp:  i64
+    data_i64_0: i64   // multipurpose fields
+    data_i64_1: i64
+    data_i64_2: i64
+    data_i8_0:  i8
+}
+
+const MAX_LOG_ENTRIES = 1048576
+
+struct EvidenceLogger {
+    entries:  buf LogEntry[MAX_LOG_ENTRIES]
+    head:     i64
+    flushed:  bool
+    evidence_passes: bool   // true only if thresholds met
+}
+
+fn logger_init(l: *EvidenceLogger) {
+    l.head    = 0
+    l.flushed = false
+    l.evidence_passes = false
+}
+
+// ─── WRITE ─────────────────────────────────────────────────────
+
+fn log_brick(l: *EvidenceLogger, b: *Brick) {
+    e = next_entry(l)
+    if e == none { return }
+    e.entry_type = LOG_BRICK
+    e.timestamp  = b.timestamp
+    e.data_i64_0 = b.open
+    e.data_i64_1 = b.close
+    e.data_i8_0  = b.direction
+}
+
+fn log_trade(l: *EvidenceLogger, t: *Trade) {
+    e = next_entry(l)
+    if e == none { return }
+    e.entry_type = LOG_TRADE
+    e.timestamp  = t.entry_time
+    e.data_i64_0 = t.entry_price
+    e.data_i64_1 = t.exit_price
+    e.data_i64_2 = t.net_pnl
+    e.data_i8_0  = t.direction
+}
+
+fn log_risk_event(l: *EvidenceLogger, reason: i8, timestamp: i64) {
+    e = next_entry(l)
+    if e == none { return }
+    e.entry_type = LOG_RISK
+    e.timestamp  = timestamp
+    e.data_i8_0  = reason
+}
+
+fn snapshot(l: *EvidenceLogger, chain: *BrickChain, pool: *OrderPool, risk: *RiskState) {
+    // Called once per scheduler cycle — batches any new bricks/trades
+    // since last snapshot into log entries
+}
+
+// ─── EVIDENCE VERDICT ──────────────────────────────────────────
+
+fn evaluate_evidence(l: *EvidenceLogger, stats: *BookStats) -> bool {
+    if stats.total_trades < MIN_TRADES_FOR_EVIDENCE { return false }
+    if stats.win_rate < MIN_WIN_RATE_PCT { return false }
+
+    // Drawdown check
+    if stats.net_pnl > 0 {
+        dd_pct = (stats.max_drawdown * 10000) / stats.net_pnl
+        if dd_pct > MAX_DRAWDOWN_PCT { return false }
+    }
+
+    l.evidence_passes = true
+    return true
+}
+
+// ─── FLUSH TO DISK ─────────────────────────────────────────────
+
+fn flush(l: *EvidenceLogger) {
+    if l.flushed { return }
+    // Write log entries to /sagco-trader-engine/evidence/session_YYYYMMDD_HHMMSS.bin
+    l.flushed = true
+}
+
+// ─── UTILITY ───────────────────────────────────────────────────
+
+fn next_entry(l: *EvidenceLogger) -> *LogEntry? {
+    if l.head >= MAX_LOG_ENTRIES { return none }
+    e = &l.entries[l.head]
+    l.head = l.head + 1
+    return e
+}

@@ -1,0 +1,131 @@
+# build.ninja
+# SAGCO-TRADER ENGINE — Ninja build automation
+# Targets: phase1 (1M ticks/sec), phase2 (10M ticks/sec), test, clean
+
+# ─── COMPILER ─────────────────────────────────────────────────
+
+sagcoc = flamec                 # FlameLang compiler binary (SAGCO toolchain)
+llc    = llc                    # LLVM backend
+linker = sagco-ld               # SAGCO OS native linker
+flags  = -O3 -target sagco-os -no-gc -no-heap -no-std
+
+# ─── SOURCES ──────────────────────────────────────────────────
+
+sources_core = $
+    core/memory.sagco $
+    core/scheduler.sagco $
+    core/main.sagco
+
+sources_renko = $
+    renko_dojo/ranko_generator.sagco
+
+sources_exec = $
+    execution/simulator.sagco $
+    execution/order_book.sagco
+
+sources_bridge = $
+    nt_bridge/bridge.sagco
+
+sources_risk = $
+    risk/risk_engine.sagco
+
+sources_telem = $
+    telemetry/stream.sagco
+
+sources_evidence = $
+    evidence/logger.sagco
+
+all_sources = $
+    $sources_core $
+    $sources_renko $
+    $sources_exec $
+    $sources_bridge $
+    $sources_risk $
+    $sources_telem $
+    $sources_evidence
+
+# ─── RULES ─────────────────────────────────────────────────────
+
+rule compile_sagco
+    command = $sagcoc $flags -DPHASE=$phase -c $in -o $out
+    description = SAGCO compile $in
+
+rule link
+    command = $linker $in -o $out
+    description = SAGCO link → $out
+
+rule test
+    command = sagco-run $in --headless --assert-tps $tps_target
+    description = RUN TEST $in
+
+# ─── PHASE 1 BUILD ─────────────────────────────────────────────
+# Target: 1,000,000 ticks/sec
+
+build build/phase1/memory.o:        compile_sagco core/memory.sagco
+    phase = 1
+build build/phase1/scheduler.o:     compile_sagco core/scheduler.sagco
+    phase = 1
+build build/phase1/ranko_gen.o:     compile_sagco renko_dojo/ranko_generator.sagco
+    phase = 1
+build build/phase1/simulator.o:     compile_sagco execution/simulator.sagco
+    phase = 1
+build build/phase1/order_book.o:    compile_sagco execution/order_book.sagco
+    phase = 1
+build build/phase1/bridge.o:        compile_sagco nt_bridge/bridge.sagco
+    phase = 1
+build build/phase1/risk_engine.o:   compile_sagco risk/risk_engine.sagco
+    phase = 1
+build build/phase1/stream.o:        compile_sagco telemetry/stream.sagco
+    phase = 1
+build build/phase1/logger.o:        compile_sagco evidence/logger.sagco
+    phase = 1
+build build/phase1/main.o:          compile_sagco core/main.sagco
+    phase = 1
+
+build bin/sagco-trader-phase1: link $
+    build/phase1/memory.o $
+    build/phase1/ranko_gen.o $
+    build/phase1/simulator.o $
+    build/phase1/order_book.o $
+    build/phase1/bridge.o $
+    build/phase1/risk_engine.o $
+    build/phase1/stream.o $
+    build/phase1/logger.o $
+    build/phase1/scheduler.o $
+    build/phase1/main.o
+
+# ─── PHASE 2 BUILD ─────────────────────────────────────────────
+# Target: 10,000,000 ticks/sec (wider batch, same zero-alloc design)
+
+build bin/sagco-trader-phase2: link $
+    build/phase2/memory.o $
+    build/phase2/ranko_gen.o $
+    build/phase2/simulator.o $
+    build/phase2/order_book.o $
+    build/phase2/bridge.o $
+    build/phase2/risk_engine.o $
+    build/phase2/stream.o $
+    build/phase2/logger.o $
+    build/phase2/scheduler.o $
+    build/phase2/main.o
+
+# ─── TESTS ─────────────────────────────────────────────────────
+
+build test_phase1: test bin/sagco-trader-phase1
+    tps_target = 1000000
+
+build test_phase2: test bin/sagco-trader-phase2
+    tps_target = 10000000
+
+build test_ranko: compile_sagco tests/test_ranko.sagco
+    phase = 1
+
+build test_order_book: compile_sagco tests/test_order_book.sagco
+    phase = 1
+
+build test_risk: compile_sagco tests/test_risk.sagco
+    phase = 1
+
+# ─── DEFAULT TARGET ────────────────────────────────────────────
+
+default bin/sagco-trader-phase1

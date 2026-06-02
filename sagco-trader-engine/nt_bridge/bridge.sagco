@@ -1,0 +1,112 @@
+//! bridge.sagco
+//! SAGCO-TRADER | NT Bridge
+//! NinjaTrader data feed emulator.
+//! Reads .csv or binary tick replay files.
+//! NO live broker connection. Replay only in Phase 1 and Phase 2.
+
+// ─── FILE FORMAT SPEC ──────────────────────────────────────────
+// Binary tick file layout (little-endian):
+//   Header: 32 bytes
+//     [0..7]   magic:      "SAGCOTK\0"
+//     [8..15]  tick_count: i64
+//     [16..23] seed_price: i64  (first tick price, fixed-point)
+//     [24..31] tick_size:  i64  (TICK_SIZE constant used when recording)
+//
+//   Body: tick_count × 24 bytes per Tick
+//     [0..7]   price:     i64
+//     [8..15]  volume:    i64
+//     [16..23] timestamp: i64
+
+const MAGIC = "SAGCOTK\0"
+const HEADER_SIZE = 32
+
+// ─── BRIDGE STATE ──────────────────────────────────────────────
+
+struct BridgeState {
+    file_offset:  i64     // byte offset in replay file
+    tick_total:   i64     // total ticks in file
+    ticks_read:   i64     // ticks consumed so far
+    seed_price:   i64
+    tick_size_file: i64   // tick size recorded in file header
+    eof:          bool
+}
+
+ptr BRIDGE: *BridgeState
+
+fn bridge_init(b: *BridgeState, file_path: *i8) -> bool {
+    // Open file, validate magic, read header
+    // Returns false if file invalid
+    b.file_offset = HEADER_SIZE
+    b.ticks_read  = 0
+    b.eof         = false
+    return true   // success path
+}
+
+// ─── SEED PRICE ────────────────────────────────────────────────
+
+fn get_seed_price() -> i64 {
+    return BRIDGE.seed_price
+}
+
+// ─── BATCH FILL ────────────────────────────────────────────────
+// Reads up to `batch_size` ticks into the pool.
+// Returns number of ticks actually read (0 = EOF).
+
+fn fill_batch(pool: *TickPool, batch_size: i64) -> i64 {
+    b = BRIDGE
+    if b.eof { return 0 }
+
+    filled = 0
+    loop {
+        if filled >= batch_size { break }
+        if b.ticks_read >= b.tick_total {
+            b.eof = true
+            break
+        }
+
+        t = read_next_tick(b)
+        if t == none { break }
+
+        ok = memory::tick_pool_push(pool, t)
+        if ok == false { break }   // pool full — caller must drain first
+
+        filled = filled + 1
+    }
+
+    return filled
+}
+
+fn read_next_tick(b: *BridgeState) -> Tick? {
+    if b.eof { return none }
+
+    // Read 24 bytes from file at b.file_offset
+    // Deserialize into Tick struct
+    t = Tick {
+        price:     0   // filled from file read
+        volume:    0
+        timestamp: 0
+    }
+
+    b.file_offset = b.file_offset + 24
+    b.ticks_read  = b.ticks_read + 1
+
+    return t
+}
+
+// ─── CSV REPLAY (alternate format) ─────────────────────────────
+// Format: timestamp,price,volume\n
+// price column is float string → convert to fixed-point
+
+fn parse_csv_tick(line: *i8, out: *Tick) -> bool {
+    // Parse line → Tick fields
+    // price_str → float → * 100 → i64
+    return true
+}
+
+// ─── LIVE TRADING GUARD ────────────────────────────────────────
+// This function will never return true until evidence threshold is met
+// and human operator explicitly removes the LIVE_TRADING = false lock.
+
+fn live_orders_enabled() -> bool {
+    return false   // HARD LOCK
+}

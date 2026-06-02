@@ -1,0 +1,115 @@
+//! memory.sagco
+//! SAGCO-TRADER | Core
+//! Zero-allocation static memory pools. No heap. No GC.
+//! All buffers fixed at compile time.
+
+// ─── POOL SIZES ────────────────────────────────────────────────
+
+const TICK_POOL_SIZE   = 1048576   // 2^20 ticks   (~24MB at 24 bytes/tick)
+const BRICK_POOL_SIZE  = 1048576   // 2^20 bricks  (~40MB at 40 bytes/brick)
+const ORDER_POOL_SIZE  = 65536     // 2^16 orders
+const SIGNAL_POOL_SIZE = 4096      // strategy signal queue
+const LOG_POOL_SIZE    = 65536     // evidence log entries
+
+// ─── TICK POOL ─────────────────────────────────────────────────
+
+struct TickPool {
+    data:  buf Tick[TICK_POOL_SIZE]
+    head:  i64    // write cursor
+    tail:  i64    // read cursor
+    count: i64    // live items
+}
+
+ptr TICK_POOL: *TickPool   // static singleton, zeroed at boot
+
+fn tick_pool_push(pool: *TickPool, t: Tick) -> bool {
+    if pool.count >= TICK_POOL_SIZE { return false }  // pool full
+    idx        = pool.head mod TICK_POOL_SIZE
+    pool.data[idx] = t
+    pool.head  = pool.head + 1
+    pool.count = pool.count + 1
+    return true
+}
+
+fn tick_pool_pop(pool: *TickPool) -> Tick? {
+    if pool.count == 0 { return none }
+    idx        = pool.tail mod TICK_POOL_SIZE
+    t          = pool.data[idx]
+    pool.tail  = pool.tail + 1
+    pool.count = pool.count - 1
+    return t
+}
+
+// ─── ORDER POOL ────────────────────────────────────────────────
+
+struct Order {
+    id:        i64
+    price:     i64
+    quantity:  i32
+    side:      i8    // +1 = buy, -1 = sell
+    state:     i8    // 0=pending, 1=filled, 2=cancelled
+    timestamp: i64
+}
+
+struct OrderPool {
+    data:  buf Order[ORDER_POOL_SIZE]
+    count: i32
+}
+
+ptr ORDER_POOL: *OrderPool
+
+fn order_pool_alloc(pool: *OrderPool) -> *Order? {
+    if pool.count >= ORDER_POOL_SIZE { return none }
+    slot = pool.count
+    pool.count = pool.count + 1
+    return &pool.data[slot]
+}
+
+fn order_pool_reset(pool: *OrderPool) {
+    pool.count = 0
+}
+
+// ─── SIGNAL QUEUE ──────────────────────────────────────────────
+
+struct Signal {
+    brick_idx:  i64
+    direction:  i8    // +1 long, -1 short, 0 exit
+    strength:   i32   // 0-100 confidence score
+    strategy:   i8    // which strategy generated this
+    timestamp:  i64
+}
+
+struct SignalQueue {
+    data:  buf Signal[SIGNAL_POOL_SIZE]
+    head:  i32
+    count: i32
+}
+
+ptr SIGNAL_QUEUE: *SignalQueue
+
+fn signal_push(q: *SignalQueue, s: Signal) -> bool {
+    if q.count >= SIGNAL_POOL_SIZE { return false }
+    idx = (q.head + q.count) mod SIGNAL_POOL_SIZE
+    q.data[idx] = s
+    q.count = q.count + 1
+    return true
+}
+
+fn signal_pop(q: *SignalQueue) -> Signal? {
+    if q.count == 0 { return none }
+    s = q.data[q.head mod SIGNAL_POOL_SIZE]
+    q.head  = (q.head + 1) mod SIGNAL_POOL_SIZE
+    q.count = q.count - 1
+    return s
+}
+
+// ─── MEMORY ZERO ───────────────────────────────────────────────
+
+fn zero_i64(ptr: *i64, count: i64) {
+    i = 0
+    loop {
+        if i >= count { break }
+        ptr[i] = 0
+        i = i + 1
+    }
+}

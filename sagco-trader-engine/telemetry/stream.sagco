@@ -1,0 +1,57 @@
+//! stream.sagco
+//! SAGCO-TRADER | Telemetry
+//! Headless console streaming. No GUI. Raw data output.
+
+struct TelemetryState {
+    session_start_ns: i64
+    last_report_ns:   i64
+    report_interval:  i64   // ns between console prints (default 1_000_000_000 = 1s)
+    bricks_at_last:   i64
+    ticks_at_last:    i64
+}
+
+fn telem_init(t: *TelemetryState) {
+    t.report_interval = 1000000000   // 1 second
+    t.bricks_at_last  = 0
+    t.ticks_at_last   = 0
+}
+
+fn update(t: *TelemetryState, s: *Scheduler) {
+    // Only print at report_interval cadence
+    now = clock_ns()
+    if (now - t.last_report_ns) < t.report_interval { return }
+
+    elapsed   = now - t.session_start_ns
+    tps       = scheduler_ticks_per_sec(s, elapsed)
+    bricks    = s.brick_count
+    b_delta   = bricks - t.bricks_at_last
+
+    print_line("[SAGCO-TRADER]")
+    print_kv("ticks/sec",  tps)
+    print_kv("total_ticks", s.tick_count)
+    print_kv("bricks",      bricks)
+    print_kv("bricks/sec",  b_delta)
+    print_kv("phase",       s.phase)
+    print_kv("halted",      RISK.halted)
+
+    t.last_report_ns  = now
+    t.bricks_at_last  = bricks
+    t.ticks_at_last   = s.tick_count
+}
+
+fn print_session_summary(t: *TelemetryState, s: *Scheduler) {
+    elapsed = clock_ns() - t.session_start_ns
+    tps     = scheduler_ticks_per_sec(s, elapsed)
+
+    print_line("═══════════════════════════════")
+    print_line("SAGCO-TRADER SESSION COMPLETE")
+    print_kv("total_ticks",  s.tick_count)
+    print_kv("total_bricks", s.brick_count)
+    print_kv("avg_ticks/sec", tps)
+    print_line("═══════════════════════════════")
+}
+
+fn print(msg: *i8)            { /* syscall: write stdout */ }
+fn print_line(msg: *i8)       { /* write + newline */ }
+fn print_kv(k: *i8, v: i64)   { /* write "k: v\n" */ }
+fn clock_ns() -> i64          { /* SAGCO-OS: monotonic clock in nanoseconds */ }

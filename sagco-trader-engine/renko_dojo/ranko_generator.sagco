@@ -1,0 +1,194 @@
+//! ranko_generator.sagco
+//! SAGCO-TRADER | Renko Dojo
+//! Converts raw tick stream into fixed-size price bricks.
+//! Phase 1 target: 1,000,000 ticks/sec
+//! Phase 2 target: 10,000,000 ticks/sec
+//! LIVE ORDERS: DISABLED — simulator only until evidence passes
+
+// ─── PRIMITIVES ────────────────────────────────────────────────
+
+struct Tick {
+    price:     i64   // fixed-point: raw_price * 100 (e.g. NQ 15000.25 → 1500025)
+    volume:    i64
+    timestamp: i64   // nanoseconds since epoch
+}
+
+struct Brick {
+    open:       i64
+    close:      i64
+    high:       i64  // = max(open, close) for Renko
+    low:        i64  // = min(open, close) for Renko
+    direction:  i8   // +1 = bullish, -1 = bearish
+    ticks_used: i32  // ticks consumed to complete this brick
+    timestamp:  i64  // timestamp of the completing tick
+}
+
+// ─── CONFIGURATION ─────────────────────────────────────────────
+
+const TICK_SIZE    = 25         // NQ minimum tick value (0.25 points * 100 = 25)
+const BRICK_TICKS  = 8          // bricks form every 8 ticks of price movement
+const BRICK_SIZE   = TICK_SIZE * BRICK_TICKS   // = 200 fixed-point units = 2.00 points
+const REVERSAL_SIZE = BRICK_SIZE               // standard Renko: 1 brick to reverse
+
+const MAX_BRICKS   = 1048576    // 2^20 brick history ring buffer
+const MAX_TICKS    = 1048576    // 2^20 tick input buffer
+
+// ─── STATE ─────────────────────────────────────────────────────
+
+struct BrickChain {
+    bricks:     buf Brick[MAX_BRICKS]
+    head:       i64             // write cursor (mod MAX_BRICKS for ring)
+    count:      i64             // total bricks emitted lifetime
+    last_close: i64             // last confirmed brick close price
+    last_dir:   i8              // direction of the last completed brick
+    pending_ticks: i32          // ticks consumed in current in-progress brick
+}
+
+// ─── ENTRY POINT ───────────────────────────────────────────────
+
+fn ranko_init(chain: *BrickChain, seed_price: i64) {
+    chain.head        = 0
+    chain.count       = 0
+    chain.last_close  = seed_price
+    chain.last_dir    = 0
+    chain.pending_ticks = 0
+}
+
+// ─── CORE BRICK BUILDER ────────────────────────────────────────
+
+// Returns number of bricks emitted (0, 1, or 2+ if price gapped)
+fn build_brick(last_close: i64, tick_price: i64) -> Brick? {
+    delta = tick_price - last_close
+
+    if delta >= BRICK_SIZE {
+        return Brick {
+            open:       last_close
+            close:      last_close + BRICK_SIZE
+            high:       last_close + BRICK_SIZE
+            low:        last_close
+            direction:  1
+            ticks_used: 1
+            timestamp:  0   // caller sets this
+        }
+    }
+
+    if delta <= -BRICK_SIZE {
+        return Brick {
+            open:       last_close
+            close:      last_close - BRICK_SIZE
+            high:       last_close
+            low:        last_close - BRICK_SIZE
+            direction:  -1
+            ticks_used: 1
+            timestamp:  0
+        }
+    }
+
+    return none
+}
+
+// ─── FULL CHAIN PROCESSOR ──────────────────────────────────────
+// Handles gaps (price moves multiple bricks in one tick), reversals,
+// and ring buffer write. Call this for every incoming tick.
+
+fn process_tick(chain: *BrickChain, tick: *Tick) -> i32 {
+    emitted = 0
+
+    loop {
+        brick = build_brick(chain.last_close, tick.price)
+
+        if brick == none {
+            break
+        }
+
+        // Reversal check: if direction flips, require 2x brick size
+        if chain.last_dir != 0 and brick.direction != chain.last_dir {
+            reversal_delta = abs(tick.price - chain.last_close)
+            if reversal_delta < REVERSAL_SIZE * 2 {
+                break
+            }
+        }
+
+        // Stamp the completing tick's timestamp
+        brick.timestamp = tick.timestamp
+        brick.ticks_used = chain.pending_ticks + 1
+
+        // Write to ring buffer
+        idx = chain.head mod MAX_BRICKS
+        chain.bricks[idx] = brick
+        chain.head    = chain.head + 1
+        chain.count   = chain.count + 1
+
+        // Advance state
+        chain.last_close   = brick.close
+        chain.last_dir     = brick.direction
+        chain.pending_ticks = 0
+
+        emitted = emitted + 1
+    }
+
+    // Count this tick against in-progress brick
+    chain.pending_ticks = chain.pending_ticks + 1
+
+    return emitted
+}
+
+// ─── BATCH PROCESSOR (Phase 1 / Phase 2 speed path) ───────────
+// Process a full tick buffer in one call for maximum throughput.
+// Returns total bricks emitted from the batch.
+
+fn process_batch(
+    chain:      *BrickChain,
+    ticks:      buf Tick[MAX_TICKS],
+    tick_count: i64
+) -> i64 {
+    total_bricks = 0
+    i = 0
+
+    loop {
+        if i >= tick_count { break }
+        total_bricks = total_bricks + process_tick(chain, &ticks[i])
+        i = i + 1
+    }
+
+    return total_bricks
+}
+
+// ─── READ ACCESSOR ─────────────────────────────────────────────
+// Read last N bricks from the ring buffer (newest first).
+
+fn get_last_brick(chain: *BrickChain, offset: i64) -> Brick? {
+    if offset >= chain.count { return none }
+    if offset >= MAX_BRICKS  { return none }
+
+    idx = (chain.head - 1 - offset + MAX_BRICKS) mod MAX_BRICKS
+    return chain.bricks[idx]
+}
+
+fn get_brick_count(chain: *BrickChain) -> i64 {
+    return chain.count
+}
+
+// ─── UTILITY ───────────────────────────────────────────────────
+
+fn abs(x: i64) -> i64 {
+    if x < 0 { return -x }
+    return x
+}
+
+fn brick_is_bullish(b: *Brick) -> bool {
+    return b.direction == 1
+}
+
+fn brick_is_bearish(b: *Brick) -> bool {
+    return b.direction == -1
+}
+
+// ─── PHASE SPEED CONSTANTS ─────────────────────────────────────
+// These drive scheduler.sagco batch sizes.
+// Phase 1: 1_000_000 ticks/sec
+// Phase 2: 10_000_000 ticks/sec
+
+const PHASE_1_BATCH = 1000    // process in 1k-tick batches
+const PHASE_2_BATCH = 10000   // process in 10k-tick batches
+const LIVE_TRADING  = false   // HARD LOCK: no broker connection
