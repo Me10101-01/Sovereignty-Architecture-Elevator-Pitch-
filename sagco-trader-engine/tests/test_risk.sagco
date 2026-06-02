@@ -1,0 +1,121 @@
+//! test_risk.sagco
+//! SAGCO-TRADER | Tests
+//! Unit tests for risk/risk_engine.sagco
+//! Run: sagco-run tests/test_risk --assert
+
+use risk::risk_engine
+
+fn test_initial_state_allows_entry() {
+    r = RiskState {}
+    risk_init(&r)
+
+    ok = risk_allow_entry(&r, 1)
+    assert(ok == true, "fresh state must allow entry")
+    assert(r.halted == false, "risk must not be halted at init")
+}
+
+fn test_daily_loss_halt() {
+    r = RiskState {}
+    risk_init(&r)
+
+    // Simulate daily loss exceeding MAX_DAILY_LOSS (50000 = $500.00)
+    r.daily_loss_tally = 50001
+    ok = risk_allow_entry(&r, 1)
+    assert(ok == false, "daily loss exceeded — entry must be denied")
+}
+
+fn test_max_drawdown_halt() {
+    r = RiskState {}
+    risk_init(&r)
+
+    r.current_drawdown = MAX_DRAWDOWN + 1
+    ok = risk_allow_entry(&r, 1)
+    assert(ok == false, "max drawdown exceeded — entry must be denied")
+}
+
+fn test_consecutive_loss_halt() {
+    r = RiskState {}
+    risk_init(&r)
+
+    r.consecutive_losses = MAX_CONSECUTIVE_L
+    ok = risk_allow_entry(&r, 1)
+    assert(ok == false, "max consecutive losses hit — entry must be denied")
+}
+
+fn test_position_size_limit() {
+    r = RiskState {}
+    risk_init(&r)
+
+    ok = risk_allow_entry(&r, MAX_POSITION_SIZE + 1)
+    assert(ok == false, "position size above MAX_POSITION_SIZE must be rejected")
+}
+
+fn test_position_size_at_limit_allowed() {
+    r = RiskState {}
+    risk_init(&r)
+
+    ok = risk_allow_entry(&r, MAX_POSITION_SIZE)
+    assert(ok == true, "position size at MAX_POSITION_SIZE must be allowed")
+}
+
+fn test_win_resets_consecutive_losses() {
+    r = RiskState {}
+    risk_init(&r)
+
+    r.consecutive_losses = 3
+
+    // Simulate a winning trade close
+    result = TradeResult { net_pnl: 150, was_halted: false }
+    risk_on_trade_closed(&r, &result)
+
+    assert(r.consecutive_losses == 0, "winning trade must reset consecutive loss counter")
+}
+
+fn test_loss_increments_consecutive() {
+    r = RiskState {}
+    risk_init(&r)
+
+    result = TradeResult { net_pnl: -80, was_halted: false }
+    risk_on_trade_closed(&r, &result)
+
+    assert(r.consecutive_losses == 1, "losing trade must increment consecutive losses")
+}
+
+fn test_halt_is_permanent_until_reset() {
+    r = RiskState {}
+    risk_init(&r)
+
+    halt(&r)
+    assert(r.halted == true, "halt must set halted flag")
+
+    ok = risk_allow_entry(&r, 1)
+    assert(ok == false, "halted state must block all entries")
+}
+
+fn test_live_trading_always_false() {
+    // The sentinel assertion: LIVE_TRADING can never be true.
+    // If this fails, the build is compromised.
+    assert(LIVE_TRADING == false, "CRITICAL: LIVE_TRADING must always be false")
+}
+
+fn main() {
+    test_initial_state_allows_entry()
+    test_daily_loss_halt()
+    test_max_drawdown_halt()
+    test_consecutive_loss_halt()
+    test_position_size_limit()
+    test_position_size_at_limit_allowed()
+    test_win_resets_consecutive_losses()
+    test_loss_increments_consecutive()
+    test_halt_is_permanent_until_reset()
+    test_live_trading_always_false()   // sentinel — must always be last
+    print("ALL RISK TESTS PASSED — LIVE_TRADING=false CONFIRMED")
+}
+
+fn assert(cond: bool, msg: *i8) {
+    if cond == false {
+        print("FAIL: ")
+        print(msg)
+        exit(1)
+    }
+}

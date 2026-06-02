@@ -1,0 +1,182 @@
+//! renko_master_bridge.sagco
+//! SAGCO-TRADER | NT Bridge — RenkoMasterVisualization_AI Integration
+//!
+//! Bridge between the Python Renko strategies in RenkoMasterVisualization_AI
+//! and the SAGCO NINJA engine. Python signals arrive as CSV lines on stdin
+//! or as a shared-memory mapped file. SAGCO reads them as SignalRecord structs.
+//!
+//! Python side writes: timestamp,board_id,direction,confidence,brick_count
+//! SAGCO side reads:   parses → SignalRecord → pushes to SignalQueue
+
+// ─── SIGNAL FORMAT ─────────────────────────────────────────────
+// CSV line format produced by RenkoMasterVisualization_AI Python scripts:
+//
+//   timestamp_ns,board_id,direction,confidence_bps,brick_count,wave_hash
+//
+//   timestamp_ns    : i64   nanoseconds since Unix epoch
+//   board_id        : i8    0-9, maps to NINJA_10_BOARD_SCHEMA board IDs
+//   direction       : i8    1=long, -1=short, 0=exit/neutral
+//   confidence_bps  : i64   0-10000 (basis points, 10000 = 100.0% confidence)
+//   brick_count     : i32   how many confirming bricks produced this signal
+//   wave_hash       : i64   SAGCO WAVE fingerprint of this signal (hex as i64)
+
+const SIGNAL_CSV_FIELDS = 6
+const BRIDGE_RING_SIZE  = 4096      // power of 2 for fast modulo
+
+// ─── STRUCTS ───────────────────────────────────────────────────
+
+struct SignalRecord {
+    timestamp_ns:    i64
+    board_id:        i8
+    direction:       i8      // 1 = long, -1 = short, 0 = exit
+    confidence_bps:  i64     // 0–10000
+    brick_count:     i32
+    wave_hash:       i64     // fingerprint from Python SAGCO wave call
+    consumed:        bool    // set true after strategy processes it
+}
+
+struct RenkoMasterBridge {
+    ring:        SignalRecord[4096]   // fixed ring buffer (BRIDGE_RING_SIZE)
+    head:        i64                 // write pointer
+    tail:        i64                 // read pointer
+    total_in:    i64                 // total signals received from Python
+    total_drop:  i64                 // signals dropped (ring full)
+    wave_misses: i64                 // signals with wave_hash == 0 (unverified)
+}
+
+// ─── INIT ──────────────────────────────────────────────────────
+
+fn bridge_init(b: *RenkoMasterBridge) {
+    b.head       = 0
+    b.tail       = 0
+    b.total_in   = 0
+    b.total_drop = 0
+    b.wave_misses = 0
+}
+
+// ─── INGEST ────────────────────────────────────────────────────
+// Parse one CSV line from Python RenkoMasterVisualization_AI output.
+// Returns 1 if enqueued, 0 if dropped (ring full) or parse error.
+
+fn bridge_ingest_csv(b: *RenkoMasterBridge, line: *i8, len: i32) -> i32 {
+    rec = SignalRecord {}
+
+    ok = parse_signal_csv(line, len, &rec)
+    if ok == 0 { return 0 }
+
+    // Check ring capacity
+    next_head = (b.head + 1) mod BRIDGE_RING_SIZE
+    if next_head == b.tail {
+        b.total_drop = b.total_drop + 1
+        return 0    // ring full — drop signal
+    }
+
+    // Flag unverified signals (Python didn't call sagco wave)
+    if rec.wave_hash == 0 {
+        b.wave_misses = b.wave_misses + 1
+    }
+
+    b.ring[b.head] = rec
+    b.head = next_head
+    b.total_in = b.total_in + 1
+    return 1
+}
+
+// ─── CONSUME ───────────────────────────────────────────────────
+// Pop the next signal from the ring for strategy processing.
+// Returns pointer to SignalRecord or null if empty.
+
+fn bridge_next(b: *RenkoMasterBridge) -> SignalRecord? {
+    if b.tail == b.head { return none }
+
+    rec = b.ring[b.tail]
+    b.ring[b.tail].consumed = true
+    b.tail = (b.tail + 1) mod BRIDGE_RING_SIZE
+    return rec
+}
+
+// ─── BOARD ID VALIDATION ───────────────────────────────────────
+// Python boards map 1:1 to SAGCO NINJA 10-board IDs.
+// Board IDs outside 0-9 are rejected.
+
+fn validate_board_id(board_id: i8) -> bool {
+    return board_id >= 0 and board_id <= 9
+}
+
+// ─── PARSE ─────────────────────────────────────────────────────
+// Minimal CSV parser for 6-field signal lines.
+// Returns 1 on success, 0 on bad format.
+
+fn parse_signal_csv(line: *i8, len: i32, out: *SignalRecord) -> i32 {
+    // Fields: timestamp_ns,board_id,direction,confidence_bps,brick_count,wave_hash
+    // All i64 fields separated by commas. No quotes. No whitespace.
+    // Called per-line from bridge_ingest_csv.
+
+    field_idx = 0
+    field_start = 0
+    i = 0
+
+    loop {
+        if i > len { break }
+        c = line[i]
+
+        if c == 44 or c == 0 {   // 44 = ',' , 0 = null terminator
+            val = parse_i64(line + field_start, i - field_start)
+
+            if field_idx == 0 { out.timestamp_ns   = val }
+            if field_idx == 1 {
+                if validate_board_id(val as i8) == false { return 0 }
+                out.board_id = val as i8
+            }
+            if field_idx == 2 {
+                if val != 1 and val != -1 and val != 0 { return 0 }
+                out.direction = val as i8
+            }
+            if field_idx == 3 {
+                if val < 0 or val > 10000 { return 0 }
+                out.confidence_bps = val
+            }
+            if field_idx == 4 { out.brick_count = val as i32 }
+            if field_idx == 5 { out.wave_hash   = val }
+
+            field_idx   = field_idx + 1
+            field_start = i + 1
+        }
+
+        if c == 0 { break }
+        i = i + 1
+    }
+
+    if field_idx < SIGNAL_CSV_FIELDS { return 0 }
+    return 1
+}
+
+fn parse_i64(ptr: *i8, len: i32) -> i64 { /* SAGCO-OS: parse decimal i64 from bytes */ }
+
+// ─── WAVE VERIFICATION ─────────────────────────────────────────
+// Signals from RenkoMasterVisualization_AI must carry a SAGCO WAVE hash
+// generated by `sagco wave <signal_data>` on the Python side.
+// The observer agent rejects signals where wave_hash == 0.
+
+fn bridge_wave_verified_pct(b: *RenkoMasterBridge) -> i64 {
+    if b.total_in == 0 { return 10000 }   // 100% if nothing received yet
+    verified = b.total_in - b.wave_misses
+    return (verified * 10000) / b.total_in
+}
+
+// ─── STATUS ────────────────────────────────────────────────────
+
+fn bridge_print_status(b: *RenkoMasterBridge) {
+    pct = bridge_wave_verified_pct(b)
+    depth = (b.head - b.tail + BRIDGE_RING_SIZE) mod BRIDGE_RING_SIZE
+
+    print("[RENKO_MASTER_BRIDGE]")
+    print_kv("signals_in",      b.total_in)
+    print_kv("signals_dropped", b.total_drop)
+    print_kv("ring_depth",      depth)
+    print_kv("wave_verified_%", pct)     // should stay 10000 (100.00%)
+    print_kv("wave_misses",     b.wave_misses)
+}
+
+fn print(msg: *i8)            { /* syscall: write stdout */ }
+fn print_kv(k: *i8, v: i64)   { /* write "k: v\n" */ }

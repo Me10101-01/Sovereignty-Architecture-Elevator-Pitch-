@@ -11,8 +11,10 @@
 ///   sagco ninja smash --rounds 1000     — Monte Carlo stress test
 ///   sagco ninja fingerprint             — sign session with SAGCO WAVE
 
-use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
+
+// "SAGCNJA" encoded as 8-byte magic for XOR fingerprinting
+const SAGCO_NINJA_MAGIC: u64 = 0x5341_4743_4F4E_4A41;
 
 // ─── NINJA CONSCIOUSNESS INDEX ─────────────────────────────────
 // Mirrors the dojo CONSCIOUSNESS INDEX but for trading fitness.
@@ -439,7 +441,7 @@ fn cmd_fingerprint() {
         .unwrap()
         .as_secs();
 
-    let fingerprint = format!("{:016x}", ts ^ 0xSAGCO_NINJA);
+    let fingerprint = format!("{:016x}", ts ^ SAGCO_NINJA_MAGIC);
     println!("SAGCO NINJA FINGERPRINT");
     println!("SESSION={}", ts);
     println!("FINGERPRINT={}", fingerprint);

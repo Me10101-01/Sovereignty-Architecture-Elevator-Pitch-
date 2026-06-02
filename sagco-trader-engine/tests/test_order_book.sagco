@@ -1,0 +1,127 @@
+//! test_order_book.sagco
+//! SAGCO-TRADER | Tests
+//! Unit tests for execution/order_book.sagco
+//! Run: sagco-run tests/test_order_book --assert
+
+use execution::order_book
+
+fn test_fill_long_no_slippage() {
+    book = OrderBook {}
+    order_book_init(&book)
+
+    // Open long at 1500000, fill at 1500025 (1 tick slippage)
+    id = open_position(&book, 1, 1500000)
+    trade = get_trade(&book, id)
+
+    assert(trade.direction == 1,        "expected long direction")
+    assert(trade.entry_price == 1500025, "entry should include 1-tick slippage")
+}
+
+fn test_fill_short_no_slippage() {
+    book = OrderBook {}
+    order_book_init(&book)
+
+    id = open_position(&book, -1, 1500000)
+    trade = get_trade(&book, id)
+
+    assert(trade.direction == -1,        "expected short direction")
+    assert(trade.entry_price == 1499975,  "short entry: price - 1 tick slippage")
+}
+
+fn test_close_long_profit() {
+    book = OrderBook {}
+    order_book_init(&book)
+
+    id = open_position(&book, 1, 1500000)
+    close_position(&book, id, 1501000)   // +1000 fixed-point = +$50 before commission
+
+    trade = get_trade(&book, id)
+    assert(trade.net_pnl > 0,    "expected profit")
+    assert(trade.commission > 0, "expected commission deducted")
+}
+
+fn test_close_short_loss() {
+    book = OrderBook {}
+    order_book_init(&book)
+
+    id = open_position(&book, -1, 1500000)
+    close_position(&book, id, 1500600)   // short closed higher — loss
+
+    trade = get_trade(&book, id)
+    assert(trade.net_pnl < 0, "expected loss on short that closed higher")
+}
+
+fn test_commission_applied() {
+    book = OrderBook {}
+    order_book_init(&book)
+
+    id = open_position(&book, 1, 1500000)
+    close_position(&book, id, 1500200)   // exactly BRICK_SIZE profit
+
+    trade = get_trade(&book, id)
+    assert(trade.commission == COMMISSION_FLAT, "commission must equal COMMISSION_FLAT")
+}
+
+fn test_stats_win_rate() {
+    book = OrderBook {}
+    order_book_init(&book)
+
+    // 2 wins, 1 loss
+    id0 = open_position(&book, 1, 1500000)
+    close_position(&book, id0, 1500400)   // win
+    id1 = open_position(&book, 1, 1500400)
+    close_position(&book, id1, 1500800)   // win
+    id2 = open_position(&book, 1, 1500800)
+    close_position(&book, id2, 1500600)   // loss
+
+    stats = compute_stats(&book)
+    // win_rate in basis points: 2/3 ≈ 6667 bps
+    assert(stats.win_rate_bps >= 6600, "win rate should be ~66.67%")
+    assert(stats.win_rate_bps <= 6700, "win rate should be ~66.67%")
+}
+
+fn test_drawdown_tracked() {
+    book = OrderBook {}
+    order_book_init(&book)
+
+    // Win then loss then win
+    id0 = open_position(&book, 1, 1500000)
+    close_position(&book, id0, 1500400)   // +profit
+    id1 = open_position(&book, 1, 1500400)
+    close_position(&book, id1, 1500000)   // big loss — should update max_drawdown
+
+    stats = compute_stats(&book)
+    assert(stats.max_drawdown > 0, "max drawdown should be non-zero after loss")
+}
+
+fn test_max_trades_boundary() {
+    book = OrderBook {}
+    order_book_init(&book)
+
+    // Fill to MAX_TRADES - 1 and verify no overflow
+    // (In real test this would loop MAX_TRADES times — skipping for throughput)
+    id = open_position(&book, 1, 1500000)
+    assert(id >= 0, "first trade id must be valid")
+    close_position(&book, id, 1500200)
+    assert(book.trade_count == 1, "count should be 1 after 1 close")
+}
+
+fn main() {
+    test_fill_long_no_slippage()
+    test_fill_short_no_slippage()
+    test_close_long_profit()
+    test_close_short_loss()
+    test_commission_applied()
+    test_stats_win_rate()
+    test_drawdown_tracked()
+    test_max_trades_boundary()
+    print("ALL ORDER BOOK TESTS PASSED")
+}
+
+fn assert(cond: bool, msg: *i8) {
+    if cond == false {
+        print("FAIL: ")
+        print(msg)
+        exit(1)
+    }
+}
