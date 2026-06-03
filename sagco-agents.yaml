@@ -1,0 +1,201 @@
+##############################################################################
+# sagco-agents.yaml — Custom SAGCO Agent Registry
+# Each agent is a named role that wraps a device + department + command set.
+# Agents feed the refinery pipeline with typed, weighted artifacts.
+#
+# Agent = Device + Department + Specialization + Commands
+# Every agent leaves provenance: device, dept, agent_id, timestamp, artifact
+##############################################################################
+
+version: "1.0"
+agents_stamp: "20230127_210049"
+
+# ── Named agents ──────────────────────────────────────────────────────────────
+agents:
+
+  # ── IT Department ──────────────────────────────────────────────────────────
+  it-dept-zfold:
+    id:          it-dept-zfold
+    department:  it-dept
+    device:      zfold
+    brain:       execution
+    specialization: fleet_network_ops
+    commands:
+      - sagco-360
+      - sagco-cloud-ping
+      - sagco-nems
+      - sagco-node-id
+    produces:
+      - YAML_SYSTEM
+      - CSV_DATA
+    refinery_weight: 3
+    gcp_log_name: sagco-fleet
+    evidence_tier: runtime
+
+  it-dept-hp:
+    id:          it-dept-hp
+    department:  it-dept
+    device:      hp
+    brain:       mansion
+    specialization: infrastructure_orchestration
+    commands:
+      - sagco-daemon
+      - sagco-sync-brain
+      - sagco-cloud-ping
+      - sagco-gcp
+    produces:
+      - YAML_SYSTEM
+      - MD_LEDGER
+    refinery_weight: 3
+    gcp_log_name: sagco-fleet
+    evidence_tier: runtime
+
+  # ── Engineering Department ─────────────────────────────────────────────────
+  engineering-ish:
+    id:          engineering-ish
+    department:  engineering
+    device:      ish
+    brain:       integration
+    specialization: pipeline_verification
+    commands:
+      - sagco-classify
+      - sagco-antibody
+      - sagco-verify
+      - sagco-mri
+      - sagco-ish-heartbeat
+    produces:
+      - SAGCO_COMMAND
+      - YAML_CONFIG
+    refinery_weight: 4
+    evidence_tier: runtime
+
+  engineering-termux:
+    id:          engineering-termux
+    department:  engineering
+    device:      termux
+    brain:       compilation
+    specialization: rust_compilation
+    commands:
+      - cargo build --release
+      - sagco-classify
+      - sagco-antibody
+    produces:
+      - RUST_KERNEL
+      - RUST_MODULE
+    refinery_weight: 4
+    evidence_tier: runtime
+
+  # ── Finance Department ─────────────────────────────────────────────────────
+  finance-zfold:
+    id:          finance-zfold
+    department:  finance-dept
+    device:      zfold
+    brain:       execution
+    specialization: trading_strategy
+    commands:
+      - nina-trader dry-run all
+      - nina-trader portfolio
+      - sagco-eru
+    produces:
+      - XLSX_PORTFOLIO
+      - CSV_DATA
+    refinery_weight: 5
+    evidence_tier: client
+
+  finance-hp:
+    id:          finance-hp
+    department:  finance-dept
+    device:      hp
+    brain:       mansion
+    specialization: ledger_audit
+    commands:
+      - sagco-refinery
+      - sagco-wafer
+      - sagco-eru-device
+    produces:
+      - PDF_FINANCE
+      - MD_LEDGER
+    refinery_weight: 5
+    evidence_tier: client
+
+  # ── Operations Department ──────────────────────────────────────────────────
+  ops-hp:
+    id:          ops-hp
+    department:  ops-dept
+    device:      hp
+    brain:       mansion
+    specialization: state_orchestration
+    commands:
+      - sagco-state
+      - sagco-mansion
+      - sagco-master-report
+      - sagco-daemon
+    produces:
+      - YAML_SYSTEM
+      - MD_SAGCO
+    refinery_weight: 3
+    evidence_tier: intelligence
+
+  # ── Research Department ───────────────────────────────────────────────────
+  research-ipad:
+    id:          research-ipad
+    department:  research
+    device:      ipad
+    brain:       ideation
+    specialization: architecture_doctrine
+    commands:
+      - sagco-brain
+      - sagco-master-report
+      - sagco-sheet
+    produces:
+      - YAML_DOCTRINE
+      - MD_CASE_STUDY
+    refinery_weight: 5
+    evidence_tier: evidence
+
+# ── Refinery agent pipeline ───────────────────────────────────────────────────
+# How agents feed into the refinery scoring system.
+# Each dept feeds a different refinery layer.
+refinery_pipeline:
+  runtime_layer:
+    agents: [it-dept-zfold, it-dept-hp, engineering-ish, engineering-termux]
+    weight: 3
+    score_basis: command_count + rust_file_count
+
+  evidence_layer:
+    agents: [research-ipad, engineering-ish]
+    weight: 5
+    score_basis: case_study_count + ledger_count
+
+  client_layer:
+    agents: [finance-zfold, finance-hp]
+    weight: 5
+    score_basis: pdf_count + portfolio_count
+
+  intelligence_layer:
+    agents: [ops-hp, research-ipad]
+    weight: 3
+    score_basis: yaml_system_count + yaml_doctrine_count
+
+# ── Agent sheet music instrument map ─────────────────────────────────────────
+# Each agent gets a MIDI instrument in sagco-sheet output
+agent_instruments:
+  it-dept-zfold:      { octave: 4, anchor: A4, hz: 440.00 }
+  it-dept-hp:         { octave: 3, anchor: G3, hz: 196.00 }
+  engineering-ish:    { octave: 4, anchor: C4, hz: 261.63 }
+  engineering-termux: { octave: 3, anchor: C3, hz: 130.81 }
+  finance-zfold:      { octave: 4, anchor: F4, hz: 349.23 }
+  finance-hp:         { octave: 3, anchor: D3, hz: 146.83 }
+  ops-hp:             { octave: 3, anchor: B3, hz: 246.94 }
+  research-ipad:      { octave: 5, anchor: E5, hz: 659.25 }
+
+# ── GCP routing ───────────────────────────────────────────────────────────────
+# Which log name each department writes to in Cloud Logging
+gcp_routing:
+  it-dept:     sagco-fleet
+  engineering: sagco-pipeline
+  finance-dept: sagco-portfolio
+  ops-dept:    sagco-ops
+  research:    sagco-research
+
+status: SAGCO_AGENTS_REGISTRY_ACTIVE
