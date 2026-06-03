@@ -1,0 +1,20 @@
+[package]
+name    = "sagco-core"
+version = "1.0.0"
+edition = "2021"
+authors = ["Strategickhaos DAO LLC <domenic.garza@snhu.edu>"]
+description = "SAGCO-Core: Modular Rust computational framework for engineering state machines"
+
+[[bin]]
+name = "sagco-bubble"
+path = "src/bin/sagco_bubble.rs"
+
+[[bin]]
+name = "sagco-lex"
+path = "src/bin/sagco_lex.rs"
+
+[lib]
+name = "sagco_core"
+path = "src/lib.rs"
+
+[dependencies]
