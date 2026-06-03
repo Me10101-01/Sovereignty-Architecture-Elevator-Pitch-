@@ -50,6 +50,27 @@ devices:
     home:    "/data/data/com.termux/files/home"
     tier:    2
 
+  hp:
+    label:   "HP SAGCO-OS (Mansion Node)"
+    role:    mansion                # persistent storage, Obsidian, Rust workspaces, daemons
+    arch:    x86_64
+    shell:   bash
+    home:    "${HOME}"
+    tier:    1                      # tier 1: always-on, highest persistence
+    receives_from:
+      - device: zfold
+        transport: link_to_windows  # confirmed live 2026-06-03 03:49
+      - device: termux
+        transport: git
+      - device: ish
+        transport: git
+    storage_paths:
+      - sagco_ledger.csv
+      - sagco_state.yaml
+      - sagco_race/race_log.csv
+      - SAGCO_OBSIDIAN_BRAIN/
+      - nina-trader/target/release/
+
   linux:
     label:   "Generic Linux / CI"
     role:    build                  # CI, server, Codio

@@ -1,0 +1,218 @@
+##############################################################################
+# sagco-provenance-policy.yaml — SAGCO Fleet Governance Manifest
+# Every artifact must satisfy this policy before it enters the evidence pipeline.
+# Unknown origin = rejected artifact = gap in the ERU ledger.
+#
+# This is the fix for: EXPECTED=13, ATTRIBUTED=4, UNKNOWN=9 (69% gap)
+##############################################################################
+
+version: "1.0"
+policy: sagco_provenance
+genesis_lock: "20230127_210049"
+
+# ── Artifact provenance requirements ─────────────────────────────────────────
+# Every artifact must carry these fields. Missing any = PROVENANCE_FAIL.
+artifact:
+  require:
+    - timestamp       # YYYYMMDD_HHMMSS
+    - device          # node id (zfold/ish/ipad/termux/hp)
+    - node_type       # role (execution/integration/ideation/compilation/mansion)
+    - project         # derived from Cargo.toml name or PWD basename
+    - parent          # what artifact triggered this one (race_log, ledger, etc.)
+    - hash            # sha256 or cksum of artifact content
+  optional:
+    - battery         # device battery at creation time
+    - transport       # git | link_to_windows | copy | rsync
+    - branch          # git branch at creation time
+    - eru_variance    # ERU snapshot at creation time
+
+# ── Device fleet registry ─────────────────────────────────────────────────────
+devices:
+  ipad:
+    role:      ideation
+    brain:     planning_visual
+    produces:
+      - YAML_DOCTRINE
+      - MD_CASE_STUDY
+      - MD_SAGCO
+    primary_transport: git
+
+  zfold:
+    role:      execution
+    brain:     execution
+    produces:
+      - SAGCO_COMMAND
+      - CSV_DATA
+      - YAML_SYSTEM
+    primary_transport: link_to_windows
+    link_to_windows:
+      connected_node: hp_sagco_os
+      confirmed: true        # screenshot 2026-06-03 03:49 confirmed
+
+  termux:
+    role:      compilation
+    brain:     compilation
+    produces:
+      - RUST_KERNEL
+      - RUST_MODULE
+      - PYTHON_MODULE
+    primary_transport: git
+
+  ish:
+    role:      integration
+    brain:     integration
+    produces:
+      - SAGCO_COMMAND
+      - YAML_CONFIG
+    primary_transport: git
+
+  hp_sagco_os:
+    role:      mansion
+    brain:     orchestration
+    produces:
+      - RUST_MODULE         # long-running cargo builds
+      - YAML_SYSTEM         # state aggregation
+      - MD_LEDGER           # consolidated ledger reports
+    primary_transport: git
+    receives_from:
+      - device: zfold
+        via: link_to_windows
+      - device: termux
+        via: git
+      - device: ish
+        via: git
+    storage:
+      - sagco_ledger.csv
+      - sagco_race/race_log.csv
+      - sagco_state.yaml
+      - SAGCO_OBSIDIAN_BRAIN/
+      - nina-trader/target/release/
+
+  unknown:
+    role:      unattributed
+    action:    reject_or_fix
+    fix:       "sagco-provenance fix-unknown"
+
+# ── Validation rules ──────────────────────────────────────────────────────────
+# If any of these conditions are true, the artifact is flagged PROVENANCE_FAIL
+validation:
+  fail_if:
+    - missing_device
+    - missing_timestamp
+    - missing_parent
+    - missing_hash
+    - device_equals_unknown    # triggers fix-unknown automatically
+
+  warn_if:
+    - missing_battery          # non-critical but useful for fleet health
+    - missing_transport        # degrades sync reliability
+    - parent_equals_none       # orphan artifact — no traceable origin
+
+  auto_fix:
+    device_equals_unknown:     "sagco-provenance fix-unknown"
+    missing_timestamp:         "use STAMP=$(date +%Y%m%d_%H%M%S)"
+    missing_hash:              "sagco-provenance stamp <file>"
+
+# ── Metrics collected per artifact ───────────────────────────────────────────
+metrics:
+  per_artifact:
+    - attributed_work_units    # artifacts with full provenance
+    - unknown_work_units       # artifacts with device=unknown
+    - provenance_score         # attributed / total * 100
+
+  per_device:
+    - adaptation_rate          # % events = re-running existing commands
+    - creation_rate            # % events = new artifacts
+    - eru_variance             # (expected - actual) / expected
+    - attribution_pct          # attributed work units / total
+
+  fleet:
+    - corpus_callosum_health   # % of brain nodes with full provenance
+    - master_timeline_coverage # % of race ticks with known device
+    - unknown_attribution_pct  # target: < 5%
+
+# ── Evidence pipeline stages ─────────────────────────────────────────────────
+# Artifacts flow through this pipeline. Each stage requires prior stage pass.
+pipeline:
+  - stage: artifact_created
+    requires: [timestamp, device]
+    produces: race_log_entry
+
+  - stage: attribution_check
+    requires: [device_not_unknown]
+    produces: attributed_ledger_entry
+    tool: sagco-provenance
+
+  - stage: eru_measurement
+    requires: [attributed_ledger_entry]
+    produces: eru_variance_score
+    tool: sagco-eru-device
+
+  - stage: brain_node
+    requires: [attributed_ledger_entry]
+    produces: SAGCO_OBSIDIAN_BRAIN/nodes/<device>_<stamp>.md
+    tool: sagco-brain
+
+  - stage: wafer_refinery
+    requires: [eru_variance_score]
+    produces: refinery_score.yaml
+    tool: sagco-refinery
+
+  - stage: portfolio_case_study
+    requires: [wafer_refinery, brain_node]
+    produces: Bell_Aroma_*.md | portfolio_*.md
+    tool: sagco-mansion
+
+# ── Sovereignty control plane (future layer) ─────────────────────────────────
+# Discord front-end integration — maps to Strategickhaos DevOps architecture
+control_plane:
+  interface:    discord
+  channels:
+    commands:   "#sagco-commands"
+    status:     "#cluster-status"
+    artifacts:  "#deployments"
+    alerts:     "#alerts"
+    agents:     "#agents"
+
+  event_flow:
+    - source: sagco_race_log
+      event:  race_tick
+      dest:   "#sagco-commands"
+
+    - source: sagco_antibody
+      event:  SYSTEM_HEALTH=CRITICAL
+      dest:   "#alerts"
+
+    - source: sagco_refinery
+      event:  rank_upgrade
+      dest:   "#deployments"
+
+    - source: nina_trader
+      event:  strategy_score
+      dest:   "#agents"
+
+  # Wire when Discord bot is running
+  bot_commands:
+    - "/sagco-status"      → sagco-master-report brief
+    - "/sagco-fleet"       → sagco-node-id fleet
+    - "/sagco-health"      → sagco-antibody
+    - "/sagco-sync"        → sagco-daemon once
+    - "/sagco-sheet"       → sagco-sheet play all
+
+# ── Provenance score targets ──────────────────────────────────────────────────
+targets:
+  unknown_attribution_pct:  5      # < 5% unknown (currently ~69%)
+  provenance_score:         95     # > 95% artifacts fully attributed
+  eru_variance:             20     # < 20% gap between expected and actual
+  corpus_coverage:          80     # > 80% of brain nodes have full provenance
+
+# ── Current state (as of 2026-06-03) ─────────────────────────────────────────
+current_state:
+  unknown_attribution_pct:  69     # BOTTLENECK
+  attributed_devices:       4      # ipad=1, termux=1, zfold=1, ish=1
+  unknown_events:           9
+  link_to_windows:          confirmed  # zfold ↔ hp_sagco_os live
+  hp_node_status:           needs_registration
+  provenance_layer:         30_pct_complete
+
+status: SAGCO_PROVENANCE_POLICY_ACTIVE
