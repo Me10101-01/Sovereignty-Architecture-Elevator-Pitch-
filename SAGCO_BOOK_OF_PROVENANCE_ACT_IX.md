@@ -434,6 +434,7 @@ PHASE=vocabulary_emerging
 | Melody anomaly detection (expected vs observed song) | ⬜ not built | sagco-baseline + sagco-melody |
 | WHY= field in provenance schema | ⬜ not added | sagco-sign schema update |
 | Corpus callosum query language | ⬜ not built | FlameLang v2 |
+| sagco-linguist — concept-preserving translation engine | ✅ built | Act X |
 
 ```
 STATUS=ACT_IX_MISSING_BRICKS_DECLARED
