@@ -522,3 +522,21 @@ BOOTSTRAP=corpus_callosum_synced
 *The lexers wait.*
 
 🔥📚🧠📡
+
+---
+
+## Missing Bricks
+
+| Brick | Status | Depends On |
+|---|---|---|
+| RPi physical nodes acquired | ⬜ pending | hardware budget |
+| sagco-node-register run on each RPi | ⬜ pending | physical RPi nodes |
+| Bootstrap oracle tested on new node | ⬜ pending | sagco-sync-brain on RPi |
+| sagco-daemon running on RPi fleet | ⬜ pending | RPi registered |
+| First RPi race tick in GCP logs | ⬜ pending | sagco-cloud-ping on RPi |
+| Phase 5 (teach next node) verified end-to-end | 🟡 partial | sagco-sync-brain built |
+
+```
+STATUS=ACT_VIII_MISSING_BRICKS_DECLARED
+BLOCKED_BY=hardware_acquisition
+```

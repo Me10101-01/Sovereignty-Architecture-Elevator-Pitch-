@@ -421,3 +421,21 @@ PHASE=vocabulary_emerging
 *Where the evolved vocabulary reaches critical mass and FlameLang begins to generate its own grammar — not from rules the Builder wrote, but from patterns the fleet repeated. The compiler doesn't know it's a compiler. It just remembers what worked.*
 
 🔥📜🎹🧠📡
+
+---
+
+## Missing Bricks
+
+| Brick | Status | Depends On |
+|---|---|---|
+| sagco-melody.sh — comparative song analysis | ⬜ not built | sagco-sheet.sh |
+| sagco-flamegen dispatch live mode | 🟡 built, dry-run | FLAMEGEN_DRY_RUN=0 |
+| FlameLang v2 grammar from vocabulary | ⬜ not built | sagco-flamegen vocab populated |
+| Melody anomaly detection (expected vs observed song) | ⬜ not built | sagco-baseline + sagco-melody |
+| WHY= field in provenance schema | ⬜ not added | sagco-sign schema update |
+| Corpus callosum query language | ⬜ not built | FlameLang v2 |
+
+```
+STATUS=ACT_IX_MISSING_BRICKS_DECLARED
+BLOCKED_BY=sagco-melody.sh sagco-flamegen-vocab-population
+```

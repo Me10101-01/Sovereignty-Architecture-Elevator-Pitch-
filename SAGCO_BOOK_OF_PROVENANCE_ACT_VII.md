@@ -319,3 +319,18 @@ PHASE=3_ACTIVE
 ---
 
 *Next: Act VIII — The City of One Thousand Nodes*
+
+---
+
+## Missing Bricks
+
+| Brick | Status | Depends On |
+|---|---|---|
+| sagco-boss-battle fix (retroactive attribution) | ✅ built | sagco-identity |
+| sagco-sign (cryptographic provenance stamp) | ✅ built | sagco-identity-anchor.yaml |
+| GCP Logs Explorer populated | 🟡 queue built | sagco-boss-battle ship on HP |
+| unknown=0 verified in live fleet | 🟡 tool built | run on each device |
+
+```
+STATUS=ACT_VII_MISSING_BRICKS_DECLARED
+```
