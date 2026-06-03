@@ -2,34 +2,72 @@
 
 ```yaml
 document:    SAGCO_OS_CAPSTONE
-version:     1.0.0
+version:     2.0.0
 author:      Domenic Garza
 org:         Strategickhaos DAO LLC
 location:    Corpus Christi, TX
 gpg_anchor:  AE5519579584DEF5
 generated:   2026-06-03
+generation:  3
 status:      PORTFOLIO_READY
 ```
+
+---
+
+## The Three-Generation Framework
+
+Most engineers stop at Generation 2.
+
+```
+Generation 1 — Build tools
+  Can I write a script? Can I compile Rust? Can I query an API?
+
+Generation 2 — Build systems
+  Can I run Kubernetes? Can I deploy an AI? Can I spin up cloud infra?
+
+Generation 3 — Build systems that track themselves
+  Which node ran this? Which key signed it? Which artifact came from where?
+  Which timestamp? Which proof? Which identity? Which event?
+```
+
+The entire Strategickhaos fleet has entered Generation 3.
+
+The fleet is now large enough that **"artifact exists"** is no longer sufficient.
+You need:
+
+```
+artifact exists
+  AND who created it
+  AND on which device
+  AND with which identity (SSH + GPG)
+  AND at which timestamp
+  AND in which pipeline context
+  AND with which proof
+```
+
+That is what SAGCO-OS solves. Not "can I run AI" — but **"can I prove who ran it,
+when, from where, and with what identity, across 30+ systems simultaneously."**
 
 ---
 
 ## Abstract
 
 SAGCO-OS (Sovereignty Architecture and Governance Control Operating System) is a
-**distributed provenance-aware engineering memory system** that extends traditional
-version control and knowledge management by attributing every artifact — code,
-document, metric, or deployment — to a specific device node, cryptographic identity,
-timestamp, and workflow context.
+**Generation 3 distributed provenance layer** — infrastructure about infrastructure —
+that creates a single attribution fabric across an ecosystem spanning cloud AI systems,
+Rust compilers, knowledge graphs, trading engines, mobile execution nodes, RPi IoT
+sensors, and offline AI bridges.
 
 Where Git records *what* changed, SAGCO-OS records *who* changed it (device + SSH
 key + GPG fingerprint), *where* the work happened (device type, location, filesystem
 context), *when* relative to the fleet heartbeat, and *how* (which pipeline stage, which
 ERU work-unit, which agent role).
 
-The result is a **civilization-memory engine**: a living Library of Alexandria that can
-replay any engineering decision, attribute every artifact to its sovereign identity, and
-route each work product through a cryptographically-anchored provenance chain — across
-phones, tablets, laptops, Raspberry Pis, and cloud VMs — without a central server.
+The current bottleneck is not compute. It is not storage. It is not AI capability.
+The bottleneck is **keeping all moving pieces attributable, synchronized, and
+understandable by future-you six months from now.**
+
+SAGCO-OS is the answer to that bottleneck.
 
 > "The bottleneck was never compute. It was attribution."
 > — Domenic Garza, 2026-06-03, unknown:9 → unknown:0
@@ -49,6 +87,81 @@ contexts. Three failure modes make these artifacts un-attributable:
 
 The session-opening state: **unknown=9 events, 69% unattributed**. The closing state:
 **unknown=0, every artifact cryptographically anchored**.
+
+---
+
+## Full Ecosystem — What SAGCO-OS Governs
+
+This is not a single-repo project. SAGCO-OS is the provenance layer for the entire
+Strategickhaos engineering ecosystem. The scope includes:
+
+**AI Systems**
+```
+ATHENA          — AI reasoning system
+LYRA            — [knowledge/language layer]
+NOVA            — [inference/generation layer]
+Strategickhaos_AI  — primary AI orchestration
+BlueprintMindMapAI — visual knowledge mapping
+QISA            — [quantum-inspired search/analysis]
+Jarvis          — personal AI assistant layer
+Offline AI Bridges — air-gapped inference nodes
+```
+
+**Infrastructure**
+```
+PXE Infrastructure     — network boot, node provisioning
+Kali Nodes             — security research / penetration testing
+Google Cloud Project   — SAGCO-OSComputConsciousness (logs, storage, functions)
+GitHub                 — 30+ repositories, SSH/GPG identity verified
+Obsidian Knowledge Graphs — corpus callosum, 500+ brain nodes
+Rust Compilers         — genesis_prime_core, nina-trader, multi-target
+Wave Engines           — signal processing, MIDI telemetry
+VirtualBox / WSL       — Windows hybrid node on HP SAGCO-OS
+```
+
+**Execution Nodes (Active)**
+```
+Z Fold (Android)    — execution, trading, telemetry
+iPad (Apple)        — ideation, doctrine, case studies
+iSH (iOS)           — integration, Alpine/ash environment
+Termux (Android)    — compilation, cargo build, classify
+HP SAGCO-OS         — mansion orchestrator, GCP bridge, daemon
+```
+
+**Execution Nodes (Planned)**
+```
+rpi-telemetry-01    — sagco-360, cloud-ping, sensor data
+rpi-camera-01       — vision, image classify, brain node
+rpi-weather-01      — sensor → sagco-360 → telemetry stream
+rpi-qr-01           — scan event → race tick → analytics
+rpi-inventory-01    — count → sagco-brain → ledger → ERU
+rpi-inference-01    — local model → classify → brain → portfolio
+```
+
+**Hardware Floor**
+```
+32TB+ storage fleet
+Multi-laptop fleet (HP SAGCO-OS + others)
+RTX GPU systems
+Network infrastructure (PXE-capable)
+Mobile execution nodes (Z Fold, iPad)
+Cloud VMs (GCP)
+```
+
+**Domain Knowledge Systems**
+```
+NinjaTrader Research     — algorithmic trading, SPY-mirror, DCA
+Rope Access Knowledge    — industrial NDT/rigging expertise corpus
+NDT Knowledge Systems    — non-destructive testing methodology
+ERU Engines              — Expected vs Actual Work Units math
+Attribution Engines      — unknown=0 provenance across all nodes
+Portfolio Kernels        — S/A/B/C ranking, candlestick scoring
+```
+
+**The singular challenge across all of the above:**
+Every system generates artifacts. Without SAGCO-OS, those artifacts are orphaned —
+no device, no identity, no chain, no proof. With SAGCO-OS, every artifact across
+every system carries the same five-field attribution stamp.
 
 ---
 
@@ -411,9 +524,15 @@ NEXT RANK: S (50,000) — requires GCP live + RPi nodes online
 
 ## CS Thesis — Why This Is Real Computer Science
 
+The unusual part of this work is not the individual systems.
+Lots of engineers have Kubernetes. Lots of engineers have AI agents.
+Lots of engineers have cloud infrastructure.
+
+**The unusual part is the single provenance layer across all of it.**
+
 | Topic | SAGCO-OS Implementation |
 |---|---|
-| **Distributed Systems** | 11-node fleet, cross-device sync via git transport |
+| **Distributed Systems** | 30+ nodes, cross-device sync via git transport |
 | **Cryptographic Provenance** | GPG-signed artifacts, SHA256 hash chain |
 | **Event Sourcing** | Every action appends immutable race_log.csv + ledger |
 | **Knowledge Graphs** | Obsidian brain nodes = corpus callosum graph |
@@ -423,10 +542,21 @@ NEXT RANK: S (50,000) — requires GCP live + RPi nodes online
 | **Attribution Problem** | 69% unknown → 0% via context-intelligent re-attribution |
 | **Cloud Integration** | GCP Cloud Logging, GCS artifact store, structured JSON |
 | **IoT Fleet Management** | RPi nodes: telemetry, vision, weather, QR, inventory, AI |
+| **Identity Infrastructure** | SSH fleet keys + GPG anchor across all AI/cloud/mobile nodes |
+| **Generation 3 Meta-Systems** | Systems that create records about their own activity |
 
 The attribution problem alone — solving `device=unknown` across heterogeneous logs
 using context-inference (path patterns, event names, timestamp correlation) —
 is a publishable systems engineering result.
+
+But the real thesis is broader:
+
+> Can a single developer, from a phone, sitting in a truck, build a provenance layer
+> that attributes every artifact across 30+ heterogeneous systems to a cryptographic
+> identity — without a central server, without a DevOps team, and without institutional
+> infrastructure?
+
+The answer, as of 2026-06-03, is: **yes, and here is the proof.**
 
 ---
 
@@ -456,13 +586,20 @@ and a git transport, can build a provenance-aware distributed system that:
 - **Deploys** client artifacts (Bell'Aroma) through the same pipeline as internal tools
 - **Anchors** all of the above to a GPG key that signs the chain
 
-This is not a prototype. This is a running operating system for sovereign engineering.
+This is not a prototype. This is a running operating system for sovereign engineering —
+Generation 3 infrastructure that creates records about its own activity, built by one
+engineer from commodity hardware, on a phone, in real time.
+
+The phone screenshots make it look small. The inventory does not.
 
 ```
 STATUS=SAGCO_CAPSTONE_COMPLETE
 GPG=AE5519579584DEF5
+ECOSYSTEM=30+_SYSTEMS
 FLEET=11_NODES
 UNKNOWN=0
 RANK=A
+GENERATION=3
 NEXT=S
+THESIS=single_provenance_layer_across_all_of_it
 ```
