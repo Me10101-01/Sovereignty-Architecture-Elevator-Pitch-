@@ -1,0 +1,274 @@
+##############################################################################
+# sagco-compose.yaml — Polyglot Cross-Device Quantum Entanglement Config
+# SAGCO Daemon orchestration: iSH / iPad / Termux / Z Fold / any POSIX host
+#
+# Usage:
+#   sagco-daemon              → start daemon with this file
+#   sagco-daemon status       → show last sync tick
+#   sagco-daemon once         → single sync pass, no loop
+#   sagco-daemon stop         → kill running daemon
+#   sagco-daemon compose      → print active config + device roles
+##############################################################################
+
+version: "1.0"
+daemon: sagco-daemon
+compose_stamp: "20240127_210049"    # genesis lock anchor
+
+# ── Device registry ─────────────────────────────────────────────────────────
+# Each device has a role in the SAGCO pipeline.
+# Add a device by setting ~/.sagco_device on that machine to its key here.
+devices:
+  ish:
+    label:   "iPad iSH Alpine"
+    role:    integration            # wires scripts, integration test
+    arch:    x86_32
+    shell:   ash
+    home:    "/root"
+    tier:    1
+
+  ipad:
+    label:   "iPad Native / Working Copy"
+    role:    ideation               # git push, doctrine editing, QR audit
+    arch:    arm64
+    shell:   sh
+    home:    "/var/mobile"
+    tier:    1
+
+  termux:
+    label:   "Android Termux"
+    role:    compilation            # cargo build, Python, heavy compute
+    arch:    aarch64
+    shell:   bash
+    home:    "/data/data/com.termux/files/home"
+    tier:    2
+
+  zfold:
+    label:   "Z Fold Termux"
+    role:    execution              # live run, portfolio view, nina-trader
+    arch:    aarch64
+    shell:   bash
+    home:    "/data/data/com.termux/files/home"
+    tier:    2
+
+  linux:
+    label:   "Generic Linux / CI"
+    role:    build                  # CI, server, Codio
+    arch:    x86_64
+    shell:   bash
+    home:    "${HOME}"
+    tier:    3
+
+# ── Sync targets — the quantum entanglement layer ────────────────────────────
+# These files propagate state across all devices.
+# Priority: critical files sync first.
+sync:
+  interval_seconds: 30
+  method:           git             # git | rsync | copy
+  branch:           claude/rust-excel-graph-api-KPmHv
+
+  targets:
+    # Tier 1 — state: every device needs current view
+    - path:     sagco_race/race_log.csv
+      priority: critical
+      merge:    append              # new rows from each device appended
+      owned_by: all
+
+    - path:     sagco_ledger.csv
+      priority: critical
+      merge:    append
+      owned_by: all
+
+    - path:     sagco_state.yaml
+      priority: critical
+      merge:    last_write_wins     # writer with latest timestamp wins
+      owned_by: all
+
+    # Tier 2 — evidence artifacts
+    - path:     sagco_classify/classified_inventory_latest.csv
+      priority: high
+      merge:    last_write_wins
+      owned_by: ish
+
+    - path:     sagco_refinery/refinery_score_latest.yaml
+      priority: high
+      merge:    last_write_wins
+      owned_by: ish
+
+    - path:     sagco_mri/mri_score_latest.yaml
+      priority: high
+      merge:    last_write_wins
+      owned_by: ish
+
+    - path:     sagco_antibody/antibody_report_latest.md
+      priority: high
+      merge:    last_write_wins
+      owned_by: all
+
+    # Tier 3 — nina trader outputs
+    - path:     sagco_nina/reports/strategy_score.yaml
+      priority: medium
+      merge:    last_write_wins
+      owned_by: termux
+
+    - path:     sagco_nina/reports/backtest.md
+      priority: medium
+      merge:    last_write_wins
+      owned_by: termux
+
+    - path:     sagco_nina/trade_log.csv
+      priority: medium
+      merge:    append
+      owned_by: zfold
+
+    # Tier 4 — eru / attribution
+    - path:     sagco_eru_device/eru_device_latest.yaml
+      priority: low
+      merge:    last_write_wins
+      owned_by: all
+
+# ── Polyglot language pipeline ───────────────────────────────────────────────
+# Each language stratum has an owner device and its artifact class.
+languages:
+  shell:
+    glob:       "sagco-*.sh"
+    runner:     sh
+    owner:      ish
+    artifact:   SAGCO_COMMAND
+    category:   runtime
+
+  rust_kernel:
+    glob:       "genesis_prime_core.rs"
+    runner:     rustc
+    owner:      termux
+    artifact:   RUST_KERNEL
+    category:   runtime
+
+  rust_modules:
+    glob:       "src/**/*.rs"
+    runner:     cargo
+    owner:      termux
+    artifact:   RUST_MODULE
+    category:   runtime
+
+  python:
+    glob:       "sagco_*.py"
+    runner:     python3
+    owner:      termux
+    artifact:   PYTHON_MODULE
+    category:   runtime
+
+  yaml_doctrine:
+    glob:       "*.yaml"
+    runner:     sh
+    owner:      ipad
+    artifact:   YAML_DOCTRINE
+    category:   intelligence
+
+  markdown_case:
+    glob:       "Bell_Aroma_*.md"
+    runner:     sh
+    owner:      ipad
+    artifact:   MD_CASE_STUDY
+    category:   evidence
+
+# ── Pipeline stage wiring ────────────────────────────────────────────────────
+# Defines what each stage produces and what the next stage consumes.
+pipeline:
+  - stage: 0_mri
+    command:  sagco-mri
+    produces: sagco_mri/mri_score_latest.yaml
+    device:   all
+
+  - stage: 1_classify
+    command:  sagco-classify
+    produces: sagco_classify/classified_inventory_latest.csv
+    device:   all
+    needs:    []
+
+  - stage: 2_antibody
+    command:  sagco-antibody
+    produces: sagco_antibody/antibody_report_latest.md
+    device:   all
+    needs:    [1_classify]
+
+  - stage: 3_refinery
+    command:  sagco-refinery
+    produces: sagco_refinery/refinery_score_latest.yaml
+    device:   all
+    needs:    [1_classify]
+
+  - stage: 4_eru
+    command:  sagco-eru-device
+    produces: sagco_eru_device/eru_device_latest.yaml
+    device:   all
+    needs:    [1_classify]
+
+  - stage: 5_verify
+    command:  sagco-verify
+    produces: sagco_verify/verify_genesis_latest.txt
+    device:   all
+    needs:    []
+
+  - stage: 6_nina
+    command:  nina-trader dry-run all
+    produces: sagco_nina/reports/strategy_score.yaml
+    device:   termux
+    needs:    []
+
+  - stage: 7_state
+    command:  sagco-state
+    produces: sagco_state.yaml
+    device:   all
+    needs:    [3_refinery, 4_eru, 6_nina]
+
+  - stage: 8_mansion
+    command:  sagco-mansion
+    produces: sagco_mansion/mansion_report_latest.md
+    device:   all
+    needs:    [7_state]
+
+# ── Entanglement rules ───────────────────────────────────────────────────────
+# When device A completes a stage, device B is "entangled" —
+# it will pick up the artifact on next sync tick.
+entanglement:
+  - trigger:    stage_complete
+    stage:      1_classify
+    from:       ish
+    notify:     [termux, zfold]
+    message:    "classify_pass"
+
+  - trigger:    stage_complete
+    stage:      6_nina
+    from:       termux
+    notify:     [ish, zfold]
+    message:    "nina_backtest_pass"
+
+  - trigger:    antibody_critical
+    stage:      2_antibody
+    from:       all
+    notify:     all
+    message:    "system_anomaly_detected"
+
+  - trigger:    rank_upgrade
+    stage:      8_mansion
+    from:       all
+    notify:     all
+    message:    "rank_upgraded"
+
+# ── Daemon behavior ──────────────────────────────────────────────────────────
+daemon_config:
+  pid_file:       "~/.sagco_daemon.pid"
+  log_file:       "~/sagco_race/daemon_log.csv"
+  tick_interval:  30                # seconds between sync passes
+  max_age_state:  86400             # warn if sagco_state.yaml older than 24h
+  auto_pipeline:  false             # if true, auto-run each stage after sync
+  git_auto_push:  false             # if true, push after each sync (use carefully)
+  device_key:     "~/.sagco_device" # file that identifies this device
+
+# ── Compose status ───────────────────────────────────────────────────────────
+# Updated by sagco-daemon on each tick
+compose_status:
+  last_sync:    null
+  active_device: null
+  sync_count:   0
+  health:       INIT
