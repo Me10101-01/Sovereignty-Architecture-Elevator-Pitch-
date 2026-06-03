@@ -20,6 +20,8 @@ STAMP=$(date +%Y%m%d_%H%M%S 2>/dev/null || echo "000000_000000")
 DEV="${SAGCO_DEVICE:-$(cat "$HOME/.sagco_device" 2>/dev/null || echo unknown)}"
 REPO_ROOT="$(cd "$(dirname "$0")" 2>/dev/null && pwd || echo "$HOME")"
 CLASSIFY_DIR="$HOME/sagco_classify"
+# Stable live path (monitorable with: wc -l ~/sagco_classify.csv)
+LIVE_CSV="$HOME/sagco_classify.csv"
 INVENTORY="$CLASSIFY_DIR/classified_inventory_${STAMP}.csv"
 REPORT="$CLASSIFY_DIR/classify_report_${STAMP}.md"
 SCORE_YAML="$CLASSIFY_DIR/classify_score_${STAMP}.yaml"
@@ -34,9 +36,61 @@ if [ "$1" = "show" ]; then
     exit 0
 fi
 
-# ── scan target ───────────────────────────────────────────────────────────────
-SCAN_TARGET="${1:-$REPO_ROOT}"
-[ "$1" = "--summary" ] && SCAN_TARGET="$REPO_ROOT"
+# ── census: quick grep counts on stable CSV ───────────────────────────────────
+if [ "$1" = "census" ]; then
+    if [ ! -f "$LIVE_CSV" ]; then
+        echo "No census data yet — run: sagco-classify fast"
+        exit 1
+    fi
+    TOTAL=$(grep -c "^20" "$LIVE_CSV" 2>/dev/null || echo 0)
+    echo "SAGCO ARTIFACT CENSUS"
+    echo "====================="
+    for CAT in SAGCO_COMMAND RUST_KERNEL RUST_MODULE PYTHON_MODULE SHELL_UTIL \
+               YAML_SYSTEM YAML_DOCTRINE YAML_CONFIG \
+               MD_CASE_STUDY MD_LEDGER MD_SAGCO MD_DOCS \
+               PDF_FINANCE PDF_CLIENT PDF_ENGINEERING \
+               XLSX_PORTFOLIO XLSX_ESTIMATOR CSV_DATA JSON_DATA UNKNOWN; do
+        N=$(grep -c ",$CAT," "$LIVE_CSV" 2>/dev/null || echo 0)
+        [ "$N" -gt 0 ] && printf "  %-22s %d\n" "$CAT" "$N"
+    done
+    echo "  ─────────────────────────"
+    printf "  %-22s %d\n" "TOTAL" "$TOTAL"
+    echo ""
+    UNK=$(grep -c ",UNKNOWN," "$LIVE_CSV" 2>/dev/null || echo 0)
+    [ "$UNK" -gt 0 ] && echo "  ANTIBODY TARGET: $UNK UNKNOWN files — run: sagco-antibody"
+    exit 0
+fi
+
+# ── scan mode ─────────────────────────────────────────────────────────────────
+# fast = targeted SAGCO dirs only, depth 3 (seconds)
+# full = entire $HOME, depth 5 (minutes on large $HOME)
+# <path> = specific directory
+
+FAST=0
+SCAN_TARGET="$REPO_ROOT"
+
+case "$1" in
+    fast|--fast)
+        FAST=1
+        SCAN_TARGET="$REPO_ROOT"
+        ;;
+    full|--full)
+        FAST=0
+        SCAN_TARGET="$HOME"
+        ;;
+    --summary)
+        SCAN_TARGET="$REPO_ROOT"
+        ;;
+    "")
+        FAST=1
+        SCAN_TARGET="$REPO_ROOT"
+        ;;
+    *)
+        SCAN_TARGET="$1"
+        ;;
+esac
+
+MAX_DEPTH=$([ "$FAST" = "1" ] && echo 4 || echo 6)
 
 # ── classifier core ───────────────────────────────────────────────────────────
 classify_file() {
@@ -150,27 +204,28 @@ echo "================================================"
 echo "Stamp:  $STAMP"
 echo "Device: $DEV"
 echo "Target: $SCAN_TARGET"
+echo "Mode:   $([ "$FAST" = "1" ] && echo "fast (depth $MAX_DEPTH, repo only)" || echo "full (depth $MAX_DEPTH)")"
+echo ""
+echo "Writing live progress to: $LIVE_CSV"
+echo "(Monitor with: wc -l ~/sagco_classify.csv)"
 echo ""
 
-# Write CSV header
-echo "timestamp,device,category,filename,path,size_bytes,ext" > "$INVENTORY"
+# Write CSV header to both inventory and live path
+HDR="timestamp,device,category,filename,path,size_bytes,ext"
+echo "$HDR" > "$INVENTORY"
+echo "$HDR" > "$LIVE_CSV"
 
-# Counters per category
-SAGCO_CMD=0; RUST_K=0; RUST_M=0; PYTHON=0
-YAML_SYS=0; YAML_DOC=0; YAML_CFG=0; YAML_PORT=0
-MD_CASE=0; MD_LEDG=0; MD_SAGCO=0; MD_DOCS=0
-PDF_FIN=0; PDF_CLI=0; PDF_ENG=0
-XLSX_PORT=0; XLSX_EST=0; XLSX_DATA=0
-CSV_DATA=0; JSON_DATA=0; SHELL_UTIL=0; UNKNOWN=0
-TOTAL=0
-
-# Walk files (skip .git, node_modules, __pycache__, target)
-find "$SCAN_TARGET" -maxdepth 4 -type f \
+# Walk files — excluded dirs that explode file count without useful artifacts
+find "$SCAN_TARGET" -maxdepth "$MAX_DEPTH" -type f \
     ! -path "*/.git/*" \
     ! -path "*/node_modules/*" \
     ! -path "*/__pycache__/*" \
-    ! -path "*/target/*" \
-    ! -path "*/.git" \
+    ! -path "*/target/debug/*" \
+    ! -path "*/target/release/*" \
+    ! -path "*/.cargo/*" \
+    ! -path "*/vendor/*" \
+    ! -path "*/dist/*" \
+    ! -path "*/.npm/*" \
     2>/dev/null | sort | while read -r F; do
 
     FNAME=$(basename "$F")
@@ -179,8 +234,10 @@ find "$SCAN_TARGET" -maxdepth 4 -type f \
     SIZE=$(wc -c < "$F" 2>/dev/null || echo 0)
     CAT=$(classify_file "$F")
 
-    # Write to inventory CSV
-    echo "${STAMP},${DEV},${CAT},${FNAME},${F},${SIZE},${EXT_LOWER}" >> "$INVENTORY"
+    LINE="${STAMP},${DEV},${CAT},${FNAME},${F},${SIZE},${EXT_LOWER}"
+    # Write to both archive inventory and live monitorable CSV
+    echo "$LINE" >> "$INVENTORY"
+    echo "$LINE" >> "$LIVE_CSV"
 
 done
 
