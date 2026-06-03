@@ -12,7 +12,14 @@ pub struct SagcoLogger {
 impl SagcoLogger {
     pub fn new() -> Self {
         let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".into());
-        let device = std::env::var("SAGCO_DEVICE").unwrap_or_else(|_| "unknown".into());
+        // Read from env var first, then ~/.sagco_device file, then fallback
+        let device = std::env::var("SAGCO_DEVICE").unwrap_or_else(|_| {
+            let id_file = format!("{}/.sagco_device", home);
+            std::fs::read_to_string(&id_file)
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty())
+                .unwrap_or_else(|_| "unknown".into())
+        });
 
         let ledger = PathBuf::from(&home).join("sagco_ledger.csv");
         let race_dir = PathBuf::from(&home).join("sagco_race");
