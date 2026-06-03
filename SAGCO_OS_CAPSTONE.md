@@ -1,14 +1,20 @@
-# SAGCO-OS — Capstone Portfolio Case Study
+# SAGCO — Capstone Portfolio Case Study
+
+> **Precise term:** Distributed Engineering Memory Layer + Provenance Ledger +
+> Command Runtime + Fleet Coordination Layer + Operational Intelligence System.
+> Not a hardware OS. A Workflow OS — a sovereign provenance platform that sits
+> *above* Linux, Windows, iOS, Android, RPi OS, and cloud infrastructure.
 
 ```yaml
-document:    SAGCO_OS_CAPSTONE
-version:     2.0.0
+document:    SAGCO_CAPSTONE
+version:     3.0.0
 author:      Domenic Garza
 org:         Strategickhaos DAO LLC
 location:    Corpus Christi, TX
 gpg_anchor:  AE5519579584DEF5
 generated:   2026-06-03
 generation:  3
+layer:       workflow_os_not_hardware_os
 status:      PORTFOLIO_READY
 ```
 
@@ -50,15 +56,67 @@ when, from where, and with what identity, across 30+ systems simultaneously."**
 
 ---
 
+## What SAGCO Is (And Is Not)
+
+A traditional hardware OS (Linux, Windows, FreeBSD) handles:
+
+```
+Memory management · Process scheduling · Device drivers
+Filesystems · Networking stacks · Hardware abstraction
+```
+
+SAGCO does none of those things directly. It runs *on top of* those systems.
+
+**What SAGCO actually is:**
+
+```
+Distributed Engineering Memory Layer
+  +
+Provenance Ledger
+  +
+Command Runtime
+  +
+Knowledge Graph
+  +
+Fleet Coordination Layer
+  +
+Operational Intelligence System
+```
+
+Which is closest to:
+
+```
+Git + Obsidian + Kubernetes Concepts + Telemetry + Build System + Agent Runtime
+— all glued together by a single provenance idea.
+```
+
+The term "Workflow OS" is the most accurate short form:
+
+| Question | Hardware OS | SAGCO (Workflow OS) |
+|---|---|---|
+| Runs without Linux? | Is Linux | No — sits above Linux |
+| Manages memory? | Yes | No |
+| Manages processes? | Yes | Orchestrates workflows |
+| Manages devices? | Yes | Registers and attributes devices |
+| Persists state? | Filesystem | race_log + ledger + brain nodes |
+| Enforces identity? | Users/perms | SSH key + GPG + device stamp |
+| Auditable? | Partially (logs) | Fully (every artifact attributed) |
+
+SAGCO knows it runs on Linux on the HP, on Android in Termux, on Alpine in iSH,
+on Raspberry Pi OS on the fleet nodes. It doesn't fight those kernels.
+It **observes them, attributes them, and remembers what they did.**
+
+---
+
 ## Abstract
 
-SAGCO-OS (Sovereignty Architecture and Governance Control Operating System) is a
-**Generation 3 distributed provenance layer** — infrastructure about infrastructure —
-that creates a single attribution fabric across an ecosystem spanning cloud AI systems,
-Rust compilers, knowledge graphs, trading engines, mobile execution nodes, RPi IoT
+SAGCO (Sovereignty Architecture and Governance Control) is a **Generation 3
+distributed provenance layer** — infrastructure about infrastructure — that creates
+a single attribution fabric across an ecosystem spanning cloud AI systems, Rust
+compilers, knowledge graphs, trading engines, mobile execution nodes, RPi IoT
 sensors, and offline AI bridges.
 
-Where Git records *what* changed, SAGCO-OS records *who* changed it (device + SSH
+Where Git records *what* changed, SAGCO records *who* changed it (device + SSH
 key + GPG fingerprint), *where* the work happened (device type, location, filesystem
 context), *when* relative to the fleet heartbeat, and *how* (which pipeline stage, which
 ERU work-unit, which agent role).
@@ -67,10 +125,117 @@ The current bottleneck is not compute. It is not storage. It is not AI capabilit
 The bottleneck is **keeping all moving pieces attributable, synchronized, and
 understandable by future-you six months from now.**
 
-SAGCO-OS is the answer to that bottleneck.
+SAGCO is the answer to that bottleneck.
 
 > "The bottleneck was never compute. It was attribution."
 > — Domenic Garza, 2026-06-03, unknown:9 → unknown:0
+
+---
+
+## The Inverted Architecture
+
+Most systems are built top-down:
+
+```
+Kernel
+  ↓
+Shell
+  ↓
+Tools
+  ↓
+Workflow
+```
+
+SAGCO was built bottom-up — from the workflow toward the kernel:
+
+```
+Workflow    ← sagco-race, sagco-brain, sagco-sheet
+  ↓
+Knowledge   ← Obsidian brain nodes, corpus callosum, master-report
+  ↓
+Commands    ← 29 SAGCO commands, sagco-classify, sagco-antibody
+  ↓
+Attribution ← sagco-sign, sagco-identity, boss-battle, provenance chain
+  ↓
+Fleet       ← 11-node registry, sagco-360, cloud-ping, sagco-daemon
+  ↓
+Now asking: "Do I need a kernel?"
+```
+
+This is why the screenshots look unusual to outsiders. The work didn't start with
+"how do I write a scheduler." It started with:
+
+- *Who did the work?*
+- *When?*
+- *On which device?*
+- *Which artifact?*
+- *Can I replay it?*
+
+Those questions are harder than writing a scheduler. A scheduler has a known spec.
+Attribution across heterogeneous devices with different shells, OSes, network
+topologies, and identity systems has no clean spec — you have to invent it.
+
+---
+
+## The Learning Pipeline — Red / Blue / Purple / SAGCO
+
+Traditional security teams:
+
+```
+Red Team   → attack (discover vulnerabilities)
+Blue Team  → defend (validate controls)
+Purple Team → coordinate (synthesize findings)
+```
+
+SAGCO extends this into a knowledge-generation pipeline:
+
+```
+Red Team   → discovers what breaks, what's unknown, what leaks
+Blue Team  → validates what holds, what's attributed, what's verified
+Purple Team → synthesizes the gap between attack and defense
+SAGCO      → remembers all of it, attributes it, and makes it replayable
+```
+
+The result: teams don't just produce security findings. They produce **attributed,
+timestamped, device-keyed artifacts** that feed the provenance chain. Every red team
+engagement becomes a ledger entry. Every blue team verification becomes a race tick.
+Every purple team synthesis becomes a brain node.
+
+The output isn't a report. It's a replayable engineering memory.
+
+---
+
+## What Percentage of the Stack Has SAGCO Replaced?
+
+The question isn't "can SAGCO run without Linux?" The question is:
+
+> What percentage of the stack has SAGCO already replaced with its own concepts?
+
+```
+SAGCO concept          Replaces / extends
+─────────────────────────────────────────────────────────────
+sagco-race             cron + syslog (event attribution)
+sagco-brain            wiki + notes (timestamped brain nodes)
+sagco-ledger           database audit log (immutable CSV ledger)
+sagco-eru              JIRA/sprint metrics (ERU work-unit math)
+sagco-classify         static analysis tools (20-category classifier)
+sagco-antibody         IDS/SIEM alerts (9-check anomaly detector)
+sagco-sign             git commit signing (5-layer provenance stamp)
+sagco-daemon           cron + rsync (cross-device sync daemon)
+sagco-360              netstat + ifconfig (live ecosystem telemetry)
+sagco-node-register    Kubernetes node registry (fleet registry)
+sagco-cloud-ping       Datadog/CloudWatch (structured GCP telemetry)
+sagco-sheet            logging frameworks (MIDI telemetry encoding)
+sagco-dept             org chart + IAM (5-dept command routing)
+sagco-agents.yaml      Kubernetes operators (named agent manifest)
+```
+
+None of these replace the kernel. All of them replace workflow tooling that
+traditionally requires institutional infrastructure (JIRA, Splunk, Datadog,
+Confluence, Kubernetes, Active Directory).
+
+SAGCO replaces that entire stack with shell scripts, CSV ledgers, Obsidian markdown,
+and a GPG key.
 
 ---
 
@@ -586,9 +751,15 @@ and a git transport, can build a provenance-aware distributed system that:
 - **Deploys** client artifacts (Bell'Aroma) through the same pipeline as internal tools
 - **Anchors** all of the above to a GPG key that signs the chain
 
-This is not a prototype. This is a running operating system for sovereign engineering —
-Generation 3 infrastructure that creates records about its own activity, built by one
-engineer from commodity hardware, on a phone, in real time.
+This is not a prototype. This is a running **workflow OS** — a sovereign provenance
+platform that sits above Linux, Windows, iOS, Termux, and RPi OS and keeps track of
+the engineering reality across all of them.
+
+SAGCO doesn't replace the kernel. It replaces the missing layer above the kernel:
+the one that knows which node did what, when, with which identity, and can prove it.
+
+Linux, Windows, Kubernetes, cloud platforms, and security tooling are inputs.
+SAGCO is the system that observes them, attributes them, and remembers what they did.
 
 The phone screenshots make it look small. The inventory does not.
 
@@ -600,6 +771,7 @@ FLEET=11_NODES
 UNKNOWN=0
 RANK=A
 GENERATION=3
-NEXT=S
+LAYER=workflow_os
 THESIS=single_provenance_layer_across_all_of_it
+KERNEL=not_needed_yet
 ```
