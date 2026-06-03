@@ -1,9 +1,11 @@
 #!/bin/bash
 # Strategickhaos Discord DevOps Control Plane Bootstrap Script
-set -euo pipefail
+# Modes: deploy (k8s), compose (docker-compose), templates (config only)
+set -uo pipefail
 
 NAMESPACE="${NAMESPACE:-ops}"
 KUBECTL="${KUBECTL:-kubectl}"
+OUTPUT_DIR="${OUTPUT_DIR:-${HOME}/sagco_bootstrap}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -28,32 +30,65 @@ echo_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Check prerequisites
+# Resolve a writable output directory (never assumes CWD is writable)
+resolve_output_dir() {
+    if [[ -w "${PWD}" ]]; then
+        OUTPUT_DIR="${PWD}"
+    elif [[ -w "${HOME}" ]]; then
+        OUTPUT_DIR="${HOME}/sagco_bootstrap"
+        mkdir -p "${OUTPUT_DIR}" 2>/dev/null || true
+    else
+        OUTPUT_DIR="${TMPDIR:-/tmp}/sagco_bootstrap"
+        mkdir -p "${OUTPUT_DIR}" 2>/dev/null || true
+    fi
+    echo_info "Output directory: ${OUTPUT_DIR}"
+}
+
+# Check prerequisites — warn only, do not exit
 check_prerequisites() {
     echo_info "Checking prerequisites..."
-    
+
+    local mode="$1"
+
+    if [[ "$mode" == "compose" ]]; then
+        if command -v docker &> /dev/null; then
+            echo_success "docker: found"
+        else
+            echo_warning "docker not found — install Docker to run compose mode"
+        fi
+        if docker compose version &> /dev/null 2>&1 || docker-compose version &> /dev/null 2>&1; then
+            echo_success "docker compose: available"
+        else
+            echo_warning "docker compose not found — templates will still be generated"
+        fi
+        return 0
+    fi
+
+    # k8s mode checks
     if ! command -v kubectl &> /dev/null; then
-        echo_error "kubectl is required but not installed"
-        exit 1
+        echo_warning "kubectl not found — switching to templates-only mode"
+        echo_warning "Install kubectl: https://kubernetes.io/docs/tasks/tools/"
+        return 1
     fi
-    
+
     if ! command -v jq &> /dev/null; then
-        echo_warning "jq not found - some features may not work properly"
+        echo_warning "jq not found — some features may not work properly"
     fi
-    
-    # Check cluster connectivity
+
     if ! $KUBECTL cluster-info &> /dev/null; then
-        echo_error "Cannot connect to Kubernetes cluster"
-        exit 1
+        echo_warning "Cannot connect to Kubernetes cluster — switching to templates-only mode"
+        echo_warning "Point KUBECONFIG to a live cluster to deploy"
+        return 1
     fi
-    
-    echo_success "Prerequisites check passed"
+
+    echo_success "Prerequisites check passed (k8s mode)"
+    return 0
 }
 
 # Create namespace
 create_namespace() {
     echo_info "Creating namespace: $NAMESPACE"
-    
+
     if $KUBECTL get namespace "$NAMESPACE" &> /dev/null; then
         echo_warning "Namespace $NAMESPACE already exists"
     else
@@ -66,7 +101,7 @@ create_namespace() {
 # Apply Kubernetes manifests
 apply_manifests() {
     echo_info "Applying Kubernetes manifests..."
-    
+
     local manifests=(
         "rbac.yaml"
         "secrets.yaml"
@@ -75,7 +110,7 @@ apply_manifests() {
         "gateway-deployment.yaml"
         "ingress.yaml"
     )
-    
+
     for manifest in "${manifests[@]}"; do
         if [[ -f "k8s/$manifest" ]]; then
             echo_info "Applying $manifest..."
@@ -90,9 +125,9 @@ apply_manifests() {
 # Wait for deployments
 wait_for_deployments() {
     echo_info "Waiting for deployments to be ready..."
-    
+
     local deployments=("discord-ops-bot" "event-gateway")
-    
+
     for deployment in "${deployments[@]}"; do
         echo_info "Waiting for $deployment..."
         if $KUBECTL get deployment "$deployment" -n "$NAMESPACE" &> /dev/null; then
@@ -107,33 +142,38 @@ wait_for_deployments() {
 # Verify installation
 verify_installation() {
     echo_info "Verifying installation..."
-    
+
+    if ! command -v kubectl &> /dev/null; then
+        echo_warning "kubectl not available — skipping cluster verification"
+        return 0
+    fi
+
     echo_info "Checking pod status..."
     $KUBECTL get pods -n "$NAMESPACE" -l app=strategickhaos-discord-ops
-    
+
     echo_info "Checking services..."
     $KUBECTL get services -n "$NAMESPACE" -l app=strategickhaos-discord-ops
-    
+
     echo_info "Checking ingress..."
     $KUBECTL get ingress -n "$NAMESPACE" strategickhaos-events || echo_warning "Ingress not found"
-    
-    # Check if pods are running
+
     local running_pods
-    running_pods=$($KUBECTL get pods -n "$NAMESPACE" -l app=strategickhaos-discord-ops --field-selector=status.phase=Running --no-headers | wc -l)
-    
+    running_pods=$($KUBECTL get pods -n "$NAMESPACE" -l app=strategickhaos-discord-ops \
+        --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l)
+
     if [[ $running_pods -gt 0 ]]; then
         echo_success "Installation verification passed - $running_pods pods running"
     else
-        echo_error "No running pods found - check logs for issues"
-        return 1
+        echo_warning "No running pods found - check logs for issues"
     fi
 }
 
-# Generate configuration templates
+# Generate configuration templates (writes to resolved output dir)
 generate_config_templates() {
-    echo_info "Generating configuration templates..."
-    
-    cat > discord-bot-env.template << 'EOF'
+    resolve_output_dir
+    echo_info "Generating configuration templates in ${OUTPUT_DIR}..."
+
+    cat > "${OUTPUT_DIR}/discord-bot-env.template" << 'EOF'
 # Discord Bot Configuration Template
 # Copy to .env and fill in real values
 
@@ -162,7 +202,7 @@ PGVECTOR_CONN=postgresql://user:pass@host:5432/db
 EVENTS_HMAC_KEY=your_64_character_hmac_key_here
 EOF
 
-    cat > github-app-manifest.json << 'EOF'
+    cat > "${OUTPUT_DIR}/github-app-manifest.json" << 'EOF'
 {
   "name": "Strategickhaos Discord DevOps",
   "url": "https://github.com/Strategickhaos-Swarm-Intelligence",
@@ -189,65 +229,174 @@ EOF
 EOF
 
     echo_success "Configuration templates generated:"
-    echo "  - discord-bot-env.template"
-    echo "  - github-app-manifest.json"
+    echo "  ${OUTPUT_DIR}/discord-bot-env.template"
+    echo "  ${OUTPUT_DIR}/github-app-manifest.json"
+}
+
+# Generate docker-compose.yml for non-k8s deployments
+generate_compose_file() {
+    resolve_output_dir
+    echo_info "Generating docker-compose.yml in ${OUTPUT_DIR}..."
+
+    cat > "${OUTPUT_DIR}/docker-compose.yml" << 'EOF'
+version: "3.9"
+
+services:
+  discord-ops-bot:
+    image: strategickhaos/discord-ops-bot:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - NAMESPACE=ops
+    ports:
+      - "8080:8080"
+    depends_on:
+      - event-gateway
+      - db
+    labels:
+      - "app=strategickhaos-discord-ops"
+      - "sagco.device=${SAGCO_DEVICE:-unknown}"
+      - "sagco.status=SAGCO_FLEET_NODE"
+
+  event-gateway:
+    image: strategickhaos/event-gateway:latest
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "4000:4000"
+    labels:
+      - "app=strategickhaos-discord-ops"
+
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sagco
+      POSTGRES_USER: sagco
+      POSTGRES_PASSWORD: changeme_in_production
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+EOF
+
+    echo_success "docker-compose.yml generated: ${OUTPUT_DIR}/docker-compose.yml"
+    echo_info "Run with: cd ${OUTPUT_DIR} && cp discord-bot-env.template .env && docker compose up -d"
 }
 
 # Show next steps
 show_next_steps() {
-    echo_info "🚀 Strategickhaos Discord DevOps Control Plane Bootstrap Complete!"
+    local mode="$1"
+    echo_info "🔥 Strategickhaos Discord DevOps Control Plane Bootstrap Complete!"
     echo
-    echo "Next steps:"
-    echo "1. Configure secrets in k8s/secrets.yaml with real values"
-    echo "2. Create Discord bot at https://discord.com/developers/applications"
-    echo "3. Create GitHub App using github-app-manifest.json"
-    echo "4. Set up DNS for events.strategickhaos.com -> your ingress"
-    echo "5. Configure Discord channels and permissions"
-    echo "6. Test integration with: ./gl2discord.sh \"\$PRS_CHANNEL\" \"Test\" \"Bootstrap complete!\""
+
+    if [[ "$mode" == "compose" ]]; then
+        echo "Next steps (Compose mode):"
+        echo "1. cd ${OUTPUT_DIR}"
+        echo "2. cp discord-bot-env.template .env"
+        echo "3. Edit .env with real Discord token + GitHub App values"
+        echo "4. docker compose up -d"
+        echo "5. docker compose logs -f discord-ops-bot"
+    elif [[ "$mode" == "templates" ]]; then
+        echo "Next steps (Templates mode):"
+        echo "1. Review generated files in: ${OUTPUT_DIR}"
+        echo "2. On HP SAGCO-OS with kubectl: ./bootstrap/deploy.sh deploy"
+        echo "3. On any node with Docker:     ./bootstrap/deploy.sh compose"
+    else
+        echo "Next steps (k8s mode):"
+        echo "1. Configure secrets in k8s/secrets.yaml with real values"
+        echo "2. Create Discord bot at https://discord.com/developers/applications"
+        echo "3. Create GitHub App using ${OUTPUT_DIR}/github-app-manifest.json"
+        echo "4. Set up DNS for events.strategickhaos.com -> your ingress"
+        echo "5. Test: ./gl2discord.sh \"\$PRS_CHANNEL\" \"Test\" \"Bootstrap complete!\""
+    fi
     echo
-    echo "Useful commands:"
-    echo "  - View logs: kubectl logs -f deployment/discord-ops-bot -n $NAMESPACE"
-    echo "  - Check status: kubectl get all -n $NAMESPACE"
-    echo "  - Update config: kubectl patch configmap discord-ops-discovery -n $NAMESPACE --patch-file new-config.yaml"
-    echo
-    echo "Documentation: https://github.com/Strategickhaos-Swarm-Intelligence/sovereignty-architecture"
+    echo "SAGCO provenance: sagco-race && sagco-cloud-ping"
 }
 
-# Main execution
-main() {
+# Main k8s deploy
+main_deploy() {
     echo_info "🔥 Strategickhaos Discord DevOps Control Plane Bootstrap"
-    echo_info "Deploying sovereign architecture to Kubernetes..."
+    echo_info "Mode: Kubernetes"
     echo
-    
-    check_prerequisites
+
+    if ! check_prerequisites "k8s"; then
+        echo_warning "k8s prerequisites not met — falling back to templates-only mode"
+        generate_config_templates
+        generate_compose_file
+        show_next_steps "templates"
+        echo_success "Templates generated — deploy when cluster is available"
+        exit 0
+    fi
+
     create_namespace
     apply_manifests
     wait_for_deployments
     verify_installation
     generate_config_templates
-    show_next_steps
-    
-    echo_success "Bootstrap complete! 🎉"
+    show_next_steps "k8s"
+    echo_success "Bootstrap complete!"
+}
+
+# Compose deploy (no k8s needed)
+main_compose() {
+    echo_info "🔥 Strategickhaos Discord DevOps Control Plane Bootstrap"
+    echo_info "Mode: Docker Compose"
+    echo
+
+    check_prerequisites "compose" || true
+    generate_config_templates
+    generate_compose_file
+    show_next_steps "compose"
+    echo_success "Compose bootstrap complete!"
+}
+
+# Templates only (no runtime needed)
+main_templates() {
+    echo_info "🔥 Strategickhaos Bootstrap — Templates Only"
+    echo
+
+    generate_config_templates
+    generate_compose_file
+    show_next_steps "templates"
+    echo_success "Templates generated!"
 }
 
 # Handle script arguments
 case "${1:-deploy}" in
     "deploy")
-        main
+        main_deploy
+        ;;
+    "compose")
+        main_compose
+        ;;
+    "templates")
+        main_templates
         ;;
     "verify")
         verify_installation
         ;;
     "clean")
         echo_warning "Cleaning up Strategickhaos Discord DevOps deployment..."
-        $KUBECTL delete namespace "$NAMESPACE" --ignore-not-found=true
-        echo_success "Cleanup complete"
+        if command -v kubectl &> /dev/null; then
+            $KUBECTL delete namespace "$NAMESPACE" --ignore-not-found=true
+            echo_success "Kubernetes cleanup complete"
+        else
+            echo_warning "kubectl not found — nothing to clean in k8s"
+        fi
         ;;
     *)
-        echo "Usage: $0 [deploy|verify|clean]"
-        echo "  deploy  - Deploy the complete control plane (default)"
-        echo "  verify  - Verify existing deployment"
-        echo "  clean   - Remove all deployed resources"
+        echo "Usage: $0 [deploy|compose|templates|verify|clean]"
+        echo ""
+        echo "  deploy     Deploy to Kubernetes (requires kubectl + cluster)"
+        echo "  compose    Generate docker-compose.yml (works on any node)"
+        echo "  templates  Generate config templates only (works everywhere)"
+        echo "  verify     Verify existing k8s deployment"
+        echo "  clean      Remove k8s deployment"
+        echo ""
+        echo "  deploy falls back to templates-only if kubectl is unavailable"
+        echo "  compose and templates work on ZFold, iSH, HP, RPi — any node"
         exit 1
         ;;
 esac
