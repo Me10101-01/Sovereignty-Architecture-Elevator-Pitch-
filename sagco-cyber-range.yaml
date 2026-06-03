@@ -1,0 +1,176 @@
+# SAGCO Sovereign Cyber Range — Control Plane Schema
+# This is not "do-anything infrastructure."
+# Every node, every action, every result is scoped, signed, and logged.
+#
+# The rule: No node runs action unless:
+#   contract exists + target in scope + identity signed + logs enabled + exit approved
+#
+# Generated: 2026-06-03
+# Owner: Domenic Garza / Strategickhaos DAO LLC
+# GPG: AE5519579584DEF5
+---
+sagco_cyber_range:
+  identity:
+    owner:         Domenic Garza
+    org:           Strategickhaos DAO LLC
+    gpg_key_id:    AE5519579584DEF5
+    ssh_identity:  SAGCO-OS PIPELINE
+    github:        Me10101-01
+
+  # ── Engagement Pipeline ────────────────────────────────────────────────────
+  engagement_pipeline:
+    - stage: client_contract
+      description: "Signed agreement defining scope, rules of engagement, legal basis"
+      artifact: "contracts/<id>.yaml"
+      gate: required
+    - stage: scope_definition
+      description: "Approved targets, IP ranges, domains, allowed actions"
+      artifact: "contracts/<id>.yaml → approved_targets"
+      gate: required
+    - stage: identity_registration
+      description: "All operator nodes registered with GPG + SSH identity"
+      artifact: "sagco-node-register + sagco-identity-anchor.yaml"
+      gate: required
+    - stage: red_team_execution
+      description: "Authorized attack/test actions only, logged per tick"
+      artifact: "sagco-contract log + engagement_log.csv"
+      gate: "sagco-contract check"
+    - stage: blue_team_detection
+      description: "Defense validation, log review, hardening recommendations"
+      artifact: "sagco-antibody + sagco-classify"
+      gate: contract
+    - stage: purple_synthesis
+      description: "Compare attack vs detection, gap analysis, timeline"
+      artifact: "sagco-master-report + sagco-brain"
+      gate: contract
+    - stage: prometheus_proof
+      description: "Metrics export proving actions were scoped, attributed, measured"
+      artifact: "sagco-prometheus report"
+      gate: provenance
+    - stage: client_report
+      description: "Signed engagement report with provenance chain"
+      artifact: "sagco-contract report → markdown + GPG sig"
+      gate: provenance
+
+  # ── Node Roles in a Cyber Range Engagement ────────────────────────────────
+  node_roles:
+    vpn_exit:
+      description: "Route egress through approved exit points"
+      examples: [rpi-vpn-01, cloud-vm-exit]
+      logs: required
+      kill_switch: enabled
+    sensor:
+      description: "Passive traffic capture, IDS alerts, log aggregation"
+      examples: [rpi-telemetry-01, rpi-weather-01]
+      logs: required
+    honeypot:
+      description: "Decoy systems to detect unauthorized lateral movement"
+      examples: [rpi-honeypot-01]
+      logs: required
+    scanner:
+      description: "Network/vulnerability scanning within approved scope"
+      examples: [kali-node-01, termux]
+      logs: required
+      gate: scope_check_before_run
+    relay:
+      description: "Hop node for C2 simulation (authorized lab only)"
+      examples: [rpi-relay-01]
+      logs: required
+      kill_switch: enabled
+    red_team:
+      description: "Authorized attack simulation"
+      examples: [kali-node-01, zfold]
+      logs: required
+      gate: contract_check_per_action
+    blue_team:
+      description: "Detection, hardening, log review"
+      examples: [hp, ish]
+      logs: required
+    purple_team:
+      description: "Synthesis: compare red vs blue timeline"
+      examples: [hp, ipad]
+      logs: required
+
+  # ── The Five-Condition Gate ───────────────────────────────────────────────
+  # No action runs unless ALL five pass.
+  gate:
+    condition_1:
+      check: contract_exists_and_active
+      command: "sagco-contract check <id> <target> <action>"
+      fail_action: BLOCK
+    condition_2:
+      check: target_in_approved_scope
+      command: "sagco-contract scope-check <id> <target>"
+      fail_action: BLOCK
+    condition_3:
+      check: action_in_allowed_list
+      command: "sagco-contract check <id> <target> <action>"
+      fail_action: BLOCK
+    condition_4:
+      check: identity_signed_gpg
+      command: "sagco-sign whoami"
+      fail_action: BLOCK
+    condition_5:
+      check: logging_enabled
+      command: "engagement_log.csv must exist and be writable"
+      fail_action: BLOCK
+    condition_6:
+      check: exit_route_approved
+      command: "node.jurisdiction = approved in node_registry"
+      fail_action: BLOCK
+
+  # ── Control Plane Directory Structure ────────────────────────────────────
+  control_plane:
+    /sagco-os:
+      /kernel:
+        purpose: "rules, identity policy, routing policy"
+        files: [sagco-identity-anchor.yaml, sagco-provenance-policy.yaml,
+                sagco-compose.yaml]
+      /nodes:
+        purpose: "every phone/pi/vps/router registered here"
+        files: [node_registry.yaml, sagco-node-register.sh, sagco-node-list.sh]
+      /contracts:
+        purpose: "client scope + allowed targets + RoE documents"
+        files: [<contract_id>.yaml, engagement_log.csv]
+      /red_team:
+        purpose: "authorized test actions only, all gated by contract"
+        files: [sagco-contract.sh, engagement_log.csv]
+      /blue_team:
+        purpose: "detection, logs, hardening, anomaly detection"
+        files: [sagco-antibody.sh, sagco-classify.sh, sagco-mri.sh]
+      /purple_team:
+        purpose: "compare attack vs detection timeline"
+        files: [sagco-master-report.sh, sagco-brain.sh, sagco-sync-brain.sh]
+      /prometheus:
+        purpose: "metrics export, proof of measurement"
+        files: [sagco-prometheus.sh, sagco_metrics_*.prom]
+      /provenance:
+        purpose: "who/when/where/hash/signature for every action"
+        files: [sagco-sign.sh, sagco-verify.sh, provenance_chain.csv,
+                sagco-identity-anchor.yaml]
+
+  # ── Example Node YAML (cyber range extension) ────────────────────────────
+  node_schema_example:
+    name:          sagco-kali-01
+    type:          linux_vm
+    role:          scanner
+    location:      corpus_christi
+    jurisdiction:  approved
+    client_scope:  FILL_CONTRACT_ID
+    identity:
+      gpg_fingerprint: B6E685027F2730D7F219E4EFA72CEA3C605A3614
+      ssh_key:         SAGCO-OS PIPELINE
+    logs:          required
+    kill_switch:   enabled
+    commands:      "sagco-contract check sagco-race sagco-cloud-ping"
+    status:        active
+
+  # ── What Makes This Professional (Not Amateur Infrastructure) ────────────
+  professionalism:
+    vs_random_vps: "every node has a contract_scope field, no node runs unsanctioned"
+    vs_random_scripts: "every action logged, attributed, GPG-signed"
+    vs_unscoped_testing: "five-condition gate blocks any out-of-scope action"
+    vs_undocumented_work: "sagco-contract report generates signed client deliverable"
+    vs_attribution_gap: "unknown=0 mandatory before contract closes"
+
+STATUS: SAGCO_CYBER_RANGE_SCHEMA_READY
