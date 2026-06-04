@@ -1,0 +1,24 @@
+#!/bin/sh
+# sagco-state: write node state to shared mesh
+# Usage: sagco-state <CASE_ID> <NODE> <STATUS> <NOTE>
+CASE="$1"
+NODE="$2"
+STATUS="$3"
+NOTE="$4"
+CASEFILE="sagco_ish/shared_state/cases/${CASE}.json"
+LOG="sagco_ish/shared_state/logs/state_updates.csv"
+mkdir -p sagco_ish/shared_state/cases sagco_ish/shared_state/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+if [ ! -f "$LOG" ]; then echo "case,node,status,note,timestamp" > "$LOG"; fi
+cat > "$CASEFILE" <<JSON
+{
+  "case": "$CASE",
+  "last_node": "$NODE",
+  "status": "$STATUS",
+  "note": "$NOTE",
+  "updated": "$TS"
+}
+JSON
+echo "$CASE,$NODE,$STATUS,$NOTE,$TS" >> "$LOG"
+echo "SAGCO_SHARED_STATE_UPDATED"
+cat "$CASEFILE"

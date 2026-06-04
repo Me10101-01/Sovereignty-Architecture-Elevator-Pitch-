@@ -13,3 +13,7 @@ capture     | sagco_ish/capture/bin/sagco-capture      | orientation capture
 eru         | sagco_ish/eru/bin/sagco-eru               | ERU variance engine
 htrack      | sagco_ish/htrack/bin/sagco-htrack         | htrack case study
 scheduler   | sagco_ish/scheduler/bin/sagco-scheduler | new brick
+wafer       | sagco_ish/wafer/bin/sagco-wafer | excel wafer ERU parser
+loop        | sagco_ish/autoloop/bin/sagco-loop | autonomous scheduler loop
+state       | sagco_ish/shared_state/bin/sagco-state | write shared mesh state
+state-read  | sagco_ish/shared_state/bin/sagco-state-read | read shared mesh state

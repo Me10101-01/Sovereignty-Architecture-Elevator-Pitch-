@@ -1,0 +1,22 @@
+#!/bin/sh
+# usage: sagco-wafer CASE EXPECTED ACTUAL LABEL
+CASE="$1"
+EXPECTED="$2"
+ACTUAL="$3"
+LABEL="$4"
+OUT="sagco_ish/wafer/logs/wafer_eru.csv"
+mkdir -p sagco_ish/wafer/logs
+if [ ! -f "$OUT" ]; then
+echo "case,label,expected,actual,variance,status,timestamp" > "$OUT"
+fi
+VAR=$(awk "BEGIN {print $ACTUAL - $EXPECTED}")
+ABS=$(awk "BEGIN {v=$VAR; if (v<0) v=-v; print v}")
+if awk "BEGIN {exit !($ABS <= 2)}"; then
+  STATUS="WAFER_GREEN"
+else
+  STATUS="WAFER_VARIANCE_ALERT"
+fi
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+echo "$CASE,$LABEL,$EXPECTED,$ACTUAL,$VAR,$STATUS,$TS" >> "$OUT"
+echo "SAGCO_WAFER_ERU_CAPTURED"
+tail -1 "$OUT"

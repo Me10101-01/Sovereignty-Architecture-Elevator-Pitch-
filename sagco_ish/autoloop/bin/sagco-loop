@@ -1,0 +1,20 @@
+#!/bin/sh
+# sagco-loop: autonomous scheduler → analyze → dashboard cycle
+# Usage: sagco-loop <CASE_ID>
+CASE="$1"
+OUT="sagco_ish/autoloop/logs/loop_history.csv"
+REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+mkdir -p sagco_ish/autoloop/logs
+if [ ! -f "$OUT" ]; then echo "cycle,case,status,timestamp" > "$OUT"; fi
+CYCLE=0
+while true; do
+    CYCLE=$((CYCLE+1))
+    TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+    echo "===== SAGCO LOOP $CYCLE ===== $TS"
+    "$REPO_ROOT/sagco_ish/scheduler/bin/sagco-run" "$CASE"
+    "$REPO_ROOT/sagco_ish/analysis/bin/sagco-analyze" "$CASE" 2>/dev/null
+    "$REPO_ROOT/sagco_ish/dashboard/bin/sagco-dashboard" "$CASE" 2>/dev/null
+    echo "$CYCLE,$CASE,COMPLETE,$TS" >> "$OUT"
+    echo "SAGCO_LOOP_CYCLE_COMPLETE=$CYCLE SLEEPING_60"
+    sleep 60
+done
