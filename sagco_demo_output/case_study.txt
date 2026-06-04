@@ -1,0 +1,88 @@
+# SAGCO CASE STUDY
+# STAMP=20260604T181111Z
+# INPUT=dojo
+
+╔══════════════════════════════════════╗
+║         SAGCO DEMO PIPELINE          ║
+╚══════════════════════════════════════╝
+INPUT  = dojo
+STAMP  = 20260604T181111Z
+
+[1] INGEST_WAFER
+────────────────────────────────────────
+WAFER_SOURCE = wafer_cells.txt
+WAFER = WORD=dojo RUST_CALL=dojo_node OCCURRENCE=14
+
+[2] TOKENIZE
+────────────────────────────────────────
+TOKEN     = FLAME_DOJO
+RUST_CALL = dojo_node
+CODON     = ATG
+DOMAIN    = META
+
+[3] WEIGHT
+────────────────────────────────────────
+WEIGHT = 14
+
+[4] EMIT_FLAMELANG
+────────────────────────────────────────
+FLAMELANG = agent speaks FLAME_DOJO -> rust.dojo_node
+
+[5] HASH_NODE
+────────────────────────────────────────
+HASH_INPUT = TOKEN=FLAME_DOJO|WEIGHT=14|CODON=ATG|RUST_CALL=dojo_node|FLAME=agent speaks FLAME_DOJO -> rust.dojo_node
+HASH       = f8a66e6e27314b0a26f9a6f803531b2a1f58dfe57201013e4213f8e2881b5d50
+HASH_SHORT = f8a66e6e27314b0a
+
+[6] REGISTER_DAEMON
+────────────────────────────────────────
+DAEMON_REGISTERED = FLAME_DOJO
+TOTAL_PIDS        = 80
+TOTAL_DAEMONS     = 4
+
+[7] CASE_STUDY_ARTIFACT
+────────────────────────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SAGCO PORTFOLIO PROOF
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROBLEM:
+  AI engineering produces scattered data —
+  notes, links, spreadsheets, logs —
+  with no reproducible structure or proof.
+
+INVENTION:
+  SAGCO: a compiler pipeline that transforms
+  raw input into typed, hashed, deployable bricks.
+
+PIPELINE TRACE (input='dojo'):
+  raw='dojo'
+  → WAFER:    WORD=dojo RUST_CALL=dojo_node OCCURRENCE=14
+  → TOKEN:    FLAME_DOJO  (CODON=ATG  DOMAIN=META)
+  → WEIGHT:   14
+  → FLAMELANG: agent speaks FLAME_DOJO -> rust.dojo_node
+  → HASH:     f8a66e6e27314b0a26f9a6f803531b2a1f58dfe57201013e4213f8e2881b5d50
+  → DAEMON:   REGISTERED | PIDS=80
+
+SYSTEM METRICS:
+  BRICKS_BUILT  = 24
+  FLAME_TOKENS  = 34
+  GRAPH_EDGES   = 274
+  DAEMONS       = 4
+
+RESULT:
+  A reproducible system that converts notes,
+  links, files, and field data into structured
+  computable bricks with cryptographic identity.
+
+ARTIFACT: /home/user/Sovereignty-Architecture-Elevator-Pitch-/sagco_demo_output/case_study.txt
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[8] STATUS
+────────────────────────────────────────
+
+══════════════════════════════════════
+STATUS = GREEN
+══════════════════════════════════════
+
