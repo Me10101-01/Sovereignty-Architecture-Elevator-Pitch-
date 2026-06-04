@@ -1,0 +1,12 @@
+{
+  "sampleRate": 44100,
+  "tuningA4": 440,
+  "bufferSize": 2048,
+  "defaultOscillator": "sine",
+  "defaultAttack": 0.012,
+  "defaultDecay": 0.15,
+  "defaultSustain": 0.65,
+  "defaultRelease": 0.35,
+  "masterVolume": 0.5,
+  "maxPolyphony": 10
+}

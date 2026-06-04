@@ -1,0 +1,197 @@
+#!/bin/sh
+# SAGCO-KNOWLEDGE-COMPILER
+# Every brick → typed object: BRICK_ID TYPE SOURCE RUST_CALL IMAGE DEPLOY_STATUS
+#
+# Usage:
+#   ./bin/sagco-knowledge compile [root_dir]
+#   ./bin/sagco-knowledge lookup  <pattern>
+#   ./bin/sagco-knowledge deploy  <brick_id>
+#   ./bin/sagco-knowledge status
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+KC="$REPO_ROOT/sagco_knowledge_compiler"
+DICT="$KC/dictionary/brick_types.txt"
+THES="$KC/thesaurus/brick_aliases.txt"
+BIB="$KC/bibliography/source_index.txt"
+RC="$KC/rust_calls/registry.txt"
+ARTIFACTS="$KC/artifacts"
+DEPLOY="$KC/deployables"
+CLOUD_DICT="$REPO_ROOT/sagco_cloud_wing/dictionary/images.txt"
+
+mkdir -p "$ARTIFACTS" "$DEPLOY"
+
+STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+log() { printf "%s\n" "$1"; }
+header() { log ""; log "=== $1 ==="; }
+
+# Lookup type from filename via dictionary + thesaurus
+classify_file() {
+  fname="$(basename "$1" | tr '[:upper:]' '[:lower:]')"
+  ext="${fname##*.}"
+  stem="${fname%.*}"
+
+  # Direct extension matches
+  case "$ext" in
+    rs)    echo "RUST_BINARY"; return ;;
+    toml)  echo "CONFIG";      return ;;
+    json)  echo "CONFIG";      return ;;
+    yaml|yml) echo "CONFIG";   return ;;
+    md)    echo "DOCS";        return ;;
+    pgn)   echo "PGN";         return ;;
+  esac
+
+  # Thesaurus keyword scan against full path
+  path_lower="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+  while IFS='=' read -r alias canon; do
+    case "$alias" in '#'*|'') continue ;; esac
+    if echo "$path_lower" | grep -q "$alias"; then
+      echo "$canon"; return
+    fi
+  done < "$THES"
+
+  echo "UNKNOWN"
+}
+
+# Look up Rust call for a type
+rust_call_for_type() {
+  TYPE="$1"
+  while IFS='=' read -r fn rest; do
+    case "$fn" in '#'*|'') continue ;; esac
+    t="$(echo "$rest" | cut -d'|' -f1)"
+    if [ "$t" = "$TYPE" ]; then
+      echo "$fn"; return
+    fi
+  done < "$RC"
+  echo "unknown_brick()"
+}
+
+# Look up deploy image for a type
+image_for_type() {
+  TYPE="$1"
+  # Map type to brick key in cloud dictionary
+  case "$TYPE" in
+    TRANSISTOR|RUST_BINARY) echo "sagco_core" ;;
+    DOCKER_IMAGE|CLOUD_JOB) echo "sagco_dojo" ;;
+    MUSIC)                  echo "sagco_core" ;;
+    UNIT_CONVERSION)        echo "sagco_core" ;;
+    *)                      echo "sagco_core" ;;
+  esac
+}
+
+# ── COMPILE ───────────────────────────────────────────────────────────────────
+
+cmd_compile() {
+  SCAN_ROOT="${1:-$REPO_ROOT}"
+  OUT="$ARTIFACTS/knowledge_$(date -u +%Y%m%d_%H%M%S).txt"
+  DEPLOY_OUT="$DEPLOY/deployables_$(date -u +%Y%m%d_%H%M%S).txt"
+
+  log "SAGCO KNOWLEDGE COMPILER"
+  log "STAMP=$STAMP"
+  log "SCAN=$SCAN_ROOT"
+  log ""
+
+  COUNTER=0
+  DEPLOY_COUNT=0
+
+  # Write manifest header
+  printf "# SAGCO KNOWLEDGE MANIFEST\nSTAMP=%s\nSCAN=%s\n\n" "$STAMP" "$SCAN_ROOT" > "$OUT"
+  printf "# SAGCO DEPLOYABLES\nSTAMP=%s\n\n" "$STAMP" > "$DEPLOY_OUT"
+
+  find "$SCAN_ROOT" -maxdepth 6 -type f \
+    ! -path "*/target/*" \
+    ! -path "*/.git/*" \
+    ! -path "*/node_modules/*" \
+    ! -name ".gitkeep" \
+    | sort \
+    | while read -r fpath; do
+
+      COUNTER=$((COUNTER + 1))
+      BRICK_ID="$(printf 'SAGCO-%04d' $COUNTER)"
+      TYPE="$(classify_file "$fpath")"
+      RC_CALL="$(rust_call_for_type "$TYPE")"
+      IMG_KEY="$(image_for_type "$TYPE")"
+      IMG="$(grep "^$IMG_KEY=" "$CLOUD_DICT" 2>/dev/null | cut -d= -f2-)"
+      DEPLOY_STATUS="PLANNED"
+      if [ "$TYPE" = "DOCKER_IMAGE" ] || [ "$TYPE" = "CLOUD_JOB" ] || [ "$TYPE" = "RUST_BINARY" ]; then
+        DEPLOY_STATUS="DEPLOYABLE"
+        DEPLOY_COUNT=$((DEPLOY_COUNT + 1))
+        printf "BRICK_ID=%s\nTYPE=%s\nPATH=%s\nIMAGE=%s\nRUST_CALL=%s\n---\n" \
+          "$BRICK_ID" "$TYPE" "$fpath" "$IMG" "$RC_CALL" >> "$DEPLOY_OUT"
+      fi
+
+      RELPATH="${fpath#$SCAN_ROOT/}"
+
+      printf "BRICK_ID=%-12s TYPE=%-16s RUST_CALL=%-32s PATH=%s\n" \
+        "$BRICK_ID" "$TYPE" "$RC_CALL" "$RELPATH"
+
+      printf "BRICK_ID=%s\nTYPE=%s\nPATH=%s\nRUST_CALL=%s\nIMAGE=%s\nDEPLOY_STATUS=%s\n---\n" \
+        "$BRICK_ID" "$TYPE" "$RELPATH" "$RC_CALL" "$IMG" "$DEPLOY_STATUS" >> "$OUT"
+  done
+
+  log ""
+  log "MANIFEST=$OUT"
+  log "DEPLOYABLES=$DEPLOY_OUT"
+  log "STATUS=SAGCO_KNOWLEDGE_COMPILED"
+}
+
+# ── LOOKUP ────────────────────────────────────────────────────────────────────
+
+cmd_lookup() {
+  PATTERN="${1:-}"
+  if [ -z "$PATTERN" ]; then log "Usage: sagco-knowledge lookup <pattern>"; exit 1; fi
+  LATEST="$(ls -t "$ARTIFACTS"/knowledge_*.txt 2>/dev/null | head -1)"
+  if [ -z "$LATEST" ]; then
+    log "No manifest found. Run: sagco-knowledge compile"
+    exit 1
+  fi
+  log "SEARCHING: $PATTERN in $LATEST"
+  grep -i "$PATTERN" "$LATEST" | head -40
+}
+
+# ── STATUS ────────────────────────────────────────────────────────────────────
+
+cmd_status() {
+  header "SAGCO KNOWLEDGE COMPILER STATUS"
+  log "DICT_TYPES=$(grep -c '^[A-Z]' "$DICT" 2>/dev/null || echo 0)"
+  log "THESAURUS_ALIASES=$(grep -c '^[a-z]' "$THES" 2>/dev/null || echo 0)"
+  log "BIB_SOURCES=$(grep -c '^[A-Z]' "$BIB" 2>/dev/null || echo 0)"
+  log "RUST_CALLS=$(grep -c '^[a-z]' "$RC" 2>/dev/null || echo 0)"
+  log "ARTIFACTS=$(ls "$ARTIFACTS"/*.txt 2>/dev/null | wc -l)"
+  log "DEPLOYABLES=$(ls "$DEPLOY"/*.txt 2>/dev/null | wc -l)"
+  LATEST="$(ls -t "$ARTIFACTS"/knowledge_*.txt 2>/dev/null | head -1)"
+  if [ -n "$LATEST" ]; then
+    log "LATEST_MANIFEST=$LATEST"
+    log "BRICK_COUNT=$(grep -c '^BRICK_ID=' "$LATEST")"
+  fi
+  log "STATUS=SAGCO_KNOWLEDGE_COMPILER_READY"
+}
+
+# ── DEPLOY ────────────────────────────────────────────────────────────────────
+
+cmd_deploy() {
+  BRICK_ID="${1:-}"
+  if [ -z "$BRICK_ID" ]; then log "Usage: sagco-knowledge deploy <BRICK_ID>"; exit 1; fi
+  LATEST="$(ls -t "$DEPLOY"/deployables_*.txt 2>/dev/null | head -1)"
+  if [ -z "$LATEST" ]; then log "Run compile first."; exit 1; fi
+  IMG="$(grep -A4 "BRICK_ID=$BRICK_ID" "$LATEST" | grep "^IMAGE=" | cut -d= -f2-)"
+  if [ -z "$IMG" ]; then log "BRICK_NOT_FOUND=$BRICK_ID"; exit 1; fi
+  log "DEPLOYING BRICK=$BRICK_ID IMAGE=$IMG"
+  gcloud run jobs update c160201c --image "$IMG" --region europe-west1
+  gcloud run jobs execute c160201c --region europe-west1
+}
+
+# ── Main dispatch ─────────────────────────────────────────────────────────────
+
+CMD="${1:-status}"
+shift 2>/dev/null || true
+
+case "$CMD" in
+  compile) cmd_compile "$@" ;;
+  lookup)  cmd_lookup  "$@" ;;
+  deploy)  cmd_deploy  "$@" ;;
+  status)  cmd_status       ;;
+  *)       log "Usage: sagco-knowledge [compile|lookup|deploy|status]"; exit 1 ;;
+esac

@@ -1,0 +1,79 @@
+# SAGCO KNOWLEDGE COMPILER — Thesaurus (aliases → canonical TYPE)
+# Format: alias=CANONICAL_TYPE
+# Used by compiler to normalise inconsistent naming.
+
+# Unit conversion aliases
+unit=UNIT_CONVERSION
+conversion=UNIT_CONVERSION
+dms=UNIT_CONVERSION
+lnft=UNIT_CONVERSION
+measurement=UNIT_CONVERSION
+omni=UNIT_CONVERSION
+excel_sim=UNIT_CONVERSION
+rust_excel=UNIT_CONVERSION
+
+# Music aliases
+music=MUSIC
+audio=MUSIC
+frequency=MUSIC
+circle_of_fifths=MUSIC
+circle=MUSIC
+piano=MUSIC
+note=MUSIC
+440=MUSIC
+
+# Field / JHA aliases
+jha=FIELD_DATA
+field=FIELD_DATA
+scope=FIELD_DATA
+rope=FIELD_DATA
+crawler=FIELD_DATA
+pipe=FIELD_DATA
+survey=FIELD_DATA
+
+# Electronics / transistor
+transistor=TRANSISTOR
+bias=TRANSISTOR
+bjt=TRANSISTOR
+voltage_divider=TRANSISTOR
+eru=TRANSISTOR
+
+# Deployment
+docker=DOCKER_IMAGE
+image=DOCKER_IMAGE
+container=DOCKER_IMAGE
+dockerfile=DOCKER_IMAGE
+cloudrun=CLOUD_JOB
+cloud_run=CLOUD_JOB
+scheduler=CLOUD_JOB
+job=CLOUD_JOB
+gcloud=CLOUD_JOB
+
+# Pipeline / compute
+pipeline=PIPELINE
+.txt=PIPELINE
+sagco_pipeline=PIPELINE
+
+# Wafer / fuzz
+wafer=WAFER
+fuzz=WAFER
+seed=WAFER
+cells=WAFER
+
+# Logs / audit
+log=BRICK_LOG
+brick_log=BRICK_LOG
+chat_brick=BRICK_LOG
+ledger=BRICK_LOG
+
+# Chess
+pgn=PGN
+chess=PGN
+game=PGN
+
+# Meta
+knowledge=KNOWLEDGE
+lexicon=LEXICON
+thesaurus=KNOWLEDGE
+bibliography=KNOWLEDGE
+dictionary=KNOWLEDGE

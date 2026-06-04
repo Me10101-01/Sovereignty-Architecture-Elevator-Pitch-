@@ -1,0 +1,17 @@
+# SAGCO KNOWLEDGE COMPILER — Source Bibliography
+# Format: SOURCE_KEY=description|origin|device|verified
+# Maps SAGCO source codes to their physical / digital origin.
+
+OMNI_CALCULATOR=Omni Calculator unit conversion web tool|omni-calculator.com|ZFold|true
+SAGCO_DMS=Uploaded markdown with D/M/S unit conversion architecture|user_upload|Claude_session|true
+OMNI_TRANSISTOR=Transistor biasing calculator pasted source from Omni|omni-calculator.com|ZFold|true
+SAGCO_FIELD_JHA=Uploaded rope access field photos (JHA scope)|user_upload|ZFold|true
+SAGCO_DOCKER=Docker Desktop image fleet screenshots|local_docker|DomMachine|true
+SAGCO_CLOUD=Google Cloud Run job + Scheduler screenshots|GCP_console|CloudShell|true
+SAGCO_WING=Raspberry Pi sagco-wing binary enumeration output|raspberry_pi|Pi|true
+SAGCO_WAFER=Wafer fuzz engine input/output on ZFold|local_compute|ZFold|true
+SAGCO_PI=Raspberry Pi sagco_custom_agent working directory|raspberry_pi|Pi|true
+ISO_16=International standard: A4 = 440 Hz (ISO 16)|ISO_standard|reference|true
+WIKI_PIANO_FREQ=Wikipedia: Piano key frequencies table|wikipedia.org|reference|true
+SNHU_C1602=SNHU course C-1602-0-1B Software Development POC|SNHU_LMS|academic|true
+CLAUDE_SESSION=AI-assisted session (architecture, code generation)|claude.ai|Claude_session|true

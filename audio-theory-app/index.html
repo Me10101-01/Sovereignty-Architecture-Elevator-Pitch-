@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Theory — Circle of Fifths · 88 Keys</title>
+  <link rel="stylesheet" href="styles/app.css">
+</head>
+<body>
+
+<header>
+  <h1>AUDIO THEORY ENGINE</h1>
+  <span class="subtitle">Circle of Fifths · Circle of Fourths · 88-Key Equal Temperament</span>
+</header>
+
+<main>
+
+  <!-- ── Left column: Circles ─────────────────────────────────────────── -->
+  <section class="panel" id="panel-circles">
+    <h2>Harmonic Circles</h2>
+    <div id="circle-container"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="swatch swatch-fifths"></div>Circle of 5ths (outer)</div>
+      <div class="legend-item"><div class="swatch swatch-fourths"></div>Circle of 4ths (inner)</div>
+      <div class="legend-item"><div class="swatch swatch-selected"></div>Selected root</div>
+      <div class="legend-item"><div class="swatch swatch-diatonic"></div>Diatonic scale</div>
+    </div>
+  </section>
+
+  <!-- ── Right top: Keyboard ──────────────────────────────────────────── -->
+  <section class="panel" id="panel-keyboard">
+    <h2>88-Key Piano — Equal Temperament (A4 = 440 Hz)</h2>
+    <div id="keyboard-container"></div>
+  </section>
+
+  <!-- ── Right bottom: Controls ───────────────────────────────────────── -->
+  <section class="panel" id="panel-controls">
+
+    <!-- Note info -->
+    <div id="panel-info" style="display:flex; gap:24px; align-items:center; flex-wrap:wrap; width:100%; margin-bottom:12px;">
+      <div class="info-block">
+        <span class="info-label">Note</span>
+        <span class="info-value" id="info-note">—</span>
+      </div>
+      <div class="info-block">
+        <span class="info-label">Frequency</span>
+        <span class="info-value" id="info-freq">—</span>
+      </div>
+      <div class="info-block">
+        <span class="info-label">MIDI</span>
+        <span class="info-value" id="info-midi">—</span>
+      </div>
+      <span id="status-bar">Click a circle segment to select a key</span>
+    </div>
+
+    <!-- Oscillator -->
+    <div class="control-group">
+      <label for="wave-type">Oscillator</label>
+      <select id="wave-type">
+        <option value="sine"     selected>Sine</option>
+        <option value="triangle">Triangle</option>
+        <option value="square">Square</option>
+        <option value="sawtooth">Sawtooth</option>
+      </select>
+    </div>
+
+    <!-- Volume -->
+    <div class="control-group">
+      <label for="master-volume">Volume</label>
+      <input type="range" id="master-volume" min="0" max="1" step="0.01" value="0.5">
+    </div>
+
+    <!-- ADSR -->
+    <div class="adsr-row">
+      <div class="control-group">
+        <label for="adsr-attack">Attack</label>
+        <input type="range" id="adsr-attack" min="0.001" max="2" step="0.001" value="0.012">
+      </div>
+      <div class="control-group">
+        <label for="adsr-release">Release</label>
+        <input type="range" id="adsr-release" min="0.01" max="4" step="0.01" value="0.35">
+      </div>
+    </div>
+
+    <!-- Panic -->
+    <div class="control-group" style="justify-content:flex-end;">
+      <button id="all-notes-off" class="danger">All Notes Off</button>
+    </div>
+
+    <!-- Keyboard shortcuts -->
+    <div class="control-group" style="min-width:240px;">
+      <label>Computer Keyboard (Octave 4)</label>
+      <div class="shortcut-hint">
+        <kbd>A</kbd>C &nbsp;<kbd>W</kbd>C# &nbsp;<kbd>S</kbd>D &nbsp;<kbd>E</kbd>D# &nbsp;<kbd>D</kbd>E<br>
+        <kbd>F</kbd>F &nbsp;<kbd>T</kbd>F# &nbsp;<kbd>G</kbd>G &nbsp;<kbd>Y</kbd>G# &nbsp;<kbd>H</kbd>A<br>
+        <kbd>U</kbd>A# &nbsp;<kbd>J</kbd>B &nbsp;<kbd>K</kbd>C5
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

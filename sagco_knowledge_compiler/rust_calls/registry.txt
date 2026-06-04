@@ -1,0 +1,22 @@
+# SAGCO KNOWLEDGE COMPILER — Rust Call Registry
+# Format: RUST_CALL=TYPE|crate|description|status
+# Every unique Rust function name that a brick maps to.
+
+unit_convert_lnft_inches()=UNIT_CONVERSION|sagco-core|Convert linear feet to inches|PLANNED
+unit_convert_lnft_mm()=UNIT_CONVERSION|sagco-core|Convert linear feet to millimetres|PLANNED
+unit_convert_dms_decimal()=UNIT_CONVERSION|sagco-core|Convert D/M/S to decimal degrees|PLANNED
+frequency_generator()=MUSIC|sagco-core|Generate equal-temperament frequency for key n|BUILT
+circle_of_fifths()=MUSIC|sagco-core|Generate Circle of Fifths sequence|BUILT
+circle_of_fourths()=MUSIC|sagco-core|Generate Circle of Fourths sequence|BUILT
+transistor_bias()=TRANSISTOR|sagco-bias-core|Voltage divider biasing computation|BUILT
+eru_compute()=TRANSISTOR|sagco-bias-core|Emitter resistor unit computation|BUILT
+field_data_parser()=FIELD_DATA|sagco-core|Parse JHA/scope field data records|PLANNED
+crawler_scope_parser()=FIELD_DATA|sagco-core|Parse crawler pipe scope entries|PLANNED
+pipeline_exec()=PIPELINE|sagco-core|Execute sagco-core pipeline script|BUILT
+lexicon_build()=LEXICON|sagco-core|Build unified artifact lexicon|BUILT
+knowledge_compile()=KNOWLEDGE|sagco-core|Compile all bricks into typed records|PLANNED
+wafer_fuzz()=WAFER|sagco-wafer-fuzz|Run wafer fuzzing pass|BUILT
+pgn_parser()=PGN|sagco-core|Parse chess PGN notation|PLANNED
+docker_deploy()=DOCKER_IMAGE|sagco-cloud-wing|Resolve brick to image and deploy|BUILT
+cloud_run_exec()=CLOUD_JOB|sagco-cloud-wing|Execute Cloud Run job|BUILT
+binary_run()=RUST_BINARY|sagco-core|Execute compiled Rust binary|BUILT

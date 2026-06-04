@@ -1,0 +1,20 @@
+# SAGCO KNOWLEDGE COMPILER — Brick Type Dictionary
+# Format: TYPE=description|domain|rust_call_suffix|deploy_image_key
+# Every brick maps to exactly one TYPE.
+
+UNIT_CONVERSION=Converts between measurement units (DMS/length/area/volume)|CONSTRUCTION|unit_convert|sagco_core
+MUSIC=Music theory computation (frequencies, scales, circles)|AUDIO|frequency_generator|sagco_core
+FIELD_DATA=Field survey / JHA / scope data|FIELD_OPS|field_data_parser|sagco_core
+TRANSISTOR=Electronic component biasing calculations|ELECTRONICS|transistor_bias|sagco_bias_core
+RUST_BINARY=Compiled Rust executable artifact|COMPUTE|binary_run|sagco_core
+DOCKER_IMAGE=Container image artifact|DEPLOY|docker_deploy|sagco_dojo
+CLOUD_JOB=Cloud Run job deployment manifest|CLOUD|cloud_run_exec|sagco_dojo
+PIPELINE=sagco-core pipeline script (.txt)|ORCHESTRATION|pipeline_exec|sagco_core
+WAFER=Fuzzing / test input data file|QA|wafer_fuzz|sagco_wafer_fuzz
+BRICK_LOG=Chat or build log recording a computation event|AUDIT|brick_log_parse|sagco_core
+PGN=Chess game notation file|GAME|pgn_parser|sagco_core
+KNOWLEDGE=Knowledge compiler output (dictionary/thesaurus/bibliography)|META|knowledge_compile|sagco_core
+LEXICON=Unified artifact lexicon record|META|lexicon_build|sagco_core
+CONFIG=Configuration or settings file|INFRA|config_load|sagco_core
+DOCS=Documentation or README|DOCS|docs_index|sagco_core
+UNKNOWN=Unclassified artifact|MISC|unknown_brick|sagco_core
