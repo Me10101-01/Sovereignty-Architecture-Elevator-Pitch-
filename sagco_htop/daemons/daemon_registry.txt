@@ -1,2 +1,4 @@
 DAEMON=archaeologist | COMMAND=./sagco_archaeologist.sh | STATUS=REGISTERED
 DAEMON=fuzz_all | COMMAND=cat sagco_fuzz_all/proof/fuzz_all.txt | STATUS=REGISTERED
+DAEMON=FLAME_SAGCO | COMMAND=agent speaks FLAME_SAGCO -> rust.sagco_core_token | STATUS=REGISTERED
+DAEMON=FLAME_DOJO | COMMAND=agent speaks FLAME_DOJO -> rust.dojo_node | STATUS=REGISTERED
