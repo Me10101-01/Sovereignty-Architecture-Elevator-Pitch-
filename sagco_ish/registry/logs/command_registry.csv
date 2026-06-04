@@ -24,3 +24,6 @@ alpha-loop,sagco_ish/loop/bin/sagco-alpha-loop,runtime,ACTIVE,2026-06-04T20:41:4
 gmail-antibody,sagco_ish/gmail/bin/sagco-gmail-antibody,safety,ACTIVE,2026-06-04T20:41:44Z
 deps,sagco_ish/deps/bin/sagco-deps,runtime,ACTIVE,2026-06-04T20:44:49Z
 governance-ingest,sagco_ish/governance/bin/sagco-governance-ingest,governance,ACTIVE,2026-06-04T20:50:46Z
+repomap,sagco_ish/repo_map/bin/sagco-repomap,evidence,ACTIVE,2026-06-04T20:59:56Z
+public-check,sagco_ish/public/bin/sagco-public-check,safety,ACTIVE,2026-06-04T20:59:56Z
+public-build,sagco_ish/public/bin/sagco-public-build,portfolio,ACTIVE,2026-06-04T20:59:56Z

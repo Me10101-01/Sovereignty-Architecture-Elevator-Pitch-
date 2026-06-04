@@ -1,0 +1,17 @@
+#!/bin/sh
+# usage: sagco-public-check CASE URL LABEL
+CASE="$1"
+URL="$2"
+LABEL="$3"
+OUT="sagco_ish/public/logs/public_link_check.csv"
+[ -z "$URL" ] && echo "usage: sagco-public-check CASE URL LABEL" && exit 1
+mkdir -p sagco_ish/public/logs
+[ ! -f "$OUT" ] && echo "case,url,label,http_code,status,timestamp" > "$OUT"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+CODE=$(curl -L -s -o /tmp/sagco_public_check.html -w "%{http_code}" "$URL" 2>/dev/null || echo 000)
+STATUS="PUBLIC_OK"
+[ "$CODE" != "200" ] && STATUS="PUBLIC_LINK_BROKEN"
+echo "$CASE,$URL,$LABEL,$CODE,$STATUS,$TS" >> "$OUT"
+sagco_ish/shared_state/bin/sagco-state "$CASE" "PUBLIC_ANTIBODY_NODE" "ACTIVE" "${LABEL}_${STATUS}_${CODE}" 2>/dev/null || true
+echo "SAGCO_PUBLIC_CHECK_COMPLETE"
+tail -1 "$OUT"

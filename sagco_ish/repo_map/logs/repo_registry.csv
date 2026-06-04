@@ -1,0 +1,6 @@
+case,repo,lang,note,status,timestamp
+C1602_CASE_001,Node137_Uplink_Receipt,Shell,governance_bundle,REPO_SIGNAL_CAPTURED,2026-06-04T20:59:47Z
+C1602_CASE_001,Strategickhaos-DAO_Compliance,Shell,dao_legal_infra,REPO_SIGNAL_CAPTURED,2026-06-04T20:59:47Z
+C1602_CASE_001,FORGECORE_01,HTML,iso_zip_memory_package_forge,REPO_SIGNAL_CAPTURED,2026-06-04T20:59:47Z
+C1602_CASE_001,CodexSwarm,Python,offline_symbolic_ai_swarm,REPO_SIGNAL_CAPTURED,2026-06-04T20:59:47Z
+C1602_CASE_001,Strategickhaos_SheetMetalAI,PowerShell,industrial_sheet_metal_templates,REPO_SIGNAL_CAPTURED,2026-06-04T20:59:47Z

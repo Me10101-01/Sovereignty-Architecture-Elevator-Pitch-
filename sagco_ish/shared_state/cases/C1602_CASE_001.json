@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "GOVERNANCE_NODE",
+  "last_node": "PUBLIC_BUILD_NODE",
   "status": "ACTIVE",
-  "note": "governance_ingested_SAGCO_PORTFOLIO_CASE_STUDY",
-  "updated": "2026-06-04T20:50:34Z"
+  "note": "site_built_2026-06-04T20:59:47Z",
+  "updated": "2026-06-04T20:59:47Z"
 }

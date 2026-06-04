@@ -1,0 +1,15 @@
+#!/bin/sh
+# usage: sagco-repomap CASE REPO LANG NOTE
+CASE="$1"
+REPO="$2"
+LANG="$3"
+NOTE="$4"
+OUT="sagco_ish/repo_map/logs/repo_registry.csv"
+mkdir -p sagco_ish/repo_map/logs
+[ -z "$CASE" ] && echo "usage: sagco-repomap CASE REPO LANG NOTE" && exit 1
+[ ! -f "$OUT" ] && echo "case,repo,lang,note,status,timestamp" > "$OUT"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+echo "$CASE,$REPO,$LANG,$NOTE,REPO_SIGNAL_CAPTURED,$TS" >> "$OUT"
+sagco_ish/shared_state/bin/sagco-state "$CASE" "REPO_MAP_NODE" "ACTIVE" "repo_captured_$REPO" 2>/dev/null || true
+echo "SAGCO_REPOMAP_COMPLETE"
+tail -1 "$OUT"
