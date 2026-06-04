@@ -1,50 +1,106 @@
 #!/bin/sh
-# usage: sagco-pdfscan file.pdf
+# SAGCO PDF FORENSIC EXTRACTOR v2
+# Extracts engineering tokens: circuit tags, FR/PIC/WTS markers, furnace IDs
+# Usage: sagco-pdfscan <file.pdf> [page_start] [page_end]
+
 PDF="$1"
-REPORT="sagco_ish/pdf_forensics/reports/pdf_forensic_report.txt"
-mkdir -p sagco_ish/pdf_forensics/reports
+PAGE_START="${2:-1}"
+PAGE_END="${3:-}"
+REPORT_DIR="sagco_ish/pdf_forensics/reports"
+STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+BASE="$(basename "$PDF" .pdf | tr ' ' '_')"
+REPORT="$REPORT_DIR/${BASE}_forensic.txt"
+CSV="$REPORT_DIR/${BASE}_tokens.csv"
+
+mkdir -p "$REPORT_DIR"
+
 if [ ! -f "$PDF" ]; then
-  echo "PDF_NOT_FOUND: $PDF"
-  exit 1
+    echo "PDF_NOT_FOUND: $PDF"
+    exit 1
 fi
-HASH=$(sha256sum "$PDF" | awk '{print $1}')
-SIZE=$(wc -c < "$PDF")
-EOF_COUNT=$(grep -a -o "%%EOF" "$PDF" | wc -l)
-JS_COUNT=$(grep -a -i -o "/JS\|/JavaScript\|/OpenAction\|/AA" "$PDF" | wc -l)
-URI_COUNT=$(grep -a -i -o "/URI\|http://\|https://" "$PDF" | wc -l)
-OBJ_COUNT=$(grep -a -o " obj" "$PDF" | wc -l)
-XREF_COUNT=$(grep -a -o "xref" "$PDF" | wc -l)
-if [ "$JS_COUNT" -gt 0 ]; then
-  STATUS="YELLOW_SCRIPT_FOUND"
-elif [ "$EOF_COUNT" -gt 1 ]; then
-  STATUS="YELLOW_MULTI_REVISION"
+
+echo "SAGCO_PDFSCAN_EXTRACT: $PDF"
+
+# ── METADATA ─────────────────────────────────────────────────────────────────
+
+HASH="$(sha256sum "$PDF" | awk '{print $1}')"
+SIZE="$(wc -c < "$PDF")"
+PAGE_COUNT="$(pdfinfo "$PDF" 2>/dev/null | grep '^Pages:' | awk '{print $2}')"
+CREATOR="$(pdfinfo "$PDF" 2>/dev/null | grep '^Creator:' | cut -d: -f2- | xargs)"
+CREATED="$(pdfinfo "$PDF" 2>/dev/null | grep '^CreationDate:' | cut -d: -f2- | xargs)"
+EOF_COUNT="$(grep -a -o "%%EOF" "$PDF" | wc -l | tr -d ' ')"
+JS_COUNT="$(grep -a -i -o "/JS\|/JavaScript\|/OpenAction\|/AA" "$PDF" 2>/dev/null | wc -l | tr -d ' ')"
+
+# ── EXTRACT TEXT ──────────────────────────────────────────────────────────────
+
+TMP_TEXT="/tmp/sagco_pdf_$$.txt"
+if [ -n "$PAGE_END" ]; then
+    pdftotext -f "$PAGE_START" -l "$PAGE_END" "$PDF" "$TMP_TEXT" 2>/dev/null
 else
-  STATUS="GREEN"
+    pdftotext "$PDF" "$TMP_TEXT" 2>/dev/null
 fi
-cat > "$REPORT" << REPORT_EOF
-SAGCO PDF FORENSIC REPORT
-FILE=$PDF
-SHA256=$HASH
-SIZE_BYTES=$SIZE
-STRUCTURE:
-OBJECT_COUNT=$OBJ_COUNT
-XREF_COUNT=$XREF_COUNT
-EOF_COUNT=$EOF_COUNT
-SECURITY:
-JS_OPENACTION_AA_COUNT=$JS_COUNT
-URI_COUNT=$URI_COUNT
-ERU_STATUS=$STATUS
-PIPELINE:
-PDF
--> RAW_BYTES
--> HASH
--> OBJECT_COUNT
--> XREF_CHECK
--> EOF_REVISION_CHECK
--> JS_ACTION_CHECK
--> URI_CHECK
--> FORENSIC_REPORT
-REPORT_STATUS=COMPLETE
-REPORT_EOF
-echo "SAGCO_PDFSCAN_COMPLETE"
-cat "$REPORT"
+if [ ! -s "$TMP_TEXT" ]; then
+    strings "$PDF" > "$TMP_TEXT"
+fi
+
+# ── TOKEN EXTRACTION ─────────────────────────────────────────────────────────
+
+CIRCUITS="$(grep -oE 'C-[0-9]{4}-[A-Z0-9]+-[0-9A-Z]+' "$TMP_TEXT" | sort -u)"
+FURNACES="$(grep -oiE 'Furnace\s+[A-Z]+|FURNACE [A-Z]+' "$TMP_TEXT" | sort -u)"
+PICS="$(grep -oE '\bPIC[-\s]?[0-9]+' "$TMP_TEXT" | grep -oE '[0-9]+' | sort -un | tr '\n' ',' | sed 's/,$//')"
+FRS="$(grep -oE '\bFR[-\s]?[0-9]+' "$TMP_TEXT" | grep -oE '[0-9]+' | sort -un | tr '\n' ',' | sed 's/,$//')"
+WTS="$(grep -oE '\bWTS[-\s]?[0-9A-Z]+' "$TMP_TEXT" | sort -u | tr '\n' ',' | sed 's/,$//')"
+ISOS="$(grep -oE '\bISO[-\s]?[0-9]+[A-Z0-9-]*' "$TMP_TEXT" | sort -u | tr '\n' ',' | sed 's/,$//')"
+LINES="$(grep -oE '[0-9]+"[-][A-Z][-][0-9]{3,}' "$TMP_TEXT" | sort -u | tr '\n' ',' | sed 's/,$//')"
+
+if [ "$JS_COUNT" -gt 0 ]; then
+    ERU_STATUS="YELLOW_SCRIPT_FOUND"
+elif [ "$EOF_COUNT" -gt 1 ]; then
+    ERU_STATUS="YELLOW_MULTI_REVISION"
+else
+    ERU_STATUS="GREEN"
+fi
+
+# ── REPORT ───────────────────────────────────────────────────────────────────
+
+{
+printf "SAGCO PDF FORENSIC EXTRACT REPORT\n"
+printf "STAMP=%s\nFILE=%s\nSHA256=%s\nSIZE_BYTES=%s\n\n" "$STAMP" "$PDF" "$HASH" "$SIZE"
+printf "── METADATA ──────────────────────────────────────\n"
+printf "PAGE_COUNT=%s\nCREATOR=%s\nCREATED=%s\nEOF_REVISIONS=%s\nJS_HOOKS=%s\nERU_STATUS=%s\n\n" \
+    "$PAGE_COUNT" "$CREATOR" "$CREATED" "$EOF_COUNT" "$JS_COUNT" "$ERU_STATUS"
+printf "── EXTRACTED TOKENS ──────────────────────────────\n"
+printf "CIRCUIT_TAGS:\n%s\n\n" "$(echo "$CIRCUITS" | sed 's/^/  /')"
+printf "FURNACES:\n%s\n\n" "$(echo "$FURNACES" | sed 's/^/  /')"
+printf "PIC_NUMBERS:  %s\n" "$PICS"
+printf "FR_NUMBERS:   %s\n" "$FRS"
+printf "WTS_MARKERS:  %s\n" "$WTS"
+printf "ISO_DRAWINGS: %s\n" "$ISOS"
+printf "LINE_IDS:     %s\n\n" "$LINES"
+printf "── PIPELINE ──────────────────────────────────────\n"
+printf "PDF → PDFTOTEXT → CIRCUIT_TAGS → FR_NUMBERS → PIC_NUMBERS\n"
+printf "    → WTS_MARKERS → ISO_DRAWINGS → LINE_IDS → FURNACES\n"
+printf "    → HASH → FORENSIC_REPORT → CSV\n\n"
+printf "REPORT_STATUS=COMPLETE\n"
+} | tee "$REPORT"
+
+# ── CSV ──────────────────────────────────────────────────────────────────────
+
+HASH_SHORT="${HASH%????????????????????????????????????????????????????????????????}"
+printf "TOKEN_TYPE,VALUE,SOURCE_PDF,PAGE_RANGE,SHA256_SHORT\n" > "$CSV"
+for C in $CIRCUITS; do
+    printf "CIRCUIT,%s,%s,%s-%s,%s\n" "$C" "$BASE" "$PAGE_START" "${PAGE_END:-$PAGE_COUNT}" "$HASH_SHORT" >> "$CSV"
+done
+for F in $(echo "$FRS" | tr ',' ' '); do
+    printf "FR_NUMBER,FR-%s,%s,%s-%s,%s\n" "$F" "$BASE" "$PAGE_START" "${PAGE_END:-$PAGE_COUNT}" "$HASH_SHORT" >> "$CSV"
+done
+for P in $(echo "$PICS" | tr ',' ' '); do
+    printf "PIC,PIC-%s,%s,%s-%s,%s\n" "$P" "$BASE" "$PAGE_START" "${PAGE_END:-$PAGE_COUNT}" "$HASH_SHORT" >> "$CSV"
+done
+
+echo ""
+echo "CSV:    $CSV"
+echo "REPORT: $REPORT"
+echo "SAGCO_PDFSCAN_EXTRACT_COMPLETE"
+
+rm -f "$TMP_TEXT"
