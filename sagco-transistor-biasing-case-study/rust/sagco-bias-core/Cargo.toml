@@ -1,0 +1,12 @@
+[package]
+name = "sagco-bias-core"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "sagco-bias-core"
+path = "src/main.rs"
+
+[lib]
+name = "sagco_bias_core"
+path = "src/lib.rs"
