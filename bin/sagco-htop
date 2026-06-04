@@ -1,0 +1,52 @@
+#!/bin/sh
+BASE="sagco_htop"
+mkdir -p "$BASE/pids" "$BASE/daemons" "$BASE/compose" "$BASE/logs"
+CMD="$1"
+shift 2>/dev/null
+case "$CMD" in
+  scan)
+    ps > "$BASE/pids/ps_snapshot.txt"
+    awk 'NR>1 {print "PID="$1" | CMD="$0}' "$BASE/pids/ps_snapshot.txt" > "$BASE/pids/pid_assignments.txt"
+    echo "SAGCO_HTOP_SCAN_COMPLETE"
+    ;;
+  daemon)
+    NAME="$1"
+    shift
+    COMMAND="$*"
+    echo "DAEMON=$NAME | COMMAND=$COMMAND | STATUS=REGISTERED" >> "$BASE/daemons/daemon_registry.txt"
+    echo "DAEMON_REGISTERED=$NAME"
+    ;;
+  compose)
+    cat > "$BASE/compose/sagco-htop-compose.yaml" <<'YAML'
+sagco_htop:
+  purpose: "pid assigning daemon compose"
+  inputs:
+    - ps_snapshot
+    - daemon_registry
+  outputs:
+    - pid_assignments
+    - compose_yaml
+  agents:
+    - htop_watcher
+    - daemon_registry
+    - pid_assigner
+    - compose_compiler
+YAML
+    echo "SAGCO_HTOP_COMPOSE_COMPILED"
+    ;;
+  status)
+    echo "--- PIDS ---"
+    cat "$BASE/pids/pid_assignments.txt" 2>/dev/null
+    echo "--- DAEMONS ---"
+    cat "$BASE/daemons/daemon_registry.txt" 2>/dev/null
+    echo "--- COMPOSE ---"
+    cat "$BASE/compose/sagco-htop-compose.yaml" 2>/dev/null
+    ;;
+  *)
+    echo "usage:"
+    echo "  sagco-htop scan"
+    echo "  sagco-htop daemon <name> <command>"
+    echo "  sagco-htop compose"
+    echo "  sagco-htop status"
+    ;;
+esac

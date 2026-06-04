@@ -1,0 +1,13 @@
+sagco_htop:
+  purpose: "pid assigning daemon compose"
+  inputs:
+    - ps_snapshot
+    - daemon_registry
+  outputs:
+    - pid_assignments
+    - compose_yaml
+  agents:
+    - htop_watcher
+    - daemon_registry
+    - pid_assigner
+    - compose_compiler
