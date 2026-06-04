@@ -1,0 +1,18 @@
+INPUT:
+brick
+TRANSFORM:
+brick
+-> token
+token
+-> rust_call
+rust_call
+-> artifact
+artifact
+-> container
+container
+-> image
+image
+-> deployment
+OUTPUT:
+deployable_artifact
+STATUS=ACTIVE
