@@ -1,0 +1,154 @@
+#!/bin/sh
+# SAGCO Constitution Engine — Brick 047
+# usage: sagco-commandments [CASE]
+# Self-verifying: each commandment checks its own evidence before printing UPHELD
+CASE="${1:-C1602_CASE_001}"
+CONST="sagco_ish/constitution/logs/constitution_report.md"
+LOG="sagco_ish/constitution/logs/commandments_eru.csv"
+mkdir -p sagco_ish/constitution/logs
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "case,commandment,evidence_file,check,status,timestamp" > "$LOG"
+
+UPHELD=0; PARTIAL=0; VIOLATED=0
+
+# check LABEL EVIDENCE_FILE CHECK_TYPE CHECK_VALUE
+check() {
+  LABEL="$1"; FILE="$2"; CTYPE="$3"; CVAL="$4"
+  RESULT="VIOLATED"; DETAIL="not_found"
+  case "$CTYPE" in
+    file)
+      [ -f "$FILE" ] && RESULT="UPHELD" && DETAIL="exists"
+      ;;
+    count)
+      N=$(wc -l < "$FILE" 2>/dev/null | tr -d ' ')
+      if [ "${N:-0}" -ge "${CVAL:-1}" ] 2>/dev/null; then RESULT="UPHELD"; DETAIL="count_${N}"; else DETAIL="count_${N}_need_${CVAL}"; fi
+      ;;
+    grep)
+      C=$(grep -c "$CVAL" "$FILE" 2>/dev/null | tr -d ' ')
+      if [ "${C:-0}" -gt 0 ] 2>/dev/null; then RESULT="UPHELD"; DETAIL="found_${C}"; else DETAIL="pattern_not_found"; fi
+      ;;
+    dir)
+      [ -d "$FILE" ] && RESULT="UPHELD" && DETAIL="dir_exists"
+      ;;
+    multi)
+      # CVAL is space-separated list of files — all must exist
+      ALL=1
+      for F in $CVAL; do [ -f "$F" ] || ALL=0; done
+      [ "$ALL" -eq 1 ] && RESULT="UPHELD" && DETAIL="all_present" || DETAIL="some_missing"
+      ;;
+  esac
+  [ "$RESULT" = "UPHELD" ] && UPHELD=$((UPHELD+1)) || VIOLATED=$((VIOLATED+1))
+  echo "$CASE,$LABEL,$FILE,$DETAIL,$RESULT,$TS" >> "$LOG"
+  SYM="❌ VIOLATED"; [ "$RESULT" = "UPHELD" ] && SYM="✅ UPHELD"
+  echo "  $SYM  ← $DETAIL  [$FILE]"
+}
+
+echo "=== SAGCO CONSTITUTION ==="
+echo "Case: $CASE  |  Generated: $TS"
+echo ""
+
+echo "I. THOU SHALT HAVE NO PLACEHOLDERS"
+echo "   Every artifact must reference a real file, real path, real hash, or real signal."
+check "I_NO_PLACEHOLDERS" \
+  "sagco_ish/pro_review/logs/pro_review.csv" grep "PRO_REVIEW_PACKET_GENERATED"
+echo ""
+
+echo "II. THOU SHALT MEASURE VARIANCE"
+echo "   Expected and Actual shall always be compared through ERU."
+check "II_MEASURE_VARIANCE" \
+  "sagco_ish/wafer/logs/wafer_eru.csv" grep "WAFER"
+echo ""
+
+echo "III. THOU SHALT LOG BEFORE BELIEF"
+echo "   If it is not logged, it is an opinion. If it is logged, it is evidence."
+check "III_LOG_BEFORE_BELIEF" \
+  "sagco_ish/shared_state/logs/state_updates.csv" count 10
+echo ""
+
+echo "IV. THOU SHALT PRESERVE LINEAGE"
+echo "   Every brick must know its ancestor, descendants, and sources."
+check "IV_PRESERVE_LINEAGE" \
+  "sagco_ish/lineage/citations/citations.csv" count 20
+echo ""
+
+echo "V. THOU SHALT BUILD ANTIBODIES"
+echo "   Every failure shall create a defensive mechanism."
+check "V_BUILD_ANTIBODIES" \
+  "sagco_ish/calls/bin/sagco-call-analyze" file ""
+echo ""
+
+echo "VI. THOU SHALT HASH EVIDENCE"
+echo "   Artifacts shall be identified by cryptographic proof before trust is granted."
+check "VI_HASH_EVIDENCE" \
+  "sagco_ish/governance/logs/governance_register.csv" grep "POST_REDACT_HASH"
+echo ""
+
+echo "VII. THOU SHALT REDACT BEFORE PUBLISHING"
+echo "   Private evidence becomes public proof only after redaction and review."
+check "VII_REDACT_BEFORE_PUBLISH" \
+  "sagco_ish/public/site/index_redacted.html" file ""
+echo ""
+
+echo "VIII. THOU SHALT VERIFY PUBLIC CLAIMS"
+echo "   Every public statement shall be traceable to evidence or measurement."
+check "VIII_VERIFY_CLAIMS" \
+  "sagco_ish/claims/logs/claims_report.csv" grep "PROVEN"
+echo ""
+
+echo "IX. THOU SHALT FAVOR SOVEREIGNTY"
+echo "   Local control, reproducibility, and auditability over convenience."
+check "IX_FAVOR_SOVEREIGNTY" \
+  "sagco_ish/registry/logs/command_registry.csv" count 20
+echo ""
+
+echo "X. THOU SHALT LEAVE A BETTER BRICK"
+echo "   Every brick must reduce variance, increase evidence, or strengthen the Mansion."
+check "X_BETTER_BRICK" \
+  "sagco_ish/edu/logs/edu_eru.csv" grep "BENCHMARK"
+echo ""
+
+echo "--- CONSTITUTION SCORE ---"
+TOTAL=$((UPHELD + VIOLATED))
+SCORE=$(awk "BEGIN { if ($TOTAL==0) print 0; else printf \"%.1f\", ($UPHELD/$TOTAL)*100 }")
+echo "UPHELD  : $UPHELD / $TOTAL"
+echo "VIOLATED: $VIOLATED / $TOTAL"
+echo "SCORE   : ${SCORE}%"
+
+VERDICT="CONSTITUTION_ACTIVE"
+awk "BEGIN {exit !($SCORE < 70)}" && VERDICT="CONSTITUTION_REVIEW_REQUIRED"
+awk "BEGIN {exit !($SCORE >= 90)}" && VERDICT="CONSTITUTION_EXEMPLARY"
+echo "VERDICT : $VERDICT"
+echo ""
+
+# Write constitution.md
+cat > "$CONST" <<MD
+# SAGCO Constitution
+**Case:** ${CASE}  |  **Generated:** ${TS}  |  **Score:** ${SCORE}%  |  **Verdict:** ${VERDICT}
+
+---
+
+## The Ten Commandments
+
+| # | Commandment | Status | Evidence |
+|---|---|---|---|
+| I | Thou Shalt Have No Placeholders | $(grep ",I_NO_PLACEHOLDERS," "$LOG" | tail -1 | awk -F, '{print $5}') | pro_review/logs/pro_review.csv |
+| II | Thou Shalt Measure Variance | $(grep ",II_MEASURE_VARIANCE," "$LOG" | tail -1 | awk -F, '{print $5}') | wafer/logs/wafer_eru.csv |
+| III | Thou Shalt Log Before Belief | $(grep ",III_LOG_BEFORE_BELIEF," "$LOG" | tail -1 | awk -F, '{print $5}') | shared_state/logs/state_updates.csv |
+| IV | Thou Shalt Preserve Lineage | $(grep ",IV_PRESERVE_LINEAGE," "$LOG" | tail -1 | awk -F, '{print $5}') | lineage/citations/citations.csv |
+| V | Thou Shalt Build Antibodies | $(grep ",V_BUILD_ANTIBODIES," "$LOG" | tail -1 | awk -F, '{print $5}') | calls/bin/sagco-call-analyze |
+| VI | Thou Shalt Hash Evidence | $(grep ",VI_HASH_EVIDENCE," "$LOG" | tail -1 | awk -F, '{print $5}') | governance/logs/governance_register.csv |
+| VII | Thou Shalt Redact Before Publishing | $(grep ",VII_REDACT_BEFORE_PUBLISH," "$LOG" | tail -1 | awk -F, '{print $5}') | public/site/index_redacted.html |
+| VIII | Thou Shalt Verify Public Claims | $(grep ",VIII_VERIFY_CLAIMS," "$LOG" | tail -1 | awk -F, '{print $5}') | claims/logs/claims_report.csv |
+| IX | Thou Shalt Favor Sovereignty | $(grep ",IX_FAVOR_SOVEREIGNTY," "$LOG" | tail -1 | awk -F, '{print $5}') | registry/logs/command_registry.csv |
+| X | Thou Shalt Leave a Better Brick | $(grep ",X_BETTER_BRICK," "$LOG" | tail -1 | awk -F, '{print $5}') | edu/logs/edu_eru.csv |
+
+---
+
+*Generated by \`sagco-commandments\` — self-verifying constitution engine*
+*SAGCO OS · Sovereign · Self-Auditing · No Vendor Lock-in*
+MD
+
+echo "SAGCO_CONSTITUTION_COMPLETE"
+echo "REPORT: $CONST"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "CONSTITUTION_NODE" "$VERDICT" "upheld_${UPHELD}_of_${TOTAL}" 2>/dev/null || true

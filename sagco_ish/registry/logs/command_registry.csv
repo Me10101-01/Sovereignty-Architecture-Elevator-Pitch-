@@ -40,3 +40,4 @@ sagco-claim,sagco_ish/claims/bin/sagco-claim,CLAIMS_NODE,ACTIVE,2026-06-04T22:24
 sagco-claim-check,sagco_ish/claims/bin/sagco-claim-check,CLAIMS_NODE,ACTIVE,2026-06-04T22:24:36Z
 sagco-claims-report,sagco_ish/claims/bin/sagco-claims-report,CLAIMS_NODE,ACTIVE,2026-06-04T22:24:36Z
 sagco-pro-review,sagco_ish/pro_review/bin/sagco-pro-review,PRO_REVIEW_NODE,ACTIVE,2026-06-04T22:26:41Z
+sagco-commandments,sagco_ish/constitution/bin/sagco-commandments,CONSTITUTION_NODE,ACTIVE,2026-06-04T22:33:30Z
