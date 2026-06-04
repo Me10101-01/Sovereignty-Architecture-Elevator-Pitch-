@@ -1,0 +1,23 @@
+#!/bin/sh
+# usage: sagco-pdfscan PDF_PATH CASE_ID
+PDF="$1"
+CASE="$2"
+OUT="sagco_ish/pdfscan/logs/pdfscan_register.csv"
+if [ ! -f "$PDF" ]; then
+  echo "PDF_NOT_FOUND: $PDF"
+  exit 1
+fi
+mkdir -p sagco_ish/pdfscan/logs
+if [ ! -f "$OUT" ]; then
+  echo "case_id,file,pages,sha256,c1602_hits,pic_hits,wts_hits,fr_hits,status,timestamp" > "$OUT"
+fi
+HASH=$(sha256sum "$PDF" | awk '{print $1}')
+PAGES=$(grep -aoc "/Type /Page" "$PDF")
+C1602=$(grep -aoc "C-1602-O-1B" "$PDF")
+PIC=$(grep -aoc "PIC" "$PDF")
+WTS=$(grep -aoc "WTS" "$PDF")
+FR=$(grep -aoc "FR-" "$PDF")
+STATUS="PDF_TOKENS_CAPTURED"
+echo "$CASE,$PDF,$PAGES,$HASH,$C1602,$PIC,$WTS,$FR,$STATUS,$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$OUT"
+echo "SAGCO_PDFSCAN_COMPLETE"
+tail -1 "$OUT"
