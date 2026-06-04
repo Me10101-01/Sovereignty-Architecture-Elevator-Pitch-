@@ -1,0 +1,40 @@
+=== SAGCO FLEET ERU OBSERVER ===
+CASE   : C1602_CASE_001
+LOG    : sagco_ish/fleet/data/sagco_daemon_telemetry_2026-06-03.log
+FILTER : sagco
+TIME   : 2026-06-04T23:14:10Z
+
+--- RAW TELEMETRY ---
+PASS_COUNT    : 5
+FAIL_COUNT    : 4
+ALERT_COUNT   : 5
+ENTROPY       : 0.658
+EVIDENCE_SCORE: 0.737
+CONFIDENCE    : 0.334
+TOKEN_COUNT   : 77
+TOTAL_NODES   : 8973
+TOTAL_EDGES   : 8163
+FILE_COUNT    : 11926
+
+--- ERU VARIANCE CHECKS ---
+  ERU_GREEN  entropy  expected=0.70  actual=0.658  var=-0.0420
+  ERU_GREEN  evidence_score  expected=0.75  actual=0.737  var=-0.0130
+  ERU_ALERT  confidence  expected=0.60  actual=0.334  var=-0.2660
+  ERU_GREEN  token_count  expected=100  actual=77  var=-23.0000
+  ERU_ALERT  pass_rate  expected=1.000  actual=0.556  var=-0.444
+
+--- PANIC / FAILURE REPORT ---
+2026-06-03 12:23:14	mobiledevices/sagco-daemon	thread 'main' (1702) panicked at src/bin/sagco-topofuzz.rs:11:10:
+2026-06-03 12:23:14	mobiledevices/sagco-daemon	failed to run sagco-reclass: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+2026-06-03 12:24:14	mobiledevices/sagco-daemon	thread 'main' (1707) panicked at src/bin/sagco-topofuzz.rs:11:10:
+2026-06-03 12:24:14	mobiledevices/sagco-daemon	failed to run sagco-reclass: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+ACTION: Run sagco-antibody to archive failure root cause
+
+--- FLEET ERU SUMMARY ---
+TOTAL_CHECKS  : 5
+GREEN         : 3
+FLEET_SCORE   : 60.0%
+FLEET_STATUS  : FLEET_ERU_ALERT
+
+SAGCO_FLEET_ERU_COMPLETE

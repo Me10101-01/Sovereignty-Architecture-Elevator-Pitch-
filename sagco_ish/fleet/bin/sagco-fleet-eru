@@ -1,0 +1,121 @@
+#!/bin/sh
+# SAGCO Rust Fleet ERU Observer — Brick 050
+# usage: sagco-fleet-eru CASE LOG_FILE [DAEMON_FILTER]
+# Parses Kubernetes/Docker telemetry logs in the format:
+#   TIMESTAMP  OBJECT  MESSAGE
+# Extracts: PASS/FAIL/PANIC status, entropy, evidence score, confidence, tokens
+# Computes per-daemon ERU and fleet-wide aggregate
+CASE="$1"
+LOG="$2"
+FILTER="${3:-sagco}"
+OUT="sagco_ish/fleet/logs/fleet_eru.csv"
+REPORT="sagco_ish/fleet/logs/fleet_report.txt"
+[ -z "$CASE" ] && echo "usage: sagco-fleet-eru CASE LOG_FILE [DAEMON_FILTER]" && exit 1
+[ -z "$LOG" ]  && echo "usage: sagco-fleet-eru CASE LOG_FILE [DAEMON_FILTER]" && exit 1
+[ ! -f "$LOG" ] && echo "LOG_NOT_FOUND: $LOG" && exit 1
+mkdir -p sagco_ish/fleet/logs
+[ ! -f "$OUT" ] && echo "case,daemon,metric,expected,actual,variance,status,timestamp" > "$OUT"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+echo "=== SAGCO FLEET ERU OBSERVER ===" | tee "$REPORT"
+echo "CASE   : $CASE" | tee -a "$REPORT"
+echo "LOG    : $LOG" | tee -a "$REPORT"
+echo "FILTER : $FILTER" | tee -a "$REPORT"
+echo "TIME   : $TS" | tee -a "$REPORT"
+echo "" | tee -a "$REPORT"
+
+# --- Extract signals from log ---
+PASS_COUNT=$(grep -i "STATUS=SAGCO.*PASS\|_PASS$\|PASS " "$LOG" 2>/dev/null | grep -i "$FILTER" | wc -l | tr -d ' ')
+FAIL_COUNT=$(grep -i "PANIC\|_FAIL\|panic\|failed to run\|No such file" "$LOG" 2>/dev/null | grep -i "$FILTER" | wc -l | tr -d ' ')
+ALERT_COUNT=$(grep -i "ALERT\|CREEP_ALERT\|ANTIBODY" "$LOG" 2>/dev/null | grep -i "$FILTER" | wc -l | tr -d ' ')
+TOTAL_STATUS=$((PASS_COUNT + FAIL_COUNT))
+
+# Extract latest numeric telemetry (last occurrence of each)
+ENTROPY=$(grep -o 'ENTROPY=[0-9.]*' "$LOG" 2>/dev/null | tail -1 | cut -d= -f2)
+EVIDENCE=$(grep -o 'EVIDENCE_SCORE=[0-9.]*' "$LOG" 2>/dev/null | tail -1 | cut -d= -f2)
+CONFIDENCE=$(grep -o 'CONFIDENCE=[0-9.]*' "$LOG" 2>/dev/null | tail -1 | cut -d= -f2)
+TOKENS=$(grep -o 'TOKEN_COUNT=[0-9]*' "$LOG" 2>/dev/null | tail -1 | cut -d= -f2)
+NODES=$(grep -o 'TOTAL_NODES=[0-9]*' "$LOG" 2>/dev/null | tail -1 | cut -d= -f2)
+EDGES=$(grep -o 'TOTAL_EDGES=[0-9]*' "$LOG" 2>/dev/null | tail -1 | cut -d= -f2)
+FILES=$(grep -o 'FILE_COUNT=[0-9]*' "$LOG" 2>/dev/null | tail -1 | cut -d= -f2)
+
+# Extract panic details
+PANICS=$(grep -i "panicked\|panic\|failed to run" "$LOG" 2>/dev/null | grep -i "$FILTER" | head -5)
+
+echo "--- RAW TELEMETRY ---" | tee -a "$REPORT"
+echo "PASS_COUNT    : ${PASS_COUNT:-0}" | tee -a "$REPORT"
+echo "FAIL_COUNT    : ${FAIL_COUNT:-0}" | tee -a "$REPORT"
+echo "ALERT_COUNT   : ${ALERT_COUNT:-0}" | tee -a "$REPORT"
+echo "ENTROPY       : ${ENTROPY:-NO_DATA}" | tee -a "$REPORT"
+echo "EVIDENCE_SCORE: ${EVIDENCE:-NO_DATA}" | tee -a "$REPORT"
+echo "CONFIDENCE    : ${CONFIDENCE:-NO_DATA}" | tee -a "$REPORT"
+echo "TOKEN_COUNT   : ${TOKENS:-NO_DATA}" | tee -a "$REPORT"
+echo "TOTAL_NODES   : ${NODES:-NO_DATA}" | tee -a "$REPORT"
+echo "TOTAL_EDGES   : ${EDGES:-NO_DATA}" | tee -a "$REPORT"
+echo "FILE_COUNT    : ${FILES:-NO_DATA}" | tee -a "$REPORT"
+echo "" | tee -a "$REPORT"
+
+# --- ERU Checks (Expected vs Actual) ---
+echo "--- ERU VARIANCE CHECKS ---" | tee -a "$REPORT"
+
+eru_check() {
+  METRIC="$1"; EXPECTED="$2"; ACTUAL="$3"; THRESHOLD="$4"
+  [ -z "$ACTUAL" ] || [ "$ACTUAL" = "NO_DATA" ] && \
+    echo "  SKIP  $METRIC  (no data in log)" | tee -a "$REPORT" && return
+  VAR=$(awk "BEGIN { printf \"%.4f\", $ACTUAL - $EXPECTED }")
+  ABS=$(awk "BEGIN { v=$VAR; if(v<0) v=-v; printf \"%.4f\", v }")
+  STATUS="ERU_GREEN"
+  awk "BEGIN {exit !($ABS > $THRESHOLD)}" && STATUS="ERU_ALERT"
+  echo "  $STATUS  $METRIC  expected=${EXPECTED}  actual=${ACTUAL}  var=${VAR}" | tee -a "$REPORT"
+  echo "$CASE,fleet,$METRIC,$EXPECTED,$ACTUAL,$VAR,$STATUS,$TS" >> "$OUT"
+}
+
+# Entropy: expected 0.70 baseline, alert if diff > 0.10
+eru_check "entropy"       "0.70"  "${ENTROPY}"     "0.10"
+# Evidence score: expected >= 0.75, alert if < 0.05 below
+eru_check "evidence_score" "0.75" "${EVIDENCE}"    "0.05"
+# Confidence: expected 0.60, alert if diff > 0.15
+eru_check "confidence"    "0.60"  "${CONFIDENCE}"  "0.15"
+# Token count: expected 100 baseline, alert if diff > 30
+eru_check "token_count"   "100"   "${TOKENS}"      "30"
+
+# Pass rate ERU
+if [ "${TOTAL_STATUS:-0}" -gt 0 ]; then
+  PASS_RATE=$(awk "BEGIN { printf \"%.3f\", $PASS_COUNT / $TOTAL_STATUS }")
+  VAR_PR=$(awk "BEGIN { printf \"%.3f\", $PASS_RATE - 1.0 }")
+  ABS_PR=$(awk "BEGIN { v=$VAR_PR; if(v<0) v=-v; printf \"%.3f\", v }")
+  STATUS_PR="ERU_GREEN"
+  awk "BEGIN {exit !($ABS_PR > 0.10)}" && STATUS_PR="ERU_ALERT"
+  echo "  $STATUS_PR  pass_rate  expected=1.000  actual=${PASS_RATE}  var=${VAR_PR}" | tee -a "$REPORT"
+  echo "$CASE,fleet,pass_rate,1.000,$PASS_RATE,$VAR_PR,$STATUS_PR,$TS" >> "$OUT"
+fi
+
+echo "" | tee -a "$REPORT"
+
+# --- Panic report ---
+if [ "${FAIL_COUNT:-0}" -gt 0 ]; then
+  echo "--- PANIC / FAILURE REPORT ---" | tee -a "$REPORT"
+  echo "$PANICS" | tee -a "$REPORT"
+  echo "" | tee -a "$REPORT"
+  echo "ACTION: Run sagco-antibody to archive failure root cause" | tee -a "$REPORT"
+  echo "" | tee -a "$REPORT"
+fi
+
+# --- Fleet ERU score ---
+TOTAL_CHECKS=$(tail -n +2 "$OUT" | grep "^$CASE,fleet," | wc -l | tr -d ' ')
+GREEN_CHECKS=$(grep "^$CASE,fleet,.*ERU_GREEN" "$OUT" 2>/dev/null | wc -l | tr -d ' ')
+FLEET_SCORE=$(awk "BEGIN { if ($TOTAL_CHECKS==0) print 0; else printf \"%.1f\", ($GREEN_CHECKS/$TOTAL_CHECKS)*100 }")
+
+FLEET_STATUS="FLEET_ERU_ALERT"
+awk "BEGIN {exit !($FLEET_SCORE >= 80)}" && FLEET_STATUS="FLEET_ERU_GREEN"
+
+echo "--- FLEET ERU SUMMARY ---" | tee -a "$REPORT"
+echo "TOTAL_CHECKS  : $TOTAL_CHECKS" | tee -a "$REPORT"
+echo "GREEN         : $GREEN_CHECKS" | tee -a "$REPORT"
+echo "FLEET_SCORE   : ${FLEET_SCORE}%" | tee -a "$REPORT"
+echo "FLEET_STATUS  : $FLEET_STATUS" | tee -a "$REPORT"
+echo "" | tee -a "$REPORT"
+echo "SAGCO_FLEET_ERU_COMPLETE" | tee -a "$REPORT"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "FLEET_ERU_NODE" "$FLEET_STATUS" \
+  "fleet_score_${FLEET_SCORE}_pass_${PASS_COUNT}_fail_${FAIL_COUNT}" 2>/dev/null || true

@@ -45,3 +45,4 @@ sagco-antibody,sagco_ish/antibody/bin/sagco-antibody,ANTIBODY_NODE,ACTIVE,2026-0
 sagco-antibody-search,sagco_ish/antibody/bin/sagco-antibody-search,ANTIBODY_NODE,ACTIVE,2026-06-04T22:44:12Z
 sagco-invention,sagco_ish/lineage/bin/sagco-invention,INVENTION_NODE,ACTIVE,2026-06-04T22:52:15Z
 sagco-invention-read,sagco_ish/lineage/bin/sagco-invention-read,INVENTION_NODE,ACTIVE,2026-06-04T22:52:15Z
+sagco-fleet-eru,sagco_ish/fleet/bin/sagco-fleet-eru,FLEET_ERU_NODE,ACTIVE,2026-06-04T23:14:10Z

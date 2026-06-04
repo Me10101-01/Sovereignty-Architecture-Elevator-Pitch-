@@ -1,0 +1,6 @@
+case,daemon,metric,expected,actual,variance,status,timestamp
+C1602_CASE_001,fleet,entropy,0.70,0.658,-0.0420,ERU_GREEN,2026-06-04T23:14:10Z
+C1602_CASE_001,fleet,evidence_score,0.75,0.737,-0.0130,ERU_GREEN,2026-06-04T23:14:10Z
+C1602_CASE_001,fleet,confidence,0.60,0.334,-0.2660,ERU_ALERT,2026-06-04T23:14:10Z
+C1602_CASE_001,fleet,token_count,100,77,-23.0000,ERU_GREEN,2026-06-04T23:14:10Z
+C1602_CASE_001,fleet,pass_rate,1.000,0.556,-0.444,ERU_ALERT,2026-06-04T23:14:10Z

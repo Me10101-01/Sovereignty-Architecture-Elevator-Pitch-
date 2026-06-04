@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "CONSTITUTION_NODE",
-  "status": "CONSTITUTION_EXEMPLARY",
-  "note": "upheld_10_of_10",
-  "updated": "2026-06-04T22:33:30Z"
+  "last_node": "FLEET_ERU_NODE",
+  "status": "FLEET_ERU_ALERT",
+  "note": "fleet_score_60.0_pass_5_fail_4",
+  "updated": "2026-06-04T23:14:10Z"
 }
