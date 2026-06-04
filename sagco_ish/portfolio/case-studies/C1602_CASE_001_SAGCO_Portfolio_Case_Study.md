@@ -13,10 +13,10 @@ This case study documents a live workflow using shared state, evidence hashing, 
 ```json
 {
   "case": "C1602_CASE_001",
-  "last_node": "PORTFOLIO_GEN_NODE",
+  "last_node": "HALLUCHECK_NODE",
   "status": "ACTIVE",
-  "note": "case_study_generated",
-  "updated": "2026-06-04T20:14:45Z"
+  "note": "hallucheck_26.67_RED_HALLUCINATION_ALERT",
+  "updated": "2026-06-04T20:31:44Z"
 }
 ```
 ## Portfolio Signals
