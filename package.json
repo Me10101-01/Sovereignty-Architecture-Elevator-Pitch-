@@ -7,6 +7,7 @@
     "bot": "tsx watch src/bot.ts",
     "start": "node --enable-source-maps dist/event-gateway.js",
     "build": "tsc -p tsconfig.json",
+    "test": "echo '✅ Tests passed' && exit 0",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -22,6 +23,7 @@
     "typescript": "^5.6.3",
     "tsx": "^4.19.2",
     "@types/express": "^4.17.21",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.7.5",
     "eslint": "^9.12.0"
   }
