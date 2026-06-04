@@ -1,0 +1,63 @@
+#!/bin/sh
+# SAGCO Where — Brick Navigator
+# usage: sagco-where BRICK_NAME
+# Answers: location, called_by, outputs, writes_to, test_cmd, success_if
+NAME="$1"
+MANIFEST="sagco_ish/registry/data/brick_manifest.csv"
+REGISTRY="sagco_ish/registry/logs/command_registry.csv"
+DEPS="sagco_ish/deps/data/deps.csv"
+[ -z "$NAME" ] && echo "usage: sagco-where BRICK_NAME" && exit 1
+
+echo "=== SAGCO WHERE: $NAME ==="
+echo ""
+
+# PATH from registry
+REG_ROW=$(grep "^${NAME}," "$REGISTRY" 2>/dev/null | head -1)
+if [ -n "$REG_ROW" ]; then
+  REG_PATH=$(echo "$REG_ROW" | cut -d, -f2)
+  REG_TYPE=$(echo "$REG_ROW" | cut -d, -f3)
+  echo "LOCATION  : $REG_PATH  [$REG_TYPE]"
+  [ -x "$REG_PATH" ] && echo "EXECUTABLE: YES" || echo "EXECUTABLE: NO — check path"
+else
+  echo "LOCATION  : NOT_IN_REGISTRY — run sagco-register $NAME PATH TYPE"
+fi
+
+# CALLED_BY from deps
+CALLERS=$(grep ",$NAME," "$DEPS" 2>/dev/null | cut -d, -f1 | sort -u | tr '\n' ' ')
+[ -n "$CALLERS" ] && echo "CALLED_BY : $CALLERS" || echo "CALLED_BY : NOT_IN_DEPS"
+
+# MANIFEST data
+if [ -f "$MANIFEST" ]; then
+  MAN=$(grep "^${NAME}," "$MANIFEST" 2>/dev/null | head -1)
+  if [ -n "$MAN" ]; then
+    PURPOSE=$(echo  "$MAN" | cut -d, -f2)
+    INPUT=$(echo    "$MAN" | cut -d, -f3)
+    OUTPUT=$(echo   "$MAN" | cut -d, -f4)
+    WRITES=$(echo   "$MAN" | cut -d, -f5)
+    TEST=$(echo     "$MAN" | cut -d, -f7)
+    SUCCESS=$(echo  "$MAN" | cut -d, -f8)
+    echo ""
+    echo "PURPOSE   : $PURPOSE"
+    echo "INPUT     : $INPUT"
+    echo "OUTPUT    : $OUTPUT"
+    echo "WRITES_TO : $WRITES"
+    echo ""
+    echo "TEST_CMD  : $TEST"
+    echo "SUCCESS IF: $SUCCESS"
+  else
+    echo ""
+    echo "NO_MANIFEST — run: sagco-manifest $NAME PURPOSE INPUT OUTPUT WRITES_TO CALLED_BY TEST_CMD SUCCESS_IF"
+  fi
+fi
+
+# Check if output files actually exist
+if [ -n "$OUTPUT" ] && [ "$OUTPUT" != "NO_MANIFEST" ]; then
+  echo ""
+  echo "--- OUTPUT EXISTENCE CHECK ---"
+  for F in $(echo "$OUTPUT" | tr ';' ' '); do
+    [ -e "$F" ] && echo "  EXISTS  $F" || echo "  MISSING $F"
+  done
+fi
+
+echo ""
+echo "SAGCO_WHERE_COMPLETE"

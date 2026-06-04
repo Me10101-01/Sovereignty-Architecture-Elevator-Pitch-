@@ -1,0 +1,19 @@
+#!/bin/sh
+# SAGCO Brick Manifest — Commandment XII compliance
+# usage: sagco-manifest NAME PURPOSE INPUT OUTPUT WRITES_TO CALLED_BY TEST_CMD SUCCESS_IF
+NAME="$1"; PURPOSE="$2"; INPUT="$3"; OUTPUT="$4"
+WRITES_TO="$5"; CALLED_BY="$6"; TEST_CMD="$7"; SUCCESS_IF="$8"
+OUT="sagco_ish/registry/data/brick_manifest.csv"
+[ -z "$NAME" ] && echo "usage: sagco-manifest NAME PURPOSE INPUT OUTPUT WRITES_TO CALLED_BY TEST_CMD SUCCESS_IF" && exit 1
+mkdir -p sagco_ish/registry/data
+[ ! -f "$OUT" ] && echo "name,purpose,input,output,writes_to,called_by,test_cmd,success_if,timestamp" > "$OUT"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+# Update if exists, append if new
+if grep -q "^${NAME}," "$OUT" 2>/dev/null; then
+  # Remove old entry and rewrite (no sed -i on iSH)
+  TMPF="/tmp/manifest_tmp.csv"
+  grep -v "^${NAME}," "$OUT" > "$TMPF" && mv "$TMPF" "$OUT"
+fi
+echo "${NAME},${PURPOSE},${INPUT},${OUTPUT},${WRITES_TO},${CALLED_BY},${TEST_CMD},${SUCCESS_IF},${TS}" >> "$OUT"
+echo "SAGCO_MANIFEST_REGISTERED: $NAME"

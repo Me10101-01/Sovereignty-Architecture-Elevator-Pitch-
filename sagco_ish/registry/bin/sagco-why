@@ -1,0 +1,62 @@
+#!/bin/sh
+# SAGCO Why — Brick Purpose Navigator
+# usage: sagco-why BRICK_NAME
+# Answers: purpose, origin, ancestor, descendants, which invention it serves
+NAME="$1"
+# Strip sagco- prefix for cross-referencing citations and inventions
+SHORTNAME=$(echo "$NAME" | sed 's/^sagco-//')
+MANIFEST="sagco_ish/registry/data/brick_manifest.csv"
+CITES="sagco_ish/lineage/citations/citations.csv"
+INVS="sagco_ish/lineage/inventions/inventions.csv"
+ANTIBODY="sagco_ish/antibody/data/antibody_archive.csv"
+[ -z "$NAME" ] && echo "usage: sagco-why BRICK_NAME" && exit 1
+
+echo "=== SAGCO WHY: $NAME ==="
+echo ""
+
+# Purpose from manifest
+if [ -f "$MANIFEST" ]; then
+  MAN=$(grep "^${NAME}," "$MANIFEST" 2>/dev/null | head -1)
+  if [ -n "$MAN" ]; then
+    PURPOSE=$(echo "$MAN" | cut -d, -f2)
+    echo "PURPOSE   : $PURPOSE"
+  fi
+fi
+
+# Citation / lineage sources
+if [ -f "$CITES" ]; then
+  CIT=$(grep "^.*,.*,.*," "$CITES" 2>/dev/null | awk -F, -v n="$SHORTNAME" 'tolower($2)==tolower(n){print}' | head -1)
+  if [ -n "$CIT" ]; then
+    SOURCES=$(echo "$CIT" | cut -d, -f3)
+    echo "SOURCES   : $SOURCES"
+  fi
+fi
+
+# Invention connection — search descendants field
+if [ -f "$INVS" ]; then
+  INV_MATCH=$(grep -i "$SHORTNAME" "$INVS" 2>/dev/null | head -3)
+  if [ -n "$INV_MATCH" ]; then
+    echo ""
+    echo "--- INVENTION CONNECTIONS ---"
+    echo "$INV_MATCH" | while IFS=, read inv_id claim origin confirmations descendants creator ts; do
+      echo "  [$inv_id] $claim"
+      echo "  ORIGIN: $origin"
+    done
+  fi
+fi
+
+# Related antibodies
+if [ -f "$ANTIBODY" ]; then
+  AB_MATCH=$(grep -i "$SHORTNAME" "$ANTIBODY" 2>/dev/null | head -3)
+  if [ -n "$AB_MATCH" ]; then
+    echo ""
+    echo "--- RELATED ANTIBODIES ---"
+    echo "$AB_MATCH" | while IFS=, read ab_id failure root_cause patch verification status ts; do
+      echo "  [$ab_id] $failure"
+      echo "  PATCH: $patch"
+    done
+  fi
+fi
+
+echo ""
+echo "SAGCO_WHY_COMPLETE"

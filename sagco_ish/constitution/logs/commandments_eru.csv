@@ -9,3 +9,15 @@ C1602_CASE_001,VII_REDACT_BEFORE_PUBLISH,sagco_ish/public/site/index_redacted.ht
 C1602_CASE_001,VIII_VERIFY_CLAIMS,sagco_ish/claims/logs/claims_report.csv,found_18,UPHELD,2026-06-04T22:33:30Z
 C1602_CASE_001,IX_FAVOR_SOVEREIGNTY,sagco_ish/registry/logs/command_registry.csv,count_43,UPHELD,2026-06-04T22:33:30Z
 C1602_CASE_001,X_BETTER_BRICK,sagco_ish/edu/logs/edu_eru.csv,found_6,UPHELD,2026-06-04T22:33:30Z
+C1602_CASE_001,I_NO_PLACEHOLDERS,sagco_ish/pro_review/logs/pro_review.csv,found_1,UPHELD,2026-06-04T23:48:04Z
+C1602_CASE_001,II_MEASURE_VARIANCE,sagco_ish/wafer/logs/wafer_eru.csv,found_3,UPHELD,2026-06-04T23:48:04Z
+C1602_CASE_001,III_LOG_BEFORE_BELIEF,sagco_ish/shared_state/logs/state_updates.csv,count_133,UPHELD,2026-06-04T23:48:04Z
+C1602_CASE_001,IV_PRESERVE_LINEAGE,sagco_ish/lineage/citations/citations.csv,count_26,UPHELD,2026-06-04T23:48:04Z
+C1602_CASE_001,V_BUILD_ANTIBODIES,sagco_ish/calls/bin/sagco-call-analyze,exists,UPHELD,2026-06-04T23:48:04Z
+C1602_CASE_001,VI_HASH_EVIDENCE,sagco_ish/governance/logs/governance_register.csv,found_2,UPHELD,2026-06-04T23:48:04Z
+C1602_CASE_001,VII_REDACT_BEFORE_PUBLISH,sagco_ish/public/site/index_redacted.html,exists,UPHELD,2026-06-04T23:48:04Z
+C1602_CASE_001,VIII_VERIFY_CLAIMS,sagco_ish/claims/logs/claims_report.csv,found_18,UPHELD,2026-06-04T23:48:04Z
+C1602_CASE_001,IX_FAVOR_SOVEREIGNTY,sagco_ish/registry/logs/command_registry.csv,count_53,UPHELD,2026-06-04T23:48:04Z
+C1602_CASE_001,X_BETTER_BRICK,sagco_ish/edu/logs/edu_eru.csv,found_6,UPHELD,2026-06-04T23:48:04Z
+C1602_CASE_001,XI_CONNECT_BEFORE_ADDING,sagco_ish/deps/data/deps.csv,count_21,UPHELD,2026-06-04T23:48:04Z
+C1602_CASE_001,XII_NO_ORPHAN_BRICKS,sagco_ish/registry/data/brick_manifest.csv,count_11,UPHELD,2026-06-04T23:48:04Z

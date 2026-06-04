@@ -1,5 +1,5 @@
 # SAGCO Constitution
-**Case:** C1602_CASE_001  |  **Generated:** 2026-06-04T22:33:30Z  |  **Score:** 100.0%  |  **Verdict:** CONSTITUTION_EXEMPLARY
+**Case:** C1602_CASE_001  |  **Generated:** 2026-06-04T23:48:04Z  |  **Score:** 100.0%  |  **Verdict:** CONSTITUTION_EXEMPLARY
 
 ---
 
@@ -17,6 +17,8 @@
 | VIII | Thou Shalt Verify Public Claims | UPHELD | claims/logs/claims_report.csv |
 | IX | Thou Shalt Favor Sovereignty | UPHELD | registry/logs/command_registry.csv |
 | X | Thou Shalt Leave a Better Brick | UPHELD | edu/logs/edu_eru.csv |
+| XI | Thou Shalt Connect Before Adding | UPHELD | deps/data/deps.csv |
+| XII | Thou Shalt Have No Orphan Bricks | UPHELD | registry/data/brick_manifest.csv |
 
 ---
 

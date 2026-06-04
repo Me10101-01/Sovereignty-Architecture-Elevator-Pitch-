@@ -107,6 +107,18 @@ check "X_BETTER_BRICK" \
   "sagco_ish/edu/logs/edu_eru.csv" grep "BENCHMARK"
 echo ""
 
+echo "XI. THOU SHALT CONNECT BEFORE ADDING"
+echo "   A connected brick is worth more than ten orphaned bricks."
+check "XI_CONNECT_BEFORE_ADDING" \
+  "sagco_ish/deps/data/deps.csv" count 5
+echo ""
+
+echo "XII. THOU SHALT HAVE NO ORPHAN BRICKS"
+echo "   Every brick must declare: where it lives, who calls it, what it writes, how to verify it."
+check "XII_NO_ORPHAN_BRICKS" \
+  "sagco_ish/registry/data/brick_manifest.csv" count 5
+echo ""
+
 echo "--- CONSTITUTION SCORE ---"
 TOTAL=$((UPHELD + VIOLATED))
 SCORE=$(awk "BEGIN { if ($TOTAL==0) print 0; else printf \"%.1f\", ($UPHELD/$TOTAL)*100 }")
@@ -141,6 +153,8 @@ cat > "$CONST" <<MD
 | VIII | Thou Shalt Verify Public Claims | $(grep ",VIII_VERIFY_CLAIMS," "$LOG" | tail -1 | awk -F, '{print $5}') | claims/logs/claims_report.csv |
 | IX | Thou Shalt Favor Sovereignty | $(grep ",IX_FAVOR_SOVEREIGNTY," "$LOG" | tail -1 | awk -F, '{print $5}') | registry/logs/command_registry.csv |
 | X | Thou Shalt Leave a Better Brick | $(grep ",X_BETTER_BRICK," "$LOG" | tail -1 | awk -F, '{print $5}') | edu/logs/edu_eru.csv |
+| XI | Thou Shalt Connect Before Adding | $(grep ",XI_CONNECT_BEFORE_ADDING," "$LOG" | tail -1 | awk -F, '{print $5}') | deps/data/deps.csv |
+| XII | Thou Shalt Have No Orphan Bricks | $(grep ",XII_NO_ORPHAN_BRICKS," "$LOG" | tail -1 | awk -F, '{print $5}') | registry/data/brick_manifest.csv |
 
 ---
 

@@ -1,0 +1,34 @@
+#!/bin/sh
+# SAGCO Browser Agent Dock — Brick 052
+# Thin alias: serves the client portal from sagco_ish/webportal/
+# For a standalone dock, copies portal to browser/site/ first
+PORT="${1:-8080}"
+PORTAL="$(cd "$(dirname "$0")/../.." && pwd)/webportal"
+DOCK_SITE="$(cd "$(dirname "$0")/.." && pwd)/site"
+
+echo "=== SAGCO BROWSER DOCK ==="
+echo "PORT  : $PORT"
+echo "DOCK  : $DOCK_SITE"
+
+# Sync portal content into browser/site
+mkdir -p "$DOCK_SITE"
+cp "$PORTAL/index.html" "$DOCK_SITE/index.html" 2>/dev/null || \
+  echo "WARN: portal not found at $PORTAL — using existing site/"
+
+echo "SAGCO_BROWSER_DOCK_ONLINE"
+echo "URL=http://localhost:$PORT"
+echo ""
+echo "Routes: red:7001 blue:7002 purple:7003 proof:7004 health:7005"
+echo "        fleet:7006 lineage:7007 claims:7008"
+echo ""
+
+cd "$DOCK_SITE" || exit 1
+
+if command -v python3 >/dev/null 2>&1; then
+  python3 -m http.server "$PORT"
+elif command -v python >/dev/null 2>&1; then
+  python -m http.server "$PORT"
+else
+  echo "NO_PYTHON — open $DOCK_SITE/index.html directly"
+  exit 1
+fi
