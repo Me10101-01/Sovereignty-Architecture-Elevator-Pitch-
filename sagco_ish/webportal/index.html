@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SAGCO OS — Client Command Portal</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#07111f;color:#e8f0ff;font-family:system-ui,Arial,sans-serif;padding:40px;min-height:100vh}
+h1{color:#7dd3fc;font-size:2em;margin-bottom:6px}
+.sub{color:#64748b;margin-bottom:32px;font-size:0.95em}
+.search-row{display:flex;gap:10px;margin-bottom:32px;flex-wrap:wrap}
+#q{flex:1;min-width:200px;font-size:1.1em;padding:14px 18px;border-radius:10px;
+   background:#11161f;border:1px solid #334455;color:#e8f0ff;outline:none}
+#q:focus{border-color:#7dd3fc}
+button{font-size:1.1em;padding:14px 28px;border-radius:10px;background:#1d4ed8;
+       color:#fff;border:none;cursor:pointer;white-space:nowrap}
+button:hover{background:#2563eb}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:32px}
+.card{background:#11161f;border:1px solid #334455;border-radius:14px;padding:20px;cursor:pointer;transition:border-color .2s}
+.card:hover{border-color:#7dd3fc}
+.card b{color:#7dd3fc;font-size:1.1em}
+.card .desc{color:#94a3b8;font-size:0.85em;margin-top:6px}
+.card .port{color:#4cff8f;font-size:0.75em;margin-top:8px;font-family:monospace}
+.status-bar{background:#0a0e14;border:1px solid #1e293b;border-radius:10px;padding:16px;
+            font-size:0.8em;color:#64748b;font-family:monospace}
+.status-bar span{color:#4cff8f}
+.ok{color:#4cff8f}.alert{color:#ff6b6b}.warn{color:#fbbf24}
+.hint{color:#334455;font-size:0.8em;margin-top:8px}
+</style>
+</head>
+<body>
+
+<h1>SAGCO OS — Client Command Portal</h1>
+<p class="sub">Sovereign · Self-Verifying · No Vendor Lock-in &nbsp;|&nbsp; Red Team · Blue Team · Purple Team · Proof Node</p>
+
+<div class="search-row">
+  <input id="q" placeholder="type: red, blue, purple, proof, health, fleet, lineage, claims…"
+         onkeydown="if(event.key==='Enter')go()" autofocus>
+  <button onclick="go()">Launch</button>
+</div>
+
+<div class="grid">
+  <div class="card" onclick="route('red')">
+    <b>red</b>
+    <div class="desc">Attack simulation · Recon lab · Fuzz · Topology scan</div>
+    <div class="port">→ :7001</div>
+  </div>
+  <div class="card" onclick="route('blue')">
+    <b>blue</b>
+    <div class="desc">Defense · Monitoring · Hardening · Evidence chain</div>
+    <div class="port">→ :7002</div>
+  </div>
+  <div class="card" onclick="route('purple')">
+    <b>purple</b>
+    <div class="desc">Red + Blue validation loop · Reclassification · Forecast</div>
+    <div class="port">→ :7003</div>
+  </div>
+  <div class="card" onclick="route('proof')">
+    <b>proof</b>
+    <div class="desc">Public evidence · Governance · SHA256 chain · Reports</div>
+    <div class="port">→ :7004</div>
+  </div>
+  <div class="card" onclick="route('health')">
+    <b>health</b>
+    <div class="desc">10-node organ check · Runtime status · ERU aggregate</div>
+    <div class="port">→ :7005</div>
+  </div>
+  <div class="card" onclick="route('fleet')">
+    <b>fleet</b>
+    <div class="desc">Daemon telemetry · Topology · Entropy · Confidence ERU</div>
+    <div class="port">→ :7006</div>
+  </div>
+  <div class="card" onclick="route('lineage')">
+    <b>lineage</b>
+    <div class="desc">Wing D · Citations · Prior art · Invention registry</div>
+    <div class="port">→ :7007</div>
+  </div>
+  <div class="card" onclick="route('claims')">
+    <b>claims</b>
+    <div class="desc">Wing F · PROVEN / PARTIAL / UNPROVEN claim status</div>
+    <div class="port">→ :7008</div>
+  </div>
+</div>
+
+<div class="hint">Unknown terms → SAGCO knowledge search · All routing is local-first · No external calls</div>
+
+<br>
+<div class="status-bar">
+  <span class="ok">&#x25cf;</span> SAGCO OS ACTIVE &nbsp;|&nbsp;
+  Portal: <span>Brick 051</span> &nbsp;|&nbsp;
+  Constitution: <span>10/10 UPHELD</span> &nbsp;|&nbsp;
+  Fleet: <span class="warn">FLEET_ERU_ALERT (60%)</span> &nbsp;|&nbsp;
+  AB-011: <span class="alert">reclass binary missing</span>
+  <br><br>
+  Recent: OBSERVE_PASS · TOKENIZE_PASS · FORECAST_PASS · TOPOLOGY_PASS · FSWALK_PASS
+  <span class="alert"> · TOPOFUZZ_PANIC (sagco-reclass not found)</span>
+</div>
+
+<p style="margin-top:24px;opacity:0.4;font-size:0.75em">
+SAGCO OS &bull; Sovereign &bull; Self-Verifying &bull; No Vendor Lock-in<br>
+Brick 051 — Client Portal Router &bull; All routes are local &bull; No cloud dependency
+</p>
+
+<script>
+const ROUTES = {
+  red:     "http://localhost:7001",
+  blue:    "http://localhost:7002",
+  purple:  "http://localhost:7003",
+  proof:   "http://localhost:7004",
+  health:  "http://localhost:7005",
+  fleet:   "http://localhost:7006",
+  lineage: "http://localhost:7007",
+  claims:  "http://localhost:7008"
+};
+
+// Aliases
+const ALIASES = {
+  attack: "red", recon: "red", fuzz: "red", scan: "red",
+  defense: "blue", monitor: "blue", audit: "blue", evidence: "blue",
+  validate: "purple", forecast: "purple", reclass: "purple",
+  report: "proof", public: "proof", portfolio: "proof",
+  status: "health", org: "health", check: "health",
+  daemon: "fleet", topology: "fleet", entropy: "fleet",
+  cite: "lineage", lineage: "lineage", invention: "lineage",
+  claim: "claims", proven: "claims", unproven: "claims"
+};
+
+function route(key) {
+  const resolved = ALIASES[key] || key;
+  const dest = ROUTES[resolved];
+  if (dest) {
+    window.location.href = dest;
+  } else {
+    window.location.href = "https://www.google.com/search?q=" + encodeURIComponent("SAGCO OS " + key);
+  }
+}
+
+function go() {
+  const raw = document.getElementById("q").value.toLowerCase().trim();
+  route(raw);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+#!/bin/sh
+# SAGCO Portal Start — Brick 051
+# usage: ./sagco-portal-start [PORT]
+PORT="${1:-8080}"
+PORTAL_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+echo "=== SAGCO CLIENT PORTAL ==="
+echo "PORT : $PORT"
+echo "DIR  : $PORTAL_DIR"
+echo ""
+
+# Try nginx docker first
+if command -v docker >/dev/null 2>&1; then
+  echo "STARTING: docker nginx"
+  docker rm -f sagco-webportal 2>/dev/null || true
+  docker run -d --name sagco-webportal \
+    -p "${PORT}:80" \
+    -v "${PORTAL_DIR}:/usr/share/nginx/html:ro" \
+    nginx:alpine
+  echo "SAGCO_PORTAL_DOCKER_RUNNING"
+  echo "URL: http://localhost:${PORT}"
+  exit 0
+fi
+
+# Fallback: Python
+if command -v python3 >/dev/null 2>&1; then
+  echo "STARTING: python3 http.server"
+  cd "$PORTAL_DIR" && python3 -m http.server "$PORT"
+  exit 0
+fi
+
+if command -v python >/dev/null 2>&1; then
+  echo "STARTING: python http.server"
+  cd "$PORTAL_DIR" && python -m http.server "$PORT"
+  exit 0
+fi
+
+echo "ERROR: no docker or python found — open index.html directly in browser"
+exit 1
