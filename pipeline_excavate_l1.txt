@@ -1,0 +1,7 @@
+read sagco.master.yaml
+read sagco.compose.yaml
+read gcp_services.txt
+read evidence.bin
+wave gcp_services.txt
+pulse 793398609444
+seal evidence_excavate_l1.bin
