@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "ERU_NODE",
-  "status": "GREEN",
-  "note": "health_80_alerts_2",
-  "updated": "2026-06-04T20:02:37Z"
+  "last_node": "PORTFOLIO_GEN_NODE",
+  "status": "ACTIVE",
+  "note": "case_study_generated",
+  "updated": "2026-06-04T20:14:45Z"
 }

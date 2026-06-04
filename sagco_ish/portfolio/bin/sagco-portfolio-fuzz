@@ -1,0 +1,35 @@
+#!/bin/sh
+# SAGCO Portfolio GIDRA Fuzz - Brick 028
+# Usage: sagco-portfolio-fuzz <CASE_ID> <SEARCH_ROOT>
+CASE="$1"
+ROOT="${2:-sagco_ish}"
+OUT="sagco_ish/portfolio/logs/portfolio_fuzz.csv"
+mkdir -p sagco_ish/portfolio/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+echo "SAGCO_PORTFOLIO_FUZZ_START"
+echo "CASE=$CASE"
+echo "ROOT=$ROOT"
+if [ ! -f "$OUT" ]; then
+  echo "case,file,line,signal,text,timestamp" > "$OUT"
+fi
+grep -RInE \
+  "workflow|compose|dashboard|runtime|Gmail|Dropbox|PDF|agent|command|register|case.study|portfolio|ERU|variance|expected|actual|evidence|hash|sha256" \
+  "$ROOT" 2>/dev/null | \
+while IFS=: read -r FILE LINE TEXT; do
+  SIGNAL=$(printf "%s" "$TEXT" | awk '
+    /workflow|compose|dashboard|runtime/ { print "RUNTIME_SIGNAL"; exit }
+    /Gmail|Dropbox|PDF/                  { print "INGEST_SIGNAL";  exit }
+    /agent|command|register/             { print "AGENT_SIGNAL";   exit }
+    /case.study|portfolio/               { print "PORTFOLIO_SIGNAL"; exit }
+    /ERU|variance|expected|actual/       { print "ERU_SIGNAL";     exit }
+    /evidence|hash|sha256/               { print "EVIDENCE_SIGNAL"; exit }
+    { print "SAGCO_SIGNAL" }
+  ')
+  CLEAN=$(printf "%s" "$TEXT" | tr ',"' "  " | tr -d "\r")
+  echo "$CASE,$FILE,$LINE,$SIGNAL,$CLEAN,$TS" >> "$OUT"
+done
+COUNT=$(tail -n +2 "$OUT" | grep -c "^$CASE," 2>/dev/null || echo 0)
+echo "PORTFOLIO_FUZZ_HITS=$COUNT"
+sagco_ish/shared_state/bin/sagco-state "$CASE" "PORTFOLIO_GIDRA_NODE" "ACTIVE" "portfolio_fuzz_hits_$COUNT" 2>/dev/null
+echo "SAGCO_PORTFOLIO_FUZZ_COMPLETE"
+tail -25 "$OUT"

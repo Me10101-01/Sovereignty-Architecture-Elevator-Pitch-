@@ -1,0 +1,151 @@
+# SAGCO Sovereignty Architecture — Portfolio Case Study
+## Case: C1602_CASE_001
+**Generated:** 2026-06-04T20:14:45Z
+**System:** SAGCO Sovereign Compiler v0.3 — Multi-Node Fleet
+
+---
+
+## Executive Summary
+
+This case study documents the design and operation of SAGCO (Sovereignty Architecture
+General Compiler and Orchestrator), a custom-built distributed evidence engine running
+across a personal multi-node fleet (iPad, Z Fold, Raspberry Pi, iSH Alpine).
+
+SAGCO converts raw field engineering data — PDF scopes, Excel wafers, orientation
+captures, and Gmail attachments — into structured, cryptographically verifiable
+portfolio artifacts with zero third-party cloud dependency.
+
+**Key Achievement:** A single command (`sagco-run C1602_CASE_001`) causes three independent
+nodes to coordinate through a shared state mesh, execute the full pipeline, and
+produce an audit-ready case study document automatically.
+
+---
+
+## System Architecture
+
+```
+FIELD PDF / GMAIL ATTACHMENT
+         ↓
+    sagco-pdfscan / sagco-mailwatch
+         ↓
+    sagco-wafer (ERU variance engine)
+         ↓
+    shared_state/cases/C1602_CASE_001.json   ← mesh truth source
+    ↑           ↑           ↑
+IPAD_NODE  ZFOLD_NODE  ISH_NODE
+         ↓
+    sagco-eru-report (health aggregator)
+         ↓
+    sagco-portfolio-fuzz (GIDRA signal miner)
+         ↓
+    sagco-portfolio-generate  ← THIS DOCUMENT
+```
+
+---
+
+## Live Metrics: C1602_CASE_001
+
+| Metric | Value |
+|--------|-------|
+| Current Status | ACTIVE |
+| Last Active Node | PORTFOLIO_GEN_NODE |
+| Last Updated | 2026-06-04T20:14:14Z |
+| Nodes Observed | 3 |
+| State Transition Events | 3 |
+| ERU Observations | 3 |
+| ERU Green (on-target) | 1 |
+| ERU Alerts (variance) | 2 |
+| Portfolio Signal Hits | 0 |
+| Bill/Finance Signal Hits | 0 |
+| Registered Commands | 15 |
+
+---
+
+## ERU Variance Analysis
+
+The Expected Reality Unit (ERU) engine compares Excel wafer predictions against
+field capture actuals. Variance = actual - expected.
+
+| Threshold | Status |
+|-----------|--------|
+| variance = 0 | GREEN |
+| abs(variance) ≤ 2 | YELLOW |
+| abs(variance) > 2 | RED (ALERT) |
+
+**Current result:** 1 GREEN / 2 ALERT from 3 observations.
+
+**Recent ERU Data:**
+```
+C1602_CASE_001,VLV_001_EAST_PIPE,108,106,-2,WAFER_GREEN,2026-06-04T19:49:47Z
+C1602_CASE_001,ISO_PROGRESS_COUNT,54,12,-42,WAFER_VARIANCE_ALERT,2026-06-04T19:49:47Z
+C1602_CASE_001,WEIGHT_PROGRESS_UNITS,31,15,-16,WAFER_VARIANCE_ALERT,2026-06-04T19:49:47Z
+```
+
+---
+
+## Portfolio GIDRA Signal Breakdown
+
+GIDRA (General Intelligence Data Recon Agent) scanned the live codebase and
+identified 0 portfolio-grade signals across the repository.
+
+| Signal Type | Count |
+|-------------|-------|
+| RUNTIME_SIGNAL | 0 |
+| ERU_SIGNAL | 0 |
+| EVIDENCE_SIGNAL | 0 |
+
+---
+
+## Registered Agent Fleet (15 commands)
+
+```
+demo,bin/sagco-demo,tool,ACTIVE,2026-06-04T19:42:42Z
+mission,bin/sagco-mission,tool,ACTIVE,2026-06-04T19:42:42Z
+regression,bin/sagco-regression,tool,ACTIVE,2026-06-04T19:42:42Z
+portfolio,bin/sagco-portfolio,tool,ACTIVE,2026-06-04T19:42:42Z
+palace,bin/sagco-palace,tool,ACTIVE,2026-06-04T19:42:42Z
+pdfscan,sagco_ish/pdfscan/bin/sagco-pdfscan,tool,ACTIVE,2026-06-04T19:42:42Z
+analyze,sagco_ish/analysis/bin/sagco-analyze,tool,ACTIVE,2026-06-04T19:42:42Z
+dashboard,sagco_ish/dashboard/bin/sagco-dashboard,tool,ACTIVE,2026-06-04T19:42:42Z
+dispatch,sagco_ish/dispatcher/bin/sagco-dispatch,tool,ACTIVE,2026-06-04T19:42:42Z
+capture,sagco_ish/capture/bin/sagco-capture,tool,ACTIVE,2026-06-04T19:42:42Z
+eru,sagco_ish/eru/bin/sagco-eru,tool,ACTIVE,2026-06-04T19:42:42Z
+htrack,sagco_ish/htrack/bin/sagco-htrack,tool,ACTIVE,2026-06-04T19:42:42Z
+scheduler,sagco_ish/scheduler/bin/sagco-scheduler,tool,ACTIVE,2026-06-04T19:42:42Z
+state-read,sagco_ish/shared_state/bin/sagco-state-read,mesh,ACTIVE,2026-06-04T19:58:11Z
+eru-report,sagco_ish/agents/eru/bin/sagco-eru-report,analysis,ACTIVE,2026-06-04T20:02:40Z
+```
+
+---
+
+## State Transition History
+
+```
+C1602_CASE_001,CLOUD_NODE,ACTIVE,state_reader_online,2026-06-04T19:53:29Z
+C1602_CASE_001,ERU_NODE,GREEN,health_80_alerts_2,2026-06-04T20:02:37Z
+C1602_CASE_001,PORTFOLIO_GEN_NODE,ACTIVE,case_study_generated,2026-06-04T20:14:14Z
+```
+
+---
+
+## Engineering Competencies Demonstrated
+
+- **Distributed Systems:** Multi-node shared state mesh without cloud dependency
+- **Data Engineering:** CSV/JSON pipeline from raw field capture to structured metrics
+- **Systems Programming:** Rust ERU variance engine (SHA3 content-addressed hashing)
+- **Shell Engineering:** POSIX sh fleet agents (iSH/Alpine compatible)
+- **Observability:** Self-monitoring loop with health scoring and signal classification
+- **Portfolio Engineering:** Autonomous case study generation from live system state
+
+---
+
+## Compliance Note
+
+All data processed by SAGCO runs on personally-owned devices.
+No SNHU systems, no third-party APIs, no unauthorized access.
+All artifacts are self-sovereign and audit-ready.
+
+---
+
+*Generated by SAGCO sagco-portfolio-generate v1.0*
+*Branch: claude/rust-excel-graph-api-KPmHv*

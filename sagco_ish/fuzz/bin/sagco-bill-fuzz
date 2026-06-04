@@ -1,0 +1,33 @@
+#!/bin/sh
+# SAGCO Bill Fuzz - Brick 026
+# Usage: sagco-bill-fuzz <CASE_ID> <SEARCH_ROOT>
+CASE="$1"
+ROOT="${2:-sagco_ish}"
+OUT="sagco_ish/fuzz/logs/bill_fuzz_hits.csv"
+mkdir -p sagco_ish/fuzz/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+echo "SAGCO_BILL_FUZZ_START"
+echo "CASE=$CASE"
+echo "ROOT=$ROOT"
+if [ ! -f "$OUT" ]; then
+  echo "case,file,line,hit_type,text,timestamp" > "$OUT"
+fi
+grep -RInE \
+  "bill|billing|invoice|receipt|due|payment|paid|balance|charge|statement|subscription|renewal|past due|amount due|total due" \
+  "$ROOT" 2>/dev/null | \
+while IFS=: read -r FILE LINE TEXT; do
+  HIT=$(printf "%s" "$TEXT" | awk '
+    /past due|amount due|total due|balance/ { print "DUE_SIGNAL";       exit }
+    /invoice|statement|receipt/             { print "DOCUMENT_SIGNAL";   exit }
+    /subscription|renewal/                  { print "RECURRING_SIGNAL";  exit }
+    /payment|paid|charge/                   { print "PAYMENT_SIGNAL";    exit }
+    { print "BILL_SIGNAL" }
+  ')
+  CLEAN=$(printf "%s" "$TEXT" | tr ',"' "  " | tr -d "\r")
+  echo "$CASE,$FILE,$LINE,$HIT,$CLEAN,$TS" >> "$OUT"
+done
+COUNT=$(tail -n +2 "$OUT" | grep -c "^$CASE," 2>/dev/null || echo 0)
+echo "BILL_FUZZ_HITS=$COUNT"
+sagco_ish/shared_state/bin/sagco-state "$CASE" "FUZZ_NODE" "ACTIVE" "bill_fuzz_hits_$COUNT" 2>/dev/null
+echo "SAGCO_BILL_FUZZ_COMPLETE"
+tail -20 "$OUT"

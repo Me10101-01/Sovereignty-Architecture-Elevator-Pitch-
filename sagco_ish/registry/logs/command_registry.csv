@@ -13,3 +13,6 @@ htrack,sagco_ish/htrack/bin/sagco-htrack,tool,ACTIVE,2026-06-04T19:42:42Z
 scheduler,sagco_ish/scheduler/bin/sagco-scheduler,tool,ACTIVE,2026-06-04T19:42:42Z
 state-read,sagco_ish/shared_state/bin/sagco-state-read,mesh,ACTIVE,2026-06-04T19:58:11Z
 eru-report,sagco_ish/agents/eru/bin/sagco-eru-report,analysis,ACTIVE,2026-06-04T20:02:40Z
+portfolio-generate,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,portfolio,ACTIVE,2026-06-04T20:14:50Z
+portfolio-fuzz,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,portfolio,ACTIVE,2026-06-04T20:14:50Z
+bill-fuzz,sagco_ish/fuzz/bin/sagco-bill-fuzz,fuzz,ACTIVE,2026-06-04T20:14:50Z
