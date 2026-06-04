@@ -1,22 +1,22 @@
 # SAGCO CASE STUDY
-# STAMP=20260604T181111Z
-# INPUT=dojo
+# STAMP=20260604T194309Z
+# INPUT=sagco
 
 ╔══════════════════════════════════════╗
 ║         SAGCO DEMO PIPELINE          ║
 ╚══════════════════════════════════════╝
-INPUT  = dojo
-STAMP  = 20260604T181111Z
+INPUT  = sagco
+STAMP  = 20260604T194309Z
 
 [1] INGEST_WAFER
 ────────────────────────────────────────
 WAFER_SOURCE = wafer_cells.txt
-WAFER = WORD=dojo RUST_CALL=dojo_node OCCURRENCE=14
+WAFER = WORD=sagco RUST_CALL=sagco_core_token OCCURRENCE=14
 
 [2] TOKENIZE
 ────────────────────────────────────────
-TOKEN     = FLAME_DOJO
-RUST_CALL = dojo_node
+TOKEN     = FLAME_SAGCO
+RUST_CALL = sagco_core_token
 CODON     = ATG
 DOMAIN    = META
 
@@ -26,19 +26,19 @@ WEIGHT = 14
 
 [4] EMIT_FLAMELANG
 ────────────────────────────────────────
-FLAMELANG = agent speaks FLAME_DOJO -> rust.dojo_node
+FLAMELANG = agent speaks FLAME_SAGCO -> rust.sagco_core_token
 
 [5] HASH_NODE
 ────────────────────────────────────────
-HASH_INPUT = TOKEN=FLAME_DOJO|WEIGHT=14|CODON=ATG|RUST_CALL=dojo_node|FLAME=agent speaks FLAME_DOJO -> rust.dojo_node
-HASH       = f8a66e6e27314b0a26f9a6f803531b2a1f58dfe57201013e4213f8e2881b5d50
-HASH_SHORT = f8a66e6e27314b0a
+HASH_INPUT = TOKEN=FLAME_SAGCO|WEIGHT=14|CODON=ATG|RUST_CALL=sagco_core_token|FLAME=agent speaks FLAME_SAGCO -> rust.sagco_core_token
+HASH       = db3387f3c2c7074be3c19fb27cbf628fbc93d908d7037cde23e144367d40a27d
+HASH_SHORT = db3387f3c2c7074b
 
 [6] REGISTER_DAEMON
 ────────────────────────────────────────
-DAEMON_REGISTERED = FLAME_DOJO
-TOTAL_PIDS        = 80
-TOTAL_DAEMONS     = 4
+DAEMON_REGISTERED = FLAME_SAGCO
+TOTAL_PIDS        = 81
+TOTAL_DAEMONS     = 5
 
 [7] CASE_STUDY_ARTIFACT
 ────────────────────────────────────────
@@ -56,20 +56,20 @@ INVENTION:
   SAGCO: a compiler pipeline that transforms
   raw input into typed, hashed, deployable bricks.
 
-PIPELINE TRACE (input='dojo'):
-  raw='dojo'
-  → WAFER:    WORD=dojo RUST_CALL=dojo_node OCCURRENCE=14
-  → TOKEN:    FLAME_DOJO  (CODON=ATG  DOMAIN=META)
+PIPELINE TRACE (input='sagco'):
+  raw='sagco'
+  → WAFER:    WORD=sagco RUST_CALL=sagco_core_token OCCURRENCE=14
+  → TOKEN:    FLAME_SAGCO  (CODON=ATG  DOMAIN=META)
   → WEIGHT:   14
-  → FLAMELANG: agent speaks FLAME_DOJO -> rust.dojo_node
-  → HASH:     f8a66e6e27314b0a26f9a6f803531b2a1f58dfe57201013e4213f8e2881b5d50
-  → DAEMON:   REGISTERED | PIDS=80
+  → FLAMELANG: agent speaks FLAME_SAGCO -> rust.sagco_core_token
+  → HASH:     db3387f3c2c7074be3c19fb27cbf628fbc93d908d7037cde23e144367d40a27d
+  → DAEMON:   REGISTERED | PIDS=81
 
 SYSTEM METRICS:
   BRICKS_BUILT  = 24
   FLAME_TOKENS  = 34
   GRAPH_EDGES   = 274
-  DAEMONS       = 4
+  DAEMONS       = 5
 
 RESULT:
   A reproducible system that converts notes,
