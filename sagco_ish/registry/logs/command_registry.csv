@@ -23,3 +23,4 @@ health,sagco_ish/health/bin/sagco-health,runtime,ACTIVE,2026-06-04T20:41:44Z
 alpha-loop,sagco_ish/loop/bin/sagco-alpha-loop,runtime,ACTIVE,2026-06-04T20:41:44Z
 gmail-antibody,sagco_ish/gmail/bin/sagco-gmail-antibody,safety,ACTIVE,2026-06-04T20:41:44Z
 deps,sagco_ish/deps/bin/sagco-deps,runtime,ACTIVE,2026-06-04T20:44:49Z
+governance-ingest,sagco_ish/governance/bin/sagco-governance-ingest,governance,ACTIVE,2026-06-04T20:50:46Z

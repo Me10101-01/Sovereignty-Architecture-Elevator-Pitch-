@@ -1,0 +1,16 @@
+#!/bin/sh
+# usage: sagco-governance-ingest CASE FILE LABEL
+CASE="$1"
+FILE="$2"
+LABEL="$3"
+OUT="sagco_ish/governance/logs/governance_register.csv"
+[ -z "$CASE" ] && echo "usage: sagco-governance-ingest CASE FILE LABEL" && exit 1
+[ ! -f "$FILE" ] && echo "FILE_NOT_FOUND: $FILE" && exit 1
+mkdir -p sagco_ish/governance/logs
+[ ! -f "$OUT" ] && echo "case,label,file,sha256,status,timestamp" > "$OUT"
+HASH=$(sha256sum "$FILE" 2>/dev/null | awk '{print $1}')
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+echo "$CASE,$LABEL,$FILE,$HASH,GOVERNANCE_INGESTED,$TS" >> "$OUT"
+sagco_ish/shared_state/bin/sagco-state "$CASE" "GOVERNANCE_NODE" "ACTIVE" "governance_ingested_$LABEL" 2>/dev/null || true
+echo "SAGCO_GOVERNANCE_INGEST_COMPLETE"
+tail -1 "$OUT"

@@ -18,3 +18,4 @@ alpha-loop,run-alpha,loop drives repeated alpha cycles
 health,run-alpha,health reads runtime log
 health,sagco-state,health reads state JSON
 gmail-antibody,gmail-scan,antibody must clear before scan runs
+run-alpha,governance-ingest,ingests governance docs into evidence chain

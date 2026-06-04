@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "RUNTIME_ALPHA_NODE",
+  "last_node": "GOVERNANCE_NODE",
   "status": "ACTIVE",
-  "note": "alpha_cycle_complete_2026-06-04T20:39:00Z",
-  "updated": "2026-06-04T20:39:00Z"
+  "note": "governance_ingested_SAGCO_PORTFOLIO_CASE_STUDY",
+  "updated": "2026-06-04T20:50:34Z"
 }
