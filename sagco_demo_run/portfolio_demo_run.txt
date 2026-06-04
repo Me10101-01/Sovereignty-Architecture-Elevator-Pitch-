@@ -1,0 +1,22 @@
+SAGCO-0030 PORTFOLIO_DEMO_RUN
+INPUT:
+Excel Wafer
+PIPELINE:
+Excel Wafer
+-> D/M/S Normalizer
+-> Lexer
+-> Parser
+-> AST/IR
+-> Enumerator
+-> Stepper
+-> Crawler
+-> FlameLang
+-> Content Address Hash
+-> Artifact
+-> Deployment Map
+-> Proof Report
+-> Portfolio Export
+OUTPUT:
+STATUS=GREEN
+PROOF_OF_CONCEPT=COMPLETE
+SNHU_PORTFOLIO_READY=TRUE
