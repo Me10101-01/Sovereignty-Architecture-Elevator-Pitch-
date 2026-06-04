@@ -1,0 +1,28 @@
+#!/bin/sh
+# usage: sagco-cellrule CASE CELL EXPECTED ACTUAL RULE LABEL
+CASE="$1"
+CELL="$2"
+EXPECTED="$3"
+ACTUAL="$4"
+RULE="$5"
+LABEL="$6"
+OUT="sagco_ish/excel/logs/cellrule_eru.csv"
+mkdir -p sagco_ish/excel/logs
+[ ! -f "$OUT" ] && echo "case,cell,label,rule,expected,actual,variance,status,timestamp" > "$OUT"
+VAR=$(awk "BEGIN {print $ACTUAL - $EXPECTED}")
+ABS=$(awk "BEGIN {v=$VAR; if(v<0)v=-v; print v}")
+STATUS="CELL_GREEN"
+if [ "$RULE" = "EQ" ]; then
+  awk "BEGIN {exit !($ACTUAL == $EXPECTED)}" || STATUS="CELL_VARIANCE_ALERT"
+elif [ "$RULE" = "LTE" ]; then
+  awk "BEGIN {exit !($ACTUAL <= $EXPECTED)}" || STATUS="CELL_VARIANCE_ALERT"
+elif [ "$RULE" = "GTE" ]; then
+  awk "BEGIN {exit !($ACTUAL >= $EXPECTED)}" || STATUS="CELL_VARIANCE_ALERT"
+else
+  awk "BEGIN {exit !($ABS <= 2)}" || STATUS="CELL_VARIANCE_ALERT"
+fi
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+echo "$CASE,$CELL,$LABEL,$RULE,$EXPECTED,$ACTUAL,$VAR,$STATUS,$TS" >> "$OUT"
+echo "SAGCO_CELLRULE_CAPTURED"
+tail -1 "$OUT"
+sagco_ish/shared_state/bin/sagco-state "$CASE" "EXCEL_WAFER_NODE" "ACTIVE" "cell_${CELL}_${STATUS}" 2>/dev/null || true

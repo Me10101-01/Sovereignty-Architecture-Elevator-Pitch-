@@ -16,3 +16,5 @@ eru-report,sagco_ish/agents/eru/bin/sagco-eru-report,analysis,ACTIVE,2026-06-04T
 portfolio-generate,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,portfolio,ACTIVE,2026-06-04T20:14:50Z
 portfolio-fuzz,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,portfolio,ACTIVE,2026-06-04T20:14:50Z
 bill-fuzz,sagco_ish/fuzz/bin/sagco-bill-fuzz,fuzz,ACTIVE,2026-06-04T20:14:50Z
+cellrule,sagco_ish/excel/bin/sagco-cellrule,excel,ACTIVE,2026-06-04T20:30:22Z
+hallucheck,sagco_ish/hallucheck/bin/sagco-hallucheck,analysis,ACTIVE,2026-06-04T20:30:22Z
