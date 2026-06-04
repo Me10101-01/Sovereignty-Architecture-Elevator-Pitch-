@@ -1,0 +1,36 @@
+#!/bin/sh
+# SAGCO Antibody Archive — Wing G, Brick 048
+# usage: sagco-antibody AB_ID FAILURE ROOT_CAUSE PATCH VERIFICATION [CASE]
+# Records the FAIL→LEARN→PATCH→VERIFY cycle permanently
+AB_ID="$1"
+FAILURE="$2"
+ROOT_CAUSE="$3"
+PATCH="$4"
+VERIFICATION="$5"
+CASE="${6:-ANTIBODY}"
+OUT="sagco_ish/antibody/data/antibody_archive.csv"
+[ -z "$AB_ID" ] && echo "usage: sagco-antibody AB_ID FAILURE ROOT_CAUSE PATCH VERIFICATION [CASE]" && exit 1
+mkdir -p sagco_ish/antibody/data sagco_ish/antibody/logs
+[ ! -f "$OUT" ] && echo "ab_id,failure,root_cause,patch,verification,status,timestamp" > "$OUT"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+if grep -q "^${AB_ID}," "$OUT" 2>/dev/null; then
+  echo "ANTIBODY_ALREADY_ARCHIVED: $AB_ID"
+  grep "^${AB_ID}," "$OUT"
+  exit 0
+fi
+
+STATUS="ANTIBODY_ARCHIVED"
+echo "${AB_ID},${FAILURE},${ROOT_CAUSE},${PATCH},${VERIFICATION},${STATUS},${TS}" >> "$OUT"
+
+echo "=== SAGCO ANTIBODY ARCHIVED ==="
+echo "AB_ID        : $AB_ID"
+echo "FAILURE      : $FAILURE"
+echo "ROOT_CAUSE   : $ROOT_CAUSE"
+echo "PATCH        : $PATCH"
+echo "VERIFICATION : $VERIFICATION"
+echo "STATUS       : $STATUS"
+echo "TIMESTAMP    : $TS"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "ANTIBODY_NODE" "ACTIVE" "antibody_${AB_ID}_archived" 2>/dev/null || true
+echo "SAGCO_ANTIBODY_COMPLETE"

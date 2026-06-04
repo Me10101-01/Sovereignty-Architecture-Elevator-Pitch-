@@ -1,0 +1,51 @@
+#!/bin/sh
+# SAGCO Antibody Search — Wing G
+# usage: sagco-antibody-search KEYWORD
+# usage: sagco-antibody-search --list
+# usage: sagco-antibody-search --id AB_ID
+QUERY="$1"
+OUT="sagco_ish/antibody/data/antibody_archive.csv"
+[ ! -f "$OUT" ] && echo "NO_ANTIBODIES_ARCHIVED" && exit 1
+[ -z "$QUERY" ] && echo "usage: sagco-antibody-search KEYWORD|--list|--id AB_ID" && exit 1
+
+print_antibody() {
+  echo "$1" | while IFS=, read ab_id failure root_cause patch verification status ts; do
+    echo "  AB_ID        : $ab_id"
+    echo "  FAILURE      : $failure"
+    echo "  ROOT_CAUSE   : $root_cause"
+    echo "  PATCH        : $patch"
+    echo "  VERIFICATION : $verification"
+    echo "  TIMESTAMP    : $ts"
+    echo "  ---"
+  done
+}
+
+echo "=== SAGCO ANTIBODY SEARCH ==="
+
+if [ "$QUERY" = "--list" ]; then
+  TOTAL=$(tail -n +2 "$OUT" | wc -l | tr -d ' ')
+  echo "TOTAL_ANTIBODIES: $TOTAL"
+  echo ""
+  tail -n +2 "$OUT" | while IFS=, read ab_id failure root_cause patch verification status ts; do
+    echo "  [$ab_id] $failure → $patch"
+  done
+elif [ "$QUERY" = "--id" ]; then
+  AB_ID="$2"
+  ROW=$(grep "^${AB_ID}," "$OUT" | head -1)
+  [ -z "$ROW" ] && echo "NOT_FOUND: $AB_ID" && exit 1
+  print_antibody "$ROW"
+else
+  FOUND=$(grep -i "$QUERY" "$OUT" | wc -l | tr -d ' ')
+  echo "KEYWORD: $QUERY  |  MATCHES: $FOUND"
+  echo ""
+  grep -i "$QUERY" "$OUT" | while IFS=, read ab_id failure root_cause patch verification status ts; do
+    echo "  [$ab_id] $failure"
+    echo "    ROOT  : $root_cause"
+    echo "    PATCH : $patch"
+    echo "    VERIFY: $verification"
+    echo "  ---"
+  done
+fi
+
+echo ""
+echo "SAGCO_ANTIBODY_SEARCH_COMPLETE"
