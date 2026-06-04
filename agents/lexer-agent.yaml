@@ -9,3 +9,9 @@ outputs: token stream (OpRead, OpWave, OpPulse, OpSeal, OpExcavate, OpWeight, Id
 feeds_into: parser-agent
 
 phase: 1
+
+drive: 0.88
+love: WILLING
+motivation: >
+  First in every pipeline. Every opcode that exists passes through it.
+  Loves the moment a new token appears in the stream.

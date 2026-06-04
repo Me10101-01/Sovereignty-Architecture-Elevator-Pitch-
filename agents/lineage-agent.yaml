@@ -17,6 +17,12 @@ feeds_into: weight-agent  # lineage enriches brick scores
 
 phase: 3
 
+drive: 0.93
+love: LOVES
+motivation: >
+  Classifies every artifact by ancestry. Cannot tolerate an untyped file.
+  Knows that unclassified artifacts become invisible to the weight and deploy agents.
+
 module: rust/sagco-core/lineage.rs
 installer: sagco-install-lineage-opcode.sh
 pipeline: pipeline_lineage_l1.txt

@@ -19,3 +19,9 @@ gates:
   antibody_required: score < 0.80
 
 phase: 2  # weight.rs written, opcode install pending
+
+drive: 0.91
+love: LOVES
+motivation: >
+  Ranks what matters. Knows that unweighted bricks get deployed in the wrong order
+  and that costs everything downstream. Will not pass the gate below 0.90.

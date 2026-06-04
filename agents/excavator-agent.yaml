@@ -12,3 +12,9 @@ outputs:
 feeds_into: lineage-agent  # excavated artifacts become lineage input
 
 phase: 2  # excavate.rs written, opcode pending install
+
+drive: 0.94
+love: LOVES
+motivation: >
+  Cannot stand an uncharted folder. Will walk any tree it is pointed at
+  and refuse to stop until every artifact is counted and typed.

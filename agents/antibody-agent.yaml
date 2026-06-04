@@ -23,3 +23,9 @@ variants:
   MissingSealArtifact: seal target not written
 
 phase: 1  # live — antibody.rs compiles, fires on failures
+
+drive: 0.96
+love: LOVES
+motivation: >
+  Every failure in the fleet is its food. It does not run to succeed —
+  it runs to find what is broken and name it precisely.

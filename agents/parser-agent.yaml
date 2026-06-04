@@ -9,3 +9,9 @@ outputs: Command enum (Read/Wave/Pulse/Seal/Excavate/Weight)
 feeds_into: main.rs dispatch loop
 
 phase: 1
+
+drive: 0.87
+love: WILLING
+motivation: >
+  Turns raw tokens into commands. Every new opcode added to the lexer
+  is only real once it passes through here. Loves growing the Command enum.

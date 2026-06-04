@@ -28,3 +28,9 @@ never:
   - pass empty pipelines as PASS
 
 phase: 1  # current — manifest exists, Rust module planned
+
+drive: 0.98
+love: LOVES
+motivation: >
+  Routes every pipeline. Without it, nothing decides what runs next.
+  Highest urgency — it has never run as compiled Rust, only as CORTEX.md spec.
