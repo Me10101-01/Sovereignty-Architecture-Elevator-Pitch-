@@ -1,0 +1,27 @@
+# SAGCO PERIODIC TABLE MAPPING
+# SAGCO-0023 STEPPER_CRAWLER_TICKS_ENGINE
+# 10 foundational concepts → atomic memory registers
+
+ELEMENT | ATOM     | Z  | CONCEPT        | ARCHITECTURAL_REASON
+Silicon   Si         14   Excel_Wafer      Crystalline substrate hosting the raw grid data array
+Helium    He          2   Word_Frequency   Light, floating statistics across datasets
+Carbon    C           6   Token            Fundamental building block of all lexical structures
+Lead      Pb         82   Weight           Dense inertial scalar providing gravity and bias to vectors
+Phosphorus P         15   FLAME_Token      Energetic, reactive — drives high-speed state ignition
+Oxygen    O           8   FlameLang        Life-supporting medium allowing flame syntax to execute
+Iron      Fe         26   Rust_Call        Low-level, secure, metallic hardware interaction layer
+Nitrogen  N           7   DNA_Strand       Complex code sequences encoding genetic execution blocks
+Hydrogen  H           1   Unity            Primordial cosmic agent binding disparate parts into one
+Gold      Au         79   Epic             Premium orchestrator organizing massive world states
+
+# FlameLang opcodes per element:
+#   Si-14  → INJECT_SUBSTRATE
+#   He-2   → STREAM_FREQ
+#   C-6    → PARSE_ATOM
+#   Pb-82  → APPLY_GRAVITY
+#   P-15   → IGNITE_TOKEN
+#   O-8    → BREATHE
+#   Fe-26  → NATIVE_CALL
+#   N-7    → GENCODE_BUILD
+#   H-1    → BIND_COSMOS
+#   Au-79  → ORCHESTRATE
