@@ -1,0 +1,3 @@
+case,direction,signal_type,payload,status,timestamp
+C1602_CASE_001,sagco-arch,health,system_green_all_10_nodes_ok,BRIDGE_OUTBOUND_QUEUED,2026-06-04T21:40:37Z
+C1602_CASE_001,arch-sagco,k8s_event,pod_restart_sagco-api_namespace_prod,BRIDGE_INBOUND_INGESTED,2026-06-04T21:40:37Z

@@ -17,3 +17,11 @@ GitHub_Pages,platform,https://pages.github.com,Static site hosting from repo —
 busybox_date,runtime,https://busybox.net,Minimal date utility available on Alpine/iSH without coreutils,2026-06-04T21:27:51Z
 USPTO_patent_search,reference,https://patents.google.com,Google Patents — prior art search for sovereign redaction positioning,2026-06-04T21:27:51Z
 arxiv_NLP,reference,https://arxiv.org,Preprint server — NLP/PII detection academic literature,2026-06-04T21:27:51Z
+Discord,platform,https://discord.com/developers/docs,Bot API + slash commands — command surface for team-scale DevOps,2026-06-04T21:39:54Z
+Kubernetes,platform,https://kubernetes.io,Container orchestration — production runtime for Sovereignty Architecture,2026-06-04T21:39:54Z
+GitLens,open_source,https://github.com/gitkraken/vscode-gitlens,Git supercharged — PR automation and repo intelligence layer,2026-06-04T21:39:54Z
+OpenTelemetry,standard,https://opentelemetry.io,Observability framework — traces, metrics, logs for K8s stack,2026-06-04T21:39:54Z
+VectorDB_pgvector,open_source,https://github.com/pgvector/pgvector,PostgreSQL vector extension — AI agent knowledge base,2026-06-04T21:39:54Z
+HMAC_gateway,standard,https://datatracker.ietf.org/doc/html/rfc2104,RFC 2104 HMAC — event gateway signature validation,2026-06-04T21:39:54Z
+Java21_virtual_threads,runtime,https://openjdk.org/jeps/444,JEP 444 virtual threads — Java 21 workspace concurrency,2026-06-04T21:39:54Z
+RBAC_k8s,standard,https://kubernetes.io/docs/reference/access-authn-authz/rbac/,K8s role-based access control — governance enforcement,2026-06-04T21:39:54Z

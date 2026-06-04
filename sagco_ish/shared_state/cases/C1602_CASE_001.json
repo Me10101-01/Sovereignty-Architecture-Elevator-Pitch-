@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "VERIFY_NODE",
-  "status": "GREEN",
-  "note": "verify_pass_7_fail_0",
-  "updated": "2026-06-04T21:23:04Z"
+  "last_node": "BRIDGE_NODE",
+  "status": "ACTIVE",
+  "note": "bridge_arch-sagco_k8s_event",
+  "updated": "2026-06-04T21:40:37Z"
 }

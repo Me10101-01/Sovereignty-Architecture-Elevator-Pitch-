@@ -1,0 +1,75 @@
+#!/bin/sh
+# SAGCO Bridge — Wing E, Brick 044
+# Bidirectional signal relay between SAGCO OS (iSH) and Sovereignty Architecture (K8s/Discord)
+# usage: sagco-bridge DIRECTION SIGNAL_TYPE PAYLOAD [CASE]
+#
+# DIRECTIONS:
+#   sagco→arch  Push SAGCO state/health signal to Sovereignty Architecture event log
+#   arch→sagco  Ingest Sovereignty Architecture event into SAGCO state mesh
+#
+# SIGNAL_TYPES:
+#   health        System health pulse
+#   eru           ERU variance reading
+#   lineage       Brick/source citation record
+#   call          Call Guardian alert
+#   redact        PII redaction event
+#   k8s_event     Kubernetes cluster event (arch→sagco direction)
+#   discord_cmd   Discord slash command event (arch→sagco direction)
+
+DIRECTION="$1"
+SIGNAL_TYPE="$2"
+PAYLOAD="$3"
+CASE="${4:-BRIDGE}"
+
+[ -z "$DIRECTION" ] && echo "usage: sagco-bridge DIRECTION SIGNAL_TYPE PAYLOAD [CASE]" && exit 1
+[ -z "$SIGNAL_TYPE" ] && echo "usage: sagco-bridge DIRECTION SIGNAL_TYPE PAYLOAD [CASE]" && exit 1
+
+BRIDGELOG="sagco_ish/bridge/logs/bridge_relay.csv"
+mkdir -p sagco_ish/bridge/logs
+[ ! -f "$BRIDGELOG" ] && echo "case,direction,signal_type,payload,status,timestamp" > "$BRIDGELOG"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+echo "=== SAGCO BRIDGE: $DIRECTION ==="
+echo "SIGNAL_TYPE : $SIGNAL_TYPE"
+echo "PAYLOAD     : $PAYLOAD"
+echo "CASE        : $CASE"
+
+# Route by direction
+case "$DIRECTION" in
+  sagco→arch|sagco-arch)
+    # SAGCO OS → Sovereignty Architecture
+    # Pull current SAGCO state and format as an outbound event
+    SAGCO_STATE=$(cat "sagco_ish/shared_state/cases/${CASE}.json" 2>/dev/null | tr '\n' ' ' || echo "STATE_NOT_FOUND")
+    OUTBOUND_PAYLOAD="sagco_os_signal|type=${SIGNAL_TYPE}|payload=${PAYLOAD}|state=${SAGCO_STATE}"
+    STATUS="BRIDGE_OUTBOUND_QUEUED"
+    echo "$CASE,$DIRECTION,$SIGNAL_TYPE,$PAYLOAD,$STATUS,$TS" >> "$BRIDGELOG"
+    echo ""
+    echo "OUTBOUND_EVENT:"
+    echo "$OUTBOUND_PAYLOAD"
+    echo ""
+    echo "--- Integration point ---"
+    echo "Wire to: Discord webhook POST / K8s ConfigMap update / event gateway HMAC endpoint"
+    ;;
+
+  arch→sagco|arch-sagco)
+    # Sovereignty Architecture → SAGCO OS
+    # Ingest external event into SAGCO state mesh
+    STATUS="BRIDGE_INBOUND_INGESTED"
+    echo "$CASE,$DIRECTION,$SIGNAL_TYPE,$PAYLOAD,$STATUS,$TS" >> "$BRIDGELOG"
+    # Update shared state mesh with the inbound signal
+    sagco_ish/shared_state/bin/sagco-state "$CASE" "BRIDGE_NODE" "ACTIVE" "arch_signal_${SIGNAL_TYPE}_${TS}" 2>/dev/null || true
+    echo ""
+    echo "INBOUND_EVENT_INGESTED: $SIGNAL_TYPE"
+    echo "SAGCO_STATE_MESH_UPDATED"
+    ;;
+
+  *)
+    echo "ERROR: unknown direction '$DIRECTION'. Use: sagco→arch or arch→sagco"
+    exit 1
+    ;;
+esac
+
+echo ""
+echo "SAGCO_BRIDGE_COMPLETE"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "BRIDGE_NODE" "ACTIVE" "bridge_${DIRECTION}_${SIGNAL_TYPE}" 2>/dev/null || true
