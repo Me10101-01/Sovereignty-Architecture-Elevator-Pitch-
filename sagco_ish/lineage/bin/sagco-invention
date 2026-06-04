@@ -1,0 +1,37 @@
+#!/bin/sh
+# SAGCO Invention Registry — Wing D upgrade, Brick 049
+# usage: sagco-invention INV_ID CLAIM ORIGIN CONFIRMATIONS DESCENDANTS [CREATOR]
+# Tracks the IDEA layer above bricks and citations
+# ORIGIN    = where the idea actually came from (field, observation, frustration)
+# CONFIRMATIONS = prior art that explores nearby territory (not the source)
+# DESCENDANTS   = bricks, wings, or systems that descended from this idea
+INV_ID="$1"
+CLAIM="$2"
+ORIGIN="$3"
+CONFIRMATIONS="$4"
+DESCENDANTS="$5"
+CREATOR="${6:-DOM}"
+OUT="sagco_ish/lineage/inventions/inventions.csv"
+[ -z "$INV_ID" ] && echo "usage: sagco-invention INV_ID CLAIM ORIGIN CONFIRMATIONS DESCENDANTS [CREATOR]" && exit 1
+mkdir -p sagco_ish/lineage/inventions
+[ ! -f "$OUT" ] && echo "inv_id,claim,origin,confirmations,descendants,creator,timestamp" > "$OUT"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+if grep -q "^${INV_ID}," "$OUT" 2>/dev/null; then
+  echo "INVENTION_ALREADY_REGISTERED: $INV_ID"
+  exit 0
+fi
+
+echo "${INV_ID},${CLAIM},${ORIGIN},${CONFIRMATIONS},${DESCENDANTS},${CREATOR},${TS}" >> "$OUT"
+
+echo "=== SAGCO INVENTION REGISTERED ==="
+echo "INV_ID        : $INV_ID"
+echo "CLAIM         : $CLAIM"
+echo "ORIGIN        : $ORIGIN"
+echo "CONFIRMATIONS : $CONFIRMATIONS"
+echo "DESCENDANTS   : $DESCENDANTS"
+echo "CREATOR       : $CREATOR"
+echo "TIMESTAMP     : $TS"
+echo "SAGCO_INVENTION_COMPLETE"
+
+sagco_ish/shared_state/bin/sagco-state "LINEAGE" "INVENTION_NODE" "ACTIVE" "invention_${INV_ID}_registered" 2>/dev/null || true

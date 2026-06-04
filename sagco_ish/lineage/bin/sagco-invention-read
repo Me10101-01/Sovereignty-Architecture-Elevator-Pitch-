@@ -1,0 +1,37 @@
+#!/bin/sh
+# SAGCO Invention Reader — Wing D
+# usage: sagco-invention-read INV_ID|all
+INV_ID="$1"
+OUT="sagco_ish/lineage/inventions/inventions.csv"
+[ -z "$INV_ID" ] && echo "usage: sagco-invention-read INV_ID|all" && exit 1
+[ ! -f "$OUT" ] && echo "NO_INVENTIONS_REGISTERED" && exit 1
+
+print_inv() {
+  echo "$1" | while IFS=, read inv_id claim origin confirmations descendants creator ts; do
+    echo ""
+    echo "  INV_ID        : $inv_id   [CREATOR: $creator]"
+    echo "  CLAIM         : $claim"
+    echo "  ORIGIN        : $origin"
+    echo "  CONFIRMATIONS : $confirmations"
+    echo "  DESCENDANTS   : $descendants"
+    echo "  TIMESTAMP     : $ts"
+    echo "  ---"
+  done
+}
+
+echo "=== SAGCO INVENTION REGISTRY ==="
+
+if [ "$INV_ID" = "all" ]; then
+  TOTAL=$(tail -n +2 "$OUT" | wc -l | tr -d ' ')
+  echo "TOTAL_INVENTIONS: $TOTAL"
+  tail -n +2 "$OUT" | while IFS=, read inv_id claim origin confirmations descendants creator ts; do
+    print_inv "${inv_id},${claim},${origin},${confirmations},${descendants},${creator},${ts}"
+  done
+else
+  ROW=$(grep "^${INV_ID}," "$OUT" | head -1)
+  [ -z "$ROW" ] && echo "NOT_FOUND: $INV_ID" && exit 1
+  print_inv "$ROW"
+fi
+
+echo ""
+echo "SAGCO_INVENTION_READ_COMPLETE"
