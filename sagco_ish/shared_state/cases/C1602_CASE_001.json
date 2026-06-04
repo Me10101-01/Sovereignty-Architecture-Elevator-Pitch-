@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "CLOUD_NODE",
-  "status": "ACTIVE",
-  "note": "state_reader_online",
-  "updated": "2026-06-04T19:53:29Z"
+  "last_node": "ERU_NODE",
+  "status": "GREEN",
+  "note": "health_80_alerts_2",
+  "updated": "2026-06-04T20:02:37Z"
 }
