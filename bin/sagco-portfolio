@@ -1,0 +1,145 @@
+#!/bin/sh
+# SAGCO-0015 PORTFOLIO_GENERATOR
+# Reads all node registers → produces portfolio_register.csv
+# Usage: sagco-portfolio [CASE_ID]
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+CASE="${1:-C1602_CASE_001}"
+STAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+OUT="$REPO_ROOT/sagco_portfolio/portfolio_register.csv"
+
+mkdir -p "$REPO_ROOT/sagco_portfolio"
+
+# Register locations (works across nodes — missing files = 0)
+ANALYSIS="$REPO_ROOT/sagco_ish/analysis/logs/analysis_summary.csv"
+DISPATCH="$REPO_ROOT/sagco_ish/dispatcher/logs/dispatch_register.csv"
+CAPTURE="$REPO_ROOT/sagco_ish/capture/logs/capture_register.csv"
+HTRACK="$REPO_ROOT/sagco_ish/htrack/logs/htrack_case_study.csv"
+ERU="$REPO_ROOT/sagco_ish/eru/logs/eru_variance.csv"
+PDFSCAN="$REPO_ROOT/sagco_ish/pdfscan/logs/pdfscan_register.csv"
+
+echo ""
+echo "╔══════════════════════════════════════╗"
+echo "║     SAGCO PORTFOLIO GENERATOR        ║"
+echo "╚══════════════════════════════════════╝"
+echo "CASE=$CASE"
+echo "STAMP=$STAMP"
+echo ""
+
+# ── Count rows per register for this case ────────────────────────────────────
+
+count_rows() {
+    FILE="$1"; CASE_COL="$2"
+    if [ -f "$FILE" ]; then
+        grep "^$CASE_COL," "$FILE" 2>/dev/null | wc -l | tr -d ' '
+    else
+        echo 0
+    fi
+}
+
+count_green() {
+    FILE="$1"
+    if [ -f "$FILE" ]; then
+        grep -i "GREEN\|PASS\|COMPLETE" "$FILE" 2>/dev/null | grep -c "^$CASE," || echo 0
+    else
+        echo 0
+    fi
+}
+
+count_alerts() {
+    FILE="$1"
+    if [ -f "$FILE" ]; then
+        grep -i "YELLOW\|RED\|ALERT\|FAIL\|WARN" "$FILE" 2>/dev/null | grep -c "^$CASE," 2>/dev/null || echo 0
+    else
+        echo 0
+    fi
+}
+
+# ── Gather metrics ────────────────────────────────────────────────────────────
+
+DISPATCHED="$(count_rows "$DISPATCH" "$CASE")"
+CAPTURES="$(count_rows "$CAPTURE" "$CASE")"
+HTRACKS="$(count_rows "$HTRACK" "$CASE")"
+ERU_ROWS="$(count_rows "$ERU" "$CASE")"
+PDFS="$(count_rows "$PDFSCAN" "$CASE")"
+ANALYSES="$(count_rows "$ANALYSIS" "$CASE")"
+
+# Green = any GREEN status across all registers for this case
+GREEN_COUNT=0
+ALERT_COUNT=0
+for F in "$ANALYSIS" "$DISPATCH" "$CAPTURE" "$HTRACK" "$ERU" "$PDFSCAN"; do
+    if [ -f "$F" ]; then
+        G="$(grep "^$CASE," "$F" 2>/dev/null | grep -i "GREEN\|PASS\|COMPLETE" | wc -l | tr -d ' ')"
+        A="$(grep "^$CASE," "$F" 2>/dev/null | grep -i "YELLOW\|RED\|ALERT\|FAIL" | wc -l | tr -d ' ')"
+        GREEN_COUNT=$((GREEN_COUNT + G))
+        ALERT_COUNT=$((ALERT_COUNT + A))
+    fi
+done
+
+# AVG_ERU from eru register (column 4 if it exists)
+AVG_ERU="N/A"
+if [ -f "$ERU" ]; then
+    ERU_VALS="$(grep "^$CASE," "$ERU" 2>/dev/null | awk -F',' '{print $4}' | grep -E '^[0-9]')"
+    if [ -n "$ERU_VALS" ]; then
+        COUNT_E="$(echo "$ERU_VALS" | wc -l | tr -d ' ')"
+        SUM_E="$(echo "$ERU_VALS" | awk '{s+=$1} END{print s}')"
+        AVG_ERU="$(awk "BEGIN{printf \"%.2f\", $SUM_E / $COUNT_E}")"
+    fi
+fi
+
+# FILES_SCANNED = dispatched + pdfs + htracks
+FILES_SCANNED=$((DISPATCHED + PDFS + HTRACKS))
+
+# PMI_SCORE: 0-100 based on green ratio across total events
+TOTAL_EVENTS=$((GREEN_COUNT + ALERT_COUNT))
+if [ "$TOTAL_EVENTS" -gt 0 ]; then
+    PMI_SCORE="$(awk "BEGIN{printf \"%d\", ($GREEN_COUNT / $TOTAL_EVENTS) * 100}")"
+else
+    PMI_SCORE=0
+fi
+
+# OVERALL_STATUS
+if [ "$ALERT_COUNT" -eq 0 ] && [ "$GREEN_COUNT" -gt 0 ]; then
+    OVERALL="GREEN"
+elif [ "$ALERT_COUNT" -gt 0 ]; then
+    OVERALL="YELLOW_REVIEW_REQUIRED"
+else
+    OVERALL="PENDING_DATA"
+fi
+
+# ── Print summary ─────────────────────────────────────────────────────────────
+
+echo "── INPUT REGISTERS ───────────────────"
+printf "  %-22s %s\n" "analysis_summary"     "$([ -f "$ANALYSIS" ] && echo "FOUND (${ANALYSES} rows)" || echo "NOT_YET")"
+printf "  %-22s %s\n" "dispatch_register"    "$([ -f "$DISPATCH" ] && echo "FOUND (${DISPATCHED} rows)" || echo "NOT_YET")"
+printf "  %-22s %s\n" "capture_register"     "$([ -f "$CAPTURE" ] && echo "FOUND (${CAPTURES} rows)" || echo "NOT_YET")"
+printf "  %-22s %s\n" "htrack_case_study"    "$([ -f "$HTRACK" ] && echo "FOUND (${HTRACKS} rows)" || echo "NOT_YET")"
+printf "  %-22s %s\n" "eru_variance"         "$([ -f "$ERU" ] && echo "FOUND (${ERU_ROWS} rows)" || echo "NOT_YET")"
+printf "  %-22s %s\n" "pdfscan_register"     "$([ -f "$PDFSCAN" ] && echo "FOUND (${PDFS} rows)" || echo "NOT_YET")"
+echo ""
+echo "── PORTFOLIO METRICS ─────────────────"
+printf "  CASE_ID              = %s\n"  "$CASE"
+printf "  GREEN_COUNT          = %s\n"  "$GREEN_COUNT"
+printf "  ALERT_COUNT          = %s\n"  "$ALERT_COUNT"
+printf "  AVG_ERU              = %s\n"  "$AVG_ERU"
+printf "  FILES_SCANNED        = %s\n"  "$FILES_SCANNED"
+printf "  ORIENTATIONS_CAPTURED= %s\n"  "$CAPTURES"
+printf "  PDFS_ANALYZED        = %s\n"  "$PDFS"
+printf "  PMI_SCORE            = %s/100\n" "$PMI_SCORE"
+printf "  OVERALL_STATUS       = %s\n"  "$OVERALL"
+echo ""
+
+# ── Write portfolio_register.csv ─────────────────────────────────────────────
+
+if [ ! -f "$OUT" ]; then
+    echo "case_id,green_count,alert_count,avg_eru,files_scanned,orientations_captured,pdfs_analyzed,pmi_score,overall_status,timestamp" > "$OUT"
+fi
+
+echo "$CASE,$GREEN_COUNT,$ALERT_COUNT,$AVG_ERU,$FILES_SCANNED,$CAPTURES,$PDFS,$PMI_SCORE,$OVERALL,$STAMP" >> "$OUT"
+
+echo "══════════════════════════════════════"
+printf "  STATUS = %s\n" "$OVERALL"
+echo "══════════════════════════════════════"
+echo ""
+echo "PORTFOLIO: $OUT"
+echo "SAGCO_PORTFOLIO_COMPLETE"

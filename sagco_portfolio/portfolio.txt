@@ -1,0 +1,20 @@
+BRICK=SAGCO-0015
+TYPE=PORTFOLIO_GENERATOR
+PURPOSE=Aggregates all node registers into single portfolio row
+COMMAND=sagco-portfolio [CASE_ID]
+INPUT=analysis_summary,dispatch_register,capture_register,htrack_case_study,eru_variance,pdfscan_register
+OUTPUT=portfolio_register.csv
+
+METRICS:
+CASE_ID              case identifier
+GREEN_COUNT          green/pass events across all registers
+ALERT_COUNT          yellow/red events requiring review
+AVG_ERU              average ERU variance for this case
+FILES_SCANNED        dispatched + pdfscan + htrack rows
+ORIENTATIONS_CAPTURED capture register rows
+PDFS_ANALYZED        pdfscan register rows
+PMI_SCORE            green/(green+alert) * 100
+OVERALL_STATUS       GREEN | YELLOW_REVIEW_REQUIRED | PENDING_DATA
+
+STATUS=ACTIVE
+ROLE=COMMAND_CENTER_SUPERVISOR
