@@ -1,0 +1,23 @@
+INPUTS:
+dictionary
+thesaurus
+bibliography
+memory_index
+lineage_engine
+agent_registry
+OUTPUT:
+knowledge_graph
+RULES:
+dictionary
+-> meaning
+thesaurus
+-> similarity
+bibliography
+-> source
+memory_index
+-> location
+lineage_engine
+-> ancestry
+agent_registry
+-> ownership
+STATUS=ACTIVE
