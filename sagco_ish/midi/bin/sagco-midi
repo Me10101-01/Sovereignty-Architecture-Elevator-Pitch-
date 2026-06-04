@@ -1,0 +1,281 @@
+#!/bin/sh
+# SAGCO-MIDI v2 — Brick 053-MIDI
+# OPCODE-aware sonification: maps real daemon events to music
+# usage: sagco-midi INPUT_LOG [OUTPUT_NAME] [CASE]
+# Understands: CREEP TOPOFUZZ FORECAST FSWALK TOPOLOGY PANIC ANTIBODY PASS ALERT ERU
+INPUT="$1"
+OUTNAME="${2:-runtime}"
+CASE="${3:-C1602_CASE_001}"
+
+[ -z "$INPUT" ] && echo "usage: sagco-midi INPUT_LOG [OUTPUT_NAME] [CASE]" && exit 1
+[ ! -f "$INPUT" ] && echo "ERROR: INPUT not found: $INPUT" && exit 1
+
+mkdir -p sagco_ish/midi/output sagco_ish/midi/logs
+
+CSVOUT="sagco_ish/midi/output/${OUTNAME}.csv"
+MIDIOUT="sagco_ish/midi/output/${OUTNAME}.mid"
+LOG="sagco_ish/midi/logs/midi_eru.csv"
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+LINES=$(wc -l < "$INPUT" | tr -d ' ')
+echo "=== SAGCO-MIDI v2 ==="
+echo "Input : $INPUT ($LINES lines)"
+echo "Output: $CSVOUT"
+echo ""
+
+# ── Musical note table (MIDI numbers) ───────────────────────────────────────
+# Red  Team / Aggression  : D2=38  F2=41  G2=43  Bb2=46
+# Blue Team / Foundation  : C3=48  F3=53  G3=55  A3=57
+# Purple / Resolution     : C4=60  E4=64  G4=67  B4=71
+# Dissonance / Tension    : C#4=61 F#4=66 Bb3=58 Eb4=63
+# Panic / Crash           : Bb2=46 vel=127 short
+# Antibody / High Defense : D5=74  E5=76  G5=79
+# ERU Green / Harmony     : C5=72  vel=90  long
+# ────────────────────────────────────────────────────────────────────────────
+
+awk '
+BEGIN {
+    tpq   = 480
+    tick  = 0
+    step  = 120    # default step per event (quarter note at 120bpm)
+
+    # counters for report
+    n_red    = 0
+    n_blue   = 0
+    n_purple = 0
+    n_panic  = 0
+    n_pass   = 0
+    n_alert  = 0
+    n_antibody = 0
+    n_total  = 0
+
+    print "0,0,Header,0,1," tpq
+    print "1,0,Start_track"
+    print "1,0,Tempo,500000"
+    print "1,0,Text_t,\"SAGCO Runtime Sonification\""
+}
+
+function note_on(t, ch, n, v,   t2, dur) {
+    dur = step * 0.8
+    print "1," t ",Note_on_c," ch "," n "," v
+    print "1," (t + dur) ",Note_on_c," ch "," n ",0"
+    n_total++
+}
+
+# ── RED TEAM — TOPOFUZZ, FUZZ, CREEP ────────────────────────────────────────
+/OPCODE=TOPOFUZZ/ || /TOPOFUZZ/ {
+    note_on(tick, 0, 38, 127)   # D2 — percussive bass, aggressive
+    step = 80                    # fast — fuzz is rapid
+    n_red++
+    tick += step
+}
+
+/OPCODE=CREEP_WATCH/ || /CREEP_ALERT/ || /BUDGET_DELTA/ {
+    note_on(tick, 0, 46, 115)   # Bb2 — budget creep dissonance
+    note_on(tick + 40, 0, 63, 100) # Eb4 — tritone tension above
+    n_red++; n_alert++
+    step = 100
+    tick += step
+}
+
+/OPCODE=FSWALK/ || /FSWALK/ {
+    note_on(tick, 0, 41, 90)    # F2 — steady walking rhythm
+    step = 110
+    n_red++
+    tick += step
+}
+
+# ── BLUE TEAM — FORECAST, TOPOLOGY, OBSERVE ─────────────────────────────────
+/OPCODE=FORECAST/ || /FORECAST_CLASS/ {
+    note_on(tick, 1, 55, 85)    # G3 — forward-looking, mid register
+    step = 180
+    n_blue++
+    tick += step
+}
+
+/OPCODE=TOPOLOGY/ || /TOTAL_NODES/ || /TOTAL_EDGES/ {
+    note_on(tick, 1, 53, 80)    # F3 — structural foundation
+    note_on(tick + 60, 1, 57, 75) # A3 — third above, harmonic
+    step = 200
+    n_blue++
+    tick += step
+}
+
+/OPCODE=OBSERVE/ || /STATUS=SAGCO_OBSERVE_PASS/ {
+    note_on(tick, 1, 48, 82)    # C3 — deep, watchful
+    step = 160
+    n_blue++
+    tick += step
+}
+
+/TOKENS=/ {
+    # Token count → velocity on G3
+    split($0, a, "=")
+    v = int(a[2]) + 60
+    if (v > 127) v = 127
+    if (v < 40)  v = 40
+    note_on(tick, 1, 55, v)
+    n_blue++
+    tick += 120
+}
+
+/ENTROPY=/ {
+    split($0, a, "=")
+    e = a[2] + 0
+    # 0.70 expected — deviation maps to pitch bend approximation
+    if (e >= 0.65 && e <= 0.75) {
+        note_on(tick, 1, 67, 88)  # G4 — GREEN, stable
+        n_pass++
+    } else {
+        note_on(tick, 0, 61, 105) # C#4 — tension
+        n_alert++
+    }
+    tick += 140
+}
+
+/CONFIDENCE=/ {
+    split($0, a, "=")
+    c = a[2] + 0
+    if (c >= 0.55) {
+        note_on(tick, 2, 71, 85)  # B4 — confident
+        n_pass++
+    } else {
+        note_on(tick, 0, 66, 110) # F#4 — tritone doubt
+        n_alert++
+    }
+    tick += 140
+}
+
+# ── PURPLE — RESOLUTION, PASS STATES ────────────────────────────────────────
+/STATUS=SAGCO_.*_PASS/ || /STATUS=SAGCO_TOKENIZE_PASS/ || /CHAIN_VERIFIED/ {
+    note_on(tick, 2, 60, 95)    # C4
+    note_on(tick + 50, 2, 64, 88) # E4 — major third
+    note_on(tick + 100, 2, 67, 82) # G4 — fifth: full major triad
+    step = 300
+    n_purple++; n_pass++
+    tick += step
+}
+
+/ERU_GREEN/ || /GREEN/ {
+    note_on(tick, 2, 72, 90)    # C5 — high resolution
+    step = 360
+    n_purple++; n_pass++
+    tick += step
+}
+
+/SAGCO_FORECAST_PASS/ {
+    note_on(tick, 2, 71, 88)    # B4 — resolution landing
+    note_on(tick + 80, 2, 72, 85) # C5 — home
+    n_purple++
+    tick += 280
+}
+
+# ── ANTIBODY / DEFENSE ───────────────────────────────────────────────────────
+/ANTIBODY/ || /ANTIBODY=/ {
+    note_on(tick, 2, 74, 95)    # D5 — high defensive
+    note_on(tick + 60, 2, 76, 88) # E5 — antibody resolved
+    n_antibody++
+    tick += 220
+}
+
+# ── PANIC / SYSTEM ERROR ─────────────────────────────────────────────────────
+/thread .main. panicked/ || /PANIC/ {
+    # Crash chord — stacked dissonance
+    note_on(tick, 0, 46, 127)   # Bb2 bass crash
+    note_on(tick, 0, 61, 127)   # C#4 dissonance
+    note_on(tick, 0, 66, 120)   # F#4 tritone
+    step = 60                    # short — then silence
+    n_panic++; n_alert++
+    tick += step * 4             # pause after panic
+}
+
+/failed to run/ || /No such file/ {
+    note_on(tick, 0, 58, 115)   # Bb3 — hollow, missing
+    step = 90
+    n_alert++
+    tick += step
+}
+
+/CREEP_WATCH_ALERTS/ || /STATUS=SAGCO_CREEP_WATCH_ALERTS/ {
+    # Full alert chord
+    note_on(tick, 0, 46, 127)
+    note_on(tick + 30, 0, 63, 120)
+    note_on(tick + 60, 0, 66, 115)
+    n_alert++; n_red++
+    tick += 350
+}
+
+END {
+    # Closing cadence — C major if mostly passing, C minor if mostly alerts
+    if (n_pass >= n_alert) {
+        note_on(tick,       2, 60, 88)  # C4
+        note_on(tick + 80,  2, 64, 85)  # E4 major
+        note_on(tick + 160, 2, 67, 82)  # G4
+        note_on(tick + 240, 2, 72, 90)  # C5 final
+    } else {
+        note_on(tick,       0, 60, 88)  # C4
+        note_on(tick + 80,  0, 63, 85)  # Eb4 minor
+        note_on(tick + 160, 0, 67, 82)  # G4
+        note_on(tick + 240, 0, 65, 78)  # F4 unresolved
+    }
+    tick += 600
+
+    print "1," tick ",End_track"
+    print "0,0,End_of_file"
+
+    printf "# SAGCO_MIDI_STATS\n" > "/dev/stderr"
+    printf "# red=%d blue=%d purple=%d panic=%d pass=%d alert=%d antibody=%d total=%d\n", \
+      n_red, n_blue, n_purple, n_panic, n_pass, n_alert, n_antibody, n_total > "/dev/stderr"
+}
+' "$INPUT" > "$CSVOUT" 2>/tmp/midi_stats.txt
+
+# Parse stats from stderr capture
+STATS=$(cat /tmp/midi_stats.txt 2>/dev/null)
+echo "$STATS"
+
+N_RED=$(echo    "$STATS" | grep -o 'red=[0-9]*'    | cut -d= -f2); N_RED="${N_RED:-0}"
+N_BLUE=$(echo   "$STATS" | grep -o 'blue=[0-9]*'   | cut -d= -f2); N_BLUE="${N_BLUE:-0}"
+N_PURPLE=$(echo "$STATS" | grep -o 'purple=[0-9]*' | cut -d= -f2); N_PURPLE="${N_PURPLE:-0}"
+N_PANIC=$(echo  "$STATS" | grep -o 'panic=[0-9]*'  | cut -d= -f2); N_PANIC="${N_PANIC:-0}"
+N_TOTAL=$(echo  "$STATS" | grep -o 'total=[0-9]*'  | cut -d= -f2); N_TOTAL="${N_TOTAL:-0}"
+
+EVENTS=$(grep -c "Note_on_c" "$CSVOUT" 2>/dev/null | tr -d ' ')
+echo "Musical events generated: $EVENTS"
+echo ""
+
+# Score: percent purple (resolution) vs red+panic (tension)
+TENSION=$((N_RED + N_PANIC))
+HARMONY=$((N_PURPLE + N_BLUE))
+TOTAL_HT=$((TENSION + HARMONY))
+if [ "$TOTAL_HT" -gt 0 ]; then
+  TONE=$(awk "BEGIN {printf \"%.0f\", ($HARMONY/$TOTAL_HT)*100}")
+  echo "Harmonic Tone   : ${TONE}% resolution"
+  [ "$TONE" -ge 60 ] && VERDICT="MAJOR_RESOLUTION" || VERDICT="MINOR_TENSION"
+  [ "$N_PANIC" -ge 2 ] && VERDICT="DISSONANT_PANIC"
+else
+  VERDICT="EMPTY_LOG"
+fi
+echo "Composition Key : $VERDICT"
+echo ""
+
+# Convert to MIDI if csvmidi available
+if command -v csvmidi >/dev/null 2>&1; then
+  csvmidi "$CSVOUT" "$MIDIOUT" 2>/dev/null && \
+    echo "MIDI FILE: $MIDIOUT" || echo "WARN: csvmidi conversion failed — use CSV"
+else
+  echo "CSV READY : $CSVOUT  (install midicsv: apk add midicsv)"
+  echo "MIDI PATH : $MIDIOUT  (pending csvmidi)"
+fi
+
+# Log to ERU
+[ ! -f "$LOG" ] && echo "case,input_file,events,tone_pct,verdict,timestamp" > "$LOG"
+echo "$CASE,$INPUT,$EVENTS,${TONE:-0},$VERDICT,$TS" >> "$LOG"
+
+# Update shared state
+sagco_ish/shared_state/bin/sagco-state "$CASE" "MIDI_NODE" "$VERDICT" \
+  "events_${EVENTS}_tension_${TENSION}_harmony_${HARMONY}" 2>/dev/null || true
+
+echo "SAGCO_MIDI_GENERATED"
+echo "CSV   : $CSVOUT"
+echo "Events: $EVENTS"
+echo "Key   : $VERDICT"

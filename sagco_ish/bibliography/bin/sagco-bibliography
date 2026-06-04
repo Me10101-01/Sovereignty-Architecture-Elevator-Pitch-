@@ -1,0 +1,157 @@
+#!/bin/sh
+# SAGCO Bibliography — Brick 054
+# usage: sagco-bibliography [CASE] [OUTPUT_FILE]
+# Exports all bricks + prior art + inventions as bibliography.md for SNHU capstone
+CASE="${1:-C1602_CASE_001}"
+OUT="${2:-sagco_ish/bibliography/exports/bibliography.md}"
+
+CITES="sagco_ish/lineage/citations/citations.csv"
+PRIORART="sagco_ish/lineage/prior_art/prior_art.csv"
+INVS="sagco_ish/lineage/inventions/inventions.csv"
+MANIFEST="sagco_ish/registry/data/brick_manifest.csv"
+LOG="sagco_ish/bibliography/logs/bibliography_eru.csv"
+
+mkdir -p sagco_ish/bibliography/exports sagco_ish/bibliography/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+echo "=== SAGCO BIBLIOGRAPHY ==="
+echo "Case: $CASE  |  Generated: $TS"
+echo ""
+
+# Count sources
+BRICK_COUNT=$(grep -v "^brick," "$CITES" 2>/dev/null | wc -l | tr -d ' ')
+PRIOR_COUNT=$(grep -v "^source," "$PRIORART" 2>/dev/null | wc -l | tr -d ' ')
+INV_COUNT=$(grep -v "^inv_id," "$INVS" 2>/dev/null | wc -l | tr -d ' ')
+
+echo "Bricks cited  : $BRICK_COUNT"
+echo "Prior art     : $PRIOR_COUNT"
+echo "Inventions    : $INV_COUNT"
+echo ""
+
+# ── Generate bibliography.md ─────────────────────────────────────────────────
+cat > "$OUT" <<HEADER
+# SAGCO OS — Bibliography & Knowledge Lineage
+
+**Case:** ${CASE}
+**Generated:** ${TS}
+**Author:** Domenic Garza · SNHU Capstone Portfolio
+
+---
+
+## Overview
+
+This bibliography documents the full knowledge lineage of the SAGCO OS project:
+- **${BRICK_COUNT}** functional bricks with traced citation sources
+- **${PRIOR_COUNT}** prior art entries (commercial, open source, academic, standards)
+- **${INV_COUNT}** original inventions with field-observation origins
+
+The core argument: each invention listed below was *built before* its prior art was
+formally identified. SAGCO follows the Observation → Build → Prior Art model
+(INV-005), not the Paper → Read → Build model traditional CS curricula assume.
+
+---
+
+HEADER
+
+# ── SECTION 1: Brick Citation Table ─────────────────────────────────────────
+echo "## Section 1: Brick Citation Registry" >> "$OUT"
+echo "" >> "$OUT"
+echo "| Brick | Name | Primary Sources |" >> "$OUT"
+echo "|-------|------|-----------------|" >> "$OUT"
+
+if [ -f "$CITES" ]; then
+  grep -v "^brick," "$CITES" | while IFS=, read brick name sources ts; do
+    # Convert semicolons to comma-space for readable formatting
+    SRC_CLEAN=$(echo "$sources" | tr ';' ',' | sed 's/_/ /g')
+    echo "| $brick | $name | $SRC_CLEAN |" >> "$OUT"
+  done
+fi
+
+echo "" >> "$OUT"
+
+# ── SECTION 2: Prior Art Registry ────────────────────────────────────────────
+echo "## Section 2: Prior Art Registry" >> "$OUT"
+echo "" >> "$OUT"
+echo "| Source | Type | URL | Notes |" >> "$OUT"
+echo "|--------|------|-----|-------|" >> "$OUT"
+
+if [ -f "$PRIORART" ]; then
+  grep -v "^source," "$PRIORART" | while IFS=, read source type url notes ts; do
+    echo "| $source | $type | $url | $notes |" >> "$OUT"
+  done
+fi
+
+echo "" >> "$OUT"
+
+# ── SECTION 3: Original Inventions ───────────────────────────────────────────
+echo "## Section 3: Original Inventions (CREATOR=DOM)" >> "$OUT"
+echo "" >> "$OUT"
+echo "> These inventions originate from field observation, not academic reading." >> "$OUT"
+echo "> Prior art listed is *confirmatory*, not *causal*." >> "$OUT"
+echo "" >> "$OUT"
+
+if [ -f "$INVS" ]; then
+  grep -v "^inv_id," "$INVS" | while IFS=, read inv_id claim origin confirmations descendants creator ts; do
+    CLAIM_CLEAN=$(echo "$claim" | tr '_' ' ')
+    ORIGIN_CLEAN=$(echo "$origin" | tr '_' ' ')
+    CONF_CLEAN=$(echo "$confirmations" | tr ';_' ', ')
+    echo "### $inv_id — $(echo "$claim" | cut -c1-60 | tr '_' ' ')" >> "$OUT"
+    echo "" >> "$OUT"
+    echo "**Claim:** $CLAIM_CLEAN" >> "$OUT"
+    echo "" >> "$OUT"
+    echo "**Origin (field observation):** $ORIGIN_CLEAN" >> "$OUT"
+    echo "" >> "$OUT"
+    echo "**Confirmatory prior art:** $CONF_CLEAN" >> "$OUT"
+    echo "" >> "$OUT"
+    echo "**Creator:** $creator" >> "$OUT"
+    echo "" >> "$OUT"
+    echo "---" >> "$OUT"
+    echo "" >> "$OUT"
+  done
+fi
+
+# ── SECTION 4: Manifest Summary ──────────────────────────────────────────────
+echo "## Section 4: Brick Manifest (Self-Describing Registry)" >> "$OUT"
+echo "" >> "$OUT"
+echo "| Brick | Purpose | Test Command | Success Signal |" >> "$OUT"
+echo "|-------|---------|-------------|----------------|" >> "$OUT"
+
+if [ -f "$MANIFEST" ]; then
+  grep -v "^name," "$MANIFEST" | while IFS=, read name purpose input output writes called test success ts; do
+    echo "| $name | $purpose | $test | $success |" >> "$OUT"
+  done
+fi
+
+echo "" >> "$OUT"
+
+# ── Footer ────────────────────────────────────────────────────────────────────
+cat >> "$OUT" <<FOOTER
+
+---
+
+## References
+
+All tools, frameworks, and standards referenced in this bibliography are
+documented with URLs in Section 2. SAGCO is self-sovereign: all tools run
+on personal devices (iPad, Z Fold, Raspberry Pi, iSH Alpine) with no
+third-party API dependencies for core operations.
+
+*Generated by \`sagco-bibliography\` — Brick 054 · SAGCO OS*
+*Case: ${CASE} · ${TS}*
+FOOTER
+
+# Report stats
+LINES=$(wc -l < "$OUT" | tr -d ' ')
+echo "Generated: $OUT"
+echo "Lines    : $LINES"
+echo ""
+
+# Log
+[ ! -f "$LOG" ] && echo "case,bricks,prior_art,inventions,output_lines,timestamp" > "$LOG"
+echo "$CASE,$BRICK_COUNT,$PRIOR_COUNT,$INV_COUNT,$LINES,$TS" >> "$LOG"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "BIBLIOGRAPHY_NODE" "BIBLIOGRAPHY_GENERATED" \
+  "bricks_${BRICK_COUNT}_priorart_${PRIOR_COUNT}_inv_${INV_COUNT}" 2>/dev/null || true
+
+echo "SAGCO_BIBLIOGRAPHY_COMPLETE"
+echo "OUTPUT: $OUT"

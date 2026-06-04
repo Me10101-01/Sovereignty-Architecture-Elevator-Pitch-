@@ -33,6 +33,12 @@ TRUTH="sagco_ish/hallucheck/source_truth/sagco_os_truth.txt"
 if [ -f "$TRUTH" ] && [ -f "$REPORT" ]; then
   run_agent hallucheck "sagco_ish/hallucheck/bin/sagco-hallucheck $CASE $TRUTH $REPORT runtime_alpha_self_audit"
 fi
+run_agent eru-benchmark  "sagco_ish/eru/bin/sagco-eru-benchmark $CASE"
+run_agent bibliography   "sagco_ish/bibliography/bin/sagco-bibliography $CASE"
+# Sonify the cycle — feed the runtime log itself into MIDI
+if [ -f "$LOG" ]; then
+  run_agent midi "sagco_ish/midi/bin/sagco-midi $LOG ${CASE}_alpha $CASE"
+fi
 sagco_ish/shared_state/bin/sagco-state "$CASE" "RUNTIME_ALPHA_NODE" "ACTIVE" "alpha_cycle_complete_$(TS)" 2>/dev/null || true
 echo "===== SAGCO RUNTIME ALPHA COMPLETE ====="
 tail -25 "$LOG"

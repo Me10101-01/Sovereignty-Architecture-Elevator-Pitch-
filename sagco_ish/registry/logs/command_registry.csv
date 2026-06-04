@@ -51,3 +51,6 @@ sagco-manifest,sagco_ish/registry/bin/sagco-manifest,REGISTRY_NODE,ACTIVE,2026-0
 sagco-where,sagco_ish/registry/bin/sagco-where,REGISTRY_NODE,ACTIVE,2026-06-04T23:46:31Z
 sagco-why,sagco_ish/registry/bin/sagco-why,REGISTRY_NODE,ACTIVE,2026-06-04T23:46:31Z
 sagco-browser-dock,sagco_ish/browser/bin/sagco-browser-dock,PORTAL_NODE,ACTIVE,2026-06-04T23:48:04Z
+midi,sagco_ish/midi/bin/sagco-midi,midi,ACTIVE,2026-06-04T23:55:46Z
+bibliography,sagco_ish/bibliography/bin/sagco-bibliography,tool,ACTIVE,2026-06-04T23:55:46Z
+eru-benchmark,sagco_ish/eru/bin/sagco-eru-benchmark,tool,ACTIVE,2026-06-04T23:55:46Z
