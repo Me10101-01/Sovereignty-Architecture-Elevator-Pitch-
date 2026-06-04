@@ -1,0 +1,14 @@
+MISSION_ID: STEPPER_CRAWLER_INTEGRITY_001
+PERIODIC_MAPPING: ACTIVE
+BIND ExcelWafer -> Silicon_Si14
+BIND WordFrequency -> Helium_He2
+BIND Token -> Carbon_C6
+BIND Weight -> Lead_Pb82
+BIND FLAMEToken -> Phosphorus_P15
+BIND FlameLang -> Oxygen_O8
+BIND RustCall -> Iron_Fe26
+BIND DNAStrand -> Nitrogen_N7
+BIND Unity -> Hydrogen_H1
+BIND Epic -> Gold_Au79
+VIM_INTEGRITY_CHECK: true
+EXPECTED_BINDINGS: 6

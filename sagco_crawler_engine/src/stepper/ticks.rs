@@ -11,10 +11,7 @@ pub struct CrawlerEngine {
 
 impl CrawlerEngine {
     pub fn new(interval: u32) -> Self {
-        Self {
-            current_tick: 0,
-            step_interval: interval,
-        }
+        Self { current_tick: 0, step_interval: interval }
     }
 
     pub fn advance_tick(&mut self, base_weight: f64) -> StepperTick {
@@ -22,7 +19,7 @@ impl CrawlerEngine {
         StepperTick {
             tick_id: self.current_tick,
             timestamp_delta: self.step_interval,
-            element_weight: base_weight * (self.current_tick as f64),
+            element_weight: base_weight * self.current_tick as f64,
         }
     }
 }
