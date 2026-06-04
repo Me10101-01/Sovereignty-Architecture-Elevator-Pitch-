@@ -1,0 +1,14 @@
+#!/bin/sh
+# sagco-eru-wafer: Expected vs Actual ERU variance engine
+# Usage: sagco-eru-wafer <wafer.csv> <capture.csv> [CASE_ID]
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+WAFER="${1:-sagco_ish/eru/data/sample_wafer.csv}"
+CAPTURE="${2:-sagco_ish/eru/data/sample_capture.csv}"
+CASE="${3:-C1602_CASE_001}"
+BIN="$REPO_ROOT/sagco_crawler_engine/sagco_lang_runtime/bin/sagco-eru"
+if [ -x "$BIN" ]; then
+    "$BIN" "$WAFER" "$CAPTURE" "$CASE"
+else
+    echo "ERU_BIN_NOT_FOUND: run cargo build --bin sagco-eru in sagco_crawler_engine/"
+    exit 1
+fi
