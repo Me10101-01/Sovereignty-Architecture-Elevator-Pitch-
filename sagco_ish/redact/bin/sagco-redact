@@ -1,0 +1,89 @@
+#!/bin/sh
+# SAGCO Sovereign Redaction Engine — Brick 042
+# usage: sagco-redact CASE INPUT OUTPUT [LABEL]
+# Strips PII (EIN, SSN, phone, email), emits audit log + ERU score, optional hallucheck
+CASE="$1"
+INPUT="$2"
+OUTPUT="$3"
+LABEL="${4:-redact_run}"
+AUDIT="sagco_ish/redact/logs/redact_audit.csv"
+EVIDENCE="sagco_ish/governance/logs/governance_register.csv"
+
+[ -z "$CASE" ] && echo "usage: sagco-redact CASE INPUT OUTPUT [LABEL]" && exit 1
+[ -z "$INPUT" ] && echo "usage: sagco-redact CASE INPUT OUTPUT [LABEL]" && exit 1
+[ -z "$OUTPUT" ] && echo "usage: sagco-redact CASE INPUT OUTPUT [LABEL]" && exit 1
+[ ! -f "$INPUT" ] && echo "ERROR: input not found: $INPUT" && exit 1
+
+mkdir -p sagco_ish/redact/logs
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$AUDIT" ] && echo "case,label,pattern,count,input,output,status,timestamp" > "$AUDIT"
+
+echo "=== SAGCO REDACT: $CASE ==="
+echo "INPUT  : $INPUT"
+echo "OUTPUT : $OUTPUT"
+echo "LABEL  : $LABEL"
+
+# --- Count matches per pattern before redacting ---
+COUNT_EIN=$(grep -oE '[0-9]{2}-[0-9]{7}' "$INPUT" 2>/dev/null | wc -l | tr -d ' ')
+COUNT_SSN=$(grep -oE '[0-9]{3}-[0-9]{2}-[0-9]{4}' "$INPUT" 2>/dev/null | wc -l | tr -d ' ')
+COUNT_PHONE_P=$(grep -oE '\([0-9]{3}\) [0-9]{3}-[0-9]{4}' "$INPUT" 2>/dev/null | wc -l | tr -d ' ')
+COUNT_PHONE_D=$(grep -oE '[0-9]{3}-[0-9]{3}-[0-9]{4}' "$INPUT" 2>/dev/null | wc -l | tr -d ' ')
+COUNT_EMAIL=$(grep -oE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' "$INPUT" 2>/dev/null | wc -l | tr -d ' ')
+
+TOTAL=$((COUNT_EIN + COUNT_SSN + COUNT_PHONE_P + COUNT_PHONE_D + COUNT_EMAIL))
+
+# --- Apply redactions ---
+sed -E \
+  -e 's/[0-9]{2}-[0-9]{7}/[REDACTED_EIN]/g' \
+  -e 's/[0-9]{3}-[0-9]{2}-[0-9]{4}/[REDACTED_SSN]/g' \
+  -e 's/\([0-9]{3}\) [0-9]{3}-[0-9]{4}/[REDACTED_PHONE]/g' \
+  -e 's/[0-9]{3}-[0-9]{3}-[0-9]{4}/[REDACTED_PHONE]/g' \
+  -e 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[REDACTED_EMAIL]/g' \
+  "$INPUT" > "$OUTPUT"
+
+STATUS="REDACT_CLEAN"
+[ "$TOTAL" -gt 0 ] && STATUS="REDACT_PII_REMOVED"
+
+# --- Audit log: one row per pattern ---
+echo "$CASE,$LABEL,EIN,$COUNT_EIN,$INPUT,$OUTPUT,$STATUS,$TS" >> "$AUDIT"
+echo "$CASE,$LABEL,SSN,$COUNT_SSN,$INPUT,$OUTPUT,$STATUS,$TS" >> "$AUDIT"
+echo "$CASE,$LABEL,PHONE_PAREN,$COUNT_PHONE_P,$INPUT,$OUTPUT,$STATUS,$TS" >> "$AUDIT"
+echo "$CASE,$LABEL,PHONE_DASH,$COUNT_PHONE_D,$INPUT,$OUTPUT,$STATUS,$TS" >> "$AUDIT"
+echo "$CASE,$LABEL,EMAIL,$COUNT_EMAIL,$INPUT,$OUTPUT,$STATUS,$TS" >> "$AUDIT"
+
+# --- Hash output for evidence chain ---
+OUT_HASH=$(sha256sum "$OUTPUT" 2>/dev/null | awk '{print $1}')
+IN_HASH=$(sha256sum "$INPUT" 2>/dev/null | awk '{print $1}')
+mkdir -p sagco_ish/governance/logs
+[ ! -f "$EVIDENCE" ] && echo "case,label,file,hash,status,timestamp" > "$EVIDENCE"
+echo "$CASE,REDACT_INPUT,$INPUT,$IN_HASH,PRE_REDACT_HASH,$TS" >> "$EVIDENCE"
+echo "$CASE,REDACT_OUTPUT,$OUTPUT,$OUT_HASH,POST_REDACT_HASH,$TS" >> "$EVIDENCE"
+
+# --- Print audit summary ---
+echo ""
+echo "--- REDACTION AUDIT ---"
+echo "EIN        : $COUNT_EIN removed"
+echo "SSN        : $COUNT_SSN removed"
+echo "PHONE(())  : $COUNT_PHONE_P removed"
+echo "PHONE(-)   : $COUNT_PHONE_D removed"
+echo "EMAIL      : $COUNT_EMAIL removed"
+echo "TOTAL_PII  : $TOTAL"
+echo "STATUS     : $STATUS"
+echo "PRE_HASH   : $IN_HASH"
+echo "POST_HASH  : $OUT_HASH"
+
+# --- Optional hallucheck: verify redacted doc still has substance ---
+HALLU_TRUTH="$INPUT"
+HALLU_ACTUAL="$OUTPUT"
+HALLU_LABEL="post_redact_substance_check"
+if [ -f sagco_ish/hallucheck/bin/sagco-hallucheck ]; then
+  echo ""
+  echo "--- POST-REDACT HALLUCHECK ---"
+  sagco_ish/hallucheck/bin/sagco-hallucheck "$CASE" "$HALLU_TRUTH" "$HALLU_ACTUAL" "$HALLU_LABEL" 2>/dev/null || echo "HALLUCHECK_SKIPPED"
+fi
+
+echo ""
+echo "SAGCO_REDACT_COMPLETE"
+echo "$OUTPUT"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "REDACT_NODE" "$STATUS" "pii_removed_${TOTAL}_hash_${OUT_HASH:0:12}" 2>/dev/null || true

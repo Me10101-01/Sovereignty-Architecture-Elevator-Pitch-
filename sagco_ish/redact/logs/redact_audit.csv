@@ -1,0 +1,11 @@
+case,label,pattern,count,input,output,status,timestamp
+C1602_CASE_001,auto_redact_public_build,EIN,0,sagco_ish/public/site/index.html,sagco_ish/public/site/index_redacted.html,REDACT_CLEAN,2026-06-04T21:22:55Z
+C1602_CASE_001,auto_redact_public_build,SSN,0,sagco_ish/public/site/index.html,sagco_ish/public/site/index_redacted.html,REDACT_CLEAN,2026-06-04T21:22:55Z
+C1602_CASE_001,auto_redact_public_build,PHONE_PAREN,0,sagco_ish/public/site/index.html,sagco_ish/public/site/index_redacted.html,REDACT_CLEAN,2026-06-04T21:22:55Z
+C1602_CASE_001,auto_redact_public_build,PHONE_DASH,0,sagco_ish/public/site/index.html,sagco_ish/public/site/index_redacted.html,REDACT_CLEAN,2026-06-04T21:22:55Z
+C1602_CASE_001,auto_redact_public_build,EMAIL,0,sagco_ish/public/site/index.html,sagco_ish/public/site/index_redacted.html,REDACT_CLEAN,2026-06-04T21:22:55Z
+C1602_CASE_001,auto_redact_public_build,EIN,0,sagco_ish/public/site/index.html,sagco_ish/public/site/index_redacted.html,REDACT_PII_REMOVED,2026-06-04T21:23:04Z
+C1602_CASE_001,auto_redact_public_build,SSN,0,sagco_ish/public/site/index.html,sagco_ish/public/site/index_redacted.html,REDACT_PII_REMOVED,2026-06-04T21:23:04Z
+C1602_CASE_001,auto_redact_public_build,PHONE_PAREN,1,sagco_ish/public/site/index.html,sagco_ish/public/site/index_redacted.html,REDACT_PII_REMOVED,2026-06-04T21:23:04Z
+C1602_CASE_001,auto_redact_public_build,PHONE_DASH,0,sagco_ish/public/site/index.html,sagco_ish/public/site/index_redacted.html,REDACT_PII_REMOVED,2026-06-04T21:23:04Z
+C1602_CASE_001,auto_redact_public_build,EMAIL,0,sagco_ish/public/site/index.html,sagco_ish/public/site/index_redacted.html,REDACT_PII_REMOVED,2026-06-04T21:23:04Z

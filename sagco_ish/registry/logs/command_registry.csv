@@ -29,3 +29,5 @@ public-check,sagco_ish/public/bin/sagco-public-check,safety,ACTIVE,2026-06-04T20
 public-build,sagco_ish/public/bin/sagco-public-build,portfolio,ACTIVE,2026-06-04T20:59:56Z
 pages-pack,sagco_ish/deploy/bin/sagco-pages-pack,deploy,ACTIVE,2026-06-04T21:17:14Z
 public-verify,sagco_ish/deploy/bin/sagco-public-verify,deploy,ACTIVE,2026-06-04T21:17:14Z
+sagco-call-analyze,sagco_ish/calls/bin/sagco-call-analyze,CALL_GUARDIAN,ACTIVE,2026-06-04T21:22:51Z
+sagco-redact,sagco_ish/redact/bin/sagco-redact,REDACT_NODE,ACTIVE,2026-06-04T21:22:51Z

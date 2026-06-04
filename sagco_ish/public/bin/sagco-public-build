@@ -84,3 +84,10 @@ HTML
 echo "SAGCO_PUBLIC_SITE_BUILT"
 echo "$OUT"
 sagco_ish/shared_state/bin/sagco-state "$CASE" "PUBLIC_BUILD_NODE" "ACTIVE" "site_built_$TS" 2>/dev/null || true
+
+# Auto-redact: always produce a public-safe version
+REDACTED="sagco_ish/public/site/index_redacted.html"
+if [ -f sagco_ish/redact/bin/sagco-redact ]; then
+  sagco_ish/redact/bin/sagco-redact "$CASE" "$OUT" "$REDACTED" "auto_redact_public_build" 2>/dev/null || true
+  echo "SAGCO_REDACT_OUTPUT: $REDACTED"
+fi

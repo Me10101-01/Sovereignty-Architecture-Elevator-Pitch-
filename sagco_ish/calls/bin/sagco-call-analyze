@@ -1,0 +1,51 @@
+#!/bin/sh
+# SAGCO Call Guardian Node — Brick 035
+# usage: sagco-call-analyze CASE CALLER_ID [NOTES]
+CASE="$1"
+CALLER="$2"
+NOTES="${3:-none}"
+OUT="sagco_ish/calls/logs/call_log.csv"
+[ -z "$CASE" ] && echo "usage: sagco-call-analyze CASE CALLER_ID [NOTES]" && exit 1
+[ -z "$CALLER" ] && echo "usage: sagco-call-analyze CASE CALLER_ID [NOTES]" && exit 1
+mkdir -p sagco_ish/calls/logs
+[ ! -f "$OUT" ] && echo "case,caller_id,risk_score,status,notes,timestamp" > "$OUT"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+RISK=0
+
+# Toll-free prefix scoring
+PREFIX=$(echo "$CALLER" | grep -o '8[0-9][0-9]' | head -1)
+case "$PREFIX" in
+  844|877|888|855|866|800) RISK=$((RISK + 40)) ;;
+esac
+
+# Note keyword scoring
+NOTES_LOWER=$(echo "$NOTES" | tr 'A-Z' 'a-z')
+for KW in "toll free" "irs" "irs.gov" "legal" "compliance" "urgent" "action required"; do
+  echo "$NOTES_LOWER" | grep -q "$KW" && RISK=$((RISK + 35)) && break
+done
+
+# Known-safe carriers reduce risk
+for GOOD in "t-mobile" "verizon" "att" "samsung" "google" "apple"; do
+  echo "$NOTES_LOWER" | grep -q "$GOOD" && RISK=$((RISK - 20)) && break
+done
+
+# Floor at 0
+[ "$RISK" -lt 0 ] && RISK=0
+
+STATUS="LOW_RISK_OK"
+[ "$RISK" -ge 30 ] && STATUS="MEDIUM_RISK_REVIEW"
+[ "$RISK" -ge 50 ] && STATUS="HIGH_RISK_SCAM_LIKELY"
+
+echo "$CASE,$CALLER,$RISK,$STATUS,$NOTES,$TS" >> "$OUT"
+
+echo "=== SAGCO CALL GUARDIAN: $CASE ==="
+echo "CALLER_ID  : $CALLER"
+echo "RISK_SCORE : $RISK"
+echo "STATUS     : $STATUS"
+echo "NOTES      : $NOTES"
+echo "TIMESTAMP  : $TS"
+echo ""
+echo "SAGCO_CALL_ANALYZE_COMPLETE"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "CALL_GUARDIAN_NODE" "$STATUS" "caller_${CALLER}_risk_${RISK}" 2>/dev/null || true
