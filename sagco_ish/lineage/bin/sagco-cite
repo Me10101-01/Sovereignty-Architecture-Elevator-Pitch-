@@ -1,0 +1,28 @@
+#!/bin/sh
+# SAGCO Citation Writer — Wing D
+# usage: sagco-cite BRICK_NUMBER NAME SOURCES [CASE]
+BRICK="$1"
+NAME="$2"
+SOURCES="$3"
+CASE="${4:-LINEAGE}"
+CITES="sagco_ish/lineage/citations/citations.csv"
+[ -z "$BRICK" ] && echo "usage: sagco-cite BRICK_NUMBER NAME SOURCES [CASE]" && exit 1
+[ -z "$NAME" ]  && echo "usage: sagco-cite BRICK_NUMBER NAME SOURCES [CASE]" && exit 1
+mkdir -p sagco_ish/lineage/citations
+[ ! -f "$CITES" ] && echo "brick,name,sources,timestamp" > "$CITES"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+# Deduplicate: skip if brick already cited
+if grep -q "^${BRICK}," "$CITES" 2>/dev/null; then
+  echo "SAGCO_CITATION_ALREADY_EXISTS"
+  grep "^${BRICK}," "$CITES"
+  exit 0
+fi
+
+echo "${BRICK},${NAME},${SOURCES},${TS}" >> "$CITES"
+echo "SAGCO_CITATION_REGISTERED"
+echo "BRICK=${BRICK}"
+echo "NAME=${NAME}"
+echo "SOURCES=${SOURCES}"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "CITE_NODE" "ACTIVE" "brick_${BRICK}_cited" 2>/dev/null || true

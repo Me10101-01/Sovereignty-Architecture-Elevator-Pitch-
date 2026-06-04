@@ -31,3 +31,5 @@ pages-pack,sagco_ish/deploy/bin/sagco-pages-pack,deploy,ACTIVE,2026-06-04T21:17:
 public-verify,sagco_ish/deploy/bin/sagco-public-verify,deploy,ACTIVE,2026-06-04T21:17:14Z
 sagco-call-analyze,sagco_ish/calls/bin/sagco-call-analyze,CALL_GUARDIAN,ACTIVE,2026-06-04T21:22:51Z
 sagco-redact,sagco_ish/redact/bin/sagco-redact,REDACT_NODE,ACTIVE,2026-06-04T21:22:51Z
+sagco-cite,sagco_ish/lineage/bin/sagco-cite,CITE_NODE,ACTIVE,2026-06-04T21:24:50Z
+sagco-lineage,sagco_ish/lineage/bin/sagco-lineage,LINEAGE_NODE,ACTIVE,2026-06-04T21:24:50Z

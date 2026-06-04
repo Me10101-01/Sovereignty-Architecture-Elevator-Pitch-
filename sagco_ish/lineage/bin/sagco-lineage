@@ -1,0 +1,38 @@
+#!/bin/sh
+# SAGCO Lineage Reader — Wing D
+# usage: sagco-lineage BRICK_NUMBER
+# usage: sagco-lineage all   → dump full citation registry
+BRICK="$1"
+CITES="sagco_ish/lineage/citations/citations.csv"
+[ -z "$BRICK" ] && echo "usage: sagco-lineage BRICK_NUMBER|all" && exit 1
+[ ! -f "$CITES" ] && echo "NO_CITATIONS_FOUND" && exit 1
+
+echo "=== SAGCO BRICK LINEAGE ==="
+
+if [ "$BRICK" = "all" ]; then
+  TOTAL=$(tail -n +2 "$CITES" | wc -l | tr -d ' ')
+  echo "TOTAL_BRICKS_CITED=${TOTAL}"
+  echo ""
+  tail -n +2 "$CITES" | while IFS=, read brick name sources ts; do
+    echo "BRICK=${brick}  NAME=${name}"
+    echo "SOURCES=${sources}"
+    echo "TIMESTAMP=${ts}"
+    echo "---"
+  done
+else
+  echo "BRICK=${BRICK}"
+  echo ""
+  FOUND=$(grep "^${BRICK}," "$CITES" | wc -l | tr -d ' ')
+  if [ "$FOUND" -eq 0 ]; then
+    echo "NO_CITATION_FOR_BRICK_${BRICK}"
+  else
+    grep "^${BRICK}," "$CITES" | while IFS=, read brick name sources ts; do
+      echo "NAME=${name}"
+      echo "SOURCES=${sources}"
+      echo "TIMESTAMP=${ts}"
+    done
+  fi
+fi
+
+echo ""
+echo "SAGCO_LINEAGE_COMPLETE"
