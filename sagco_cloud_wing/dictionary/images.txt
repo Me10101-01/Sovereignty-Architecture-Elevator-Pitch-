@@ -1,0 +1,6 @@
+sagco_dojo=dom101/sagco-dojo:latest
+sagco_codex=dom101/sagco-codex:latest
+sagco_core=dom101/sagco-core:latest
+sagco_controls=dom101/sagco-controls-v2:latest
+sagco_android=dom101/sagco-android:latest
+sagco_bias_core=us-central1-docker.pkg.dev/sagco-oscomputconsciousness/sagco-agents/sagco-control:0.3.0

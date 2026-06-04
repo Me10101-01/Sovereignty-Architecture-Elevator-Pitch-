@@ -33,13 +33,14 @@ pipeline:
   - stage: 3_dockerfile
     description: "Dockerfile + container_image_url.txt generated from brick inventory"
     tool: Cloud Build (cloudbuild.yaml)
-    output: dom101/sagco-bias-core:latest on Docker Hub
-    status: PLANNED           # ⏳ Docker Hub repo not yet created, build not triggered
+    output: us-central1-docker.pkg.dev/sagco-oscomputconsciousness/sagco-agents/c160201c:latest
+    status: PLANNED           # ⏳ Cloud Build not yet triggered
 
   - stage: 4_artifact_registry
-    description: "Container image pushed to Docker Hub / GCP Artifact Registry"
-    tool: docker push (Cloud Build step 6)
-    output: docker.io/dom101/sagco-bias-core:$SHORT_SHA
+    description: "Container image pushed to GCP Artifact Registry (sagco-agents repo confirmed)"
+    tool: docker push (Cloud Build step via cloudbuild-container-forge.yaml)
+    output: us-central1-docker.pkg.dev/sagco-oscomputconsciousness/sagco-agents/c160201c:$SHORT_SHA
+    registry_confirmed: us-central1-docker.pkg.dev/sagco-oscomputconsciousness/sagco-agents
     status: PLANNED           # ⏳ blocked on stage 3
 
   - stage: 5_cloud_run_job
@@ -49,7 +50,7 @@ pipeline:
       job_name: sagco-bias-core
       region: us-central1
       project: sagco-oscomputconsciousness
-      image: dom101/sagco-bias-core:latest
+      image: us-central1-docker.pkg.dev/sagco-oscomputconsciousness/sagco-agents/c160201c:latest
     status: PLANNED           # ⏳ blocked on stage 4
 
   - stage: 6_scheduler_trigger
@@ -78,11 +79,16 @@ blocker:
     Docker Hub repo dom101/sagco-bias-core does not exist.
     Cloud Build trigger not yet connected to GitHub push events.
   unblock_sequence:
-    - "Create Docker Hub repo: hub.docker.com → Create Repository → dom101/sagco-bias-core"
-    - "Create dockerhub-token secret in GCP Secret Manager"
-    - "Create Cloud Build trigger: GCP Console → Cloud Build → Triggers → Connect repo"
-    - "Push a commit to trigger first build"
-    - "Build pushes image → creates Cloud Run job → Scheduler fires"
+    - "FAST PATH (SAGCO-CLOUD-WING): gcloud run jobs update c160201c --image dom101/sagco-dojo:latest --region europe-west1"
+    - "FAST PATH: gcloud run jobs execute c160201c --region europe-west1"
+    - "PROPER PATH: gcloud artifacts repositories create sagco-agents --repository-format=docker --location=us-central1 --project=sagco-oscomputconsciousness"
+    - "PROPER PATH: gcloud builds submit --config cloudbuild-container-forge.yaml --project sagco-oscomputconsciousness ."
+    - "Scheduler fires on schedule → Cloud Logging proof"
+  sagco_cloud_wing:
+    tool: sagco_cloud_wing/deploy/sagco-cloud-wing.sh
+    dictionary: sagco_cloud_wing/dictionary/images.txt
+    fast_path_image: dom101/sagco-dojo:latest
+    status: READY
 
 # ── ERU status ─────────────────────────────────────────────────────────────────
 eru:

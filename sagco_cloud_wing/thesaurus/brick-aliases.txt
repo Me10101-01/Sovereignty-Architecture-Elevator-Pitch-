@@ -1,0 +1,9 @@
+# SAGCO-CLOUD-WING Thesaurus — brick name aliases
+# Format: alias=canonical_brick_name
+dojo=sagco_dojo
+codex=sagco_codex
+core=sagco_core
+controls=sagco_controls
+android=sagco_android
+bias=sagco_bias_core
+v2=sagco_controls

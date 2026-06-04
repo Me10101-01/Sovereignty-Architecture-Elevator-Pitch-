@@ -1,0 +1,65 @@
+# SAGCO-CONTAINER-FORGE: Cloud Build pipeline
+# Builds c160201c image and pushes to GCP Artifact Registry
+# Registry: us-central1-docker.pkg.dev/$PROJECT_ID/sagco-agents/c160201c:latest
+#
+# Submit: gcloud builds submit --config cloudbuild-container-forge.yaml \
+#           --project sagco-oscomputconsciousness .
+
+steps:
+  # Step 1: Build the c160201c image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f', 'Dockerfile.c160201c'
+      - '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/sagco-agents/c160201c:latest'
+      - '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/sagco-agents/c160201c:$SHORT_SHA'
+      - '.'
+    id: 'build-c160201c'
+
+  # Step 2: Push both tags
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/sagco-agents/c160201c:latest']
+    id: 'push-latest'
+    waitFor: ['build-c160201c']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/sagco-agents/c160201c:$SHORT_SHA']
+    id: 'push-sha'
+    waitFor: ['build-c160201c']
+
+  # Step 3: Update Cloud Run job to use new image
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'jobs'
+      - 'update'
+      - 'c160201c'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/sagco-agents/c160201c:$SHORT_SHA'
+      - '--region=europe-west1'
+    id: 'update-cloud-run-job'
+    waitFor: ['push-latest', 'push-sha']
+
+  # Step 4: Execute the job (portfolio proof)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'jobs'
+      - 'execute'
+      - 'c160201c'
+      - '--region=europe-west1'
+      - '--wait'
+    id: 'execute-proof'
+    waitFor: ['update-cloud-run-job']
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/sagco-agents/c160201c:latest'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/sagco-agents/c160201c:$SHORT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _REGION: 'europe-west1'
+  _JOB: 'c160201c'

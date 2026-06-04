@@ -1,0 +1,23 @@
+# SAGCO-CLOUD-WING Bibliography — confirmed image registries
+# Status as of 2026-06-04
+
+DOCKER_HUB_ACCOUNT=dom101
+GCP_PROJECT=sagco-oscomputconsciousness
+GCP_REGION=us-central1
+GCP_ARTIFACT_REPO=sagco-agents
+GCP_REGISTRY=us-central1-docker.pkg.dev/sagco-oscomputconsciousness/sagco-agents
+
+# Confirmed live images (Docker Desktop verified):
+IMAGE_SAGCO_DOJO=dom101/sagco-dojo:latest           # STATUS=LIVE
+IMAGE_SAGCO_CODEX=dom101/sagco-codex:latest         # STATUS=LIVE
+IMAGE_SAGCO_CORE=dom101/sagco-core:latest           # STATUS=LIVE
+IMAGE_SAGCO_CONTROLS=dom101/sagco-controls-v2:latest # STATUS=LIVE
+IMAGE_SAGCO_ANDROID=dom101/sagco-android:latest     # STATUS=LIVE
+IMAGE_GCP_CONTROL=us-central1-docker.pkg.dev/sagco-oscomputconsciousness/sagco-agents/sagco-control:0.3.0 # STATUS=LIVE
+
+# Local registry:
+LOCAL_REGISTRY=localhost:5000  # registry:2 running (confirmed)
+
+# Cloud Run target:
+CLOUD_RUN_JOB=c160201c
+CLOUD_RUN_REGION=europe-west1

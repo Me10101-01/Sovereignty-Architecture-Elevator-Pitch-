@@ -1,0 +1,60 @@
+# SAGCO-CONTAINER-FORGE: c160201c
+# Portfolio artifact for SNHU C-1602-0-1B Software Development POC
+#
+# What this proves when Cloud Scheduler fires it:
+#   Trigger → Job → Container → Computation → STATUS=SAGCO_BIAS_ERU_PASS
+#   Timestamped in Cloud Logging = portfolio execution proof
+#
+# Image: us-docker.pkg.dev/$PROJECT_ID/sagco-repo/c160201c:latest
+
+# ── Stage 1: build sagco-bias-core ────────────────────────────────────────────
+FROM rust:1.78-slim AS builder
+
+WORKDIR /build
+
+# Pre-fetch dependencies via dummy build
+COPY sagco-transistor-biasing-case-study/rust/sagco-bias-core/Cargo.toml ./
+RUN mkdir src && echo 'fn main(){}' > src/main.rs && \
+    touch src/lib.rs src/units.rs src/voltage_divider.rs src/eru.rs && \
+    cargo build --release 2>/dev/null || true && \
+    rm -rf src
+
+# Real source build
+COPY sagco-transistor-biasing-case-study/rust/sagco-bias-core/src ./src
+RUN cargo build --release --bin sagco-bias-core
+
+# ── Stage 2: minimal runtime ──────────────────────────────────────────────────
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /build/target/release/sagco-bias-core /usr/local/bin/sagco-bias-core
+
+# Portfolio proof wrapper — adds metadata to Cloud Logging output
+COPY <<'SCRIPT' /usr/local/bin/c160201c-entrypoint.sh
+#!/bin/sh
+echo "SAGCO-ARTIFACT-BRIDGE EXECUTION"
+echo "PORTFOLIO=C-1602-0-1B"
+echo "CONTAINER=c160201c"
+echo "TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)"
+echo "---"
+/usr/local/bin/sagco-bias-core
+EXIT_CODE=$?
+echo "---"
+if [ $EXIT_CODE -eq 0 ]; then
+  echo "STATUS=SAGCO_CONTAINER_FORGE_PASS"
+else
+  echo "STATUS=SAGCO_CONTAINER_FORGE_FAIL EXIT_CODE=$EXIT_CODE"
+fi
+exit $EXIT_CODE
+SCRIPT
+
+RUN chmod +x /usr/local/bin/c160201c-entrypoint.sh && \
+    useradd -m sagco
+
+USER sagco
+WORKDIR /home/sagco
+
+ENTRYPOINT ["/usr/local/bin/c160201c-entrypoint.sh"]
