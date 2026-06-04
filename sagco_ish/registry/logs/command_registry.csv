@@ -36,3 +36,7 @@ sagco-lineage,sagco_ish/lineage/bin/sagco-lineage,LINEAGE_NODE,ACTIVE,2026-06-04
 priorart,sagco_ish/lineage/bin/sagco-priorart,PRIORART_NODE,ACTIVE,2026-06-04T21:27:32Z
 sagco-bridge,sagco_ish/bridge/bin/sagco-bridge,BRIDGE_NODE,ACTIVE,2026-06-04T21:40:31Z
 sagco-edu-eru,sagco_ish/edu/bin/sagco-edu-eru,EDU_ERU_NODE,ACTIVE,2026-06-04T22:08:54Z
+sagco-claim,sagco_ish/claims/bin/sagco-claim,CLAIMS_NODE,ACTIVE,2026-06-04T22:24:36Z
+sagco-claim-check,sagco_ish/claims/bin/sagco-claim-check,CLAIMS_NODE,ACTIVE,2026-06-04T22:24:36Z
+sagco-claims-report,sagco_ish/claims/bin/sagco-claims-report,CLAIMS_NODE,ACTIVE,2026-06-04T22:24:36Z
+sagco-pro-review,sagco_ish/pro_review/bin/sagco-pro-review,PRO_REVIEW_NODE,ACTIVE,2026-06-04T22:26:41Z

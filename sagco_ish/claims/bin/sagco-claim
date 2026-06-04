@@ -1,0 +1,26 @@
+#!/bin/sh
+# SAGCO Claim Registry — Wing F, Brick 045
+# usage: sagco-claim CLAIM_ID LABEL DESCRIPTION EXPECTED_PROOF
+# Registers a claim. Evidence is added separately via sagco-claim-check.
+CLAIM_ID="$1"
+LABEL="$2"
+DESCRIPTION="$3"
+EXPECTED_PROOF="$4"
+OUT="sagco_ish/claims/data/claims.csv"
+[ -z "$CLAIM_ID" ] && echo "usage: sagco-claim CLAIM_ID LABEL DESCRIPTION EXPECTED_PROOF" && exit 1
+mkdir -p sagco_ish/claims/data
+[ ! -f "$OUT" ] && echo "claim_id,label,description,expected_proof,registered,timestamp" > "$OUT"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+if grep -q "^${CLAIM_ID}," "$OUT" 2>/dev/null; then
+  echo "CLAIM_ALREADY_EXISTS: $CLAIM_ID"
+  exit 0
+fi
+
+echo "${CLAIM_ID},${LABEL},${DESCRIPTION},${EXPECTED_PROOF},YES,${TS}" >> "$OUT"
+echo "SAGCO_CLAIM_REGISTERED"
+echo "CLAIM_ID : $CLAIM_ID"
+echo "LABEL    : $LABEL"
+echo "EXPECTED : $EXPECTED_PROOF"
+
+sagco_ish/shared_state/bin/sagco-state "CLAIMS" "CLAIMS_NODE" "ACTIVE" "claim_${CLAIM_ID}_registered" 2>/dev/null || true

@@ -1,0 +1,55 @@
+#!/bin/sh
+# SAGCO Claims Report — Wing F, Brick 045
+# usage: sagco-claims-report [CLAIM_ID]
+# Scores each claim by its evidence checks: PROVEN/PARTIAL/UNPROVEN
+FILTER="$1"
+CLAIMS="sagco_ish/claims/data/claims.csv"
+EVLOG="sagco_ish/claims/logs/claim_evidence.csv"
+OUT_REPORT="sagco_ish/claims/logs/claims_report.csv"
+[ ! -f "$CLAIMS" ] && echo "NO_CLAIMS_REGISTERED" && exit 1
+[ ! -f "$EVLOG" ]  && echo "NO_EVIDENCE_LOGGED"   && exit 1
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$OUT_REPORT" ] && echo "claim_id,label,total_checks,passed,score,status,timestamp" > "$OUT_REPORT"
+
+echo "=== SAGCO CLAIMS REPORT: $TS ==="
+echo ""
+
+TOTAL_CLAIMS=0; PROVEN=0; PARTIAL=0; UNPROVEN=0
+
+tail -n +2 "$CLAIMS" | while IFS=, read claim_id label description expected registered ts; do
+  [ -n "$FILTER" ] && [ "$claim_id" != "$FILTER" ] && continue
+
+  TOTAL=$(grep "^${claim_id}," "$EVLOG" | wc -l | tr -d ' ')
+  # Field 6 is pass flag (claim_id,check_type,check_value,expected,actual,pass,timestamp)
+  PASSED=$(grep "^${claim_id}," "$EVLOG" | awk -F, '$6=="YES"' | wc -l | tr -d ' ')
+
+  [ "${TOTAL:-0}" -eq 0 ] && SCORE="0.00" || \
+    SCORE=$(awk "BEGIN { printf \"%.2f\", ($PASSED/$TOTAL)*100 }")
+
+  STATUS="UNPROVEN"
+  awk "BEGIN {exit !($SCORE>=40)}" && STATUS="PARTIAL"
+  awk "BEGIN {exit !($SCORE>=80)}" && STATUS="PROVEN"
+
+  # Status symbol
+  SYM="❌"
+  [ "$STATUS" = "PARTIAL" ] && SYM="⚠️ "
+  [ "$STATUS" = "PROVEN"  ] && SYM="✅"
+
+  echo "${SYM} ${STATUS}  [${claim_id}]  ${label}"
+  echo "   Checks: ${PASSED}/${TOTAL} passed  Score: ${SCORE}%"
+  echo "   Expected: ${expected}"
+
+  # Show failing checks
+  if [ "$STATUS" != "PROVEN" ] && [ "${TOTAL:-0}" -gt 0 ]; then
+    FAILS=$(grep "^${claim_id}," "$EVLOG" | grep ",NO," | head -3 | \
+      while IFS=, read cid ctype cval exp act pass cts; do echo "   FAIL: [$ctype] $cval → actual=$act"; done)
+    [ -n "$FAILS" ] && echo "$FAILS"
+  fi
+  echo ""
+
+  # Log to report CSV
+  echo "${claim_id},${label},${TOTAL},${PASSED},${SCORE},${STATUS},${TS}" >> "$OUT_REPORT"
+done
+
+echo "SAGCO_CLAIMS_REPORT_COMPLETE"
+sagco_ish/shared_state/bin/sagco-state "CLAIMS" "CLAIMS_REPORT_NODE" "ACTIVE" "report_generated_${TS}" 2>/dev/null || true

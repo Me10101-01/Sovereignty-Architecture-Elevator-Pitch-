@@ -1,0 +1,3 @@
+case,type,artifact,sha,reviewer,status,timestamp
+C1602_CASE_001,patent,path/to/document.pdf,NO_HASH,UNASSIGNED,ARTIFACT_MISSING_PACKET_STUB,2026-06-04T22:26:45Z
+C1602_CASE_001,snhu,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio_Case_Study.md,7adc00883556d4a4769c9739cfdbf0ea080d19ad660378904ae38ac0bf8c51ec,UNASSIGNED,PRO_REVIEW_PACKET_GENERATED,2026-06-04T22:26:45Z

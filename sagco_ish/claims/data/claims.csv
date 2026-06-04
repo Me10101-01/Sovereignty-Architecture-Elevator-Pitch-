@@ -1,0 +1,13 @@
+claim_id,label,description,expected_proof,registered,timestamp
+CLM_001,LOCAL_MULTI_NODE_RUNTIME,Multiple physical devices write to shared state mesh,ipad_node+zfold_node+ish_node all in state_updates.csv,YES,2026-06-04T22:24:51Z
+CLM_002,STATE_MESH,Single shared state file updated by multiple nodes,state_updates.csv has 3+ distinct node names,YES,2026-06-04T22:24:51Z
+CLM_003,EVIDENCE_REGISTRY,SHA256 hash chain tracks every governance artifact,governance_register.csv has hash entries,YES,2026-06-04T22:24:51Z
+CLM_004,RUNTIME_HEALTH,Health check verifies all required agents are executable,sagco-health returns 10/10 OK,YES,2026-06-04T22:24:51Z
+CLM_005,DEPENDENCY_MAPPING,Dependency graph shows parent-child agent relationships,deps.csv exists with parent,child,reason rows,YES,2026-06-04T22:24:51Z
+CLM_006,KNOWLEDGE_LINEAGE,Every brick traceable to prior art sources with timestamp,citations.csv has 25+ entries with sources,YES,2026-06-04T22:24:51Z
+CLM_007,ERU_VARIANCE_ENGINE,Expected vs actual variance measured and logged per artifact,wafer_eru.csv has GREEN and ALERT rows,YES,2026-06-04T22:24:51Z
+CLM_008,HALLUCINATION_DETECTION,Term-overlap self-audit scores AI output against truth file,hallucheck_eru.csv has score and status per run,YES,2026-06-04T22:24:51Z
+CLM_009,PII_REDACTION,PII stripped before public deployment with audit log,redact_audit.csv logs per-pattern removal counts,YES,2026-06-04T22:24:51Z
+CLM_010,PUBLIC_PROOF_PAGE,Deployable HTML page generated from live system state,deploy/pages_package/index.html verified 7/7 GREEN,YES,2026-06-04T22:24:51Z
+CLM_011,DISCORD_DEVOPS_PLANE,Discord slash command triggers deployment action,screenshot of bot receiving command and executing action,YES,2026-06-04T22:24:51Z
+CLM_012,SOVEREIGN_AI_OS,Complete OS with scheduler+resource+state+runtime+deploy,all 5 OS components present and integrated,YES,2026-06-04T22:24:51Z

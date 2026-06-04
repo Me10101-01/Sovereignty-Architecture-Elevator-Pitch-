@@ -1,0 +1,63 @@
+#!/bin/sh
+# SAGCO Claim Checker — Wing F, Brick 045
+# usage: sagco-claim-check CLAIM_ID CHECK_TYPE CHECK_VALUE [EXPECTED_VALUE]
+#
+# CHECK_TYPES:
+#   file_exists   CHECK_VALUE=path — passes if file/dir exists
+#   grep_match    CHECK_VALUE="PATH:PATTERN" — passes if pattern found in file
+#   state_check   CHECK_VALUE="CASE:NODE" — passes if node appears in state log
+#   count_gte     CHECK_VALUE="PATH:PATTERN" EXPECTED_VALUE=N — passes if count>=N
+#   manual        CHECK_VALUE="DESCRIPTION" EXPECTED_VALUE=PROVEN|UNPROVEN — human assertion
+
+CLAIM_ID="$1"
+CHECK_TYPE="$2"
+CHECK_VALUE="$3"
+EXPECTED_VALUE="${4:-YES}"
+EVLOG="sagco_ish/claims/logs/claim_evidence.csv"
+CLAIMS="sagco_ish/claims/data/claims.csv"
+
+[ -z "$CLAIM_ID" ]   && echo "usage: sagco-claim-check CLAIM_ID CHECK_TYPE CHECK_VALUE [EXPECTED_VALUE]" && exit 1
+[ -z "$CHECK_TYPE" ] && echo "usage: sagco-claim-check CLAIM_ID CHECK_TYPE CHECK_VALUE [EXPECTED_VALUE]" && exit 1
+
+mkdir -p sagco_ish/claims/logs
+[ ! -f "$EVLOG" ] && echo "claim_id,check_type,check_value,expected,actual,pass,timestamp" > "$EVLOG"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+PASS="NO"
+ACTUAL="NOT_FOUND"
+
+case "$CHECK_TYPE" in
+  file_exists)
+    if [ -e "$CHECK_VALUE" ]; then ACTUAL="EXISTS"; PASS="YES"; else ACTUAL="MISSING"; fi
+    ;;
+  grep_match)
+    FILE=$(echo "$CHECK_VALUE" | cut -d: -f1)
+    PATTERN=$(echo "$CHECK_VALUE" | cut -d: -f2-)
+    COUNT=$(grep -c "$PATTERN" "$FILE" 2>/dev/null | tr -d ' ')
+    if [ "${COUNT:-0}" -gt 0 ] 2>/dev/null; then ACTUAL="FOUND_${COUNT}"; PASS="YES"; else ACTUAL="NOT_FOUND"; fi
+    ;;
+  state_check)
+    CASE=$(echo "$CHECK_VALUE" | cut -d: -f1)
+    NODE=$(echo "$CHECK_VALUE" | cut -d: -f2-)
+    COUNT=$(grep -c "$NODE" "sagco_ish/shared_state/logs/state_updates.csv" 2>/dev/null | tr -d ' ')
+    if [ "${COUNT:-0}" -gt 0 ] 2>/dev/null; then ACTUAL="NODE_ACTIVE_${COUNT}x"; PASS="YES"; else ACTUAL="NODE_NEVER_SEEN"; fi
+    ;;
+  count_gte)
+    FILE=$(echo "$CHECK_VALUE" | cut -d: -f1)
+    PATTERN=$(echo "$CHECK_VALUE" | cut -d: -f2-)
+    COUNT=$(grep "$PATTERN" "$FILE" 2>/dev/null | wc -l | tr -d ' ')
+    ACTUAL="COUNT_${COUNT}"
+    if [ "${COUNT:-0}" -ge "${EXPECTED_VALUE:-1}" ] 2>/dev/null; then PASS="YES"; fi
+    ;;
+  manual)
+    ACTUAL="$EXPECTED_VALUE"
+    [ "$EXPECTED_VALUE" = "PROVEN" ] && PASS="YES"
+    ;;
+  *)
+    echo "ERROR: unknown check_type '$CHECK_TYPE'"
+    exit 1
+    ;;
+esac
+
+echo "${CLAIM_ID},${CHECK_TYPE},${CHECK_VALUE},${EXPECTED_VALUE},${ACTUAL},${PASS},${TS}" >> "$EVLOG"
+echo "CHECK ${PASS}  [${CHECK_TYPE}]  ${CHECK_VALUE}  actual=${ACTUAL}"

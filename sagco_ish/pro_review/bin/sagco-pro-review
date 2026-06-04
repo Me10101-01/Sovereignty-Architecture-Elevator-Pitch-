@@ -1,0 +1,109 @@
+#!/bin/sh
+# SAGCO Professional Review Antibody — Wing F, Brick 046
+# usage: sagco-pro-review CASE ARTIFACT TYPE [REVIEWER]
+# TYPE: patent | legal | cpa | snhu | engineer | general
+# Generates a review packet even when artifact is missing — no dead stops.
+CASE="$1"
+ART="$2"
+TYPE="${3:-general}"
+REVIEWER="${4:-UNASSIGNED}"
+LOG="sagco_ish/pro_review/logs/pro_review.csv"
+mkdir -p sagco_ish/pro_review/logs
+[ -z "$CASE" ] && echo "usage: sagco-pro-review CASE ARTIFACT TYPE [REVIEWER]" && exit 1
+[ ! -f "$LOG" ] && echo "case,type,artifact,sha,reviewer,status,timestamp" > "$LOG"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+PACK="sagco_ish/pro_review/logs/${CASE}_${TYPE}_review_packet.md"
+
+if [ -z "$ART" ] || [ ! -f "$ART" ]; then
+  STATUS="ARTIFACT_MISSING_PACKET_STUB"
+  HASH="NO_HASH"
+  ART_NOTE="⚠ Artifact not found: ${ART:-NONE}. Attach real path and rerun."
+else
+  STATUS="PRO_REVIEW_PACKET_GENERATED"
+  HASH=$(sha256sum "$ART" 2>/dev/null | awk '{print $1}')
+  ART_NOTE="✅ Artifact verified: SHA256=${HASH}"
+fi
+
+# Pull current system state for context
+STATE=$(cat "sagco_ish/shared_state/cases/${CASE}.json" 2>/dev/null | tr '\n' ' ' || echo "STATE_NOT_FOUND")
+CLAIMS_SUMMARY=$(tail -n +2 sagco_ish/claims/logs/claims_report.csv 2>/dev/null | \
+  awk -F, '{print "- " $2 ": " $6}' | head -12 || echo "No claims report yet")
+
+cat > "$PACK" <<DOC
+# SAGCO Professional Review Packet
+
+| Field | Value |
+|---|---|
+| CASE | ${CASE} |
+| TYPE | ${TYPE} |
+| ARTIFACT | ${ART:-NONE} |
+| REVIEWER | ${REVIEWER} |
+| STATUS | ${STATUS} |
+| GENERATED | ${TS} |
+
+## Artifact Status
+${ART_NOTE}
+
+## System State at Review Time
+\`\`\`
+${STATE}
+\`\`\`
+
+## Claims Status (Self-Graded)
+${CLAIMS_SUMMARY}
+
+## Review Lanes
+
+### Patent / Prior Art Review
+- What novel method or system is being claimed?
+- Does sagco-lineage show prior art that anticipates the claim?
+- What is the delta between SAGCO and CaseGuard / Presidio / Google DLP?
+- Is the offline-first + hallucheck + SHA256 chain combination novel?
+
+### Legal / NDA Review
+- Has sagco-redact been run? (PII stripped before this packet was generated?)
+- Which sections contain attorney-client privileged information?
+- Are DAO governance docs present that require redaction before public filing?
+
+### CPA / Tax Review
+- Does this artifact contain EIN, SSN, or financial instrument references?
+- Has sagco-redact flagged and removed all financial identifiers?
+- Is this artifact safe for IRS correspondence record vs. public disclosure?
+
+### Professional Engineer Review
+- Does the system meet the claimed correctness guarantees (ERU GREEN status)?
+- Is the evidence chain auditable by a third party (SHA256 + governance log)?
+- What failure modes were observed and what antibodies were triggered?
+
+### SNHU Capstone / Portfolio Review
+- Which ABET outcomes does this artifact satisfy?
+- Run: sagco-edu-eru CASE benchmarks/acm_ieee_se_benchmark.txt ARTIFACT LABEL
+- Current benchmark scores: ACM/IEEE 53%, ABET 58%, Gray Literature 58%
+- Remaining curriculum gaps: concurrency, algorithms, containers, chaos engineering
+
+### Engineering Archaeology
+- What brick created this artifact? (sagco-lineage BRICK)
+- What prior art inspired it? (sagco-priorart --lookup SOURCE)
+- What failures were overcome to produce it? (see antibody log)
+
+## Engineering Questions (ERU Framework)
+1. CLAIM: What is being asserted about this artifact?
+2. EXPECTED: What evidence would prove the claim?
+3. ACTUAL: What evidence currently exists?
+4. VARIANCE: What is the gap between expected and actual?
+5. STATUS: PROVEN / PARTIAL / UNPROVEN?
+6. ANTIBODY: What failure was triggered and how was it resolved?
+
+## Next Action
+$([ "$STATUS" = "ARTIFACT_MISSING_PACKET_STUB" ] && \
+  echo "Attach real artifact path, then rerun: sagco-pro-review $CASE /real/path/file.pdf $TYPE $REVIEWER" || \
+  echo "Route to reviewer: $REVIEWER — packet is complete and SHA256-verified.")
+DOC
+
+echo "$CASE,$TYPE,$ART,$HASH,$REVIEWER,$STATUS,$TS" >> "$LOG"
+sagco_ish/shared_state/bin/sagco-state "$CASE" "PRO_REVIEW_NODE" "ACTIVE" "${TYPE}_${STATUS}" 2>/dev/null || true
+
+echo "SAGCO_PRO_REVIEW_COMPLETE"
+echo "PACKET : $PACK"
+echo "STATUS : $STATUS"
+tail -1 "$LOG"
