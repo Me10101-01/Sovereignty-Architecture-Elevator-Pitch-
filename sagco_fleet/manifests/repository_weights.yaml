@@ -1,0 +1,65 @@
+# SAGCO Fleet Repository Weight Model
+# Total weight = 1.00 = deployable brick
+# Each dimension gates the next stage in the pipeline.
+#
+# Pipeline: Artifact → Token → Lineage → Weight → Deploy
+
+model_version: "1.0"
+total_target: 1.00
+
+dimensions:
+  exists:
+    weight: 0.20
+    description: "Directory and Cargo.toml present — agent repository exists"
+    gate: "scaffold opcode creates this"
+    check: "test -d sagco_fleet/agents/{name}"
+
+  builds:
+    weight: 0.20
+    description: "cargo build succeeds — compilable Rust source"
+    gate: "cargo build --manifest-path sagco_fleet/agents/{name}/Cargo.toml"
+    check: "target/{name} binary present"
+
+  tests:
+    weight: 0.20
+    description: "cargo test passes — all integration tests green"
+    gate: "cargo test --manifest-path sagco_fleet/agents/{name}/Cargo.toml"
+    check: "test result: ok"
+
+  docs:
+    weight: 0.10
+    description: "docs/README.md present — agent is documented"
+    gate: "scaffold opcode creates this"
+    check: "test -f sagco_fleet/agents/{name}/docs/README.md"
+
+  deploy_manifest:
+    weight: 0.10
+    description: "k8s/job.yaml present — deployable to Kubernetes"
+    gate: "scaffold opcode creates this"
+    check: "test -f sagco_fleet/agents/{name}/k8s/job.yaml"
+
+  lineage:
+    weight: 0.10
+    description: "LINEAGE.md present — ancestry chain recorded"
+    gate: "scaffold opcode creates this"
+    check: "grep SAGCO_LINEAGE_SEALED sagco_fleet/agents/{name}/LINEAGE.md"
+
+  antibody:
+    weight: 0.10
+    description: "antibody_check() function present in agent.rs"
+    gate: "scaffold opcode creates stub — must be implemented"
+    check: "grep antibody_check sagco_fleet/agents/{name}/src/agent.rs"
+
+# Score labels
+labels:
+  deployable: "total >= 0.95"
+  near_ready: "total >= 0.70"
+  scaffolded: "total >= 0.40"
+  stub:       "total < 0.40"
+
+# ERU fleet model
+eru_fleet:
+  formula: "(expected - actual) / expected"
+  expected: 9
+  threshold_warn: 0.20    # >20% missing = WARN
+  threshold_critical: 0.50  # >50% missing = CRITICAL

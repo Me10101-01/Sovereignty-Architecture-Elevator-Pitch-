@@ -1,0 +1,89 @@
+# SAGCO Fleet PMI Scores
+# PMI = Proportional Missing Impact
+# Score = impact to fleet if this agent is absent (0.0 - 1.0)
+# Agents sorted by PMI descending = deployment priority order.
+#
+# Pipeline sequence when ERU > 0:
+#   excavate → score via PMI → scaffold missing → deploy → verify ERU → seal
+
+model_version: "1.0"
+
+agents:
+  - name: excavate-agent
+    pmi: 0.98
+    reason: "Discovers missing repositories — fleet cannot self-heal without it"
+    depends_on: [cortex-agent]
+    cascade_risk: CRITICAL
+    scaffold_cmd: "scaffold excavate-agent"
+
+  - name: deploy-agent
+    pmi: 0.96
+    reason: "Pushes scaffolded repos to GitHub and triggers Cloud Build"
+    depends_on: [cortex-agent, antibody-agent]
+    cascade_risk: CRITICAL
+    scaffold_cmd: "scaffold deploy-agent"
+
+  - name: antibody-agent
+    pmi: 0.95
+    reason: "Validates every build before deployment — gates the fleet"
+    depends_on: []
+    cascade_risk: HIGH
+    scaffold_cmd: "scaffold antibody-agent"
+
+  - name: cortex-agent
+    pmi: 0.94
+    reason: "Fleet planner — orchestrates the pipeline sequence"
+    depends_on: []
+    cascade_risk: HIGH
+    scaffold_cmd: "scaffold cortex-agent"
+
+  - name: lineage-agent
+    pmi: 0.93
+    reason: "Traces artifact ancestry — required for compliance + weight scoring"
+    depends_on: [excavate-agent]
+    cascade_risk: MEDIUM
+    scaffold_cmd: "scaffold lineage-agent"
+
+  - name: weight-agent
+    pmi: 0.91
+    reason: "Scores bricks against 7-dimension model — gates deploy decisions"
+    depends_on: [lineage-agent]
+    cascade_risk: MEDIUM
+    scaffold_cmd: "scaffold weight-agent"
+
+  - name: scaffold-agent
+    pmi: 0.90
+    reason: "Generates missing repos — self-replication capability"
+    depends_on: [weight-agent, excavate-agent]
+    cascade_risk: MEDIUM
+    scaffold_cmd: "scaffold scaffold-agent"
+
+  - name: lexer-agent
+    pmi: 0.88
+    reason: "Parses pipeline language — required for opcode execution"
+    depends_on: []
+    cascade_risk: LOW
+    scaffold_cmd: "scaffold lexer-agent"
+
+  - name: parser-agent
+    pmi: 0.87
+    reason: "Builds AST from tokens — required for pipeline execution"
+    depends_on: [lexer-agent]
+    cascade_risk: LOW
+    scaffold_cmd: "scaffold parser-agent"
+
+# Autodeploy sequence (CRITICAL → HIGH → MEDIUM → LOW)
+autodeploy_order:
+  - excavate-agent
+  - deploy-agent
+  - antibody-agent
+  - cortex-agent
+  - lineage-agent
+  - weight-agent
+  - scaffold-agent
+  - lexer-agent
+  - parser-agent
+
+# ERU target
+eru_target: 0.00    # all 9 agents deployed = ERU=0
+eru_current: 1.00   # 0/9 agents deployed = ERU=1.00 (scaffolding starts now)
