@@ -1,0 +1,70 @@
+#!/bin/sh
+# SAGCO Brick 024 - ERU Aggregator
+# Usage: sagco-eru-report <CASE_ID>
+CASE="$1"
+if [ -z "$CASE" ]; then
+  echo "usage: sagco-eru-report CASE_ID"
+  exit 1
+fi
+
+# wafer_eru.csv: case,label,expected,actual,variance,status,timestamp
+ERU_LOG="sagco_ish/wafer/logs/wafer_eru.csv"
+if [ ! -f "$ERU_LOG" ]; then
+  echo "ERU_LOG_NOT_FOUND: $ERU_LOG"
+  exit 1
+fi
+
+TMPFILE="/tmp/eru_${CASE}.csv"
+grep "^${CASE}," "$ERU_LOG" > "$TMPFILE" 2>/dev/null || true
+
+if [ ! -s "$TMPFILE" ]; then
+  echo "NO_ERU_DATA_FOR_CASE: $CASE"
+  rm -f "$TMPFILE"
+  exit 1
+fi
+
+# All metrics via single awk pass — no bc, no float deps
+STATS=$(awk -F, '
+NR==1 { max=$5; min=$5 }
+{
+  total++
+  sum += $5
+  if ($5 > max) max = $5
+  if ($5 < min) min = $5
+  if ($6 == "WAFER_GREEN") green++
+  else alert++
+}
+END {
+  avg = (total > 0) ? sum/total : 0
+  printf "TOTAL=%d SUM=%d AVG=%.2f MAX=%d MIN=%d GREEN=%d ALERT=%d",
+    total, sum, avg, max, min, green+0, alert+0
+}' "$TMPFILE")
+
+TOTAL=$(echo "$STATS" | grep -o 'TOTAL=[0-9]*' | cut -d= -f2)
+AVG=$(echo "$STATS"   | grep -o 'AVG=-*[0-9.]*' | cut -d= -f2)
+MAX=$(echo "$STATS"   | grep -o 'MAX=-*[0-9]*'  | cut -d= -f2)
+MIN=$(echo "$STATS"   | grep -o 'MIN=-*[0-9]*'  | cut -d= -f2)
+GREEN=$(echo "$STATS" | grep -o 'GREEN=[0-9]*'  | cut -d= -f2)
+ALERT=$(echo "$STATS" | grep -o 'ALERT=[0-9]*'  | cut -d= -f2)
+
+# Health score: 100 base, -10 per alert, floor 0
+HEALTH=$(awk "BEGIN { h=100 - ($ALERT * 10); if (h<0) h=0; print int(h) }")
+STATUS=$(awk "BEGIN { h=$HEALTH; if (h>=80) print \"GREEN\"; else if (h>=60) print \"YELLOW\"; else print \"RED\" }")
+
+echo "=== SAGCO ERU REPORT: $CASE ==="
+echo "TOTAL_OBSERVATIONS=$TOTAL"
+echo "AVG_VARIANCE=$AVG"
+echo "MAX_VARIANCE=$MAX"
+echo "MIN_VARIANCE=$MIN"
+echo "GREEN_COUNT=$GREEN"
+echo "ALERT_COUNT=$ALERT"
+echo "HEALTH_SCORE=$HEALTH"
+echo "STATUS=$STATUS"
+echo ""
+echo "RAW LAST 10 ENTRIES:"
+tail -n 10 "$TMPFILE"
+echo ""
+echo "SAGCO_ERU_REPORT_COMPLETE"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "ERU_NODE" "$STATUS" "health_${HEALTH}_alerts_${ALERT}"
+rm -f "$TMPFILE"

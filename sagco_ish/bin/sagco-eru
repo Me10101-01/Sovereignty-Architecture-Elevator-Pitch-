@@ -1,0 +1,3 @@
+#!/bin/sh
+. sagco_ish/core/env.sh
+sagco-eru-report "$@"
