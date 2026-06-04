@@ -1,0 +1,124 @@
+#!/bin/sh
+# SAGCO-0028: REGRESSION_SUITE
+# Answers: did I break something?
+# Usage: sagco-regression
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+PASS=0
+FAIL=0
+
+check() {
+    NAME="$1"; shift
+    if "$@" > /dev/null 2>&1; then
+        printf "  %-20s PASS\n" "$NAME"
+        PASS=$((PASS + 1))
+    else
+        printf "  %-20s FAIL\n" "$NAME"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+check_file() {
+    NAME="$1"; FILE="$2"
+    if [ -f "$REPO_ROOT/$FILE" ]; then
+        printf "  %-20s PASS\n" "$NAME"
+        PASS=$((PASS + 1))
+    else
+        printf "  %-20s FAIL  (missing: $FILE)\n" "$NAME"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+check_contains() {
+    NAME="$1"; FILE="$2"; PATTERN="$3"
+    if grep -q "$PATTERN" "$REPO_ROOT/$FILE" 2>/dev/null; then
+        printf "  %-20s PASS\n" "$NAME"
+        PASS=$((PASS + 1))
+    else
+        printf "  %-20s FAIL  (pattern '$PATTERN' not found)\n" "$NAME"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+echo ""
+echo "╔══════════════════════════════════════╗"
+echo "║      SAGCO REGRESSION SUITE          ║"
+echo "╚══════════════════════════════════════╝"
+echo ""
+
+echo "── DMS_NORMALIZER ────────────────────"
+check_file "wafer_cells"     "wafer_fuzz/cells/wafer_cells.txt"
+check_contains "has_words"   "wafer_fuzz/cells/wafer_cells.txt" "^WORD="
+check_contains "occurrence"  "wafer_fuzz/cells/wafer_cells.txt" "OCCURRENCE="
+
+echo ""
+echo "── LEXER ─────────────────────────────"
+check_file "flame_tokens"    "sagco_flame_linguistics/tokens/flame_tokens.txt"
+check_contains "token_fmt"   "sagco_flame_linguistics/tokens/flame_tokens.txt" "^TOKEN=FLAME_"
+check_contains "weight_fmt"  "sagco_flame_linguistics/tokens/flame_tokens.txt" "WEIGHT="
+
+echo ""
+echo "── PARSER ────────────────────────────"
+check_file "flamelang_prog"  "sagco_flame_linguistics/flamelang/program.flame"
+check_contains "agent_speaks" "sagco_flame_linguistics/flamelang/program.flame" "agent speaks"
+
+echo ""
+echo "── AST_IR ────────────────────────────"
+check_file "compiled_rs"     "sagco_flame_linguistics/compiled/flame_module.rs"
+check_contains "pub_fn"      "sagco_flame_linguistics/compiled/flame_module.rs" "pub fn flame_"
+
+echo ""
+echo "── ENUMERATOR ────────────────────────"
+check_file "codon_table"     "sagco_knowledge_compiler/graph/codon_table.txt"
+check_contains "codon_fmt"   "sagco_knowledge_compiler/graph/codon_table.txt" "^FLAME_"
+check_file "physics_map"     "sagco_knowledge_compiler/graph/physics_map.txt"
+
+echo ""
+echo "── STEPPER ───────────────────────────"
+check_file "ticks_rs"        "sagco_crawler_engine/src/stepper/ticks.rs"
+check_contains "advance_tick" "sagco_crawler_engine/src/stepper/ticks.rs" "advance_tick"
+
+echo ""
+echo "── CRAWLER ───────────────────────────"
+check_file "crawler_main"    "sagco_crawler_engine/src/main.rs"
+check_file "omni_calc"       "sagco_crawler_engine/src/stepper/omni_calc.rs"
+check_file "crawler_bin"     "sagco_crawler_engine/sagco_lang_runtime/bin/sagco-crawler"
+
+echo ""
+echo "── FLAMELANG ─────────────────────────"
+check_file "emitter_rs"      "sagco_crawler_engine/src/flamelang/emitter.rs"
+check_contains "emit_green"  "sagco_crawler_engine/src/flamelang/emitter.rs" "EMIT_STATE_GREEN"
+check_file "token_rs"        "sagco_crawler_engine/src/flamelang/token.rs"
+
+echo ""
+echo "── HASHING ───────────────────────────"
+check_file "hash_rs"         "sagco_crawler_engine/src/flamelang/hash.rs"
+check_contains "sha3"        "sagco_crawler_engine/Cargo.toml" "sha3"
+check_file "token_edges"     "sagco_knowledge_compiler/graph/token_edges.txt"
+check_contains "edge_count"  "sagco_knowledge_compiler/graph/token_edges.txt" "|"
+
+echo ""
+echo "── DEPLOYMENT_MAP ────────────────────"
+check_file "deploy_map"      "sagco_deployment_map/deployment_map.txt"
+check_file "cloud_artifact"  "sagco_cloud_artifact/cloud_artifact.txt"
+check_file "demo_bin"        "bin/sagco-demo"
+check_file "mission_bin"     "bin/sagco-mission"
+
+echo ""
+echo "── TOOLS ─────────────────────────────"
+check "sagco-demo"       test -x "$REPO_ROOT/bin/sagco-demo"
+check "sagco-mission"    test -x "$REPO_ROOT/bin/sagco-mission"
+check "sagco-archaeologist" test -x "$REPO_ROOT/bin/sagco-archaeologist"
+check "sagco-token-graph"   test -x "$REPO_ROOT/bin/sagco-token-graph"
+check "sagco-htop"          test -x "$REPO_ROOT/bin/sagco-htop"
+
+echo ""
+echo "══════════════════════════════════════"
+printf "  PASS=%-4s FAIL=%-4s\n" "$PASS" "$FAIL"
+if [ "$FAIL" -eq 0 ]; then
+    echo "  RESULT = GREEN"
+else
+    echo "  RESULT = RED  ($FAIL checks failed)"
+fi
+echo "══════════════════════════════════════"
+echo ""
