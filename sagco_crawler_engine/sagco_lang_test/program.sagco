@@ -1,25 +1,33 @@
-# SAGCO MISSION MANIFEST
-# program.sagco — core runtime configuration
+# SAGCO Mission Manifest - Structural Pipeline Test
+MISSION_ID: STEPPER_CRAWLER_INTEGRITY_001
+PERIODIC_MAPPING: ACTIVE
 
-MISSION=SAGCO_CRAWLER_ENGINE
-VERSION=0.1.0
-BRICK=SAGCO-0023
+# Core Bindings
+BIND ExcelWafer -> Silicon_Si14
+BIND WordFrequency -> Helium_He2
+BIND Token -> Carbon_C6
+BIND Weight -> Lead_Pb82
+BIND FLAMEToken -> Phosphorus_P15
+BIND FlameLang -> Oxygen_O8
+BIND RustCall -> Iron_Fe26
+BIND DNAStrand -> Nitrogen_N7
+BIND Unity -> Hydrogen_H1
+BIND Epic -> Gold_Au79
 
-# Periodic Table Bindings
-ELEMENT_1=Silicon_Si14   CONCEPT=Excel_Wafer
-ELEMENT_2=Helium_He2     CONCEPT=Word_Frequency
-ELEMENT_3=Carbon_C6      CONCEPT=Token
-ELEMENT_4=Lead_Pb82      CONCEPT=Weight
-ELEMENT_5=Phosphorus_P15 CONCEPT=FLAME_Token
-ELEMENT_6=Oxygen_O8      CONCEPT=FlameLang
-ELEMENT_7=Iron_Fe26      CONCEPT=Rust_Call
-ELEMENT_8=Nitrogen_N7    CONCEPT=DNA_Strand
-ELEMENT_9=Hydrogen_H1    CONCEPT=Unity
-ELEMENT_10=Gold_Au79     CONCEPT=Epic
+# Test Vectors
+TEST_CASE tick_advance {
+    INTERVAL: 250ms
+    BASE_WEIGHT: 1.034
+    EXPECTED_TICKS: 50
+    VERIFY_WEIGHT_SCALING: true
+}
 
-# Runtime
-WAFER=WAFER_AX_99
-TICK_INTERVAL=250
-FLAME_TOKENS=34
-GRAPH_EDGES=274
-STATUS=READY
+TEST_CASE omni_calc {
+    WAFER: WAFER_AX_99
+    FREQ_TERMS: ["sagco_kernel", "flamelang", "vim_hook"]
+    VERIFY_TRANSPILATION: true
+}
+
+# Vim Kernel Validation
+VIM_INTEGRITY_CHECK: true
+EXPECTED_BINDINGS: 5
