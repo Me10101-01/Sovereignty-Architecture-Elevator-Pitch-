@@ -1,0 +1,7 @@
+read CORTEX.md
+read sagco.master.yaml
+read sagco.compose.yaml
+read gcp_services.txt
+wave gcp_services.txt
+pulse 793398609444
+seal evidence_cortex_boot.bin
