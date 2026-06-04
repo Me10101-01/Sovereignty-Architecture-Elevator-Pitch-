@@ -1,0 +1,19 @@
+#!/bin/sh
+# SAGCO-WING-INIT: Creates standard fleet directory layout.
+# Run from any module root: ./bin/sagco-wing-init [target_dir]
+ROOT="${1:-.}"
+for d in \
+  "$ROOT/dictionary" \
+  "$ROOT/thesaurus" \
+  "$ROOT/bibliography" \
+  "$ROOT/deploy" \
+  "$ROOT/logs" \
+  "$ROOT/images" \
+  "$ROOT/containers" \
+  "$ROOT/registry" \
+  "$ROOT/artifacts"
+do
+  mkdir -p "$d"
+  echo "DIR_OK=$d"
+done
+echo "STATUS=SAGCO_WING_INIT_PASS"

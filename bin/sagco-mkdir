@@ -1,0 +1,8 @@
+#!/bin/sh
+# SAGCO-ANTIBODY-001: NO_BRACE_EXPANSION
+# Replaces: mkdir -p a/{b,c,d}  (breaks in iSH/POSIX sh)
+# Usage:    ./bin/sagco-mkdir path/one path/two path/three
+for d in "$@"; do
+  mkdir -p "$d"
+  echo "DIR_OK=$d"
+done

@@ -1,0 +1,156 @@
+#!/bin/sh
+# SAGCO ANTIBODY LAYER
+# If directory missing  → create
+# If file missing       → create stub
+# If path invalid       → repair
+# If image missing      → lookup dictionary
+#
+# Usage: ./bin/sagco-antibody [--check | --heal | --image <brick>]
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+DICT="$REPO_ROOT/sagco_cloud_wing/dictionary/images.txt"
+
+PASS=0
+FAIL=0
+HEALED=0
+
+log() { echo "$1"; }
+pass() { log "  PASS  $1"; PASS=$((PASS + 1)); }
+heal() { log "  HEAL  $1"; HEALED=$((HEALED + 1)); }
+fail() { log "  FAIL  $1"; FAIL=$((FAIL + 1)); }
+
+# ── 1. DIRECTORY ANTIBODY ─────────────────────────────────────────────────────
+check_dirs() {
+  log "=== DIRECTORY ANTIBODY ==="
+  for d in \
+    "$REPO_ROOT/bin" \
+    "$REPO_ROOT/sagco_cloud_wing/dictionary" \
+    "$REPO_ROOT/sagco_cloud_wing/thesaurus" \
+    "$REPO_ROOT/sagco_cloud_wing/bibliography" \
+    "$REPO_ROOT/sagco_cloud_wing/deploy" \
+    "$REPO_ROOT/sagco_cloud_wing/logs" \
+    "$REPO_ROOT/sagco_cloud_wing/images" \
+    "$REPO_ROOT/sagco_cloud_wing/containers" \
+    "$REPO_ROOT/sagco_cloud_wing/registry" \
+    "$REPO_ROOT/sagco_cloud_wing/artifacts" \
+    "$REPO_ROOT/sagco_fleet/manifests" \
+    "$REPO_ROOT/sagco_fleet/agents" \
+    "$REPO_ROOT/reports" \
+    "$REPO_ROOT/inputs" \
+    "$REPO_ROOT/crates"
+  do
+    if [ -d "$d" ]; then
+      pass "$d"
+    else
+      mkdir -p "$d"
+      heal "created $d"
+    fi
+  done
+}
+
+# ── 2. FILE ANTIBODY ──────────────────────────────────────────────────────────
+check_files() {
+  log ""
+  log "=== FILE ANTIBODY ==="
+  # dictionary must exist
+  if [ -f "$DICT" ]; then
+    pass "dictionary/images.txt"
+  else
+    cat > "$DICT" <<'DICT_EOF'
+sagco_dojo=dom101/sagco-dojo:latest
+sagco_codex=dom101/sagco-codex:latest
+sagco_core=dom101/sagco-core:latest
+sagco_controls=dom101/sagco-controls-v2:latest
+sagco_android=dom101/sagco-android:latest
+DICT_EOF
+    heal "created default dictionary/images.txt"
+  fi
+  # sagco-cloud-wing.sh must be executable
+  CW="$REPO_ROOT/sagco_cloud_wing/deploy/sagco-cloud-wing.sh"
+  if [ -f "$CW" ]; then
+    chmod +x "$CW"
+    pass "sagco-cloud-wing.sh"
+  else
+    heal "sagco-cloud-wing.sh MISSING — run: git pull"
+  fi
+  # bin scripts must be executable
+  for f in "$REPO_ROOT/bin/sagco-mkdir" "$REPO_ROOT/bin/sagco-wing-init" "$REPO_ROOT/bin/sagco-antibody"; do
+    if [ -f "$f" ]; then
+      chmod +x "$f"
+      pass "$(basename "$f") +x"
+    else
+      fail "$(basename "$f") missing"
+    fi
+  done
+}
+
+# ── 3. PATH / PLACEHOLDER ANTIBODY ───────────────────────────────────────────
+check_placeholders() {
+  log ""
+  log "=== PLACEHOLDER ANTIBODY ==="
+  PLACEHOLDER="us-docker.pkg.dev/PROJECT_ID"
+  REAL="us-central1-docker.pkg.dev/sagco-oscomputconsciousness/sagco-agents"
+  COUNT=$(grep -r "$PLACEHOLDER" "$REPO_ROOT" --include="*.yaml" --include="*.sh" --include="*.txt" -l 2>/dev/null | wc -l)
+  if [ "$COUNT" -gt 0 ]; then
+    fail "placeholder image path found in $COUNT file(s) — replace with: $REAL"
+    grep -r "$PLACEHOLDER" "$REPO_ROOT" --include="*.yaml" --include="*.sh" --include="*.txt" -l 2>/dev/null | while read f; do
+      log "    FILE=$f"
+    done
+  else
+    pass "no placeholder paths found"
+  fi
+}
+
+# ── 4. IMAGE ANTIBODY ─────────────────────────────────────────────────────────
+check_image() {
+  BRICK="$1"
+  log ""
+  log "=== IMAGE ANTIBODY: $BRICK ==="
+  if [ ! -f "$DICT" ]; then
+    fail "dictionary missing"
+    return
+  fi
+  IMG="$(grep "^$BRICK=" "$DICT" | cut -d= -f2-)"
+  if [ -z "$IMG" ]; then
+    fail "BRICK_NOT_FOUND=$BRICK"
+    log "  available bricks:"
+    grep -v '^#' "$DICT" | grep '=' | cut -d= -f1 | while read b; do log "    $b"; done
+  else
+    pass "BRICK=$BRICK IMAGE=$IMG"
+  fi
+}
+
+# ── MAIN ──────────────────────────────────────────────────────────────────────
+MODE="${1:---heal}"
+BRICK="$2"
+
+log "SAGCO ANTIBODY LAYER"
+log "MODE=$MODE"
+log "ROOT=$REPO_ROOT"
+log ""
+
+case "$MODE" in
+  --image)
+    check_image "$BRICK"
+    ;;
+  --check)
+    check_dirs
+    check_files
+    check_placeholders
+    ;;
+  --heal|*)
+    check_dirs
+    check_files
+    check_placeholders
+    ;;
+esac
+
+log ""
+log "PASS=$PASS  HEALED=$HEALED  FAIL=$FAIL"
+if [ "$FAIL" -eq 0 ]; then
+  log "STATUS=SAGCO_ANTIBODY_PASS"
+  exit 0
+else
+  log "STATUS=SAGCO_ANTIBODY_FAIL"
+  exit 1
+fi
