@@ -1,0 +1,31 @@
+FLEET=SAGCO_AUTONOMOUS
+AGENTS:
+ARCHAEOLOGIST
+-> finds artifacts
+LIBRARIAN
+-> manages dictionary thesaurus bibliography
+COMPILER
+-> token -> flame -> rust_call
+KNOWLEDGE_COMPILER
+-> builds knowledge graph
+CONTAINER_FORGE
+-> artifact -> image
+DEPLOYER
+-> image -> cloud
+CRAWLER
+-> traverses sources
+DOJO
+-> validates bottlenecks
+MEMORY_KEEPER
+-> lineage + memory index
+PIPELINE:
+artifact
+-> classify
+-> relate
+-> compile
+-> package
+-> deploy
+-> observe
+-> record
+STATUS=ACTIVE
+LEVEL=20
