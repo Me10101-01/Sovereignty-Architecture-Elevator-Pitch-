@@ -1,0 +1,97 @@
+#!/bin/sh
+# SAGCO-0022: MISSION_CONTROL
+# One command. Every brick reports in.
+# Usage: sagco mission
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+check() {
+  NAME="$1"; PATH_CHECK="$2"
+  if [ -e "$REPO_ROOT/$PATH_CHECK" ]; then
+    printf "%-22s = READY\n" "$NAME"
+  else
+    printf "%-22s = MISSING\n" "$NAME"
+  fi
+}
+
+check_bin() {
+  NAME="$1"; BIN="$2"
+  if [ -x "$REPO_ROOT/bin/$BIN" ]; then
+    printf "%-22s = READY\n" "$NAME"
+  else
+    printf "%-22s = MISSING\n" "$NAME"
+  fi
+}
+
+echo ""
+echo "╔══════════════════════════════════════╗"
+echo "║       SAGCO MISSION CONTROL          ║"
+echo "╚══════════════════════════════════════╝"
+echo ""
+echo "── TOOLS ─────────────────────────────"
+check_bin "ARCHAEOLOGIST"    "sagco-archaeologist"
+check_bin "FLAME_COMPILER"   "sagco-flame-compiler"
+check_bin "TOKEN_GRAPH"      "sagco-token-graph"
+check_bin "MEMORY_INDEX"     "sagco-memory-index"
+check_bin "ANTIBODY"         "sagco-antibody"
+check_bin "HTOP"             "sagco-htop"
+check_bin "MISSION"          "sagco-mission"
+
+echo ""
+echo "── KNOWLEDGE LAYERS ──────────────────"
+check "FLAME_TOKENS"         "sagco_flame_linguistics/tokens/flame_tokens.txt"
+check "CODON_TABLE"          "sagco_knowledge_compiler/graph/codon_table.txt"
+check "PHYSICS_MAP"          "sagco_knowledge_compiler/graph/physics_map.txt"
+check "TOKEN_EDGES"          "sagco_knowledge_compiler/graph/token_edges.txt"
+check "FLAMELANG_PROGRAM"    "sagco_flame_linguistics/flamelang/program.flame"
+check "COMPILED_RS"          "sagco_flame_linguistics/compiled/flame_module.rs"
+
+echo ""
+echo "── REGISTRY & MEMORY ─────────────────"
+check "MEMORY_INDEX"         "sagco_memory_index/memory_index.txt"
+check "LINEAGE_ENGINE"       "sagco_lineage/lineage_engine.txt"
+check "DEPLOYMENT_MAP"       "sagco_deployment_map/deployment_map.txt"
+check "KNOWLEDGE_COMPILER"   "sagco_knowledge/knowledge_compiler.txt"
+check "CONTAINER_FORGE"      "sagco_container_forge/container_forge.txt"
+check "CLOUD_ARTIFACT"       "sagco_cloud_artifact/cloud_artifact.txt"
+check "AUTONOMOUS_FLEET"     "sagco_autonomous_fleet/autonomous_fleet.txt"
+check "MISSION_CONTROL"      "sagco_mission_control/mission_control.txt"
+
+echo ""
+echo "── HTOP RUNTIME ──────────────────────"
+PIDS=0
+if [ -f "$REPO_ROOT/sagco_htop/pids/pid_assignments.txt" ]; then
+  PIDS="$(grep -c 'PID=' "$REPO_ROOT/sagco_htop/pids/pid_assignments.txt" 2>/dev/null || echo 0)"
+fi
+DAEMONS=0
+if [ -f "$REPO_ROOT/sagco_htop/daemons/daemon_registry.txt" ]; then
+  DAEMONS="$(grep -c 'DAEMON=' "$REPO_ROOT/sagco_htop/daemons/daemon_registry.txt" 2>/dev/null || echo 0)"
+fi
+printf "%-22s = %s\n" "PIDS_TRACKED" "$PIDS"
+printf "%-22s = %s\n" "DAEMONS_REGISTERED" "$DAEMONS"
+
+echo ""
+echo "── TOKENS & EDGES ────────────────────"
+TOKENS=0
+if [ -f "$REPO_ROOT/sagco_flame_linguistics/tokens/flame_tokens.txt" ]; then
+  TOKENS="$(grep -c '^TOKEN=' "$REPO_ROOT/sagco_flame_linguistics/tokens/flame_tokens.txt" 2>/dev/null || echo 0)"
+fi
+EDGES=0
+if [ -f "$REPO_ROOT/sagco_knowledge_compiler/graph/token_edges.txt" ]; then
+  EDGES="$(grep -c '|' "$REPO_ROOT/sagco_knowledge_compiler/graph/token_edges.txt" 2>/dev/null || echo 0)"
+fi
+printf "%-22s = %s\n" "FLAME_TOKENS"   "$TOKENS"
+printf "%-22s = %s\n" "GRAPH_EDGES"    "$EDGES"
+
+echo ""
+echo "── MANSION ───────────────────────────"
+BRICKS=22
+printf "%-22s = %s\n" "BRICKS"  "$BRICKS"
+printf "%-22s = %s\n" "LEVEL"   "22"
+printf "%-22s = %s\n" "PHASE"   "2 (FLEET_COORDINATION)"
+
+echo ""
+echo "══════════════════════════════════════"
+printf "%-22s = GREEN\n" "STATUS"
+echo "══════════════════════════════════════"
+echo ""

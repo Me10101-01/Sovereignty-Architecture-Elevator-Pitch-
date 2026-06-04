@@ -1,0 +1,10 @@
+BRICK=SAGCO-0022
+TYPE=MISSION_CONTROL
+PURPOSE=Single command returns status of every brick in the mansion
+COMMAND=sagco-mission
+INPUT=filesystem_state
+OUTPUT=GREEN_status_dashboard
+TOOLS_CHECKED=7
+LAYERS_CHECKED=6
+REGISTRY_CHECKED=8
+STATUS=ACTIVE
