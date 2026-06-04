@@ -1,0 +1,64 @@
+steps:
+  # ── Step 1: Build sagco-bias-core ─────────────────────────────────────────
+  - name: "rust:1.78"
+    id: build-bias-core
+    entrypoint: cargo
+    args:
+      - build
+      - --manifest-path
+      - sagco-transistor-biasing-case-study/rust/sagco-bias-core/Cargo.toml
+      - --release
+    env:
+      - "CARGO_HOME=/workspace/.cargo"
+
+  # ── Step 2: Run cargo test ─────────────────────────────────────────────────
+  - name: "rust:1.78"
+    id: test-bias-core
+    entrypoint: cargo
+    args:
+      - test
+      - --manifest-path
+      - sagco-transistor-biasing-case-study/rust/sagco-bias-core/Cargo.toml
+    env:
+      - "CARGO_HOME=/workspace/.cargo"
+
+  # ── Step 3: Run the binary (Omni example + ERU validation) ────────────────
+  - name: "rust:1.78"
+    id: run-bias-core
+    entrypoint: cargo
+    args:
+      - run
+      - --manifest-path
+      - sagco-transistor-biasing-case-study/rust/sagco-bias-core/Cargo.toml
+      - --bin
+      - sagco-bias-core
+    env:
+      - "CARGO_HOME=/workspace/.cargo"
+
+  # ── Step 4: Emit build status artifact ────────────────────────────────────
+  - name: "bash"
+    id: status-seal
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+          mkdir -p reports
+          echo "STATUS=SAGCO_CLOUD_BUILD_PASS" > reports/cloud_build_status.txt
+          echo "BRANCH=$$BRANCH_NAME" >> reports/cloud_build_status.txt
+          echo "COMMIT=$$SHORT_SHA" >> reports/cloud_build_status.txt
+          echo "BUILD_ID=$$BUILD_ID" >> reports/cloud_build_status.txt
+          cat reports/cloud_build_status.txt
+
+# ── Options ───────────────────────────────────────────────────────────────────
+options:
+  logging: CLOUD_LOGGING_ONLY
+# NOTE: To save artifacts to GCS, create the bucket first:
+#   gsutil mb gs://${PROJECT_ID}-sagco-artifacts
+# Then add:
+#   artifacts:
+#     objects:
+#       location: "gs://${PROJECT_ID}-sagco-artifacts/$BRANCH_NAME/$SHORT_SHA/"
+#       paths: ["reports/*.txt"]
+
+# ── Timeout: 10 minutes ───────────────────────────────────────────────────────
+timeout: "600s"
