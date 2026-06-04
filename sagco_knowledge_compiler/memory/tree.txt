@@ -1,0 +1,30 @@
+# SAGCO TREE
+# STAMP=20260604T174246Z
+
+SAGCO BRICK TREE
+ROOT
+├── wafer_seed → wafer_cells → flame_tokens
+│   └── FLAME_SAGCO(w=14) FLAME_DOJO(w=14) FLAME_DOLLAR(w=12) ...[34 tokens]
+│       ├── flamelang/program.flame
+│       ├── polyglot/rust_calls.rs
+│       ├── polyglot/cpp_calls.cpp
+│       ├── polyglot/bluescript.bs
+│       ├── polyglot/unity_headless.txt
+│       ├── polyglot/epic_headless.txt
+│       └── dna/language_strand.txt
+│           compiled/flame_module.rs
+├── pi_wing_scan → sagco_wing_output → knowledge_compiler
+│   ├── dictionary/brick_types.txt
+│   ├── thesaurus/brick_aliases.txt
+│   ├── bibliography/source_index.txt
+│   ├── rust_calls/registry.txt
+│   ├── graph/codon_table.txt
+│   ├── graph/token_edges.txt (274 edges)
+│   ├── graph/compressed_rules.txt (7 rules)
+│   └── memory/index.txt (this file)
+├── claude_session → audio_theory_app
+│   ├── CircleEngine (Circle of 5ths/4ths)
+│   ├── FrequencyGenerator (88-key f(n)=440*2^((n-49)/12))
+│   ├── SynthEngine (Web Audio API ADSR)
+│   └── Keyboard88 + CircleVisualizer (SVG)
+└── claude_session → sagco_container_forge → sagco_cloud_wing → cloud_run_c160201c

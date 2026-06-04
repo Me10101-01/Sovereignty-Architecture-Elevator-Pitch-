@@ -1,0 +1,282 @@
+#!/bin/sh
+# SAGCO-0076: MEMORY_INDEX — brick family tree
+#
+# Answers: WHERE DID THIS BRICK COME FROM?
+# Every brick gets: PARENT, CHILDREN, DATE, TOKEN, WEIGHT, FILES
+#
+# Usage:
+#   ./bin/sagco-memory-index build              # auto-generate full family tree
+#   ./bin/sagco-memory-index query  <BRICK>     # show family record
+#   ./bin/sagco-memory-index lineage <BRICK>    # trace full ancestry chain
+#   ./bin/sagco-memory-index children <BRICK>   # show all descendants
+#   ./bin/sagco-memory-index add <BRICK> --parent <PARENT> [--children <C1,C2>]
+#   ./bin/sagco-memory-index status
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+MEM_DIR="$REPO_ROOT/sagco_knowledge_compiler/memory"
+INDEX_FILE="$MEM_DIR/index.txt"
+TREE_FILE="$MEM_DIR/tree.txt"
+TOKENS_FILE="$REPO_ROOT/sagco_flame_linguistics/tokens/flame_tokens.txt"
+CODON_TABLE="$REPO_ROOT/sagco_knowledge_compiler/graph/codon_table.txt"
+STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+
+mkdir -p "$MEM_DIR"
+
+log()    { printf "%s\n" "$1"; }
+header() { log ""; log "=== $1 ==="; }
+hr()     { printf "%-60s\n" "" | tr ' ' '-'; }
+
+# ── Index read/write helpers ──────────────────────────────────────────────────
+
+# Write a complete brick record to the index
+write_record() {
+  BRICK="$1"; PARENT="$2"; CHILDREN="$3"; TOKEN="$4"
+  WEIGHT="$5"; RUST_CALL="$6"; DATE="$7"; FILES="$8"; TYPE="$9"
+  printf "BRICK=%s\nPARENT=%s\nCHILDREN=%s\nTOKEN=%s\nWEIGHT=%s\nRUST_CALL=%s\nDATE=%s\nFILES=%s\nTYPE=%s\n---\n" \
+    "$BRICK" "$PARENT" "$CHILDREN" "$TOKEN" "$WEIGHT" "$RUST_CALL" "$DATE" "$FILES" "$TYPE" >> "$INDEX_FILE"
+}
+
+# Get a field from the index for a brick
+get_field() {
+  BRICK="$1"; FIELD="$2"
+  awk -v b="$BRICK" -v f="$FIELD" '
+    /^BRICK=/ { in_block = ($0 == "BRICK=" b) }
+    in_block && $0 ~ "^" f "=" { sub(f "=",""); print; exit }
+  ' "$INDEX_FILE" 2>/dev/null
+}
+
+# ── BUILD: auto-generate the full family tree ─────────────────────────────────
+
+cmd_build() {
+  log "SAGCO-0076 MEMORY_INDEX BUILD"
+  log "STAMP=$STAMP"
+  log ""
+
+  # Fresh index
+  printf "# SAGCO MEMORY INDEX — brick family tree\n# STAMP=%s\n\n" "$STAMP" > "$INDEX_FILE"
+  printf "# SAGCO TREE\n# STAMP=%s\n" "$STAMP" > "$TREE_FILE"
+
+  header "ROOT LAYER — raw data sources"
+  # Seeds (no parents — they are the roots)
+  write_record "wafer_seed"            "NONE"          "wafer_cells" \
+    "RAW_SEED" "0" "seed_loader()" "$STAMP" \
+    "wafer_fuzz/cells/wafer_cells.txt" "SEED"
+  write_record "pi_wing_scan"          "NONE"          "sagco_wing_output" \
+    "RAW_SEED" "0" "wing_scanner()" "$STAMP" \
+    "sagco_wing/bricks/*.txt,sagco_wing/dictionary/*.txt" "SEED"
+  write_record "claude_session"        "NONE"          "all_bricks" \
+    "RAW_SEED" "0" "session_compiler()" "$STAMP" \
+    "Sovereignty-Architecture-Elevator-Pitch-/*" "SEED"
+  write_record "jha_field_photos"      "NONE"          "field_data_bricks" \
+    "RAW_SEED" "0" "field_data_parser()" "$STAMP" \
+    "uploads/jha_photos" "SEED"
+  log "  ROOT: wafer_seed, pi_wing_scan, claude_session, jha_field_photos"
+
+  header "LAYER 1 — processed data"
+  write_record "wafer_cells"           "wafer_seed"    "flame_tokens" \
+    "WAFER_CELLS" "0" "wafer_processor()" "$STAMP" \
+    "wafer_fuzz/cells/wafer_cells.txt" "WAFER"
+  write_record "sagco_wing_output"     "pi_wing_scan"  "lexicon,knowledge_compiler" \
+    "WING_OUTPUT" "0" "wing_scanner()" "$STAMP" \
+    "sagco_wing/dictionary/*.txt,sagco_wing/thesaurus/*.txt,sagco_wing/rust_calls/*.rs" "WING"
+  write_record "knowledge_compiler"    "sagco_wing_output,claude_session" "token_graph,archaeologist,memory_index" \
+    "KNOWLEDGE" "2" "knowledge_compile()" "$STAMP" \
+    "sagco_knowledge_compiler/**" "KNOWLEDGE"
+  log "  LAYER 1: wafer_cells, sagco_wing_output, knowledge_compiler"
+
+  header "LAYER 2 — FLAME tokens (from wafer_cells)"
+  write_record "flame_tokens"          "wafer_cells"   "$(grep 'TOKEN=' "$TOKENS_FILE" 2>/dev/null | sed 's/TOKEN=//;s/ .*//' | tr '\n' ',' | sed 's/,$//')" \
+    "FLAME_TOKENS_SET" "0" "flame_engine()" "$STAMP" \
+    "sagco_flame_linguistics/tokens/flame_tokens.txt" "FLAME"
+
+  # Each individual FLAME token
+  while IFS= read -r line; do
+    TOKEN="$(echo "$line" | sed 's/TOKEN=//;s/ .*//')"
+    WORD="$(echo "$line"  | sed 's/.*WORD=//;s/ .*//')"
+    WEIGHT="$(echo "$line" | sed 's/.*WEIGHT=//')"
+    RUST="$(echo "$line"  | sed 's/.*RUST_CALL=//;s/ .*//')"
+    SAFE="$(echo "$TOKEN" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_' '_')"
+    write_record "$TOKEN" "flame_tokens" \
+      "flamelang_entry,rust_fn_${SAFE},cpp_fn_${SAFE},bluescript_node_${SAFE},unity_signal_${SAFE},epic_signal_${SAFE},dna_strand_${SAFE}" \
+      "$TOKEN" "$WEIGHT" "${SAFE}()" "$STAMP" \
+      "sagco_flame_linguistics/polyglot/rust_calls.rs,sagco_flame_linguistics/dna/language_strand.txt" \
+      "FLAME"
+  done < "$TOKENS_FILE"
+  log "  LAYER 2: $(wc -l < "$TOKENS_FILE") FLAME tokens indexed"
+
+  header "LAYER 3 — compiled artifacts"
+  write_record "flame_module_rs"       "flame_tokens"  "cloud_deploy_flame" \
+    "RUST_MODULE" "0" "flame_compile()" "$STAMP" \
+    "sagco_flame_linguistics/compiled/flame_module.rs" "RUST_BINARY"
+  write_record "token_graph"           "knowledge_compiler,flame_tokens" "archaeologist,memory_index" \
+    "TOKEN_GRAPH" "0" "token_graph_build()" "$STAMP" \
+    "sagco_knowledge_compiler/graph/token_edges.txt,sagco_knowledge_compiler/graph/codon_table.txt" "KNOWLEDGE"
+  write_record "archaeologist"         "token_graph,knowledge_compiler" "memory_index" \
+    "ARCHAEOLOGIST" "0" "artifact_retrieve()" "$STAMP" \
+    "bin/sagco-archaeologist" "TOOL"
+  write_record "memory_index"          "archaeologist,token_graph" "artifact_bridge" \
+    "MEMORY_INDEX" "0" "memory_index_build()" "$STAMP" \
+    "sagco_knowledge_compiler/memory/index.txt,bin/sagco-memory-index" "KNOWLEDGE"
+  write_record "audio_theory_app"      "claude_session" "circle_of_fifths,keyboard_88,synth_engine" \
+    "AUDIO_APP" "0" "frequency_generator()" "$STAMP" \
+    "audio-theory-app/**" "MUSIC"
+  write_record "sagco_container_forge" "claude_session" "cloud_run_c160201c" \
+    "DOCKER_IMAGE" "0" "docker_deploy()" "$STAMP" \
+    "Dockerfile.c160201c,cloudbuild-container-forge.yaml" "DOCKER_IMAGE"
+  write_record "sagco_cloud_wing"      "sagco_container_forge" "cloud_run_c160201c" \
+    "CLOUD_WING" "0" "cloud_run_exec()" "$STAMP" \
+    "sagco_cloud_wing/deploy/sagco-cloud-wing.sh" "CLOUD_JOB"
+  log "  LAYER 3: flame_module_rs, token_graph, archaeologist, memory_index, audio_theory_app, cloud_wing"
+
+  header "LAYER 4 — deployment targets"
+  write_record "cloud_run_c160201c"    "sagco_cloud_wing,sagco_container_forge" "NONE" \
+    "CLOUD_JOB" "0" "cloud_run_exec()" "$STAMP" \
+    "GCP:europe-west1/c160201c" "CLOUD_JOB"
+  log "  LAYER 4: cloud_run_c160201c"
+
+  # Generate visual tree
+  printf "\nSAGCO BRICK TREE\n" >> "$TREE_FILE"
+  printf "ROOT\n" >> "$TREE_FILE"
+  printf "├── wafer_seed → wafer_cells → flame_tokens\n" >> "$TREE_FILE"
+  printf "│   └── FLAME_SAGCO(w=14) FLAME_DOJO(w=14) FLAME_DOLLAR(w=12) ...[34 tokens]\n" >> "$TREE_FILE"
+  printf "│       ├── flamelang/program.flame\n" >> "$TREE_FILE"
+  printf "│       ├── polyglot/rust_calls.rs\n" >> "$TREE_FILE"
+  printf "│       ├── polyglot/cpp_calls.cpp\n" >> "$TREE_FILE"
+  printf "│       ├── polyglot/bluescript.bs\n" >> "$TREE_FILE"
+  printf "│       ├── polyglot/unity_headless.txt\n" >> "$TREE_FILE"
+  printf "│       ├── polyglot/epic_headless.txt\n" >> "$TREE_FILE"
+  printf "│       └── dna/language_strand.txt\n" >> "$TREE_FILE"
+  printf "│           compiled/flame_module.rs\n" >> "$TREE_FILE"
+  printf "├── pi_wing_scan → sagco_wing_output → knowledge_compiler\n" >> "$TREE_FILE"
+  printf "│   ├── dictionary/brick_types.txt\n" >> "$TREE_FILE"
+  printf "│   ├── thesaurus/brick_aliases.txt\n" >> "$TREE_FILE"
+  printf "│   ├── bibliography/source_index.txt\n" >> "$TREE_FILE"
+  printf "│   ├── rust_calls/registry.txt\n" >> "$TREE_FILE"
+  printf "│   ├── graph/codon_table.txt\n" >> "$TREE_FILE"
+  printf "│   ├── graph/token_edges.txt (274 edges)\n" >> "$TREE_FILE"
+  printf "│   ├── graph/compressed_rules.txt (7 rules)\n" >> "$TREE_FILE"
+  printf "│   └── memory/index.txt (this file)\n" >> "$TREE_FILE"
+  printf "├── claude_session → audio_theory_app\n" >> "$TREE_FILE"
+  printf "│   ├── CircleEngine (Circle of 5ths/4ths)\n" >> "$TREE_FILE"
+  printf "│   ├── FrequencyGenerator (88-key f(n)=440*2^((n-49)/12))\n" >> "$TREE_FILE"
+  printf "│   ├── SynthEngine (Web Audio API ADSR)\n" >> "$TREE_FILE"
+  printf "│   └── Keyboard88 + CircleVisualizer (SVG)\n" >> "$TREE_FILE"
+  printf "└── claude_session → sagco_container_forge → sagco_cloud_wing → cloud_run_c160201c\n" >> "$TREE_FILE"
+
+  BRICK_COUNT="$(grep -c '^BRICK=' "$INDEX_FILE")"
+  log ""
+  log "BRICKS_INDEXED=$BRICK_COUNT"
+  log "INDEX=$INDEX_FILE"
+  log "TREE=$TREE_FILE"
+  log "STATUS=SAGCO_MEMORY_INDEX_BUILT"
+}
+
+# ── QUERY: full family record ─────────────────────────────────────────────────
+
+cmd_query() {
+  BRICK="${1:-}"
+  if [ -z "$BRICK" ]; then log "Usage: sagco-memory-index query <BRICK>"; exit 1; fi
+  if [ ! -f "$INDEX_FILE" ]; then log "Run: sagco-memory-index build first"; exit 1; fi
+
+  printf "\nMEMORY RECORD: %s\n" "$BRICK"; hr
+
+  FOUND="$(grep -A9 "^BRICK=$BRICK$" "$INDEX_FILE" | head -10)"
+  if [ -z "$FOUND" ]; then
+    # Fuzzy search
+    log "Exact match not found. Fuzzy search:"
+    grep "^BRICK=" "$INDEX_FILE" | grep -i "$BRICK" | head -5
+    exit 1
+  fi
+
+  echo "$FOUND" | while IFS='=' read -r KEY VAL; do
+    case "$KEY" in
+      BRICK)    printf "BRICK_ID=  %s\n" "$VAL" ;;
+      PARENT)   printf "PARENT=    %s\n" "$VAL" ;;
+      CHILDREN) printf "CHILDREN:\n"; echo "$VAL" | tr ',' '\n' | while read -r C; do printf "  → %s\n" "$C"; done ;;
+      TOKEN)    printf "TOKEN=     %s\n" "$VAL" ;;
+      WEIGHT)   printf "WEIGHT=    %s\n" "$VAL" ;;
+      RUST_CALL)printf "RUST_CALL= %s\n" "$VAL" ;;
+      DATE)     printf "DATE=      %s\n" "$VAL" ;;
+      FILES)    printf "FILES:\n"; echo "$VAL" | tr ',' '\n' | while read -r F; do printf "  → %s\n" "$F"; done ;;
+      TYPE)     printf "TYPE=      %s\n" "$VAL" ;;
+      '---')    ;;
+    esac
+  done
+  hr
+}
+
+# ── LINEAGE: trace ancestry chain ────────────────────────────────────────────
+
+cmd_lineage() {
+  BRICK="${1:-}"; DEPTH="${2:-0}"
+  if [ -z "$BRICK" ]; then log "Usage: sagco-memory-index lineage <BRICK>"; exit 1; fi
+  if [ ! -f "$INDEX_FILE" ]; then log "Run: sagco-memory-index build first"; exit 1; fi
+
+  INDENT="$(printf '%*s' "$((DEPTH * 2))" '' | tr ' ' ' ')"
+  PARENT="$(get_field "$BRICK" "PARENT")"
+  TYPE="$(get_field "$BRICK" "TYPE")"
+  WEIGHT="$(get_field "$BRICK" "WEIGHT")"
+
+  printf "%s%s  [%s] w=%s\n" "$INDENT" "$BRICK" "${TYPE:-?}" "${WEIGHT:-?}"
+
+  if [ "$PARENT" != "NONE" ] && [ -n "$PARENT" ] && [ "$DEPTH" -lt 6 ]; then
+    echo "$PARENT" | tr ',' '\n' | while read -r P; do
+      P_CLEAN="$(echo "$P" | tr -d ' ')"
+      [ -n "$P_CLEAN" ] && cmd_lineage "$P_CLEAN" "$((DEPTH + 1))"
+    done
+  fi
+}
+
+# ── CHILDREN: show all descendants ───────────────────────────────────────────
+
+cmd_children() {
+  BRICK="${1:-}"; DEPTH="${2:-0}"
+  if [ -z "$BRICK" ]; then log "Usage: sagco-memory-index children <BRICK>"; exit 1; fi
+  if [ ! -f "$INDEX_FILE" ]; then log "Run: sagco-memory-index build first"; exit 1; fi
+
+  INDENT="$(printf '%*s' "$((DEPTH * 2))" '' | tr ' ' ' ')"
+  CHILDREN="$(get_field "$BRICK" "CHILDREN")"
+  TYPE="$(get_field "$BRICK" "TYPE")"
+
+  printf "%s%s  [%s]\n" "$INDENT" "$BRICK" "${TYPE:-?}"
+
+  if [ -n "$CHILDREN" ] && [ "$CHILDREN" != "NONE" ] && [ "$DEPTH" -lt 4 ]; then
+    echo "$CHILDREN" | tr ',' '\n' | head -8 | while read -r C; do
+      C_CLEAN="$(echo "$C" | tr -d ' ')"
+      [ -n "$C_CLEAN" ] && cmd_children "$C_CLEAN" "$((DEPTH + 1))"
+    done
+    COUNT="$(echo "$CHILDREN" | tr ',' '\n' | wc -l)"
+    [ "$COUNT" -gt 8 ] && printf "%s  ... +%d more children\n" "$INDENT" "$((COUNT - 8))"
+  fi
+}
+
+# ── STATUS ────────────────────────────────────────────────────────────────────
+
+cmd_status() {
+  header "SAGCO-0076 MEMORY_INDEX STATUS"
+  if [ -f "$INDEX_FILE" ]; then
+    log "BRICKS=$(grep -c '^BRICK=' "$INDEX_FILE")"
+    log "SEEDS=$(grep -c '^TYPE=SEED' "$INDEX_FILE")"
+    log "FLAME_TOKENS=$(grep -c '^TYPE=FLAME' "$INDEX_FILE")"
+    log "TOOLS=$(grep -c '^TYPE=TOOL' "$INDEX_FILE")"
+    log "INDEX=$INDEX_FILE"
+    log "TREE=$TREE_FILE"
+  else
+    log "INDEX=NOT_BUILT  (run: sagco-memory-index build)"
+  fi
+  log "STATUS=SAGCO_MEMORY_INDEX_READY"
+}
+
+# ── Dispatch ──────────────────────────────────────────────────────────────────
+
+CMD="${1:-status}"
+shift 2>/dev/null || true
+
+case "$CMD" in
+  build)    cmd_build           ;;
+  query)    cmd_query    "$@"   ;;
+  lineage)  cmd_lineage  "$@"   ;;
+  children) cmd_children "$@"   ;;
+  status)   cmd_status          ;;
+  *) log "Usage: sagco-memory-index [build|query|lineage|children|status]"; exit 1 ;;
+esac

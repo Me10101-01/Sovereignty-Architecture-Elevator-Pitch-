@@ -1,0 +1,341 @@
+#!/bin/sh
+# SAGCO-ARCHAEOLOGIST-V2 — Phase 11: RETRIEVE
+#
+# Single query → complete artifact record from every knowledge layer.
+# Input can be: token name, word, SAGCO ID, rust call, fragment, or codon.
+#
+# Usage:
+#   ./bin/sagco-archaeologist FLAME_DOJO
+#   ./bin/sagco-archaeologist dojo
+#   ./bin/sagco-archaeologist SAGCO-0074
+#   ./bin/sagco-archaeologist flame_dojo_()
+#   ./bin/sagco-archaeologist "frequency"
+#   ./bin/sagco-archaeologist --scan     # full vault inventory
+#   ./bin/sagco-archaeologist --compress # emit compressed invariant rules
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+KC="$REPO_ROOT/sagco_knowledge_compiler"
+GRAPH="$KC/graph"
+TOKENS_FILE="$REPO_ROOT/sagco_flame_linguistics/tokens/flame_tokens.txt"
+CODON_TABLE="$GRAPH/codon_table.txt"
+PHYSICS_MAP="$GRAPH/physics_map.txt"
+EDGES_FILE="$GRAPH/token_edges.txt"
+DICT="$KC/dictionary/brick_types.txt"
+THES="$KC/thesaurus/brick_aliases.txt"
+BIB="$KC/bibliography/source_index.txt"
+RC="$KC/rust_calls/registry.txt"
+CLOUD_DICT="$REPO_ROOT/sagco_cloud_wing/dictionary/images.txt"
+MANIFEST="$(ls -t "$KC/artifacts"/knowledge_*.txt 2>/dev/null | head -1)"
+FLAME_MANIFEST="$(ls -t "$REPO_ROOT/sagco_flame_linguistics/compiled/sagco_manifest.txt" 2>/dev/null | head -1)"
+STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+
+# ── Lookup helpers ────────────────────────────────────────────────────────────
+
+# Resolve any input → canonical TOKEN name
+resolve_token() {
+  INPUT="$1"
+  UPPER="$(echo "$INPUT" | tr '[:lower:]' '[:upper:]')"
+
+  # Direct token match
+  if grep -q "TOKEN=$UPPER " "$TOKENS_FILE" 2>/dev/null; then
+    echo "$UPPER"; return
+  fi
+
+  # FLAME_ prefix auto-add
+  if grep -q "TOKEN=FLAME_$UPPER " "$TOKENS_FILE" 2>/dev/null; then
+    echo "FLAME_$UPPER"; return
+  fi
+
+  # Via thesaurus alias
+  CANON="$(grep "^$(echo "$INPUT" | tr '[:upper:]' '[:lower:]')=" "$THES" 2>/dev/null | cut -d= -f2 | head -1)"
+  if [ -n "$CANON" ]; then
+    # Find the token matching this type
+    MATCH="$(grep -i "TOKEN=FLAME_$(echo "$INPUT" | tr '[:lower:]' '[:upper:]') " "$TOKENS_FILE" 2>/dev/null | sed 's/TOKEN=//;s/ .*//' | head -1)"
+    if [ -n "$MATCH" ]; then echo "$MATCH"; return; fi
+    echo "TYPE:$CANON"; return
+  fi
+
+  # Rust call reverse lookup
+  if echo "$INPUT" | grep -q "()"; then
+    TK="$(grep "TOKEN=" "$TOKENS_FILE" 2>/dev/null | while IFS= read -r line; do
+      TK_NAME="$(echo "$line" | sed 's/TOKEN=//;s/ .*//')"
+      RC_NAME="$(echo "$line" | sed 's/.*RUST_CALL=//;s/ .*//')"
+      if echo "$RC_NAME" | grep -iq "$(echo "$INPUT" | tr -d '()')"; then
+        echo "$TK_NAME"; fi
+    done | head -1)"
+    if [ -n "$TK" ]; then echo "$TK"; return; fi
+  fi
+
+  # SAGCO ID lookup in flame manifest
+  if echo "$INPUT" | grep -q "^SAGCO-"; then
+    TK="$(grep -A5 "BRICK_ID=$INPUT" "$FLAME_MANIFEST" 2>/dev/null | grep "^TOKEN=" | cut -d= -f2 | head -1)"
+    if [ -n "$TK" ]; then echo "$TK"; return; fi
+  fi
+
+  # Partial / fragment match
+  MATCH="$(grep -i "TOKEN=FLAME_" "$TOKENS_FILE" 2>/dev/null | grep -i "$INPUT" | sed 's/TOKEN=//;s/ .*//' | head -1)"
+  if [ -n "$MATCH" ]; then echo "$MATCH"; return; fi
+
+  echo "UNRESOLVED"
+}
+
+tok_field() { grep "TOKEN=$1 " "$TOKENS_FILE" 2>/dev/null | sed "s/.*$2=//;s/ .*//" | head -1; }
+codon_field() { grep "^$1 " "$CODON_TABLE" 2>/dev/null | awk -F'|' "{gsub(/^ | \$/,\"\",\$$2); print \$$2}" | head -1; }
+bib_entry() { grep "^$1=" "$BIB" 2>/dev/null | cut -d= -f2- | head -1; }
+img_for_type() {
+  case "$1" in
+    TRANSISTOR|RUST_BINARY) echo "sagco_core" ;;
+    DOCKER_IMAGE|CLOUD_JOB) echo "sagco_dojo" ;;
+    FLAME)                   echo "sagco_core" ;;
+    *)                       echo "sagco_core" ;;
+  esac
+}
+
+hr()  { printf "%-60s\n" "" | tr ' ' '-'; }
+sec() { printf "\n%s\n" "$1"; hr; }
+
+# ── RETRIEVE: full artifact record ────────────────────────────────────────────
+
+cmd_retrieve() {
+  QUERY="$1"
+  TOKEN="$(resolve_token "$QUERY")"
+
+  printf "\nSAGCO ARCHAEOLOGIST — FULL RECORD\n"
+  hr
+  printf "QUERY=%-20s STAMP=%s\n" "$QUERY" "$STAMP"
+  hr
+
+  if [ "$TOKEN" = "UNRESOLVED" ]; then
+    printf "STATUS=ARTIFACT_NOT_FOUND\nQUERY=%s\n" "$QUERY"
+    printf "\nPartial matches:\n"
+    grep -i "$QUERY" "$TOKENS_FILE" 2>/dev/null | head -5
+    grep -i "$QUERY" "$RC" 2>/dev/null | head -3
+    exit 1
+  fi
+
+  # ── IDENTITY ───────────────────────────────────────────────────────────────
+  sec "IDENTITY"
+  WORD="$(tok_field "$TOKEN" "WORD")"
+  WEIGHT="$(tok_field "$TOKEN" "WEIGHT")"
+  RUST_CALL_BASE="$(tok_field "$TOKEN" "RUST_CALL")"
+  SAGCO_ID="$(grep "TOKEN=$TOKEN$" "$FLAME_MANIFEST" 2>/dev/null | grep -B1 "TOKEN" | grep "BRICK_ID=" | cut -d= -f2 | head -1)"
+  [ -z "$SAGCO_ID" ] && SAGCO_ID="$(grep -B1 "TOKEN=$TOKEN$" "$FLAME_MANIFEST" 2>/dev/null | grep "^BRICK_ID=" | cut -d= -f2 | head -1)"
+  TYPE="FLAME"
+
+  printf "TOKEN=%-24s SAGCO_ID=%s\n" "$TOKEN" "${SAGCO_ID:-unknown}"
+  printf "WORD=%-25s WEIGHT=%s\n" "$WORD" "$WEIGHT"
+  printf "TYPE=%-25s\n" "$TYPE"
+
+  # ── CODON ─────────────────────────────────────────────────────────────────
+  sec "CODON (DNA Encoding)"
+  CODON="$(codon_field "$TOKEN" 2)"
+  OPERATION="$(codon_field "$TOKEN" 3)"
+  DOMAIN="$(codon_field "$TOKEN" 4)"
+  printf "CODON=%-10s OPERATION=%-15s DOMAIN=%s\n" \
+    "$(echo "$CODON"|tr -d ' ')" \
+    "$(echo "$OPERATION"|tr -d ' ')" \
+    "$(echo "$DOMAIN"|tr -d ' ')"
+  printf "LINEAGE: wafer_cells.txt → WORD=%s → %s → %s → %s\n" \
+    "$WORD" "$TOKEN" "$(echo "$CODON"|tr -d ' ')" "$(echo "$OPERATION"|tr -d ' ')"
+
+  # ── RUST ──────────────────────────────────────────────────────────────────
+  sec "RUST"
+  SAFE="$(echo "$TOKEN" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_' '_')"
+  FN="${SAFE}()"
+  RC_ENTRY="$(grep "^$FN=" "$RC" 2>/dev/null | head -1)"
+  RC_STATUS="$(echo "$RC_ENTRY" | awk -F'|' '{print $4}')"
+  RC_CRATE="$(echo "$RC_ENTRY" | awk -F'|' '{print $2}')"
+  printf "RUST_CALL=%s\n" "$FN"
+  printf "BASE_CALL=%s\n" "$RUST_CALL_BASE"
+  printf "CRATE=%-20s STATUS=%s\n" "${RC_CRATE:-sagco-flame}" "${RC_STATUS:-COMPUTED}"
+  printf "MODULE=sagco_flame_linguistics/compiled/flame_module.rs\n"
+
+  # ── PHYSICS ──────────────────────────────────────────────────────────────
+  PHY_LINE="$(grep "| $TOKEN " "$PHYSICS_MAP" 2>/dev/null | head -1)"
+  if [ -n "$PHY_LINE" ]; then
+    sec "PHYSICS BRIDGE"
+    CONCEPT="$(echo "$PHY_LINE" | awk -F'|' '{gsub(/^ | $/,"",$1); print $1}')"
+    FREQ="$(echo "$PHY_LINE"    | awk -F'|' '{gsub(/^ | $/,"",$5); print $5}')"
+    NOTE="$(echo "$PHY_LINE"    | awk -F'|' '{gsub(/^ | $/,"",$6); print $6}')"
+    OP="$(echo "$PHY_LINE"      | awk -F'|' '{gsub(/^ | $/,"",$4); print $4}')"
+    printf "CONCEPT=%-15s FREQUENCY=%sHz  NOTE=%s\n" "$CONCEPT" "$FREQ" "$NOTE"
+    printf "OPERATION=%s\n" "$OP"
+  fi
+
+  # ── GRAPH RELATIONS ───────────────────────────────────────────────────────
+  sec "TOKEN GRAPH RELATIONS"
+  OUTGOING="$(grep "^$TOKEN |" "$EDGES_FILE" 2>/dev/null | head -10)"
+  INCOMING="$(grep "| $TOKEN |" "$EDGES_FILE" 2>/dev/null | head -6)"
+  if [ -n "$OUTGOING" ]; then
+    printf "OUTGOING EDGES:\n"
+    echo "$OUTGOING" | while IFS='|' read -r A REL B STR; do
+      printf "  %s --%-18s→ %-30s [%s]\n" \
+        "$(echo "$A"|tr -d ' ')" "$(echo "$REL"|tr -d ' ')" \
+        "$(echo "$B"|tr -d ' ')" "$(echo "$STR"|tr -d ' ')"
+    done
+  fi
+  if [ -n "$INCOMING" ]; then
+    printf "INCOMING EDGES:\n"
+    echo "$INCOMING" | while IFS='|' read -r A REL B STR; do
+      printf "  %-30s --%-18s→ %s  [%s]\n" \
+        "$(echo "$A"|tr -d ' ')" "$(echo "$REL"|tr -d ' ')" \
+        "$(echo "$B"|tr -d ' ')" "$(echo "$STR"|tr -d ' ')"
+    done
+  fi
+  [ -z "$OUTGOING" ] && [ -z "$INCOMING" ] && printf "  (run: sagco-token-graph build)\n"
+
+  # ── DICTIONARY ────────────────────────────────────────────────────────────
+  sec "DICTIONARY"
+  TYPE_DEF="$(grep "^$TYPE=" "$DICT" 2>/dev/null | cut -d= -f2 | head -1)"
+  printf "TYPE=%s\n" "$TYPE"
+  printf "DEF=%s\n" "${TYPE_DEF:-FlameLang token}"
+  DOMAIN_DEF="$(echo "$TYPE_DEF" | cut -d'|' -f2)"
+  printf "DOMAIN=%s\n" "${DOMAIN_DEF:-LINGUISTICS}"
+
+  # ── THESAURUS ─────────────────────────────────────────────────────────────
+  sec "THESAURUS"
+  ALIASES="$(grep "=$TYPE$" "$THES" 2>/dev/null | cut -d= -f1 | grep -v '^#' | tr '\n' ' ')"
+  printf "ALIASES: %s\n" "${ALIASES:-none}"
+  printf "WORD_ALIAS: %s → %s\n" "$WORD" "$TOKEN"
+
+  # ── BIBLIOGRAPHY ──────────────────────────────────────────────────────────
+  sec "BIBLIOGRAPHY"
+  printf "SOURCES:\n"
+  for SRC in WAFER_CELLS FLAME_LINGUISTICS SAGCO_PI SAGCO_WING CLAUDE_SESSION; do
+    ENTRY="$(bib_entry "$SRC")"
+    if [ -n "$ENTRY" ]; then
+      printf "  %-25s %s\n" "$SRC" "$(echo "$ENTRY" | cut -d'|' -f1)"
+    fi
+  done
+
+  # ── POLYGLOT OUTPUT ────────────────────────────────────────────────────────
+  sec "POLYGLOT DESCENDANTS"
+  printf "FLAMELANG:  agent speaks %s -> rust.%s\n" "$TOKEN" "$RUST_CALL_BASE"
+  printf "RUST:       pub fn %s() { println!(\"%s\"); }\n" "$SAFE" "$TOKEN"
+  printf "CPP:        void %s_cpp() { std::cout << \"%s\"; }\n" "$SAFE" "$TOKEN"
+  printf "BLUESCRIPT: [Bluescript_Node] %s -> dendrite -> synapse\n" "$TOKEN"
+  printf "UNITY:      UNITY_HEADLESS_SIGNAL=%s\n" "$TOKEN"
+  printf "EPIC:       EPIC_ENGINE_SIGNAL=%s\n" "$TOKEN"
+  printf "DNA_STRAND: DNA_LANGUAGE_STRAND=%s | STATUS=SOFTWARE_UPDATE_SEED\n" "$TOKEN"
+
+  # ── DEPLOY ────────────────────────────────────────────────────────────────
+  sec "DEPLOYMENT"
+  IMG_KEY="$(img_for_type "$TYPE")"
+  IMG="$(grep "^$IMG_KEY=" "$CLOUD_DICT" 2>/dev/null | cut -d= -f2-)"
+  printf "IMAGE_KEY=%s\n" "$IMG_KEY"
+  printf "IMAGE=%s\n" "${IMG:-dom101/sagco-core:latest}"
+  printf "CLOUD_JOB=c160201c  REGION=europe-west1\n"
+  printf "DEPLOY_CMD: gcloud run jobs update c160201c --image %s --region europe-west1\n" \
+    "${IMG:-dom101/sagco-core:latest}"
+
+  # ── STATUS ────────────────────────────────────────────────────────────────
+  hr
+  printf "STATUS=ARTIFACT_FOUND\n"
+}
+
+# ── SCAN: full vault inventory ────────────────────────────────────────────────
+
+cmd_scan() {
+  printf "\nSAGCO VAULT INVENTORY — STAMP=%s\n" "$STAMP"
+  hr
+  printf "TOKENS:       %s\n" "$(wc -l < "$TOKENS_FILE" 2>/dev/null || echo 0)"
+  printf "CODON_MAP:    %s entries\n" "$(grep -c '^FLAME_' "$CODON_TABLE" 2>/dev/null || echo 0)"
+  printf "GRAPH_EDGES:  %s\n" "$(grep -c '|' "$EDGES_FILE" 2>/dev/null || echo 0)"
+  printf "DICT_TYPES:   %s\n" "$(grep -c '^[A-Z]' "$DICT" 2>/dev/null || echo 0)"
+  printf "THES_ALIASES: %s\n" "$(grep -c '^[a-z]' "$THES" 2>/dev/null || echo 0)"
+  printf "BIB_SOURCES:  %s\n" "$(grep -c '^[A-Z]' "$BIB" 2>/dev/null || echo 0)"
+  printf "RUST_CALLS:   %s\n" "$(grep -c '^[a-z]' "$RC" 2>/dev/null || echo 0)"
+  printf "IMAGES:       %s\n" "$(grep -c '^sagco' "$CLOUD_DICT" 2>/dev/null || echo 0)"
+  hr
+  printf "\nTOP 10 TOKENS BY WEIGHT:\n"
+  grep "TOKEN=" "$TOKENS_FILE" 2>/dev/null | \
+    awk -F'|' '{
+      t=$1; gsub(/TOKEN=/,"",t); gsub(/ /,"",t)
+      w=$4; gsub(/WEIGHT=/,"",w); gsub(/ /,"",w)
+      printf "%s %s\n", w, t
+    }' | sort -rn | head -10 | \
+    while read -r W T; do
+      CODON="$(grep "^$T " "$CODON_TABLE" 2>/dev/null | awk -F'|' '{gsub(/ /,"",$2); print $2}')"
+      OP="$(grep "^$T " "$CODON_TABLE" 2>/dev/null | awk -F'|' '{gsub(/^ | $/,"",$3); print $3}')"
+      printf "  WEIGHT=%-4s %-28s CODON=%-4s OP=%s\n" "$W" "$T" "$CODON" "$OP"
+    done
+  hr
+  printf "STATUS=VAULT_SCAN_COMPLETE\n"
+}
+
+# ── COMPRESS: emit invariant rules (Phase 9) ──────────────────────────────────
+
+cmd_compress() {
+  RULES_FILE="$KC/graph/compressed_rules.txt"
+  printf "\nSAGCO PHASE 9: COMPRESS — finding invariants\n"
+  hr
+  printf "# SAGCO COMPRESSED RULES — Phase 9\n# STAMP=%s\n\n" "$STAMP" > "$RULES_FILE"
+
+  # Rule 1: Universal brick pattern
+  printf "RULE_001=UNIVERSAL_BRICK_PATTERN\n" >> "$RULES_FILE"
+  printf "PATTERN: WORD → FLAME_{UPPER} → CODON → OPERATION → rust_fn() → polyglot\n" >> "$RULES_FILE"
+  printf "APPLIES_TO: all %s tokens\n\n" "$(wc -l < "$TOKENS_FILE")" >> "$RULES_FILE"
+  printf "  RULE_001: WORD→TOKEN→CODON→OPERATION→rust_fn() [%s instances]\n" "$(wc -l < "$TOKENS_FILE")"
+
+  # Rule 2: Weight hierarchy
+  printf "RULE_002=WEIGHT_HIERARCHY\n" >> "$RULES_FILE"
+  printf "TIERS:\n" >> "$RULES_FILE"
+  echo "  14: FLAME_SAGCO FLAME_DOJO (co-roots, codon=ATG=START)"      >> "$RULES_FILE"
+  echo "  12: FLAME_DOLLAR (codon=CGT=SWARM_SEND)"                     >> "$RULES_FILE"
+  echo "  11: FLAME_HASH   (codon=CGC=SWARM_RECV)"                     >> "$RULES_FILE"
+  echo "  10: FLAME_MKDIR  (codon=GAC=BUILD)"                          >> "$RULES_FILE"
+  echo "  09: FLAME_ECHO FLAME_PORTFOLIO"                               >> "$RULES_FILE"
+  echo "  08: FLAME_BRICK  (codon=GCC=REGISTRY — foundation token)"    >> "$RULES_FILE"
+  echo "  06: FLAME_ERROR FLAME_RUST"                                   >> "$RULES_FILE"
+  printf "\n" >> "$RULES_FILE"
+  printf "  RULE_002: weight hierarchy → 7 tiers, root=14(ATG/START)\n"
+
+  # Rule 3: Operation → domain clustering
+  printf "RULE_003=OPERATION_CLUSTER\n" >> "$RULES_FILE"
+  printf "ATG(START)→META  CGC(SWARM_RECV)→ENGINE  CGT(SWARM_SEND)→SHELL/CLOUD\n" >> "$RULES_FILE"
+  printf "GAC(BUILD)→INFRA  GCC(REGISTRY)→CORE  GAG(RECORD)→META\n" >> "$RULES_FILE"
+  printf "CTG(DEPLOY_OP)→CLOUD  AGT(SCAN)→COMPUTE  GTG(WAVE)→AUDIO\n\n" >> "$RULES_FILE"
+  printf "  RULE_003: 8 operations → 9 domains\n"
+
+  # Rule 4: Physics bridge invariant
+  printf "RULE_004=PHYSICS_BRIDGE\n" >> "$RULES_FILE"
+  printf "FLAME_FREQUENCY(GTG=WAVE) = 440Hz = A4 = ISO16 standard pitch\n" >> "$RULES_FILE"
+  printf "FLAME_CIRCLE(CGA=CYCLE)   = 261.626Hz = C4 = Circle root\n" >> "$RULES_FILE"
+  printf "Physics-token bridge: token.weight * 31.25Hz ≈ token frequency\n\n" >> "$RULES_FILE"
+  printf "  RULE_004: physics bridge anchored at A4=440Hz\n"
+
+  # Rule 5: SWARM pattern
+  printf "RULE_005=SWARM_PATTERN\n" >> "$RULES_FILE"
+  printf "CGC(RECV)↔CGT(SEND) form bidirectional SWARM channels\n" >> "$RULES_FILE"
+  printf "SWARM_SEND tokens: FLAME_DOLLAR FLAME_DEPLOY FLAME_CLOUD\n" >> "$RULES_FILE"
+  printf "SWARM_RECV tokens: FLAME_HASH FLAME_ECHO FLAME_UNITY FLAME_EPIC FLAME_BLUESCRIPT\n\n" >> "$RULES_FILE"
+  printf "  RULE_005: SWARM = CGT(SEND) ↔ CGC(RECV)\n"
+
+  # Rule 6: Error↔Antibody invariant
+  printf "RULE_006=GUARD_INVARIANT\n" >> "$RULES_FILE"
+  printf "FLAME_ERROR(TAA=STOP) + FLAME_ANTIBODY(TAC=HEAL) = guard pair\n" >> "$RULES_FILE"
+  printf "Every STOP codon has a HEAL response — antibody is the resolver\n\n" >> "$RULES_FILE"
+  printf "  RULE_006: TAA(STOP)→TAC(HEAL) guard invariant\n"
+
+  # Rule 7: Retrieval path
+  printf "RULE_007=RETRIEVAL_PATH\n" >> "$RULES_FILE"
+  printf "QUERY → thesaurus → TOKEN → (codon + weight + rust_call + edges + physics + image)\n" >> "$RULES_FILE"
+  printf "PHASES: 7(load) 8(recurse) 9(compress) 10(execute) 11(retrieve)\n\n" >> "$RULES_FILE"
+  printf "  RULE_007: Phase 11=RETRIEVE completes the 7-10 loop\n"
+
+  hr
+  printf "RULES_FILE=%s\n" "$RULES_FILE"
+  printf "TOTAL_RULES=7\n"
+  printf "STATUS=SAGCO_COMPRESS_COMPLETE\n"
+}
+
+# ── Dispatch ──────────────────────────────────────────────────────────────────
+
+case "${1:-}" in
+  --scan|scan)        cmd_scan     ;;
+  --compress|compress) cmd_compress ;;
+  "")                 printf "Usage: sagco-archaeologist <TOKEN|word|SAGCO-ID|rust_call()>\n"
+                      printf "       sagco-archaeologist --scan\n"
+                      printf "       sagco-archaeologist --compress\n"; exit 1 ;;
+  *)                  cmd_retrieve "$1" ;;
+esac
