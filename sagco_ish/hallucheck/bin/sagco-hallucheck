@@ -1,39 +1,29 @@
 #!/bin/sh
-# usage: sagco-hallucheck CASE EXPECTED_FILE ACTUAL_FILE LABEL
 CASE="$1"
 EXPECTED="$2"
 ACTUAL="$3"
 LABEL="$4"
 OUT="sagco_ish/hallucheck/logs/hallucheck_eru.csv"
+[ -z "$CASE" ] && echo "usage: sagco-hallucheck CASE EXPECTED ACTUAL LABEL" && exit 1
+[ ! -f "$EXPECTED" ] && echo "EXPECTED_NOT_FOUND" && exit 1
+[ ! -f "$ACTUAL" ]   && echo "ACTUAL_NOT_FOUND"   && exit 1
 mkdir -p sagco_ish/hallucheck/logs
-[ -z "$CASE" ] && echo "usage: sagco-hallucheck CASE EXPECTED_FILE ACTUAL_FILE LABEL" && exit 1
-[ ! -f "$EXPECTED" ] && echo "EXPECTED_NOT_FOUND: $EXPECTED" && exit 1
-[ ! -f "$ACTUAL" ]   && echo "ACTUAL_NOT_FOUND: $ACTUAL"   && exit 1
-if [ ! -f "$OUT" ]; then
-  echo "case,label,expected_terms,actual_terms,matched_terms,missing_terms,extra_terms,eru_score,status,timestamp" > "$OUT"
-fi
+[ ! -f "$OUT" ] && echo "case,label,expected_terms,actual_terms,matched,missing,extra,score,status,timestamp" > "$OUT"
 TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
-E="/tmp/${CASE}_expected_terms.txt"
-A="/tmp/${CASE}_actual_terms.txt"
-M="/tmp/${CASE}_matched_terms.txt"
-X="/tmp/${CASE}_extra_terms.txt"
-N="/tmp/${CASE}_missing_terms.txt"
-tr ' ' '\n' < "$EXPECTED" | tr -cd '[:alnum:]\n' | tr 'A-Z' 'a-z' | grep '.\{4,\}' | sort -u > "$E"
-tr ' ' '\n' < "$ACTUAL"   | tr -cd '[:alnum:]\n' | tr 'A-Z' 'a-z' | grep '.\{4,\}' | sort -u > "$A"
-comm -12 "$E" "$A" > "$M"
-comm -23 "$E" "$A" > "$N"
-comm -13 "$E" "$A" > "$X"
-EC=$(wc -l < "$E")
-AC=$(wc -l < "$A")
-MC=$(wc -l < "$M")
-NC=$(wc -l < "$N")
-XC=$(wc -l < "$X")
+tr '[:punct:]' ' ' < "$EXPECTED" | tr ' ' '\n' | tr 'A-Z' 'a-z' | grep '^[a-z]\{4,\}$' | sort -u > /tmp/exp.txt
+tr '[:punct:]' ' ' < "$ACTUAL"   | tr ' ' '\n' | tr 'A-Z' 'a-z' | grep '^[a-z]\{4,\}$' | sort -u > /tmp/act.txt
+comm -12 /tmp/exp.txt /tmp/act.txt > /tmp/match.txt
+comm -23 /tmp/exp.txt /tmp/act.txt > /tmp/miss.txt
+comm -13 /tmp/exp.txt /tmp/act.txt > /tmp/extra.txt
+EC=$(wc -l < /tmp/exp.txt  | tr -d ' ')
+AC=$(wc -l < /tmp/act.txt  | tr -d ' ')
+MC=$(wc -l < /tmp/match.txt | tr -d ' ')
+NC=$(wc -l < /tmp/miss.txt  | tr -d ' ')
+XC=$(wc -l < /tmp/extra.txt | tr -d ' ')
 SCORE=$(awk "BEGIN { if ($EC==0) print 0; else printf \"%.2f\", ($MC/$EC)*100 }")
-STATUS="GREEN"
-awk "BEGIN {exit !($SCORE < 80)}" && STATUS="HALLUCINATION_RISK"
-awk "BEGIN {exit !($SCORE < 60)}" && STATUS="RED_HALLUCINATION_ALERT"
+STATUS=$(awk "BEGIN { s=$SCORE; if (s>=80) print \"GREEN\"; else if (s>=60) print \"HALLUCINATION_RISK\"; else print \"RED_HALLUCINATION_ALERT\" }")
 echo "$CASE,$LABEL,$EC,$AC,$MC,$NC,$XC,$SCORE,$STATUS,$TS" >> "$OUT"
 echo "SAGCO_HALLUCHECK_COMPLETE"
 tail -1 "$OUT"
 sagco_ish/shared_state/bin/sagco-state "$CASE" "HALLUCHECK_NODE" "ACTIVE" "hallucheck_${SCORE}_${STATUS}" 2>/dev/null || true
-rm -f "$E" "$A" "$M" "$N" "$X"
+rm -f /tmp/exp.txt /tmp/act.txt /tmp/match.txt /tmp/miss.txt /tmp/extra.txt
