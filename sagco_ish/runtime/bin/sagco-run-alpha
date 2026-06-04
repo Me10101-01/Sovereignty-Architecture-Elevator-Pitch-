@@ -1,0 +1,33 @@
+#!/bin/sh
+# SAGCO Runtime Alpha
+# usage: sagco-run-alpha CASE
+CASE="$1"
+[ -z "$CASE" ] && echo "usage: sagco-run-alpha CASE" && exit 1
+LOG="sagco_ish/runtime/logs/runtime_alpha.csv"
+mkdir -p sagco_ish/runtime/logs
+[ ! -f "$LOG" ] && echo "case,agent,status,timestamp" > "$LOG"
+TS(){ busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE; }
+run_agent() {
+  NAME="$1"
+  CMD="$2"
+  echo "RUNNING:$NAME"
+  echo "$CASE,$NAME,START,$(TS)" >> "$LOG"
+  sh -c "$CMD" >/tmp/sagco_${NAME}.out 2>/tmp/sagco_${NAME}.err
+  STATUS="$?"
+  echo "$CASE,$NAME,EXIT_$STATUS,$(TS)" >> "$LOG"
+}
+echo "===== SAGCO RUNTIME ALPHA START ====="
+run_agent state-read      "sagco_ish/shared_state/bin/sagco-state-read $CASE"
+run_agent portfolio-fuzz  "sagco_ish/portfolio/bin/sagco-portfolio-fuzz $CASE sagco_ish"
+run_agent bill-fuzz       "sagco_ish/fuzz/bin/sagco-bill-fuzz $CASE sagco_ish"
+run_agent analyze         "sagco_ish/analysis/bin/sagco-analyze $CASE"
+run_agent dashboard       "sagco_ish/dashboard/bin/sagco-dashboard $CASE"
+run_agent portfolio-generate "sagco_ish/agents/portfolio/bin/sagco-portfolio-generate $CASE"
+REPORT="sagco_ish/portfolio/case-studies/${CASE}_SAGCO_Portfolio_Case_Study.md"
+TRUTH="sagco_ish/hallucheck/source_truth/sagco_os_truth.txt"
+if [ -f "$TRUTH" ] && [ -f "$REPORT" ]; then
+  run_agent hallucheck "sagco_ish/hallucheck/bin/sagco-hallucheck $CASE $TRUTH $REPORT runtime_alpha_report_vs_truth"
+fi
+sagco_ish/shared_state/bin/sagco-state "$CASE" "RUNTIME_ALPHA_NODE" "ACTIVE" "alpha_cycle_complete" 2>/dev/null || true
+echo "===== SAGCO RUNTIME ALPHA COMPLETE ====="
+tail -20 "$LOG"

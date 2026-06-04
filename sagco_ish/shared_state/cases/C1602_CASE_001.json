@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "HALLUCHECK_NODE",
+  "last_node": "RUNTIME_ALPHA_NODE",
   "status": "ACTIVE",
-  "note": "hallucheck_27.02_RED_HALLUCINATION_ALERT",
-  "updated": "2026-06-04T20:31:58Z"
+  "note": "alpha_cycle_complete",
+  "updated": "2026-06-04T20:33:49Z"
 }

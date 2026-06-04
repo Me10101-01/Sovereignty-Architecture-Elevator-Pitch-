@@ -1,3 +1,5 @@
 case,label,expected_terms,actual_terms,matched,missing,extra,score,status,timestamp
 C1602_CASE_001,portfolio_report_vs_truth,285,76,76,209,0,26.67,RED_HALLUCINATION_ALERT,2026-06-04T20:31:43Z
 C1602_CASE_001,portfolio_report_vs_truth,285,78,77,208,1,27.02,RED_HALLUCINATION_ALERT,2026-06-04T20:31:57Z
+C1602_CASE_001,portfolio_report_vs_truth,285,126,126,159,0,44.21,RED_HALLUCINATION_ALERT,2026-06-04T20:33:49Z
+C1602_CASE_001,runtime_alpha_report_vs_truth,285,126,126,159,0,44.21,RED_HALLUCINATION_ALERT,2026-06-04T20:33:49Z

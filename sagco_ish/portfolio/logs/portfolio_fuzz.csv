@@ -1,0 +1,254 @@
+case,file,line,signal,text,timestamp
+C1602_CASE_001,sagco_ish/pdf_forensics/reports/pdf_forensic_report.txt,1,INGEST_SIGNAL,SAGCO PDF FORENSIC REPORT,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/reports/pdf_forensic_report.txt,12,ERU_SIGNAL,ERU_STATUS=GREEN,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/reports/pdf_forensic_report.txt,14,INGEST_SIGNAL,PDF,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/reports/SF0068_2022_Enrolled_alt_tokens.csv,1,INGEST_SIGNAL,TOKEN_TYPE VALUE SOURCE_PDF PAGE_RANGE SHA256_SHORT,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/reports/SF0068_2022_Enrolled_alt_forensic.txt,1,INGEST_SIGNAL,SAGCO PDF FORENSIC EXTRACT REPORT,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/reports/SF0068_2022_Enrolled_alt_forensic.txt,13,ERU_SIGNAL,ERU_STATUS=GREEN,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/reports/SF0068_2022_Enrolled_alt_forensic.txt,29,INGEST_SIGNAL,PDF → PDFTOTEXT → CIRCUIT_TAGS → FR_NUMBERS → PIC_NUMBERS,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,2,INGEST_SIGNAL,# SAGCO PDF FORENSIC EXTRACTOR v2,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,6,INGEST_SIGNAL,PDF= $1 ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,11,INGEST_SIGNAL,BASE= $(basename  $PDF  .pdf | tr ' ' '_') ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,17,INGEST_SIGNAL,if [ ! -f  $PDF  ]; then,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,18,INGEST_SIGNAL,    echo  PDF_NOT_FOUND: $PDF ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,22,INGEST_SIGNAL,echo  SAGCO_PDFSCAN_EXTRACT: $PDF ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,26,INGEST_SIGNAL,HASH= $(sha256sum  $PDF  | awk '{print $1}') ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,27,INGEST_SIGNAL,SIZE= $(wc -c <  $PDF ) ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,28,INGEST_SIGNAL,PAGE_COUNT= $(pdfinfo  $PDF  2>/dev/null | grep '^Pages:' | awk '{print $2}') ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,29,INGEST_SIGNAL,CREATOR= $(pdfinfo  $PDF  2>/dev/null | grep '^Creator:' | cut -d: -f2- | xargs) ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,30,INGEST_SIGNAL,CREATED= $(pdfinfo  $PDF  2>/dev/null | grep '^CreationDate:' | cut -d: -f2- | xargs) ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,31,INGEST_SIGNAL,EOF_COUNT= $(grep -a -o  %%EOF   $PDF  | wc -l | tr -d ' ') ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,32,INGEST_SIGNAL,JS_COUNT= $(grep -a -i -o  /JS\|/JavaScript\|/OpenAction\|/AA   $PDF  2>/dev/null | wc -l | tr -d ' ') ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,38,INGEST_SIGNAL,    pdftotext -f  $PAGE_START  -l  $PAGE_END   $PDF   $TMP_TEXT  2>/dev/null,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,40,INGEST_SIGNAL,    pdftotext  $PDF   $TMP_TEXT  2>/dev/null,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,43,INGEST_SIGNAL,    strings  $PDF  >  $TMP_TEXT ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,57,ERU_SIGNAL,    ERU_STATUS= YELLOW_SCRIPT_FOUND ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,59,ERU_SIGNAL,    ERU_STATUS= YELLOW_MULTI_REVISION ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,61,ERU_SIGNAL,    ERU_STATUS= GREEN ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,67,INGEST_SIGNAL,printf  SAGCO PDF FORENSIC EXTRACT REPORT
+ ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,68,INGEST_SIGNAL,printf  STAMP=%s
+FILE=%s
+SHA256=%s
+SIZE_BYTES=%s
+
+   $STAMP   $PDF   $HASH   $SIZE ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,70,ERU_SIGNAL,printf  PAGE_COUNT=%s
+CREATOR=%s
+CREATED=%s
+EOF_REVISIONS=%s
+JS_HOOKS=%s
+ERU_STATUS=%s
+
+  \,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,71,ERU_SIGNAL,     $PAGE_COUNT   $CREATOR   $CREATED   $EOF_COUNT   $JS_COUNT   $ERU_STATUS ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,81,INGEST_SIGNAL,printf  PDF → PDFTOTEXT → CIRCUIT_TAGS → FR_NUMBERS → PIC_NUMBERS
+ ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,90,INGEST_SIGNAL,printf  TOKEN_TYPE VALUE SOURCE_PDF PAGE_RANGE SHA256_SHORT
+  >  $CSV ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdf_forensics/bin/sagco-pdfscan,104,INGEST_SIGNAL,echo  SAGCO_PDFSCAN_EXTRACT_COMPLETE ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/logs/runtime_alpha.csv,1,AGENT_SIGNAL,case agent status timestamp,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/logs/runtime_alpha.csv,4,PORTFOLIO_SIGNAL,C1602_CASE_001 portfolio-fuzz START 2026-06-04T20:33:48Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,6,RUNTIME_SIGNAL,LOG= sagco_ish/runtime/logs/runtime_alpha.csv ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,7,RUNTIME_SIGNAL,mkdir -p sagco_ish/runtime/logs,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,8,AGENT_SIGNAL,[ ! -f  $LOG  ] && echo  case agent status timestamp  >  $LOG ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,10,AGENT_SIGNAL,run_agent() {,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,20,AGENT_SIGNAL,run_agent state-read       sagco_ish/shared_state/bin/sagco-state-read $CASE ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,21,AGENT_SIGNAL,run_agent portfolio-fuzz   sagco_ish/portfolio/bin/sagco-portfolio-fuzz $CASE sagco_ish ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,22,AGENT_SIGNAL,run_agent bill-fuzz        sagco_ish/fuzz/bin/sagco-bill-fuzz $CASE sagco_ish ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,23,AGENT_SIGNAL,run_agent analyze          sagco_ish/analysis/bin/sagco-analyze $CASE ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,24,RUNTIME_SIGNAL,run_agent dashboard        sagco_ish/dashboard/bin/sagco-dashboard $CASE ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,25,AGENT_SIGNAL,run_agent portfolio-generate  sagco_ish/agents/portfolio/bin/sagco-portfolio-generate $CASE ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,26,PORTFOLIO_SIGNAL,REPORT= sagco_ish/portfolio/case-studies/${CASE}_SAGCO_Portfolio_Case_Study.md ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,29,RUNTIME_SIGNAL,  run_agent hallucheck  sagco_ish/hallucheck/bin/sagco-hallucheck $CASE $TRUTH $REPORT runtime_alpha_report_vs_truth ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/shared_state/logs/state_updates.csv,3,ERU_SIGNAL,C1602_CASE_001 ERU_NODE GREEN health_80_alerts_2 2026-06-04T20:02:37Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/shared_state/logs/state_updates.csv,4,PORTFOLIO_SIGNAL,C1602_CASE_001 PORTFOLIO_GEN_NODE ACTIVE case_study_generated 2026-06-04T20:14:14Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/shared_state/logs/state_updates.csv,5,PORTFOLIO_SIGNAL,C1602_CASE_001 PORTFOLIO_GEN_NODE ACTIVE case_study_generated 2026-06-04T20:14:45Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,3,PORTFOLIO_SIGNAL,OUT= ${2:-sagco_ish/portfolio/case-studies/${CASE}_SAGCO_Portfolio_Case_Study.md} ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,4,PORTFOLIO_SIGNAL,[ -z  $CASE  ] && echo  usage: sagco-portfolio-generate CASE  && exit 1,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,7,PORTFOLIO_SIGNAL,FUZZ= sagco_ish/portfolio/logs/portfolio_fuzz.csv ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,8,AGENT_SIGNAL,EVID= sagco_ish/evidence/logs/evidence_register.csv ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,9,ERU_SIGNAL,ERU= sagco_ish/wafer/logs/wafer_eru.csv ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,14,RUNTIME_SIGNAL,This case study documents a live workflow using shared state  evidence hashing  fuzz scanning  ERU variance tracking  and portfolio signal extraction.,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,17,INGEST_SIGNAL,- Gmail / PDF ingest,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,19,ERU_SIGNAL,- ERU expected-vs-actual variance,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,34,ERU_SIGNAL,## ERU / Wafer Variance,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,36,ERU_SIGNAL,$(tail -n 15  $ERU  2>/dev/null || echo  NO_ERU_LOG ),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,44,AGENT_SIGNAL,- Multi-agent orchestration,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,46,ERU_SIGNAL,- Expected vs actual validation,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/portfolio/bin/sagco-portfolio-generate,56,PORTFOLIO_SIGNAL,  sagco_ish/hallucheck/bin/sagco-hallucheck  $CASE   $TRUTH   $OUT   portfolio_report_vs_truth ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/eru/bin/sagco-eru-report,2,ERU_SIGNAL,# SAGCO Brick 024 - ERU Aggregator,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/eru/bin/sagco-eru-report,10,ERU_SIGNAL,# wafer_eru.csv: case label expected actual variance status timestamp,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/eru/bin/sagco-eru-report,11,ERU_SIGNAL,ERU_LOG= sagco_ish/wafer/logs/wafer_eru.csv ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/eru/bin/sagco-eru-report,12,ERU_SIGNAL,if [ ! -f  $ERU_LOG  ]; then,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/eru/bin/sagco-eru-report,13,ERU_SIGNAL,  echo  ERU_LOG_NOT_FOUND: $ERU_LOG ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/eru/bin/sagco-eru-report,18,ERU_SIGNAL,grep  ^${CASE}    $ERU_LOG  >  $TMPFILE  2>/dev/null || true,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/eru/bin/sagco-eru-report,21,ERU_SIGNAL,  echo  NO_ERU_DATA_FOR_CASE: $CASE ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/eru/bin/sagco-eru-report,54,ERU_SIGNAL,echo  === SAGCO ERU REPORT: $CASE === ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/eru/bin/sagco-eru-report,67,ERU_SIGNAL,echo  SAGCO_ERU_REPORT_COMPLETE ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/agents/eru/bin/sagco-eru-report,69,ERU_SIGNAL,sagco_ish/shared_state/bin/sagco-state  $CASE   ERU_NODE   $STATUS   health_${HEALTH}_alerts_${ALERT} ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/scheduler/logs/run_history.csv,1,AGENT_SIGNAL,case agent status timestamp,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/scheduler/logs/run_history.csv,8,PORTFOLIO_SIGNAL,C1602_CASE_001 portfolio START 2026-06-04T19:43:09Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/scheduler/logs/run_history.csv,9,PORTFOLIO_SIGNAL,C1602_CASE_001 portfolio COMPLETE 2026-06-04T19:43:09Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/scheduler/bin/sagco-run,3,AGENT_SIGNAL,REG= sagco_ish/registry/logs/command_registry.csv ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/scheduler/bin/sagco-run,7,AGENT_SIGNAL,    echo  case agent status timestamp  >  $LOG ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/scheduler/bin/sagco-run,21,PORTFOLIO_SIGNAL,            demo|mission|regression|portfolio|palace),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/scheduler/bin/sagco-scheduler,5,AGENT_SIGNAL,OUT= sagco_ish/scheduler/logs/scheduler_register.csv ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,3,PORTFOLIO_SIGNAL,# Usage: sagco-portfolio-fuzz <CASE_ID> <SEARCH_ROOT>,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,6,PORTFOLIO_SIGNAL,OUT= sagco_ish/portfolio/logs/portfolio_fuzz.csv ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,7,PORTFOLIO_SIGNAL,mkdir -p sagco_ish/portfolio/logs,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,16,RUNTIME_SIGNAL,   workflow|compose|dashboard|runtime|Gmail|Dropbox|PDF|agent|command|register|case.study|portfolio|ERU|variance|expected|actual|evidence|hash|sha256  \,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,20,RUNTIME_SIGNAL,    /workflow|compose|dashboard|runtime/ { print  RUNTIME_SIGNAL ; exit },2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,21,INGEST_SIGNAL,    /Gmail|Dropbox|PDF/                  { print  INGEST_SIGNAL ;  exit },2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,22,AGENT_SIGNAL,    /agent|command|register/             { print  AGENT_SIGNAL ;   exit },2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,23,PORTFOLIO_SIGNAL,    /case.study|portfolio/               { print  PORTFOLIO_SIGNAL ; exit },2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,24,ERU_SIGNAL,    /ERU|variance|expected|actual/       { print  ERU_SIGNAL ;     exit },2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,25,EVIDENCE_SIGNAL,    /evidence|hash|sha256/               { print  EVIDENCE_SIGNAL ; exit },2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/bin/sagco-portfolio-fuzz,33,PORTFOLIO_SIGNAL,sagco_ish/shared_state/bin/sagco-state  $CASE   PORTFOLIO_GIDRA_NODE   ACTIVE   portfolio_fuzz_hits_$COUNT  2>/dev/null,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio_Case_Study.md,4,RUNTIME_SIGNAL,This case study documents a live workflow using shared state  evidence hashing  fuzz scanning  ERU variance tracking  and portfolio signal extraction.,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio_Case_Study.md,7,INGEST_SIGNAL,- Gmail / PDF ingest,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio_Case_Study.md,9,ERU_SIGNAL,- ERU expected-vs-actual variance,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio_Case_Study.md,30,ERU_SIGNAL,## ERU / Wafer Variance,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio_Case_Study.md,32,ERU_SIGNAL,case label expected actual variance status timestamp,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio_Case_Study.md,43,AGENT_SIGNAL,- Multi-agent orchestration,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio_Case_Study.md,45,ERU_SIGNAL,- Expected vs actual validation,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,10,PORTFOLIO_SIGNAL,This case study documents the design and operation of SAGCO (Sovereignty Architecture,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,11,EVIDENCE_SIGNAL,General Compiler and Orchestrator)  a custom-built distributed evidence engine running,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,14,INGEST_SIGNAL,SAGCO converts raw field engineering data — PDF scopes  Excel wafers  orientation,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,15,INGEST_SIGNAL,captures  and Gmail attachments — into structured  cryptographically verifiable,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,16,PORTFOLIO_SIGNAL,portfolio artifacts with zero third-party cloud dependency.,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,18,AGENT_SIGNAL,**Key Achievement:** A single command (`sagco-run C1602_CASE_001`) causes three independent,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,20,PORTFOLIO_SIGNAL,produce an audit-ready case study document automatically.,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,27,INGEST_SIGNAL,FIELD PDF / GMAIL ATTACHMENT,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,31,ERU_SIGNAL,    sagco-wafer (ERU variance engine),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,39,PORTFOLIO_SIGNAL,    sagco-portfolio-fuzz (GIDRA signal miner),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,41,PORTFOLIO_SIGNAL,    sagco-portfolio-generate  ← THIS DOCUMENT,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,55,ERU_SIGNAL,| ERU Observations | 3 |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,56,ERU_SIGNAL,| ERU Green (on-target) | 1 |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,57,ERU_SIGNAL,| ERU Alerts (variance) | 2 |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,64,ERU_SIGNAL,## ERU Variance Analysis,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,66,ERU_SIGNAL,The Expected Reality Unit (ERU) engine compares Excel wafer predictions against,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,67,ERU_SIGNAL,field capture actuals. Variance = actual - expected.,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,71,ERU_SIGNAL,| variance = 0 | GREEN |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,72,ERU_SIGNAL,| abs(variance) ≤ 2 | YELLOW |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,73,ERU_SIGNAL,| abs(variance) > 2 | RED (ALERT) |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,77,ERU_SIGNAL,**Recent ERU Data:**,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,89,PORTFOLIO_SIGNAL,identified 0 portfolio-grade signals across the repository.,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,94,ERU_SIGNAL,| ERU_SIGNAL | 0 |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,99,AGENT_SIGNAL,## Registered Agent Fleet (15 commands),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,105,PORTFOLIO_SIGNAL,portfolio bin/sagco-portfolio tool ACTIVE 2026-06-04T19:42:42Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,109,RUNTIME_SIGNAL,dashboard sagco_ish/dashboard/bin/sagco-dashboard tool ACTIVE 2026-06-04T19:42:42Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,116,AGENT_SIGNAL,eru-report sagco_ish/agents/eru/bin/sagco-eru-report analysis ACTIVE 2026-06-04T20:02:40Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,125,ERU_SIGNAL,C1602_CASE_001 ERU_NODE GREEN health_80_alerts_2 2026-06-04T20:02:37Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,126,PORTFOLIO_SIGNAL,C1602_CASE_001 PORTFOLIO_GEN_NODE ACTIVE case_study_generated 2026-06-04T20:14:14Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,135,ERU_SIGNAL,- **Systems Programming:** Rust ERU variance engine (SHA3 content-addressed hashing),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,136,AGENT_SIGNAL,- **Shell Engineering:** POSIX sh fleet agents (iSH/Alpine compatible),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,138,PORTFOLIO_SIGNAL,- **Portfolio Engineering:** Autonomous case study generation from live system state,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/portfolio/case-studies/C1602_CASE_001_SAGCO_Portfolio.md,150,PORTFOLIO_SIGNAL,*Generated by SAGCO sagco-portfolio-generate v1.0*,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/registry/logs/command_registry.csv,4,PORTFOLIO_SIGNAL,portfolio bin/sagco-portfolio tool ACTIVE 2026-06-04T19:42:42Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/registry/logs/command_registry.csv,8,RUNTIME_SIGNAL,dashboard sagco_ish/dashboard/bin/sagco-dashboard tool ACTIVE 2026-06-04T19:42:42Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/registry/logs/command_registry.csv,15,AGENT_SIGNAL,eru-report sagco_ish/agents/eru/bin/sagco-eru-report analysis ACTIVE 2026-06-04T20:02:40Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/registry/logs/command_registry.csv,16,AGENT_SIGNAL,portfolio-generate sagco_ish/agents/portfolio/bin/sagco-portfolio-generate portfolio ACTIVE 2026-06-04T20:14:50Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/registry/logs/command_registry.csv,17,PORTFOLIO_SIGNAL,portfolio-fuzz sagco_ish/portfolio/bin/sagco-portfolio-fuzz portfolio ACTIVE 2026-06-04T20:14:50Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/registry/bin/sagco-register,2,AGENT_SIGNAL,# sagco-register: register a command in the mesh registry,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/registry/bin/sagco-register,3,AGENT_SIGNAL,# Usage: sagco-register <name> <path> <type>,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/registry/bin/sagco-register,7,AGENT_SIGNAL,REG= sagco_ish/registry/logs/command_registry.csv ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/registry/bin/sagco-register,10,AGENT_SIGNAL,  echo  usage: sagco-register <name> <path> [type] ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/autoloop/bin/sagco-loop,2,RUNTIME_SIGNAL,# sagco-loop: autonomous scheduler → analyze → dashboard cycle,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/autoloop/bin/sagco-loop,16,RUNTIME_SIGNAL,     $REPO_ROOT/sagco_ish/dashboard/bin/sagco-dashboard   $CASE  2>/dev/null,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/wafer/logs/wafer_eru.csv,1,ERU_SIGNAL,case label expected actual variance status timestamp,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/wafer/bin/sagco-wafer,10,ERU_SIGNAL,echo  case label expected actual variance status timestamp  >  $OUT ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/wafer/bin/sagco-wafer,21,ERU_SIGNAL,echo  SAGCO_WAFER_ERU_CAPTURED ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/logs/pdfscan_register.csv,1,EVIDENCE_SIGNAL,case_id file pages sha256 c1602_hits pic_hits wts_hits fr_hits status timestamp,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/logs/pdfscan_register.csv,2,INGEST_SIGNAL,C1602_PDF_SCOPE_001 legal/wyoming_sf0068/SF0068_2022_Enrolled_alt.pdf 9 0faf07ef37eb6e81fbcd3ec8777d87d97fa8950bc767e5592d129c0fe2c5a895 0 0 0 0 PDF_TOKENS_CAPTURED 2026-06-04T19:24:10Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,2,INGEST_SIGNAL,# usage: sagco-pdfscan PDF_PATH CASE_ID,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,3,INGEST_SIGNAL,PDF= $1 ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,5,AGENT_SIGNAL,OUT= sagco_ish/pdfscan/logs/pdfscan_register.csv ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,6,INGEST_SIGNAL,if [ ! -f  $PDF  ]; then,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,7,INGEST_SIGNAL,  echo  PDF_NOT_FOUND: $PDF ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,12,EVIDENCE_SIGNAL,  echo  case_id file pages sha256 c1602_hits pic_hits wts_hits fr_hits status timestamp  >  $OUT ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,14,INGEST_SIGNAL,HASH=$(sha256sum  $PDF  | awk '{print $1}'),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,15,INGEST_SIGNAL,PAGES=$(grep -aoc  /Type /Page   $PDF ),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,16,INGEST_SIGNAL,C1602=$(grep -aoc  C-1602-O-1B   $PDF ),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,17,INGEST_SIGNAL,PIC=$(grep -aoc  PIC   $PDF ),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,18,INGEST_SIGNAL,WTS=$(grep -aoc  WTS   $PDF ),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,19,INGEST_SIGNAL,FR=$(grep -aoc  FR-   $PDF ),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,20,INGEST_SIGNAL,STATUS= PDF_TOKENS_CAPTURED ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,21,INGEST_SIGNAL,echo  $CASE $PDF $PAGES $HASH $C1602 $PIC $WTS $FR $STATUS $(date -u +%Y-%m-%dT%H:%M:%SZ)  >>  $OUT ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/pdfscan/bin/sagco-pdfscan,22,INGEST_SIGNAL,echo  SAGCO_PDFSCAN_COMPLETE ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/eru/data/sample_capture.csv,1,ERU_SIGNAL,case_id token_type expected_value actual_value timestamp,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/logs/hallucheck_eru.csv,1,ERU_SIGNAL,case label expected_terms actual_terms matched missing extra score status timestamp,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/logs/hallucheck_eru.csv,2,PORTFOLIO_SIGNAL,C1602_CASE_001 portfolio_report_vs_truth 285 76 76 209 0 26.67 RED_HALLUCINATION_ALERT 2026-06-04T20:31:43Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/logs/hallucheck_eru.csv,3,PORTFOLIO_SIGNAL,C1602_CASE_001 portfolio_report_vs_truth 285 78 77 208 1 27.02 RED_HALLUCINATION_ALERT 2026-06-04T20:31:57Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,10,PORTFOLIO_SIGNAL,This case study documents the design and operation of SAGCO (Sovereignty Architecture,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,11,EVIDENCE_SIGNAL,General Compiler and Orchestrator)  a custom-built distributed evidence engine running,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,14,INGEST_SIGNAL,SAGCO converts raw field engineering data — PDF scopes  Excel wafers  orientation,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,15,INGEST_SIGNAL,captures  and Gmail attachments — into structured  cryptographically verifiable,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,16,PORTFOLIO_SIGNAL,portfolio artifacts with zero third-party cloud dependency.,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,18,AGENT_SIGNAL,**Key Achievement:** A single command (`sagco-run C1602_CASE_001`) causes three independent,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,20,PORTFOLIO_SIGNAL,produce an audit-ready case study document automatically.,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,27,INGEST_SIGNAL,FIELD PDF / GMAIL ATTACHMENT,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,31,ERU_SIGNAL,    sagco-wafer (ERU variance engine),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,39,PORTFOLIO_SIGNAL,    sagco-portfolio-fuzz (GIDRA signal miner),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,41,PORTFOLIO_SIGNAL,    sagco-portfolio-generate  ← THIS DOCUMENT,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,55,ERU_SIGNAL,| ERU Observations | 3 |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,56,ERU_SIGNAL,| ERU Green (on-target) | 1 |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,57,ERU_SIGNAL,| ERU Alerts (variance) | 2 |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,64,ERU_SIGNAL,## ERU Variance Analysis,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,66,ERU_SIGNAL,The Expected Reality Unit (ERU) engine compares Excel wafer predictions against,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,67,ERU_SIGNAL,field capture actuals. Variance = actual - expected.,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,71,ERU_SIGNAL,| variance = 0 | GREEN |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,72,ERU_SIGNAL,| abs(variance) ≤ 2 | YELLOW |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,73,ERU_SIGNAL,| abs(variance) > 2 | RED (ALERT) |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,77,ERU_SIGNAL,**Recent ERU Data:**,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,89,PORTFOLIO_SIGNAL,identified 0 portfolio-grade signals across the repository.,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,94,ERU_SIGNAL,| ERU_SIGNAL | 0 |,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,99,AGENT_SIGNAL,## Registered Agent Fleet (15 commands),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,105,PORTFOLIO_SIGNAL,portfolio bin/sagco-portfolio tool ACTIVE 2026-06-04T19:42:42Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,109,RUNTIME_SIGNAL,dashboard sagco_ish/dashboard/bin/sagco-dashboard tool ACTIVE 2026-06-04T19:42:42Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,116,AGENT_SIGNAL,eru-report sagco_ish/agents/eru/bin/sagco-eru-report analysis ACTIVE 2026-06-04T20:02:40Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,125,ERU_SIGNAL,C1602_CASE_001 ERU_NODE GREEN health_80_alerts_2 2026-06-04T20:02:37Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,126,PORTFOLIO_SIGNAL,C1602_CASE_001 PORTFOLIO_GEN_NODE ACTIVE case_study_generated 2026-06-04T20:14:14Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,135,ERU_SIGNAL,- **Systems Programming:** Rust ERU variance engine (SHA3 content-addressed hashing),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,136,AGENT_SIGNAL,- **Shell Engineering:** POSIX sh fleet agents (iSH/Alpine compatible),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,138,PORTFOLIO_SIGNAL,- **Portfolio Engineering:** Autonomous case study generation from live system state,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,150,PORTFOLIO_SIGNAL,*Generated by SAGCO sagco-portfolio-generate v1.0*,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,155,RUNTIME_SIGNAL,This case study documents a live workflow using shared state  evidence hashing  fuzz scanning  ERU variance tracking  and portfolio signal extraction.,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,158,INGEST_SIGNAL,- Gmail / PDF ingest,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,160,ERU_SIGNAL,- ERU expected-vs-actual variance,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,169,PORTFOLIO_SIGNAL,   note :  case_study_generated  ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,181,ERU_SIGNAL,## ERU / Wafer Variance,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,183,ERU_SIGNAL,case label expected actual variance status timestamp,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,194,AGENT_SIGNAL,- Multi-agent orchestration,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,196,ERU_SIGNAL,- Expected vs actual validation,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,202,PORTFOLIO_SIGNAL,portfolio bin/sagco-portfolio tool ACTIVE 2026-06-04T19:42:42Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,206,RUNTIME_SIGNAL,dashboard sagco_ish/dashboard/bin/sagco-dashboard tool ACTIVE 2026-06-04T19:42:42Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,213,AGENT_SIGNAL,eru-report sagco_ish/agents/eru/bin/sagco-eru-report analysis ACTIVE 2026-06-04T20:02:40Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,214,AGENT_SIGNAL,portfolio-generate sagco_ish/agents/portfolio/bin/sagco-portfolio-generate portfolio ACTIVE 2026-06-04T20:14:50Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,215,PORTFOLIO_SIGNAL,portfolio-fuzz sagco_ish/portfolio/bin/sagco-portfolio-fuzz portfolio ACTIVE 2026-06-04T20:14:50Z,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,220,AGENT_SIGNAL,# SAGCO core environment — source this to get all agent bins on PATH,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,221,RUNTIME_SIGNAL,export PATH= $SAGCO_BASE/bin:$SAGCO_BASE/agents/eru/bin:$SAGCO_BASE/shared_state/bin:$SAGCO_BASE/scheduler/bin:$SAGCO_BASE/analysis/bin:$SAGCO_BASE/dashboard/bin:$SAGCO_BASE/dispatcher/bin:$SAGCO_BASE/wafer/bin:$SAGCO_BASE/pdfscan/bin:$SAGCO_BASE/registry/bin:$PATH ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,223,RUNTIME_SIGNAL,# sagco-loop: autonomous scheduler → analyze → dashboard cycle,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,227,ERU_SIGNAL,[ ! -f  $OUT  ] && echo  case cell label rule expected actual variance status timestamp  >  $OUT ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,236,ERU_SIGNAL,[ ! -f  $OUT  ] && echo  case label expected_terms actual_terms matched missing extra score status timestamp  >  $OUT ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,239,INGEST_SIGNAL,# SAGCO PDF FORENSIC EXTRACTOR v2,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,248,INGEST_SIGNAL,# usage: sagco-pdfscan PDF_PATH CASE_ID,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,251,PORTFOLIO_SIGNAL,# Usage: sagco-portfolio-fuzz <CASE_ID> <SEARCH_ROOT>,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,252,PORTFOLIO_SIGNAL,OUT= sagco_ish/portfolio/logs/portfolio_fuzz.csv ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,253,PORTFOLIO_SIGNAL,mkdir -p sagco_ish/portfolio/logs,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,254,RUNTIME_SIGNAL,   workflow|compose|dashboard|runtime|Gmail|Dropbox|PDF|agent|command|register|case.study|portfolio|ERU|variance|expected|actual|evidence|hash|sha256  \,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,255,AGENT_SIGNAL,    /agent|command|register/             { print  AGENT_SIGNAL ;   exit },2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,256,PORTFOLIO_SIGNAL,    /case.study|portfolio/               { print  PORTFOLIO_SIGNAL ; exit },2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,257,ERU_SIGNAL,    /ERU|variance|expected|actual/       { print  ERU_SIGNAL ;     exit },2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,258,EVIDENCE_SIGNAL,    /evidence|hash|sha256/               { print  EVIDENCE_SIGNAL ; exit },2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,259,PORTFOLIO_SIGNAL,sagco_ish/shared_state/bin/sagco-state  $CASE   PORTFOLIO_GIDRA_NODE   ACTIVE   portfolio_fuzz_hits_$COUNT  2>/dev/null,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,261,AGENT_SIGNAL,# sagco-register: register a command in the mesh registry,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,262,AGENT_SIGNAL,# Usage: sagco-register <name> <path> <type>,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,264,AGENT_SIGNAL,    echo  case agent status timestamp  >  $LOG ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,265,PORTFOLIO_SIGNAL,            demo|mission|regression|portfolio|palace),2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,283,ERU_SIGNAL,echo  case label expected actual variance status timestamp  >  $OUT ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/hallucheck/bin/sagco-hallucheck,11,ERU_SIGNAL,[ ! -f  $OUT  ] && echo  case label expected_terms actual_terms matched missing extra score status timestamp  >  $OUT ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/excel/logs/cellrule_eru.csv,1,ERU_SIGNAL,case cell label rule expected actual variance status timestamp,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/excel/bin/sagco-cellrule,11,ERU_SIGNAL,[ ! -f  $OUT  ] && echo  case cell label rule expected actual variance status timestamp  >  $OUT ,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/core/env.sh,2,AGENT_SIGNAL,# SAGCO core environment — source this to get all agent bins on PATH,2026-06-04T20:33:48Z
+C1602_CASE_001,sagco_ish/core/env.sh,5,RUNTIME_SIGNAL,export PATH= $SAGCO_BASE/bin:$SAGCO_BASE/agents/eru/bin:$SAGCO_BASE/shared_state/bin:$SAGCO_BASE/scheduler/bin:$SAGCO_BASE/analysis/bin:$SAGCO_BASE/dashboard/bin:$SAGCO_BASE/dispatcher/bin:$SAGCO_BASE/wafer/bin:$SAGCO_BASE/pdfscan/bin:$SAGCO_BASE/registry/bin:$PATH ,2026-06-04T20:33:48Z

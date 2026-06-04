@@ -1,0 +1,18 @@
+case,file,line,hit_type,text,timestamp
+C1602_CASE_001,sagco_ish/runtime/logs/runtime_alpha.csv,6,BILL_SIGNAL,C1602_CASE_001 bill-fuzz START 2026-06-04T20:33:49Z,2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/runtime/bin/sagco-run-alpha,22,BILL_SIGNAL,run_agent bill-fuzz        sagco_ish/fuzz/bin/sagco-bill-fuzz $CASE sagco_ish ,2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/fuzz/bin/sagco-bill-fuzz,3,BILL_SIGNAL,# Usage: sagco-bill-fuzz <CASE_ID> <SEARCH_ROOT>,2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/fuzz/bin/sagco-bill-fuzz,6,BILL_SIGNAL,OUT= sagco_ish/fuzz/logs/bill_fuzz_hits.csv ,2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/fuzz/bin/sagco-bill-fuzz,16,DUE_SIGNAL,   bill|billing|invoice|receipt|due|payment|paid|balance|charge|statement|subscription|renewal|past due|amount due|total due  \,2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/fuzz/bin/sagco-bill-fuzz,20,DUE_SIGNAL,    /past due|amount due|total due|balance/ { print  DUE_SIGNAL ;       exit },2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/fuzz/bin/sagco-bill-fuzz,21,DOCUMENT_SIGNAL,    /invoice|statement|receipt/             { print  DOCUMENT_SIGNAL ;   exit },2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/fuzz/bin/sagco-bill-fuzz,22,RECURRING_SIGNAL,    /subscription|renewal/                  { print  RECURRING_SIGNAL ;  exit },2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/fuzz/bin/sagco-bill-fuzz,23,PAYMENT_SIGNAL,    /payment|paid|charge/                   { print  PAYMENT_SIGNAL ;    exit },2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/fuzz/bin/sagco-bill-fuzz,31,BILL_SIGNAL,sagco_ish/shared_state/bin/sagco-state  $CASE   FUZZ_NODE   ACTIVE   bill_fuzz_hits_$COUNT  2>/dev/null,2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/portfolio/logs/portfolio_fuzz.csv,58,BILL_SIGNAL,C1602_CASE_001 sagco_ish/runtime/bin/sagco-run-alpha 22 AGENT_SIGNAL run_agent bill-fuzz        sagco_ish/fuzz/bin/sagco-bill-fuzz $CASE sagco_ish  2026-06-04T20:33:48Z,2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/registry/logs/command_registry.csv,18,BILL_SIGNAL,bill-fuzz sagco_ish/fuzz/bin/sagco-bill-fuzz fuzz ACTIVE 2026-06-04T20:14:50Z,2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,216,BILL_SIGNAL,bill-fuzz sagco_ish/fuzz/bin/sagco-bill-fuzz fuzz ACTIVE 2026-06-04T20:14:50Z,2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,231,BILL_SIGNAL,# Usage: sagco-bill-fuzz <CASE_ID> <SEARCH_ROOT>,2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,232,DUE_SIGNAL,   bill|billing|invoice|receipt|due|payment|paid|balance|charge|statement|subscription|renewal|past due|amount due|total due  \,2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,233,DOCUMENT_SIGNAL,    /invoice|statement|receipt/             { print  DOCUMENT_SIGNAL ;   exit },2026-06-04T20:33:49Z
+C1602_CASE_001,sagco_ish/hallucheck/source_truth/sagco_os_truth.txt,234,BILL_SIGNAL,sagco_ish/shared_state/bin/sagco-state  $CASE   FUZZ_NODE   ACTIVE   bill_fuzz_hits_$COUNT  2>/dev/null,2026-06-04T20:33:49Z
