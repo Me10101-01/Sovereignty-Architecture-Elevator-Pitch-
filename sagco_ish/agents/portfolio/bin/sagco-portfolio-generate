@@ -1,184 +1,51 @@
 #!/bin/sh
-# SAGCO Portfolio Generator - Brick 028B
-# Usage: sagco-portfolio-generate <CASE_ID> [OUTPUT_MD]
 CASE="$1"
-OUT="${2:-sagco_ish/portfolio/case-studies/${CASE}_SAGCO_Portfolio.md}"
-if [ -z "$CASE" ]; then
-  echo "usage: sagco-portfolio-generate CASE_ID [output.md]"
-  exit 1
-fi
+OUT="${2:-sagco_ish/portfolio/case-studies/${CASE}_SAGCO_Portfolio_Case_Study.md}"
+[ -z "$CASE" ] && echo "usage: sagco-portfolio-generate CASE" && exit 1
 mkdir -p "$(dirname "$OUT")"
-TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
-
-# --- Pull data sources ---
-STATE_FILE="sagco_ish/shared_state/cases/${CASE}.json"
-STATE_LOG="sagco_ish/shared_state/logs/state_updates.csv"
-ERU_LOG="sagco_ish/wafer/logs/wafer_eru.csv"
-FUZZ_LOG="sagco_ish/portfolio/logs/portfolio_fuzz.csv"
-BILL_LOG="sagco_ish/fuzz/logs/bill_fuzz_hits.csv"
-REG_LOG="sagco_ish/registry/logs/command_registry.csv"
-
-LAST_NODE=$(grep -o '"last_node": "[^"]*"' "$STATE_FILE" 2>/dev/null | cut -d'"' -f4 || echo UNKNOWN)
-STATUS=$(grep -o '"status": "[^"]*"'    "$STATE_FILE" 2>/dev/null | cut -d'"' -f4 || echo UNKNOWN)
-UPDATED=$(grep -o '"updated": "[^"]*"'  "$STATE_FILE" 2>/dev/null | cut -d'"' -f4 || echo UNKNOWN)
-NODE_COUNT=$(tail -n +2 "$STATE_LOG" 2>/dev/null | grep "^$CASE," | awk -F, '{print $2}' | sort -u | wc -l | tr -d ' ')
-STATE_EVENTS=$(tail -n +2 "$STATE_LOG" 2>/dev/null | grep "^$CASE," | wc -l | tr -d ' ')
-ERU_TOTAL=$(tail -n +2 "$ERU_LOG" 2>/dev/null | grep "^$CASE," | wc -l | tr -d ' ')
-ERU_GREEN=$(tail -n +2 "$ERU_LOG" 2>/dev/null | grep "^$CASE," | grep "WAFER_GREEN" | wc -l | tr -d ' ')
-ERU_ALERT=$(tail -n +2 "$ERU_LOG" 2>/dev/null | grep "^$CASE," | grep "WAFER_VARIANCE_ALERT" | wc -l | tr -d ' ')
-FUZZ_HITS=$(tail -n +2 "$FUZZ_LOG" 2>/dev/null | grep "^$CASE," | wc -l | tr -d ' ')
-BILL_HITS=$(tail -n +2 "$BILL_LOG" 2>/dev/null | grep "^$CASE," | wc -l | tr -d ' ')
-CMD_COUNT=$(tail -n +1 "$REG_LOG" 2>/dev/null | wc -l | tr -d ' ')
-RUNTIME_HITS=$(tail -n +2 "$FUZZ_LOG" 2>/dev/null | grep "^$CASE," | grep "RUNTIME_SIGNAL" | wc -l | tr -d ' ')
-ERU_HITS=$(tail -n +2 "$FUZZ_LOG"    2>/dev/null | grep "^$CASE," | grep "ERU_SIGNAL" | wc -l | tr -d ' ')
-EVIDENCE_HITS=$(tail -n +2 "$FUZZ_LOG" 2>/dev/null | grep "^$CASE," | grep "EVIDENCE_SIGNAL" | wc -l | tr -d ' ')
-
-cat > "$OUT" <<MDEOF
-# SAGCO Sovereignty Architecture — Portfolio Case Study
-## Case: $CASE
-**Generated:** $TS
-**System:** SAGCO Sovereign Compiler v0.3 — Multi-Node Fleet
-
----
-
+STATE="sagco_ish/shared_state/cases/${CASE}.json"
+FUZZ="sagco_ish/portfolio/logs/portfolio_fuzz.csv"
+EVID="sagco_ish/evidence/logs/evidence_register.csv"
+ERU="sagco_ish/wafer/logs/wafer_eru.csv"
+cat > "$OUT" <<DOC
+# SAGCO Portfolio Case Study: $CASE
 ## Executive Summary
-
-This case study documents the design and operation of SAGCO (Sovereignty Architecture
-General Compiler and Orchestrator), a custom-built distributed evidence engine running
-across a personal multi-node fleet (iPad, Z Fold, Raspberry Pi, iSH Alpine).
-
-SAGCO converts raw field engineering data — PDF scopes, Excel wafers, orientation
-captures, and Gmail attachments — into structured, cryptographically verifiable
-portfolio artifacts with zero third-party cloud dependency.
-
-**Key Achievement:** A single command (\`sagco-run $CASE\`) causes three independent
-nodes to coordinate through a shared state mesh, execute the full pipeline, and
-produce an audit-ready case study document automatically.
-
----
-
+SAGCO is a lightweight, multi-node field software system running on iSH / mobile devices.
+This case study documents a live workflow using shared state, evidence hashing, fuzz scanning, ERU variance tracking, and portfolio signal extraction.
 ## System Architecture
-
+- Shared state mesh
+- Gmail / PDF ingest
+- Evidence registry
+- ERU expected-vs-actual variance
+- Portfolio GIDRA fuzz scanner
+- Dashboard loop
+## Current Case State
+\`\`\`json
+$(cat "$STATE" 2>/dev/null || echo "STATE_NOT_FOUND")
 \`\`\`
-FIELD PDF / GMAIL ATTACHMENT
-         ↓
-    sagco-pdfscan / sagco-mailwatch
-         ↓
-    sagco-wafer (ERU variance engine)
-         ↓
-    shared_state/cases/${CASE}.json   ← mesh truth source
-    ↑           ↑           ↑
-IPAD_NODE  ZFOLD_NODE  ISH_NODE
-         ↓
-    sagco-eru-report (health aggregator)
-         ↓
-    sagco-portfolio-fuzz (GIDRA signal miner)
-         ↓
-    sagco-portfolio-generate  ← THIS DOCUMENT
+## Portfolio Signals
+\`\`\`csv
+$(tail -n 25 "$FUZZ" 2>/dev/null || echo "NO_PORTFOLIO_FUZZ_LOG")
 \`\`\`
-
----
-
-## Live Metrics: $CASE
-
-| Metric | Value |
-|--------|-------|
-| Current Status | $STATUS |
-| Last Active Node | $LAST_NODE |
-| Last Updated | $UPDATED |
-| Nodes Observed | $NODE_COUNT |
-| State Transition Events | $STATE_EVENTS |
-| ERU Observations | $ERU_TOTAL |
-| ERU Green (on-target) | $ERU_GREEN |
-| ERU Alerts (variance) | $ERU_ALERT |
-| Portfolio Signal Hits | $FUZZ_HITS |
-| Bill/Finance Signal Hits | $BILL_HITS |
-| Registered Commands | $CMD_COUNT |
-
----
-
-## ERU Variance Analysis
-
-The Expected Reality Unit (ERU) engine compares Excel wafer predictions against
-field capture actuals. Variance = actual - expected.
-
-| Threshold | Status |
-|-----------|--------|
-| variance = 0 | GREEN |
-| abs(variance) ≤ 2 | YELLOW |
-| abs(variance) > 2 | RED (ALERT) |
-
-**Current result:** $ERU_GREEN GREEN / $ERU_ALERT ALERT from $ERU_TOTAL observations.
-
-MDEOF
-
-# Append last 5 ERU rows
-if [ -f "$ERU_LOG" ] && [ "$ERU_TOTAL" -gt 0 ]; then
-cat >> "$OUT" <<MDEOF
-**Recent ERU Data:**
+## Evidence Registry
+\`\`\`csv
+$(tail -n 15 "$EVID" 2>/dev/null || echo "NO_EVIDENCE_LOG")
 \`\`\`
-$(tail -n +2 "$ERU_LOG" | grep "^$CASE," | tail -5)
+## ERU / Wafer Variance
+\`\`\`csv
+$(tail -n 15 "$ERU" 2>/dev/null || echo "NO_ERU_LOG")
 \`\`\`
-
-MDEOF
-fi
-
-cat >> "$OUT" <<MDEOF
----
-
-## Portfolio GIDRA Signal Breakdown
-
-GIDRA (General Intelligence Data Recon Agent) scanned the live codebase and
-identified $FUZZ_HITS portfolio-grade signals across the repository.
-
-| Signal Type | Count |
-|-------------|-------|
-| RUNTIME_SIGNAL | $RUNTIME_HITS |
-| ERU_SIGNAL | $ERU_HITS |
-| EVIDENCE_SIGNAL | $EVIDENCE_HITS |
-
----
-
-## Registered Agent Fleet ($CMD_COUNT commands)
-
-\`\`\`
-$(tail -n +1 "$REG_LOG" 2>/dev/null | head -20)
-\`\`\`
-
----
-
-## State Transition History
-
-\`\`\`
-$(tail -n +2 "$STATE_LOG" 2>/dev/null | grep "^$CASE," | tail -10)
-\`\`\`
-
----
-
-## Engineering Competencies Demonstrated
-
-- **Distributed Systems:** Multi-node shared state mesh without cloud dependency
-- **Data Engineering:** CSV/JSON pipeline from raw field capture to structured metrics
-- **Systems Programming:** Rust ERU variance engine (SHA3 content-addressed hashing)
-- **Shell Engineering:** POSIX sh fleet agents (iSH/Alpine compatible)
-- **Observability:** Self-monitoring loop with health scoring and signal classification
-- **Portfolio Engineering:** Autonomous case study generation from live system state
-
----
-
-## Compliance Note
-
-All data processed by SAGCO runs on personally-owned devices.
-No SNHU systems, no third-party APIs, no unauthorized access.
-All artifacts are self-sovereign and audit-ready.
-
----
-
-*Generated by SAGCO sagco-portfolio-generate v1.0*
-*Branch: claude/rust-excel-graph-api-KPmHv*
-MDEOF
-
-echo "SAGCO_PORTFOLIO_GENERATE_COMPLETE"
-echo "OUTPUT=$OUT"
-wc -l "$OUT" | awk '{print "LINES=" $1}'
-sagco_ish/shared_state/bin/sagco-state "$CASE" "PORTFOLIO_GEN_NODE" "ACTIVE" "case_study_generated" 2>/dev/null
+## Software Engineering Value
+This project demonstrates:
+- Automation
+- Logging
+- Command registry design
+- Evidence chain-of-custody
+- Multi-agent orchestration
+- Field-data capture
+- Expected vs actual validation
+## Status
+SAGCO_PORTFOLIO_CASE_STUDY_GENERATED
+DOC
+echo "SAGCO_PORTFOLIO_GENERATED"
+echo "$OUT"
