@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "BRIDGE_NODE",
+  "last_node": "EDU_ERU_NODE",
   "status": "ACTIVE",
-  "note": "bridge_arch-sagco_k8s_event",
-  "updated": "2026-06-04T21:40:37Z"
+  "note": "edu_GRAY_LITERATURE_INDUSTRY_BENCHMARK_v2_58.06_BELOW_BENCHMARK",
+  "updated": "2026-06-04T22:09:52Z"
 }

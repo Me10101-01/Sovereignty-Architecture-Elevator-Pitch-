@@ -1,0 +1,69 @@
+#!/bin/sh
+# SAGCO Education Benchmark ERU — Brick 038
+# usage: sagco-edu-eru CASE BENCHMARK_FILE ACTUAL_FILE LABEL
+CASE="$1"
+BENCH="$2"
+ACTUAL="$3"
+LABEL="$4"
+OUT="sagco_ish/edu/logs/edu_eru.csv"
+[ -z "$CASE" ]   && echo "usage: sagco-edu-eru CASE BENCHMARK_FILE ACTUAL_FILE LABEL" && exit 1
+[ -z "$BENCH" ]  && echo "usage: sagco-edu-eru CASE BENCHMARK_FILE ACTUAL_FILE LABEL" && exit 1
+[ -z "$ACTUAL" ] && echo "usage: sagco-edu-eru CASE BENCHMARK_FILE ACTUAL_FILE LABEL" && exit 1
+[ ! -f "$BENCH" ]  && echo "BENCHMARK_NOT_FOUND: $BENCH"  && exit 1
+[ ! -f "$ACTUAL" ] && echo "ACTUAL_NOT_FOUND: $ACTUAL"    && exit 1
+mkdir -p sagco_ish/edu/logs
+[ ! -f "$OUT" ] && echo "case,label,benchmark_terms,actual_terms,matched,missing,extra,score,status,timestamp" > "$OUT"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+# Tokenize: strip punct, lowercase, keep words >=4 chars, dedup
+tr '[:punct:]' ' ' < "$BENCH"   | tr ' ' '\n' | tr 'A-Z' 'a-z' | grep '^[a-z]\{4,\}$' | sort -u > /tmp/edu_bench.txt
+tr '[:punct:]' ' ' < "$ACTUAL"  | tr ' ' '\n' | tr 'A-Z' 'a-z' | grep '^[a-z]\{4,\}$' | sort -u > /tmp/edu_actual.txt
+
+# Set math
+comm -12 /tmp/edu_bench.txt /tmp/edu_actual.txt  > /tmp/edu_match.txt    # in both
+comm -23 /tmp/edu_bench.txt /tmp/edu_actual.txt  > /tmp/edu_missing.txt  # benchmark only (gaps)
+comm -13 /tmp/edu_bench.txt /tmp/edu_actual.txt  > /tmp/edu_extra.txt    # actual only (overmatch)
+
+BC=$(wc -l < /tmp/edu_bench.txt   | tr -d ' ')
+AC=$(wc -l < /tmp/edu_actual.txt  | tr -d ' ')
+MC=$(wc -l < /tmp/edu_match.txt   | tr -d ' ')
+MS=$(wc -l < /tmp/edu_missing.txt | tr -d ' ')
+EX=$(wc -l < /tmp/edu_extra.txt   | tr -d ' ')
+
+SCORE=$(awk "BEGIN { if ($BC==0) print 0; else printf \"%.2f\", ($MC/$BC)*100 }")
+
+STATUS="BELOW_BENCHMARK"
+awk "BEGIN {exit !($SCORE>=60)}" && STATUS="APPROACHING_BENCHMARK"
+awk "BEGIN {exit !($SCORE>=80)}" && STATUS="MEETS_BENCHMARK"
+awk "BEGIN {exit !($SCORE>=95)}" && STATUS="EXCEEDS_BENCHMARK"
+
+echo "$CASE,$LABEL,$BC,$AC,$MC,$MS,$EX,$SCORE,$STATUS,$TS" >> "$OUT"
+
+echo "=== SAGCO EDU ERU: $LABEL ==="
+echo "BENCHMARK_TERMS : $BC"
+echo "ACTUAL_TERMS    : $AC"
+echo "MATCHED         : $MC"
+echo "MISSING_GAPS    : $MS"
+echo "EXTRA_OVERMATCH : $EX"
+echo "SCORE           : ${SCORE}%"
+echo "STATUS          : $STATUS"
+echo ""
+
+if [ "$MS" -gt 0 ]; then
+  echo "--- TOP GAPS (benchmark terms not in actual) ---"
+  head -10 /tmp/edu_missing.txt
+  echo ""
+fi
+
+if [ "$EX" -gt 0 ]; then
+  echo "--- TOP OVERMATCH (actual goes beyond benchmark) ---"
+  head -10 /tmp/edu_extra.txt
+  echo ""
+fi
+
+echo "SAGCO_EDU_ERU_COMPLETE"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "EDU_ERU_NODE" "ACTIVE" "edu_${LABEL}_${SCORE}_${STATUS}" 2>/dev/null || true
+
+# Cleanup
+rm -f /tmp/edu_bench.txt /tmp/edu_actual.txt /tmp/edu_match.txt /tmp/edu_missing.txt /tmp/edu_extra.txt

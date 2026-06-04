@@ -35,3 +35,4 @@ sagco-cite,sagco_ish/lineage/bin/sagco-cite,CITE_NODE,ACTIVE,2026-06-04T21:24:50
 sagco-lineage,sagco_ish/lineage/bin/sagco-lineage,LINEAGE_NODE,ACTIVE,2026-06-04T21:24:50Z
 priorart,sagco_ish/lineage/bin/sagco-priorart,PRIORART_NODE,ACTIVE,2026-06-04T21:27:32Z
 sagco-bridge,sagco_ish/bridge/bin/sagco-bridge,BRIDGE_NODE,ACTIVE,2026-06-04T21:40:31Z
+sagco-edu-eru,sagco_ish/edu/bin/sagco-edu-eru,EDU_ERU_NODE,ACTIVE,2026-06-04T22:08:54Z

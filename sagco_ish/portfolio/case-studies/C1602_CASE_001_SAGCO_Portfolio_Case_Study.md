@@ -67,5 +67,58 @@ This project demonstrates:
 - Multi-agent orchestration
 - Field-data capture
 - Expected vs actual validation
+## ACM/IEEE/ABET Curriculum Alignment
+
+### Software Engineering Core Competencies Demonstrated
+
+**Requirements and Design**
+Requirements elicitation from field observation. Architecture design decisions documented via dependency graph and shared state mesh. Modular design with abstraction layers between agents. Version control via git with branch-level isolation.
+
+**Implementation and Testing**
+Implementation in POSIX shell with portability constraints (iSH Alpine, Raspberry Pi, Z Fold). Unit-level validation via sagco-hallucheck (hallucheck detects hallucination/divergence). Integration testing via sagco-run-alpha pipeline. Debugging via ERU variance alerts — expected vs actual delta.
+
+**Verification, Validation, and Quality Assurance**
+Formal verification loop: sagco-public-verify runs 7 ERU checks on every deployment artifact. Validation via hallucheck term-overlap scoring (Jaccard similarity). Static audit via sagco-governance-ingest SHA256 chain-of-custody. Continuous inspection via sagco-health 10-node organ check.
+
+**Security and Ethics**
+Authentication and authorization via RBAC in Sovereignty Architecture bridge. Cryptography via SHA256 content-addressed hashing for evidence integrity. Privacy protection via sagco-redact PII removal (EIN, SSN, phone, email) before public deployment. Ethical practice: no targeting of third-party systems, all tools run on own devices.
+
+**Documentation and Communication**
+Technical documentation auto-generated via sagco-public-build (HTML proof page). Portfolio case study in markdown. Citation and lineage via sagco-cite and sagco-lineage Wing D. Prior art bibliography via sagco-priorart (26 sources across academic, commercial, standard, runtime types).
+
+**Professional Practice and Capstone**
+Capstone integration: SAGCO OS is a self-contained field engineering system connecting personal device fleet (iPad supervisor, Z Fold capture, iSH executor, Raspberry Pi) into a unified state mesh. Evidence audit trail supports professional compliance and portfolio review. Benchmark measurement via sagco-edu-eru compares artifact coverage against ACM/IEEE, ABET, and gray literature standards.
+
+**Project Management and Process**
+Agile brick-by-brick delivery model — each brick is atomic, tested, committed, and registered. Estimation via ERU variance tracking (expected vs actual counts). Risk management via antibody nodes (gmail-antibody, call-guardian). Continuous delivery via sagco-pages-pack → sagco-public-verify pipeline.
+
+**Distributed Systems and Cloud**
+Multi-node distributed architecture across personal device fleet. Cloud deployment via GitHub Pages. Kubernetes integration via sagco-bridge Wing E (arch→sagco signal ingestion). Observability via OpenTelemetry pattern (traces → metrics → logs mapped to SAGCO ERU → state mesh → health report).
+
+**Teamwork, Leadership, and Lifelong Learning**
+Solo full-stack sovereign system engineering across 4 device types. Knowledge lineage system (Wing D) implements institutional memory — records what was built, why, what inspired it, when. Self-documenting system: every artifact is traceable from brick to prior art source.
+
+### ABET Student Outcome Mapping
+
+| ABET Outcome | SAGCO Artifact | Evidence |
+|---|---|---|
+| Complex engineering problems | Multi-node fleet orchestration | sagco-run-alpha pipeline |
+| Design process | Brick-by-brick architecture | deps.csv dependency graph |
+| Communication | HTML proof page + portfolio | sagco-public-build |
+| Teamwork | Bridge to Sovereignty Architecture | sagco-bridge Wing E |
+| Ethics | PII redaction + no targeting | sagco-redact audit log |
+| Lifelong learning | Wing D citation + prior art | sagco-lineage all |
+| Engineering tools | 44+ registered commands | command_registry.csv |
+
+### Gray Literature / Industry Alignment
+
+Implements patterns from industry gray literature ahead of formal curriculum cycles:
+- Infrastructure as code (all agents are composable shell scripts, no vendor lock-in)
+- Offline-first field engineering (iSH Alpine without network)
+- Shift-left security (redact before publish, not after)
+- Evidence-based software engineering (ERU variance measurement on every artifact)
+- Knowledge engineering and institutional memory (Wing D lineage system)
+- Sovereignty and supply chain governance (SHA256 hash chain, no cloud dependency)
+
 ## Status
 SAGCO_PORTFOLIO_CASE_STUDY_GENERATED
