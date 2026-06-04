@@ -1,0 +1,16 @@
+INPUT:
+deployable_artifact
+CLOUD_CHAIN:
+deployable_artifact
+-> container_image
+container_image
+-> artifact_registry
+artifact_registry
+-> cloud_run_job
+cloud_run_job
+-> scheduler
+scheduler
+-> execution
+OUTPUT:
+cloud_artifact
+STATUS=ACTIVE
