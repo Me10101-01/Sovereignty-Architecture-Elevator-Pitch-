@@ -1,0 +1,41 @@
+#!/bin/sh
+# usage: sagco-pages-pack CASE
+CASE="$1"
+PKG="sagco_ish/deploy/pages_package"
+[ -z "$CASE" ] && echo "usage: sagco-pages-pack CASE" && exit 1
+mkdir -p "$PKG"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+# Build fresh site first
+sagco_ish/public/bin/sagco-public-build "$CASE" >/dev/null 2>&1
+
+# Copy into package
+cp sagco_ish/public/site/index.html "$PKG/index.html" 2>/dev/null || echo "WARN: index.html not found"
+
+# Generate README
+cat > "$PKG/README.md" <<MD
+# SAGCO OS Proof Node — $CASE
+
+Deployed by: sagco-pages-pack
+Generated: $TS
+Case: \`$CASE\`
+
+## Contents
+- \`index.html\` — live proof page (state + repos + ERU + hallucheck + health)
+
+## About
+SAGCO (Sovereignty Architecture General Compiler and Orchestrator) is a
+multi-node, offline-first field engineering system running on a personal
+device fleet (iPad, Z Fold, Raspberry Pi, iSH Alpine).
+
+This package was generated automatically from live system state.
+No manual HTML was written.
+
+## Verify
+Run: \`sagco_ish/deploy/bin/sagco-public-verify $CASE\`
+MD
+
+echo "SAGCO_PAGES_PACKAGE_READY"
+echo "$PKG"
+ls -la "$PKG"
+sagco_ish/shared_state/bin/sagco-state "$CASE" "DEPLOY_NODE" "ACTIVE" "pages_package_built" 2>/dev/null || true

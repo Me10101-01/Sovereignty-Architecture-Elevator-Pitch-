@@ -27,3 +27,5 @@ governance-ingest,sagco_ish/governance/bin/sagco-governance-ingest,governance,AC
 repomap,sagco_ish/repo_map/bin/sagco-repomap,evidence,ACTIVE,2026-06-04T20:59:56Z
 public-check,sagco_ish/public/bin/sagco-public-check,safety,ACTIVE,2026-06-04T20:59:56Z
 public-build,sagco_ish/public/bin/sagco-public-build,portfolio,ACTIVE,2026-06-04T20:59:56Z
+pages-pack,sagco_ish/deploy/bin/sagco-pages-pack,deploy,ACTIVE,2026-06-04T21:17:14Z
+public-verify,sagco_ish/deploy/bin/sagco-public-verify,deploy,ACTIVE,2026-06-04T21:17:14Z
