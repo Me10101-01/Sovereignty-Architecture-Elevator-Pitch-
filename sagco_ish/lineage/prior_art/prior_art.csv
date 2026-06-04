@@ -1,0 +1,19 @@
+source,type,url,notes,timestamp
+CaseGuard,commercial,https://caseguard.com,AI-powered document redaction for legal/government,2026-06-04T21:27:51Z
+Microsoft_Presidio,open_source,https://github.com/microsoft/presidio,PII detection and anonymization framework,2026-06-04T21:27:51Z
+Google_Cloud_DLP,cloud,https://cloud.google.com/sensitive-data-protection,Enterprise DLP — text and image PII scanning,2026-06-04T21:27:51Z
+gonitro,commercial,https://www.gonitro.com,PDF productivity and redaction suite,2026-06-04T21:27:51Z
+NIST_PII_standards,standard,https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-122.pdf,NIST SP 800-122 — Guide to PII Protection,2026-06-04T21:27:51Z
+spam_call_patterns,pattern,internal,Toll-free prefix + urgency keyword patterns from field observation,2026-06-04T21:27:51Z
+Jaccard_similarity,academic,https://en.wikipedia.org/wiki/Jaccard_index,Set-intersection similarity metric for token overlap,2026-06-04T21:27:51Z
+BLEU_score_concept,academic,https://aclanthology.org/P02-1040.pdf,Bilingual Evaluation Understudy — n-gram precision scoring,2026-06-04T21:27:51Z
+comm_set_math,posix,https://pubs.opengroup.org/onlinepubs/9699919799/utilities/comm.html,POSIX comm utility for sorted-file set operations,2026-06-04T21:27:51Z
+Si14_periodic_table,reference,https://en.wikipedia.org/wiki/Silicon,Silicon element 14 — wafer metaphor for Excel cell matrix,2026-06-04T21:27:51Z
+awk_float_math,posix,https://pubs.opengroup.org/onlinepubs/9699919799/utilities/awk.html,POSIX awk BEGIN block for float arithmetic (no bc dependency),2026-06-04T21:27:51Z
+SHA256_hash,standard,https://csrc.nist.gov/publications/detail/fips/180/4/final,FIPS 180-4 SHA-256 content-addressed hashing standard,2026-06-04T21:27:51Z
+iSH_Alpine,runtime,https://ish.app,iOS Alpine Linux shell — primary SAGCO field execution environment,2026-06-04T21:27:51Z
+POSIX_sh,standard,https://pubs.opengroup.org/onlinepubs/9699919799/,POSIX.1-2017 shell standard — ensures multi-device portability,2026-06-04T21:27:51Z
+GitHub_Pages,platform,https://pages.github.com,Static site hosting from repo — SAGCO public proof deployment target,2026-06-04T21:27:51Z
+busybox_date,runtime,https://busybox.net,Minimal date utility available on Alpine/iSH without coreutils,2026-06-04T21:27:51Z
+USPTO_patent_search,reference,https://patents.google.com,Google Patents — prior art search for sovereign redaction positioning,2026-06-04T21:27:51Z
+arxiv_NLP,reference,https://arxiv.org,Preprint server — NLP/PII detection academic literature,2026-06-04T21:27:51Z

@@ -1,0 +1,69 @@
+#!/bin/sh
+# SAGCO Prior Art Registry — Wing D, Brick 036
+# usage: sagco-priorart SOURCE TYPE URL NOTES
+# usage: sagco-priorart --lookup SOURCE
+# usage: sagco-priorart --list
+SOURCE="$1"
+TYPE="$2"
+URL="$3"
+NOTES="$4"
+OUT="sagco_ish/lineage/prior_art/prior_art.csv"
+mkdir -p sagco_ish/lineage/prior_art
+[ ! -f "$OUT" ] && echo "source,type,url,notes,timestamp" > "$OUT"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+
+# --list mode
+if [ "$SOURCE" = "--list" ]; then
+  TOTAL=$(tail -n +2 "$OUT" | wc -l | tr -d ' ')
+  echo "=== SAGCO PRIOR ART REGISTRY ==="
+  echo "TOTAL_SOURCES=$TOTAL"
+  echo ""
+  tail -n +2 "$OUT" | while IFS=, read src typ url notes ts; do
+    echo "SOURCE : $src"
+    echo "TYPE   : $typ"
+    echo "URL    : $url"
+    echo "NOTES  : $notes"
+    echo "DATE   : $ts"
+    echo "---"
+  done
+  echo "SAGCO_PRIORART_LIST_COMPLETE"
+  exit 0
+fi
+
+# --lookup mode
+if [ "$SOURCE" = "--lookup" ]; then
+  KEY="$2"
+  [ -z "$KEY" ] && echo "usage: sagco-priorart --lookup SOURCE" && exit 1
+  FOUND=$(grep -i "^${KEY}," "$OUT" | wc -l | tr -d ' ')
+  if [ "$FOUND" -eq 0 ]; then
+    echo "NO_PRIOR_ART_FOUND: $KEY"
+  else
+    echo "=== PRIOR ART: $KEY ==="
+    grep -i "^${KEY}," "$OUT" | while IFS=, read src typ url notes ts; do
+      echo "TYPE   : $typ"
+      echo "URL    : $url"
+      echo "NOTES  : $notes"
+      echo "DATE   : $ts"
+    done
+  fi
+  exit 0
+fi
+
+[ -z "$SOURCE" ] && echo "usage: sagco-priorart SOURCE TYPE URL NOTES" && exit 1
+
+# Deduplicate by source name
+if grep -qi "^${SOURCE}," "$OUT" 2>/dev/null; then
+  echo "SAGCO_PRIORART_ALREADY_EXISTS: $SOURCE"
+  grep -i "^${SOURCE}," "$OUT"
+  exit 0
+fi
+
+echo "${SOURCE},${TYPE},${URL},${NOTES},${TS}" >> "$OUT"
+
+echo "SAGCO_PRIORART_REGISTERED"
+echo "SOURCE=$SOURCE"
+echo "TYPE=$TYPE"
+echo "URL=$URL"
+echo "NOTES=$NOTES"
+
+sagco_ish/shared_state/bin/sagco-state "LINEAGE" "PRIORART_NODE" "ACTIVE" "source_${SOURCE}_recorded" 2>/dev/null || true

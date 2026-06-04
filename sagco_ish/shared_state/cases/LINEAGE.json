@@ -1,7 +1,7 @@
 {
   "case": "LINEAGE",
-  "last_node": "CITE_NODE",
+  "last_node": "PRIORART_NODE",
   "status": "ACTIVE",
-  "note": "brick_043_cited",
-  "updated": "2026-06-04T21:24:42Z"
+  "note": "source_arxiv_NLP_recorded",
+  "updated": "2026-06-04T21:27:51Z"
 }
