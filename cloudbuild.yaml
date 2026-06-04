@@ -67,7 +67,36 @@ steps:
       - --all-tags
       - "dom101/sagco-bias-core"
 
-  # ── Step 7: Deploy to GKE Autopilot ───────────────────────────────────────
+  # ── Step 7a: Deploy to Cloud Run Jobs (serverless, no cluster needed) ────────
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: cloudrun-job-deploy
+    entrypoint: gcloud
+    args:
+      - run
+      - jobs
+      - deploy
+      - sagco-bias-core
+      - --image=dom101/sagco-bias-core:$SHORT_SHA
+      - --region=us-central1
+      - --project=$PROJECT_ID
+      - --max-retries=2
+      - --task-timeout=300s
+      - --set-env-vars=VCC=5.0,RC=100.0,RE=250.0,RB1=200.0,RB2=50.0,BETA=65.0
+
+  # ── Step 7b: Execute the Cloud Run Job immediately ────────────────────────
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: cloudrun-job-execute
+    entrypoint: gcloud
+    args:
+      - run
+      - jobs
+      - execute
+      - sagco-bias-core
+      - --region=us-central1
+      - --project=$PROJECT_ID
+      - --wait
+
+  # ── Step 7c: Deploy to GKE Autopilot (persistent fleet) ──────────────────
   # Cluster: sagco-os-computablesubcon, region: us-central1
   - name: "gcr.io/cloud-builders/kubectl"
     id: k8s-namespace
@@ -109,8 +138,10 @@ steps:
           mkdir -p reports
           echo "STATUS=SAGCO_CLOUD_BUILD_PASS"                    > reports/cloud_build_status.txt
           echo "IMAGE=dom101/sagco-bias-core:$$SHORT_SHA"        >> reports/cloud_build_status.txt
-          echo "CLUSTER=sagco-os-computablesubcon"               >> reports/cloud_build_status.txt
-          echo "NAMESPACE=sagco-fleet"                           >> reports/cloud_build_status.txt
+          echo "CLOUDRUN_JOB=sagco-bias-core"                    >> reports/cloud_build_status.txt
+          echo "CLOUDRUN_REGION=us-central1"                     >> reports/cloud_build_status.txt
+          echo "GKE_CLUSTER=sagco-os-computablesubcon"           >> reports/cloud_build_status.txt
+          echo "GKE_NAMESPACE=sagco-fleet"                       >> reports/cloud_build_status.txt
           echo "BRANCH=$$BRANCH_NAME"                            >> reports/cloud_build_status.txt
           echo "COMMIT=$$SHORT_SHA"                              >> reports/cloud_build_status.txt
           echo "BUILD_ID=$$BUILD_ID"                             >> reports/cloud_build_status.txt
