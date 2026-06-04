@@ -1,0 +1,111 @@
+# SAGCO-ARTIFACT-BRIDGE
+# Invention: the bridge that turns local bricks into cloud-runnable artifacts.
+#
+# Bottleneck discovered:
+#   Cloud Scheduler can schedule the Cloud Run job, but cannot prove execution
+#   until the Cloud Run job has a real container image artifact in Artifact
+#   Registry or Docker Hub.
+#
+# Solution: SAGCO-ARTIFACT-BRIDGE
+#   Local bricks → container image → Cloud Run job → Scheduler trigger → proof
+#
+# Portfolio proof: SNHU C-1602-0-1B Software Development POC Portfolio
+
+name: SAGCO-ARTIFACT-BRIDGE
+version: "1.0"
+status: BOTTLENECK_IDENTIFIED
+invention: true
+
+# ── Bridge pipeline ────────────────────────────────────────────────────────────
+pipeline:
+  - stage: 1_source_tree
+    description: "SAGCO Source Tree — all bricks inventoried by sagco-wing"
+    tool: sagco-wing
+    output: dictionary/ + thesaurus/ + bibliography/ + rust_calls/ + bricks/
+    status: COMPUTED          # ✅ Raspberry Pi proved this (SAGCO-0001 to 0072+)
+
+  - stage: 2_lexicon
+    description: "SAGCO Lexicon — unified SAGCO_ID + TOKEN + ANCESTOR + RUST_CALL"
+    tool: sagco-core lexicon opcode
+    output: reports/sagco_lexicon_*.manifest
+    status: BUILT             # ✅ lexicon.rs written, installer ready
+
+  - stage: 3_dockerfile
+    description: "Dockerfile + container_image_url.txt generated from brick inventory"
+    tool: Cloud Build (cloudbuild.yaml)
+    output: dom101/sagco-bias-core:latest on Docker Hub
+    status: PLANNED           # ⏳ Docker Hub repo not yet created, build not triggered
+
+  - stage: 4_artifact_registry
+    description: "Container image pushed to Docker Hub / GCP Artifact Registry"
+    tool: docker push (Cloud Build step 6)
+    output: docker.io/dom101/sagco-bias-core:$SHORT_SHA
+    status: PLANNED           # ⏳ blocked on stage 3
+
+  - stage: 5_cloud_run_job
+    description: "Cloud Run Job created with real container image URL"
+    tool: gcloud run jobs deploy
+    config:
+      job_name: sagco-bias-core
+      region: us-central1
+      project: sagco-oscomputconsciousness
+      image: dom101/sagco-bias-core:latest
+    status: PLANNED           # ⏳ blocked on stage 4
+
+  - stage: 6_scheduler_trigger
+    description: "Cloud Scheduler fires the Cloud Run job on a schedule"
+    tool: gcloud scheduler jobs create http
+    config:
+      name: sagco-artifact-bridge-trigger
+      schedule: "0 * * * *"    # every hour
+      timezone: America/Chicago
+      target: Cloud Run Job sagco-bias-core
+      project: sagco-oscomputconsciousness
+      region: us-central1
+    status: PLANNED           # ⏳ blocked on stage 5
+
+  - stage: 7_proof
+    description: "Cloud Logging captures execution → SNHU portfolio proof"
+    tool: Cloud Logging / Cloud Run execution history
+    output: Timestamped execution log with STATUS=SAGCO_BIAS_ERU_PASS
+    status: PLANNED           # ⏳ final deliverable
+
+# ── Current blocker ────────────────────────────────────────────────────────────
+blocker:
+  stage: 3_dockerfile
+  reason: >
+    Container image URL is empty. Cloud Build has not been triggered yet.
+    Docker Hub repo dom101/sagco-bias-core does not exist.
+    Cloud Build trigger not yet connected to GitHub push events.
+  unblock_sequence:
+    - "Create Docker Hub repo: hub.docker.com → Create Repository → dom101/sagco-bias-core"
+    - "Create dockerhub-token secret in GCP Secret Manager"
+    - "Create Cloud Build trigger: GCP Console → Cloud Build → Triggers → Connect repo"
+    - "Push a commit to trigger first build"
+    - "Build pushes image → creates Cloud Run job → Scheduler fires"
+
+# ── ERU status ─────────────────────────────────────────────────────────────────
+eru:
+  expected_stages: 7
+  completed_stages: 2
+  eru_score: 0.714    # 5/7 stages remaining
+  formula: "(expected - actual) / expected"
+
+# ── SNHU portfolio statement ───────────────────────────────────────────────────
+portfolio:
+  course: "C-1602-0-1B Software Development Proof Of Concept Portfolio"
+  invention_name: "SAGCO-ARTIFACT-BRIDGE"
+  claim: >
+    The SAGCO-ARTIFACT-BRIDGE is an original software invention that converts
+    a local artifact inventory (sagco-wing) into a cloud-scheduled,
+    container-executed proof of computation. The system uses Rust-compiled
+    binary artifacts, Docker containerization, GCP Cloud Run, and Cloud
+    Scheduler to produce a timestamped, reproducible execution proof
+    deployable on demand.
+  bottleneck_statement: >
+    Bottleneck discovered: Cloud Scheduler can schedule the job, but cannot
+    prove execution until the Cloud Run job has a real container image artifact.
+    SAGCO-ARTIFACT-BRIDGE resolves this by generating the Dockerfile from the
+    brick inventory and automating the build→push→deploy→schedule chain.
+  scheduler_frequency: "0 * * * *"   # every hour = hourly proof
+  status: IN_PROGRESS
