@@ -1,0 +1,43 @@
+#!/bin/sh
+# SAGCO-0031: MEMORY_PALACE_NAVIGATOR
+# Shows every wing, its directory, and its alias.
+# Usage: sagco-palace
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+echo ""
+echo "╔══════════════════════════════════════════════════╗"
+echo "║         SAGCO MEMORY PALACE NAVIGATOR            ║"
+echo "╚══════════════════════════════════════════════════╝"
+
+wing() {
+    ICON="$1"; NAME="$2"; ALIAS="$3"; DIR="$4"
+    echo ""
+    printf "%s  %-22s  alias: %-18s\n" "$ICON" "$NAME" "$ALIAS"
+    printf "   dir: %s\n" "$REPO_ROOT/$DIR"
+    if [ -d "$REPO_ROOT/$DIR" ]; then
+        COUNT="$(ls "$REPO_ROOT/$DIR" 2>/dev/null | wc -l | tr -d ' ')"
+        printf "   files: %s\n" "$COUNT"
+    else
+        printf "   status: MISSING\n"
+    fi
+}
+
+wing "🏛️" "HEALTH/BIOLOGY"    "cd_bio"          "sagco_flame_linguistics"
+wing "📊" "FINANCE/MATH"      "cd_math"         "wafer_fuzz"
+wing "🏗️" "CONSTRUCTION YARD" "cd_construction" "sagco_demo_output"
+wing "🤖" "FLEET CONTROL"     "cd_fleet"        "sagco_autonomous_fleet"
+wing "🔥" "FLAMELANG TEMPLE"  "cd_flame"        "sagco_crawler_engine/src/flamelang"
+wing "☁️" "CLOUD HANGAR"      "cd_cloud"        "sagco_cloud_artifact"
+wing "🧠" "KNOWLEDGE VAULT"   "cd_knowledge"    "sagco_knowledge_compiler"
+wing "🔬" "GRAPH LAB"         "cd_graph"        "sagco_knowledge_compiler/graph"
+wing "🛠️" "BIN / TOOLS"       "cd_tools"        "bin"
+
+echo ""
+echo "── ACTIVATE ────────────────────────────────────────"
+echo "   echo \". $REPO_ROOT/sagco_aliases.sh\" >> ~/.bashrc"
+echo "   source ~/.bashrc"
+echo "   cd_flame    # teleport to FlameLang temple"
+echo "   sagco_demo  # run the proof pipeline"
+echo "────────────────────────────────────────────────────"
+echo ""

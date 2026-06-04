@@ -1,0 +1,22 @@
+BRICK=SAGCO-0031
+TYPE=MEMORY_PALACE_NAVIGATOR
+PURPOSE=Wing-based alias navigation — answers "where did I put it?"
+ALIAS_FILE=sagco_aliases.sh
+COMMAND=sagco-palace
+
+WINGS:
+cd_bio          sagco_flame_linguistics     HEALTH/BIOLOGY
+cd_math         wafer_fuzz                  FINANCE/MATH
+cd_construction sagco_demo_output           CONSTRUCTION YARD
+cd_fleet        sagco_autonomous_fleet      FLEET CONTROL
+cd_flame        sagco_crawler_engine/src    FLAMELANG TEMPLE
+cd_cloud        sagco_cloud_artifact        CLOUD HANGAR
+cd_knowledge    sagco_knowledge_compiler    KNOWLEDGE VAULT
+cd_graph        graph/                      GRAPH LAB
+cd_tools        bin/                        TOOLS
+
+ACTIVATE:
+echo ". /path/to/repo/sagco_aliases.sh" >> ~/.bashrc
+source ~/.bashrc
+
+STATUS=ACTIVE
