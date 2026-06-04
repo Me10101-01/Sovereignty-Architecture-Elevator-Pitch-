@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sagco-bias-config
+  namespace: sagco-fleet
+  labels:
+    agent: sagco-bias-core
+    layer: portfolio
+data:
+  # Omni reference example — voltage-divider bias
+  VCC:  "5.0"
+  RC:   "100.0"
+  RE:   "250.0"
+  RB1:  "200.0"
+  RB2:  "50.0"
+  BETA: "65.0"
+  VBE:  "0.7"
+
+  # ERU thresholds
+  ERU_THRESHOLD_IB:  "0.01"   # 1% tolerance
+  ERU_THRESHOLD_IC:  "0.01"
+  ERU_THRESHOLD_VCE: "0.01"

@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sagco-bias-core
+  namespace: sagco-fleet
+  labels:
+    agent: sagco-bias-core
+    layer: portfolio
+    topology: voltage-divider
+spec:
+  # Run once, no restarts on success
+  completions: 1
+  parallelism: 1
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 3600   # auto-clean 1 hour after completion
+
+  template:
+    metadata:
+      labels:
+        agent: sagco-bias-core
+        job-name: sagco-bias-core
+    spec:
+      restartPolicy: OnFailure
+
+      containers:
+        - name: sagco-bias-core
+          image: dom101/sagco-bias-core:latest
+          imagePullPolicy: Always
+
+          # Autopilot requires explicit resource requests
+          resources:
+            requests:
+              cpu:    "100m"
+              memory: "64Mi"
+            limits:
+              cpu:    "200m"
+              memory: "128Mi"
+
+          envFrom:
+            - configMapRef:
+                name: sagco-bias-config
+
+          # The binary runs, prints Q-point + ERU report, exits 0 on pass
+          # Logs are captured by Cloud Logging automatically in Autopilot
+
+      # No persistent storage needed — output goes to Cloud Logging
+      # To capture output: add a sidecar or use Cloud Logging sink

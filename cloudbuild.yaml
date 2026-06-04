@@ -35,7 +35,7 @@ steps:
     env:
       - "CARGO_HOME=/workspace/.cargo"
 
-  # ── Step 4: Docker build — sagco-bias-core container ─────────────────────
+  # ── Step 4: Docker build ───────────────────────────────────────────────────
   - name: "gcr.io/cloud-builders/docker"
     id: docker-build
     args:
@@ -46,9 +46,7 @@ steps:
       - "dom101/sagco-bias-core:latest"
       - sagco-transistor-biasing-case-study/rust/sagco-bias-core
 
-  # ── Step 5: Docker Hub login (credentials from Secret Manager) ────────────
-  # Requires: Secret Manager secret named "dockerhub-token" in this project
-  # To create: gcloud secrets create dockerhub-token --data-file=token.txt
+  # ── Step 5: Docker Hub login ───────────────────────────────────────────────
   - name: "gcr.io/cloud-builders/docker"
     id: docker-login
     entrypoint: bash
@@ -61,7 +59,7 @@ steps:
     secretEnv:
       - DOCKERHUB_TOKEN
 
-  # ── Step 6: Docker push to dom101/sagco-bias-core ─────────────────────────
+  # ── Step 6: Docker push ────────────────────────────────────────────────────
   - name: "gcr.io/cloud-builders/docker"
     id: docker-push
     args:
@@ -69,7 +67,39 @@ steps:
       - --all-tags
       - "dom101/sagco-bias-core"
 
-  # ── Step 7: Seal status ───────────────────────────────────────────────────
+  # ── Step 7: Deploy to GKE Autopilot ───────────────────────────────────────
+  # Cluster: sagco-os-computablesubcon, region: us-central1
+  - name: "gcr.io/cloud-builders/kubectl"
+    id: k8s-namespace
+    args:
+      - apply
+      - -f
+      - k8s/namespaces/sagco-fleet.yaml
+    env:
+      - "CLOUDSDK_COMPUTE_REGION=us-central1"
+      - "CLOUDSDK_CONTAINER_CLUSTER=sagco-os-computablesubcon"
+
+  - name: "gcr.io/cloud-builders/kubectl"
+    id: k8s-configmap
+    args:
+      - apply
+      - -f
+      - k8s/configmaps/sagco-bias-config.yaml
+    env:
+      - "CLOUDSDK_COMPUTE_REGION=us-central1"
+      - "CLOUDSDK_CONTAINER_CLUSTER=sagco-os-computablesubcon"
+
+  - name: "gcr.io/cloud-builders/kubectl"
+    id: k8s-deploy-job
+    args:
+      - apply
+      - -f
+      - k8s/jobs/sagco-bias-core.yaml
+    env:
+      - "CLOUDSDK_COMPUTE_REGION=us-central1"
+      - "CLOUDSDK_CONTAINER_CLUSTER=sagco-os-computablesubcon"
+
+  # ── Step 8: Seal status ────────────────────────────────────────────────────
   - name: "bash"
     id: status-seal
     entrypoint: bash
@@ -77,21 +107,29 @@ steps:
       - "-c"
       - |
           mkdir -p reports
-          echo "STATUS=SAGCO_CLOUD_BUILD_PASS"               > reports/cloud_build_status.txt
-          echo "IMAGE=dom101/sagco-bias-core:$$SHORT_SHA"   >> reports/cloud_build_status.txt
-          echo "BRANCH=$$BRANCH_NAME"                       >> reports/cloud_build_status.txt
-          echo "COMMIT=$$SHORT_SHA"                         >> reports/cloud_build_status.txt
-          echo "BUILD_ID=$$BUILD_ID"                        >> reports/cloud_build_status.txt
+          echo "STATUS=SAGCO_CLOUD_BUILD_PASS"                    > reports/cloud_build_status.txt
+          echo "IMAGE=dom101/sagco-bias-core:$$SHORT_SHA"        >> reports/cloud_build_status.txt
+          echo "CLUSTER=sagco-os-computablesubcon"               >> reports/cloud_build_status.txt
+          echo "NAMESPACE=sagco-fleet"                           >> reports/cloud_build_status.txt
+          echo "BRANCH=$$BRANCH_NAME"                            >> reports/cloud_build_status.txt
+          echo "COMMIT=$$SHORT_SHA"                              >> reports/cloud_build_status.txt
+          echo "BUILD_ID=$$BUILD_ID"                             >> reports/cloud_build_status.txt
           cat reports/cloud_build_status.txt
 
 # ── Secrets ────────────────────────────────────────────────────────────────────
-# Before first run, create the Docker Hub access token in Secret Manager:
-#   docker login → Account Settings → Security → New Access Token → copy token
-#   echo -n "YOUR_TOKEN" | gcloud secrets create dockerhub-token \
-#     --project=SAGCOOSComputConsc --data-file=-
-#   gcloud projects add-iam-policy-binding SAGCOOSComputConsc \
-#     --member="serviceAccount:$(gcloud projects describe SAGCOOSComputConsc --format='value(projectNumber)')@cloudbuild.gserviceaccount.com" \
+# Create once:
+#   echo -n "DOCKERHUB_TOKEN" | gcloud secrets create dockerhub-token \
+#     --project=sagco-oscomputconsciousness --data-file=-
+#
+#   NUM=$(gcloud projects describe sagco-oscomputconsciousness --format='value(projectNumber)')
+#   gcloud projects add-iam-policy-binding sagco-oscomputconsciousness \
+#     --member="serviceAccount:${NUM}@cloudbuild.gserviceaccount.com" \
 #     --role="roles/secretmanager.secretAccessor"
+#
+#   Also grant Cloud Build SA access to GKE:
+#   gcloud projects add-iam-policy-binding sagco-oscomputconsciousness \
+#     --member="serviceAccount:${NUM}@cloudbuild.gserviceaccount.com" \
+#     --role="roles/container.developer"
 availableSecrets:
   secretManager:
     - versionName: "projects/$PROJECT_ID/secrets/dockerhub-token/versions/latest"
@@ -101,5 +139,5 @@ availableSecrets:
 options:
   logging: CLOUD_LOGGING_ONLY
 
-# ── Timeout: 15 minutes ────────────────────────────────────────────────────────
-timeout: "900s"
+# ── Timeout: 20 minutes (cluster cold-start can be slow on Autopilot) ─────────
+timeout: "1200s"
