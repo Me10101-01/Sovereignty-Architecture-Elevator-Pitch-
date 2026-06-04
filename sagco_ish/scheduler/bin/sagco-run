@@ -1,0 +1,32 @@
+#!/bin/sh
+CASE="${1:-C1602_CASE_001}"
+REG="sagco_ish/registry/logs/command_registry.csv"
+LOG="sagco_ish/scheduler/logs/run_history.csv"
+mkdir -p sagco_ish/scheduler/logs
+if [ ! -f "$LOG" ]; then
+    echo "case,agent,status,timestamp" > "$LOG"
+fi
+if [ ! -f "$REG" ]; then
+    echo "REGISTRY_NOT_FOUND: $REG"
+    exit 1
+fi
+tail -n +1 "$REG" | while IFS=, read NAME AGENT_PATH TYPE STATUS TS
+do
+    if [ -x "$AGENT_PATH" ]; then
+        echo "RUNNING: $NAME"
+        echo "$CASE,$NAME,START,$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$LOG"
+        case "$NAME" in
+            pdfscan|dispatch)
+                echo "SKIP:$NAME (requires specific file arg)" ;;
+            demo|mission|regression|portfolio|palace)
+                "$AGENT_PATH" >/dev/null 2>&1 ;;
+            *)
+                "$AGENT_PATH" "$CASE" >/dev/null 2>&1 ;;
+        esac
+        echo "$CASE,$NAME,COMPLETE,$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$LOG"
+    else
+        echo "NOT_ON_NODE: $NAME"
+    fi
+done
+echo "SAGCO_SCHEDULER_COMPLETE"
+tail -20 "$LOG"

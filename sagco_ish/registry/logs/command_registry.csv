@@ -1,0 +1,13 @@
+demo,bin/sagco-demo,tool,ACTIVE,2026-06-04T19:42:42Z
+mission,bin/sagco-mission,tool,ACTIVE,2026-06-04T19:42:42Z
+regression,bin/sagco-regression,tool,ACTIVE,2026-06-04T19:42:42Z
+portfolio,bin/sagco-portfolio,tool,ACTIVE,2026-06-04T19:42:42Z
+palace,bin/sagco-palace,tool,ACTIVE,2026-06-04T19:42:42Z
+pdfscan,sagco_ish/pdfscan/bin/sagco-pdfscan,tool,ACTIVE,2026-06-04T19:42:42Z
+analyze,sagco_ish/analysis/bin/sagco-analyze,tool,ACTIVE,2026-06-04T19:42:42Z
+dashboard,sagco_ish/dashboard/bin/sagco-dashboard,tool,ACTIVE,2026-06-04T19:42:42Z
+dispatch,sagco_ish/dispatcher/bin/sagco-dispatch,tool,ACTIVE,2026-06-04T19:42:42Z
+capture,sagco_ish/capture/bin/sagco-capture,tool,ACTIVE,2026-06-04T19:42:42Z
+eru,sagco_ish/eru/bin/sagco-eru,tool,ACTIVE,2026-06-04T19:42:42Z
+htrack,sagco_ish/htrack/bin/sagco-htrack,tool,ACTIVE,2026-06-04T19:42:42Z
+scheduler,sagco_ish/scheduler/bin/sagco-scheduler,tool,ACTIVE,2026-06-04T19:42:42Z
