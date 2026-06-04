@@ -41,10 +41,27 @@ p = SRC / "lexer.rs"
 s = p.read_text()
 
 if "OpExcavate" not in s:
-    if "OpSeal," not in s:
-        print("  ERROR: OpSeal not found in lexer.rs"); sys.exit(1)
-    s = s.replace("OpSeal,", "OpSeal,\n    OpExcavate,")
-    print("  lexer.rs: +OpExcavate variant")
+    # Scope-aware insert: find the enum Token block, add ONLY there.
+    # Never use plain replace("OpSeal,") — it matches inside match arms too.
+    import re
+    lines = s.splitlines(keepends=True)
+    in_enum, depth, opseal_line = False, 0, None
+    for i, line in enumerate(lines):
+        if not in_enum:
+            if re.search(r'\benum\s+Token\b', line) and '{' in line:
+                in_enum, depth = True, line.count('{') - line.count('}')
+        else:
+            depth += line.count('{') - line.count('}')
+            if 'OpSeal' in line and '=>' not in line:
+                opseal_line = i
+            if depth <= 0:
+                break
+    if opseal_line is None:
+        print("  ERROR: OpSeal not found in enum Token block"); sys.exit(1)
+    indent = re.match(r'^(\s*)', lines[opseal_line]).group(1)
+    lines.insert(opseal_line + 1, f"{indent}OpExcavate,\n")
+    s = ''.join(lines)
+    print("  lexer.rs: +OpExcavate variant (enum-scoped insert)")
 else:
     print("  lexer.rs: OpExcavate already present")
 

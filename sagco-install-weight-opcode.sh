@@ -36,8 +36,25 @@ p = SRC / "lexer.rs"
 s = p.read_text()
 
 if "OpWeight" not in s:
-    s = s.replace("OpExcavate,", "OpExcavate,\n    OpWeight,")
-    print("  lexer.rs: +OpWeight variant")
+    import re
+    lines = s.splitlines(keepends=True)
+    in_enum, depth, anchor_line = False, 0, None
+    for i, line in enumerate(lines):
+        if not in_enum:
+            if re.search(r'\benum\s+Token\b', line) and '{' in line:
+                in_enum, depth = True, line.count('{') - line.count('}')
+        else:
+            depth += line.count('{') - line.count('}')
+            if 'OpExcavate' in line and '=>' not in line:
+                anchor_line = i
+            if depth <= 0:
+                break
+    if anchor_line is None:
+        print("  ERROR: OpExcavate not found in enum — install excavate opcode first"); sys.exit(1)
+    indent = re.match(r'^(\s*)', lines[anchor_line]).group(1)
+    lines.insert(anchor_line + 1, f"{indent}OpWeight,\n")
+    s = ''.join(lines)
+    print("  lexer.rs: +OpWeight variant (enum-scoped insert)")
 else:
     print("  lexer.rs: OpWeight already present")
 
