@@ -1,0 +1,50 @@
+#!/bin/sh
+# usage: sagco-pdfscan file.pdf
+PDF="$1"
+REPORT="sagco_ish/pdf_forensics/reports/pdf_forensic_report.txt"
+mkdir -p sagco_ish/pdf_forensics/reports
+if [ ! -f "$PDF" ]; then
+  echo "PDF_NOT_FOUND: $PDF"
+  exit 1
+fi
+HASH=$(sha256sum "$PDF" | awk '{print $1}')
+SIZE=$(wc -c < "$PDF")
+EOF_COUNT=$(grep -a -o "%%EOF" "$PDF" | wc -l)
+JS_COUNT=$(grep -a -i -o "/JS\|/JavaScript\|/OpenAction\|/AA" "$PDF" | wc -l)
+URI_COUNT=$(grep -a -i -o "/URI\|http://\|https://" "$PDF" | wc -l)
+OBJ_COUNT=$(grep -a -o " obj" "$PDF" | wc -l)
+XREF_COUNT=$(grep -a -o "xref" "$PDF" | wc -l)
+if [ "$JS_COUNT" -gt 0 ]; then
+  STATUS="YELLOW_SCRIPT_FOUND"
+elif [ "$EOF_COUNT" -gt 1 ]; then
+  STATUS="YELLOW_MULTI_REVISION"
+else
+  STATUS="GREEN"
+fi
+cat > "$REPORT" << REPORT_EOF
+SAGCO PDF FORENSIC REPORT
+FILE=$PDF
+SHA256=$HASH
+SIZE_BYTES=$SIZE
+STRUCTURE:
+OBJECT_COUNT=$OBJ_COUNT
+XREF_COUNT=$XREF_COUNT
+EOF_COUNT=$EOF_COUNT
+SECURITY:
+JS_OPENACTION_AA_COUNT=$JS_COUNT
+URI_COUNT=$URI_COUNT
+ERU_STATUS=$STATUS
+PIPELINE:
+PDF
+-> RAW_BYTES
+-> HASH
+-> OBJECT_COUNT
+-> XREF_CHECK
+-> EOF_REVISION_CHECK
+-> JS_ACTION_CHECK
+-> URI_CHECK
+-> FORENSIC_REPORT
+REPORT_STATUS=COMPLETE
+REPORT_EOF
+echo "SAGCO_PDFSCAN_COMPLETE"
+cat "$REPORT"
