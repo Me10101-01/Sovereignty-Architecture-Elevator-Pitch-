@@ -1,8 +1,8 @@
 name: lineage-agent
 role: token_ancestry
 weight: 0.97
-rust_call: lineage::run(token)
-status: PLANNED
+rust_call: lineage::trace(folder) → LineageResult
+status: BUILT
 
 reads:
   - excavator-agent output (artifact list)
@@ -15,4 +15,18 @@ outputs:
 
 feeds_into: weight-agent  # lineage enriches brick scores
 
-phase: 3  # lineage.rs not yet written
+phase: 3
+
+module: rust/sagco-core/lineage.rs
+installer: sagco-install-lineage-opcode.sh
+pipeline: pipeline_lineage_l1.txt
+
+classify:
+  Source:    0.95  # .rs .cpp .py
+  Config:    0.90  # .toml .yaml .json
+  Pipeline:  0.88  # pipeline_*.txt
+  Agent:     0.85  # agents/*.yaml
+  Report:    0.80  # .csv .manifest evidence*.bin
+  Blueprint: 0.78  # .flame
+  Docs:      0.60  # .md .txt
+  Binary:    0.40  # .bin .elf
