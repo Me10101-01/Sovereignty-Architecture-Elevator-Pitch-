@@ -1,0 +1,22 @@
+#!/bin/sh
+# sagco-register: register a command in the mesh registry
+# Usage: sagco-register <name> <path> <type>
+NAME="$1"
+PATH_ARG="$2"
+TYPE="${3:-tool}"
+REG="sagco_ish/registry/logs/command_registry.csv"
+mkdir -p sagco_ish/registry/logs
+if [ -z "$NAME" ] || [ -z "$PATH_ARG" ]; then
+  echo "usage: sagco-register <name> <path> [type]"
+  exit 1
+fi
+if [ ! -f "$REG" ]; then
+  echo "name,path,type,status,timestamp" > "$REG"
+fi
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+if grep -q "^$NAME," "$REG"; then
+  echo "ALREADY_REGISTERED: $NAME"
+else
+  echo "$NAME,$PATH_ARG,$TYPE,ACTIVE,$TS" >> "$REG"
+  echo "SAGCO_REGISTERED: $NAME → $PATH_ARG [$TYPE]"
+fi

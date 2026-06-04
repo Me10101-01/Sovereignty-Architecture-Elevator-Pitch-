@@ -1,26 +1,19 @@
 #!/bin/sh
-# sagco-state-read: query shared mesh state for a case
-# Usage: sagco-state-read <CASE_ID>
 CASE="$1"
+STATEFILE="sagco_ish/shared_state/cases/${CASE}.json"
+LOGFILE="sagco_ish/shared_state/logs/state_updates.csv"
 if [ -z "$CASE" ]; then
-    echo "Usage: sagco-state-read <CASE_ID>"
-    exit 1
+  echo "usage: sagco-state-read CASE"
+  exit 1
 fi
-CASEFILE="sagco_ish/shared_state/cases/${CASE}.json"
-LOG="sagco_ish/shared_state/logs/state_updates.csv"
-if [ ! -f "$CASEFILE" ]; then
-    echo "STATE_NOT_FOUND: no state for $CASE"
-    echo "Run: sagco-state $CASE <NODE> <STATUS> <NOTE>"
-    exit 1
+if [ ! -f "$STATEFILE" ]; then
+  echo "STATE_NOT_FOUND: $CASE"
+  exit 1
 fi
-echo "SAGCO_STATE_READ"
-echo "CASE=$CASE"
-echo "---"
-cat "$CASEFILE"
-echo "---"
-echo "HISTORY:"
-if [ -f "$LOG" ]; then
-    grep "^$CASE," "$LOG" | tail -10
-else
-    echo "NO_HISTORY"
-fi
+echo "=== SAGCO STATE: $CASE ==="
+cat "$STATEFILE"
+echo ""
+echo "=== RECENT HISTORY ==="
+grep "^$CASE," "$LOGFILE" 2>/dev/null | tail -n 5
+echo ""
+echo "SAGCO_STATE_READER_COMPLETE"
