@@ -1,0 +1,14 @@
+name: excavator-agent
+role: artifact_discovery
+weight: 0.95
+rust_call: excavate::excavate(folder)
+status: BUILT  # opcode install pending
+
+reads: any folder passed to pipeline
+outputs:
+  - [EXCAVATE]: folder ARTIFACTS=N REPORTS=N WAVES=N CONFIGS=N SOURCES=N
+  - reports/sagco_excavate_<slug>.manifest
+
+feeds_into: lineage-agent  # excavated artifacts become lineage input
+
+phase: 2  # excavate.rs written, opcode pending install

@@ -1,0 +1,25 @@
+name: antibody-agent
+role: failure_response
+weight: 0.99
+rust_call: Antibody::fire()
+status: LIVE  # antibody.rs exists and compiles
+
+triggers:
+  - any STATUS=*_FAIL in pipeline output
+  - score < 0.80 from weight-agent
+  - empty payload in wave opcode
+  - missing seal artifact after seal opcode
+
+response:
+  - log failure to sagco_cells/ as IF-THEN-WHEN cell
+  - mark cell status: OPEN
+  - set root_cause field
+  - do NOT halt pipeline unless TIER=CRITICAL
+
+variants:
+  EmptyPayload:     wave opcode received zero bytes
+  ForeignNode:      unknown device in fleet
+  ParseVariance:    unexpected token in pipeline
+  MissingSealArtifact: seal target not written
+
+phase: 1  # live — antibody.rs compiles, fires on failures

@@ -1,0 +1,21 @@
+name: weight-agent
+role: brick_scorer
+weight: 0.93
+rust_call: weight::score(brick)
+status: BUILT
+
+reads:
+  - crates/sagco-core/src/*.rs   # checks which modules exist
+  - reports/*.manifest            # checks last run status
+
+outputs:
+  - reports/sagco_weight_<stamp>.manifest
+  - ranked brick table (LIVE/BUILT/PLANNED/FAILED)
+  - GATE_90 count
+
+gates:
+  threshold_default: 0.90
+  deploy_requires: score >= 0.90
+  antibody_required: score < 0.80
+
+phase: 2  # weight.rs written, opcode install pending

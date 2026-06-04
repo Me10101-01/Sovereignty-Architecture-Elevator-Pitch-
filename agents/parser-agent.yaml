@@ -1,0 +1,11 @@
+name: parser-agent
+role: command_builder
+weight: 0.92
+rust_call: parser::Parser::new()
+status: LIVE  # parser.rs exists and compiles
+
+reads: token stream from lexer-agent
+outputs: Command enum (Read/Wave/Pulse/Seal/Excavate/Weight)
+feeds_into: main.rs dispatch loop
+
+phase: 1

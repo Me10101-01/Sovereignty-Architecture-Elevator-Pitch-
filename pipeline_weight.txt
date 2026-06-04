@@ -1,0 +1,5 @@
+read CORTEX.md
+read sagco.master.yaml
+weight .
+pulse 793398609444
+seal evidence_weight.bin

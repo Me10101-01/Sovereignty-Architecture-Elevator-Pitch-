@@ -1,0 +1,30 @@
+name: cortex-agent
+role: decision_router
+weight: 1.00
+rust_call: cortex::decide()
+status: PLANNED
+
+manifest: CORTEX.md
+reads:
+  - sagco_race/race_log.csv
+  - sagco_reports/
+  - sagco_cells/
+  - CORTEX.md
+
+decides:
+  - which pipeline to run next
+  - which bricks are above gate threshold
+  - whether to escalate to LLM
+
+calls:
+  - weight-agent     # rank bricks first
+  - excavator-agent  # if memory needs refresh
+  - lineage-agent    # if token ancestry needed
+  - antibody-agent   # on any FAIL status
+
+never:
+  - delete evidence
+  - run network actions without prior pulse
+  - pass empty pipelines as PASS
+
+phase: 1  # current — manifest exists, Rust module planned

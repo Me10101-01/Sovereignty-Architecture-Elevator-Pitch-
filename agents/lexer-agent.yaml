@@ -1,0 +1,11 @@
+name: lexer-agent
+role: tokenizer
+weight: 0.90
+rust_call: lexer::Lexer::new()
+status: LIVE  # lexer.rs exists and compiles
+
+reads: pipeline.txt raw text
+outputs: token stream (OpRead, OpWave, OpPulse, OpSeal, OpExcavate, OpWeight, Identifier, EOF)
+feeds_into: parser-agent
+
+phase: 1

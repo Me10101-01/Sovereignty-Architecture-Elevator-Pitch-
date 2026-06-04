@@ -1,0 +1,18 @@
+name: lineage-agent
+role: token_ancestry
+weight: 0.97
+rust_call: lineage::run(token)
+status: PLANNED
+
+reads:
+  - excavator-agent output (artifact list)
+  - reports/*.manifest (token history)
+
+outputs:
+  - token → parent token chain
+  - EDGE table (token A → token B via shared artifact)
+  - ANCESTOR chain (when was this token first seen?)
+
+feeds_into: weight-agent  # lineage enriches brick scores
+
+phase: 3  # lineage.rs not yet written
