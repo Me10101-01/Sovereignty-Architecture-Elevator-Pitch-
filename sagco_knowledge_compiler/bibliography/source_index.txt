@@ -15,3 +15,5 @@ ISO_16=International standard: A4 = 440 Hz (ISO 16)|ISO_standard|reference|true
 WIKI_PIANO_FREQ=Wikipedia: Piano key frequencies table|wikipedia.org|reference|true
 SNHU_C1602=SNHU course C-1602-0-1B Software Development POC|SNHU_LMS|academic|true
 CLAUDE_SESSION=AI-assisted session (architecture, code generation)|claude.ai|Claude_session|true
+WAFER_CELLS=Word frequency wafer cells computed from sagco_custom_agent ZFold session|wafer_fuzz|ZFold|true
+FLAME_LINGUISTICS=SAGCO-FLAME-LINGUISTICS-FLEET computed output|sagco_flame_linguistics|Pi+ZFold|true

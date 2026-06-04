@@ -18,3 +18,4 @@ LEXICON=Unified artifact lexicon record|META|lexicon_build|sagco_core
 CONFIG=Configuration or settings file|INFRA|config_load|sagco_core
 DOCS=Documentation or README|DOCS|docs_index|sagco_core
 UNKNOWN=Unclassified artifact|MISC|unknown_brick|sagco_core
+FLAME=FlameLang token — word-frequency-derived language primitive|LINGUISTICS|flame_compile|sagco_core
