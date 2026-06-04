@@ -1,0 +1,20 @@
+parent,child,reason
+run-alpha,state-read,reads mesh before pipeline starts
+run-alpha,portfolio-fuzz,mines codebase signals
+run-alpha,bill-fuzz,mines financial signals
+run-alpha,analyze,case analysis layer
+run-alpha,dashboard,visual fleet status
+run-alpha,portfolio-generate,produces case study artifact
+run-alpha,hallucheck,self-audits generated report
+portfolio-generate,hallucheck,report must exist before audit
+portfolio-generate,eru-report,ERU data feeds case study
+portfolio-fuzz,portfolio-generate,fuzz hits populate signals section
+analyze,eru-report,ERU summary feeds analysis
+eru-report,wafer,wafer CSV is ERU data source
+eru-report,cellrule,cell rules contribute ERU observations
+hallucheck,portfolio-generate,needs report file to audit
+state-read,sagco-state,state file must be written first
+alpha-loop,run-alpha,loop drives repeated alpha cycles
+health,run-alpha,health reads runtime log
+health,sagco-state,health reads state JSON
+gmail-antibody,gmail-scan,antibody must clear before scan runs

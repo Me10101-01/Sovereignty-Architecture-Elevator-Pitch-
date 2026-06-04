@@ -1,0 +1,84 @@
+#!/bin/sh
+# usage: sagco-deps [ROOT_AGENT]
+# Renders dependency tree from deps.csv. Default root: runtime-alpha
+ROOT="${1:-runtime-alpha}"
+DEPS="sagco_ish/deps/data/deps.csv"
+REG="sagco_ish/registry/logs/command_registry.csv"
+
+if [ ! -f "$DEPS" ]; then
+  echo "DEPS_NOT_FOUND: $DEPS"
+  exit 1
+fi
+
+echo "SAGCO DEPENDENCY GRAPH"
+echo "ROOT: $ROOT"
+echo ""
+
+# Check if a node is registered/installed
+is_installed() {
+  [ -f "$REG" ] && grep -q "^$1," "$REG" 2>/dev/null && echo "OK" || echo "?"
+}
+
+# Get direct children of a node from deps.csv
+children_of() {
+  awk -F, -v p="$1" 'NR>1 && $1==p {print $2}' "$DEPS" 2>/dev/null
+}
+
+# Get reason for a dependency
+reason_of() {
+  awk -F, -v p="$1" -v c="$2" 'NR>1 && $1==p && $2==c {print $3}' "$DEPS" 2>/dev/null
+}
+
+# Render the tree (2 levels deep, POSIX-safe)
+render_tree() {
+  NODE="$1"
+  STATUS=$(is_installed "$NODE")
+  echo "$NODE  [$STATUS]"
+
+  KIDS=$(children_of "$NODE")
+  TOTAL=$(echo "$KIDS" | grep -c '.' 2>/dev/null || echo 0)
+  I=0
+  echo "$KIDS" | while read -r CHILD; do
+    [ -z "$CHILD" ] && continue
+    I=$((I+1))
+    CHILD_STATUS=$(is_installed "$CHILD")
+    WHY=$(reason_of "$NODE" "$CHILD")
+    GRANDKIDS=$(children_of "$CHILD")
+    HAS_GRAND=$(echo "$GRANDKIDS" | grep -c '.' 2>/dev/null || echo 0)
+
+    if [ "$I" -eq "$TOTAL" ]; then
+      PREFIX="└──"
+      CONT="    "
+    else
+      PREFIX="├──"
+      CONT="│   "
+    fi
+
+    echo "${PREFIX} ${CHILD}  [${CHILD_STATUS}]  # ${WHY}"
+
+    echo "$GRANDKIDS" | while read -r GRAND; do
+      [ -z "$GRAND" ] && continue
+      GRAND_STATUS=$(is_installed "$GRAND")
+      GRAND_WHY=$(reason_of "$CHILD" "$GRAND")
+      echo "${CONT}└── ${GRAND}  [${GRAND_STATUS}]  # ${GRAND_WHY}"
+    done
+  done
+}
+
+render_tree "$ROOT"
+echo ""
+
+# Summary: orphans (registered but no parent in deps)
+echo "--- ORPHANS (registered, no declared parent) ---"
+if [ -f "$REG" ]; then
+  awk -F, 'NR>1 {print $1}' "$REG" | while read -r CMD; do
+    IN_DEPS=$(awk -F, -v c="$CMD" 'NR>1 && $2==c {found=1} END {print found+0}' "$DEPS")
+    IS_ROOT=$(awk -F, -v c="$CMD" 'NR>1 && $1==c {found=1} END {print found+0}' "$DEPS")
+    if [ "$IN_DEPS" -eq 0 ] && [ "$IS_ROOT" -eq 0 ]; then
+      echo "  ORPHAN: $CMD  (no deps declared)"
+    fi
+  done
+fi
+
+echo ""
+echo "SAGCO_DEPS_COMPLETE"
