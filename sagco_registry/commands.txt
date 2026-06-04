@@ -1,0 +1,15 @@
+# SAGCO COMMAND REGISTRY
+# FORMAT: name | bin_path | description
+demo        | bin/sagco-demo           | full pipeline proof
+mission     | bin/sagco-mission        | mansion status dashboard
+regression  | bin/sagco-regression     | did I break something?
+portfolio   | bin/sagco-portfolio      | aggregate all node registers
+palace      | bin/sagco-palace         | memory palace navigator
+pdfscan     | sagco_ish/pdfscan/bin/sagco-pdfscan     | PDF token scanner
+analyze     | sagco_ish/analysis/bin/sagco-analyze     | case analysis
+dashboard   | sagco_ish/dashboard/bin/sagco-dashboard  | fleet dashboard
+dispatch    | sagco_ish/dispatcher/bin/sagco-dispatch  | job dispatcher
+capture     | sagco_ish/capture/bin/sagco-capture      | orientation capture
+eru         | sagco_ish/eru/bin/sagco-eru               | ERU variance engine
+htrack      | sagco_ish/htrack/bin/sagco-htrack         | htrack case study
+scheduler   | sagco_ish/scheduler/bin/sagco-scheduler | new brick

@@ -1,0 +1,87 @@
+#!/bin/sh
+# SAGCO COMMAND LAUNCHER
+# Usage: sagco <command> [args...]
+#        sagco list
+#        sagco new <name>
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+REGISTRY="$REPO_ROOT/sagco_registry/commands.txt"
+CMD="${1:-list}"
+shift 2>/dev/null || true
+
+case "$CMD" in
+
+  list)
+    echo ""
+    echo "╔══════════════════════════════════════╗"
+    echo "║        SAGCO COMMAND REGISTRY        ║"
+    echo "╚══════════════════════════════════════╝"
+    echo ""
+    grep -v '^#' "$REGISTRY" | grep '|' | while IFS='|' read -r NAME BIN DESC; do
+        NAME="$(echo "$NAME" | tr -d ' ')"
+        BIN="$(echo "$BIN"  | tr -d ' ')"
+        DESC="$(echo "$DESC" | sed 's/^ //')"
+        if [ -x "$REPO_ROOT/$BIN" ]; then
+            STATUS="✓"
+        else
+            STATUS="·"
+        fi
+        printf "  %s %-14s %s\n" "$STATUS" "$NAME" "$DESC"
+    done
+    echo ""
+    echo "  Usage: sagco <command> [args]"
+    echo "  Build: sagco new <name>"
+    echo ""
+    ;;
+
+  new)
+    NAME="${1:-}"
+    if [ -z "$NAME" ]; then
+        echo "Usage: sagco new <name>"
+        exit 1
+    fi
+    DIR="$REPO_ROOT/sagco_ish/$NAME"
+    BIN="$DIR/bin/sagco-$NAME"
+    mkdir -p "$DIR/bin" "$DIR/logs"
+    NAME_UP="$(echo "$NAME" | tr '[:lower:]' '[:upper:]')"
+    cat > "$BIN" << SCAFFOLD
+#!/bin/sh
+# sagco-$NAME
+# Usage: sagco-$NAME [CASE_ID]
+CASE="\${1:-DEFAULT_CASE}"
+OUT="sagco_ish/$NAME/logs/${NAME}_register.csv"
+mkdir -p "sagco_ish/$NAME/logs"
+if [ ! -f "\$OUT" ]; then
+    echo "case_id,status,timestamp" > "\$OUT"
+fi
+echo "\$CASE,${NAME_UP}_COMPLETE,\$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "\$OUT"
+echo "SAGCO_${NAME_UP}_COMPLETE"
+tail -1 "\$OUT"
+SCAFFOLD
+    chmod +x "$BIN"
+    # Register it
+    printf "%-12s| sagco_ish/%s/bin/sagco-%s | new brick\n" "$NAME" "$NAME" "$NAME" >> "$REGISTRY"
+    echo "BRICK_CREATED: $NAME"
+    echo "BIN:  $BIN"
+    echo "LOGS: $DIR/logs/"
+    echo "REGISTERED: sagco_registry/commands.txt"
+    ;;
+
+  *)
+    # Look up command in registry and run it
+    ENTRY="$(grep -v '^#' "$REGISTRY" | grep "^$CMD " | head -1)"
+    if [ -z "$ENTRY" ]; then
+        echo "Unknown command: $CMD"
+        echo "Run: sagco list"
+        exit 1
+    fi
+    BIN="$(echo "$ENTRY" | awk -F'|' '{gsub(/ /,"",$2); print $2}')"
+    FULL="$REPO_ROOT/$BIN"
+    if [ ! -x "$FULL" ]; then
+        echo "NOT_YET: $BIN (not installed on this node)"
+        exit 0
+    fi
+    exec "$FULL" "$@"
+    ;;
+
+esac

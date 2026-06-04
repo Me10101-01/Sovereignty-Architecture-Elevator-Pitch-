@@ -1,0 +1,12 @@
+#!/bin/sh
+# sagco-scheduler
+# Usage: sagco-scheduler [CASE_ID]
+CASE="${1:-DEFAULT_CASE}"
+OUT="sagco_ish/scheduler/logs/scheduler_register.csv"
+mkdir -p "sagco_ish/scheduler/logs"
+if [ ! -f "$OUT" ]; then
+    echo "case_id,status,timestamp" > "$OUT"
+fi
+echo "$CASE,SCHEDULER_COMPLETE,$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$OUT"
+echo "SAGCO_SCHEDULER_COMPLETE"
+tail -1 "$OUT"
