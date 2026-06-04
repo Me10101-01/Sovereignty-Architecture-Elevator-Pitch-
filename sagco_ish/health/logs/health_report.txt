@@ -1,0 +1,48 @@
+SAGCO HEALTH REPORT
+CASE=C1602_CASE_001
+TIME=2026-06-04T20:41:37Z
+
+--- REQUIRED FILES ---
+OK=sagco_ish/runtime/bin/sagco-run-alpha
+OK=sagco_ish/shared_state/bin/sagco-state
+OK=sagco_ish/shared_state/bin/sagco-state-read
+OK=sagco_ish/portfolio/bin/sagco-portfolio-fuzz
+OK=sagco_ish/fuzz/bin/sagco-bill-fuzz
+MISSING_OR_NOT_EXECUTABLE=sagco_ish/analysis/bin/sagco-analyze
+MISSING_OR_NOT_EXECUTABLE=sagco_ish/dashboard/bin/sagco-dashboard
+OK=sagco_ish/agents/portfolio/bin/sagco-portfolio-generate
+OK=sagco_ish/hallucheck/bin/sagco-hallucheck
+OK=sagco_ish/gmail/bin/sagco-gmail-antibody
+
+--- LAST RUNTIME ---
+C1602_CASE_001,dashboard,START,2026-06-04T20:33:49Z
+C1602_CASE_001,dashboard,EXIT_127,2026-06-04T20:33:49Z
+C1602_CASE_001,portfolio-generate,START,2026-06-04T20:33:49Z
+C1602_CASE_001,portfolio-generate,EXIT_0,2026-06-04T20:33:49Z
+C1602_CASE_001,hallucheck,START,2026-06-04T20:33:49Z
+C1602_CASE_001,hallucheck,EXIT_0,2026-06-04T20:33:49Z
+C1602_CASE_001,state-read,START,2026-06-04T20:38:57Z
+C1602_CASE_001,state-read,EXIT_0,2026-06-04T20:38:57Z
+C1602_CASE_001,portfolio-fuzz,START,2026-06-04T20:38:57Z
+C1602_CASE_001,portfolio-fuzz,EXIT_0,2026-06-04T20:38:59Z
+C1602_CASE_001,bill-fuzz,START,2026-06-04T20:38:59Z
+C1602_CASE_001,bill-fuzz,EXIT_0,2026-06-04T20:39:00Z
+C1602_CASE_001,analyze,START,2026-06-04T20:39:00Z
+C1602_CASE_001,analyze,EXIT_127,2026-06-04T20:39:00Z
+C1602_CASE_001,dashboard,START,2026-06-04T20:39:00Z
+C1602_CASE_001,dashboard,EXIT_127,2026-06-04T20:39:00Z
+C1602_CASE_001,portfolio-generate,START,2026-06-04T20:39:00Z
+C1602_CASE_001,portfolio-generate,EXIT_0,2026-06-04T20:39:00Z
+C1602_CASE_001,hallucheck,START,2026-06-04T20:39:00Z
+C1602_CASE_001,hallucheck,EXIT_0,2026-06-04T20:39:00Z
+
+--- LAST STATE ---
+{
+  "case": "C1602_CASE_001",
+  "last_node": "RUNTIME_ALPHA_NODE",
+  "status": "ACTIVE",
+  "note": "alpha_cycle_complete_2026-06-04T20:39:00Z",
+  "updated": "2026-06-04T20:39:00Z"
+}
+
+SAGCO_HEALTH_COMPLETE

@@ -1,0 +1,20 @@
+#!/bin/sh
+# SAGCO Alpha Loop — runs sagco-run-alpha on a repeating cycle
+# usage: sagco-alpha-loop CASE [interval_seconds]
+CASE="$1"
+INTERVAL="${2:-60}"
+[ -z "$CASE" ] && echo "usage: sagco-alpha-loop CASE [interval_seconds]" && exit 1
+LOG="sagco_ish/loop/logs/alpha_loop.csv"
+mkdir -p sagco_ish/loop/logs
+[ ! -f "$LOG" ] && echo "cycle,case,status,timestamp" > "$LOG"
+TS(){ busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE; }
+CYCLE=0
+echo "SAGCO_ALPHA_LOOP_START CASE=$CASE INTERVAL=${INTERVAL}s"
+while true; do
+  CYCLE=$((CYCLE+1))
+  echo "===== ALPHA LOOP CYCLE $CYCLE ===== $(TS)"
+  sagco_ish/runtime/bin/sagco-run-alpha "$CASE"
+  echo "$CYCLE,$CASE,CYCLE_COMPLETE,$(TS)" >> "$LOG"
+  echo "SLEEPING ${INTERVAL}s..."
+  sleep "$INTERVAL"
+done

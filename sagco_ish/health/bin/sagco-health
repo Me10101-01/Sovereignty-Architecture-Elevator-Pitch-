@@ -1,0 +1,37 @@
+#!/bin/sh
+# usage: sagco-health CASE
+CASE="$1"
+OUT="sagco_ish/health/logs/health_report.txt"
+mkdir -p sagco_ish/health/logs
+echo "SAGCO HEALTH REPORT" > "$OUT"
+echo "CASE=$CASE" >> "$OUT"
+echo "TIME=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)" >> "$OUT"
+echo "" >> "$OUT"
+echo "--- REQUIRED FILES ---" >> "$OUT"
+for f in \
+  sagco_ish/runtime/bin/sagco-run-alpha \
+  sagco_ish/shared_state/bin/sagco-state \
+  sagco_ish/shared_state/bin/sagco-state-read \
+  sagco_ish/portfolio/bin/sagco-portfolio-fuzz \
+  sagco_ish/fuzz/bin/sagco-bill-fuzz \
+  sagco_ish/analysis/bin/sagco-analyze \
+  sagco_ish/dashboard/bin/sagco-dashboard \
+  sagco_ish/agents/portfolio/bin/sagco-portfolio-generate \
+  sagco_ish/hallucheck/bin/sagco-hallucheck \
+  sagco_ish/gmail/bin/sagco-gmail-antibody
+do
+  if [ -x "$f" ]; then
+    echo "OK=$f" >> "$OUT"
+  else
+    echo "MISSING_OR_NOT_EXECUTABLE=$f" >> "$OUT"
+  fi
+done
+echo "" >> "$OUT"
+echo "--- LAST RUNTIME ---" >> "$OUT"
+tail -20 sagco_ish/runtime/logs/runtime_alpha.csv 2>/dev/null >> "$OUT"
+echo "" >> "$OUT"
+echo "--- LAST STATE ---" >> "$OUT"
+cat "sagco_ish/shared_state/cases/${CASE}.json" 2>/dev/null >> "$OUT"
+echo "" >> "$OUT"
+echo "SAGCO_HEALTH_COMPLETE" >> "$OUT"
+cat "$OUT"

@@ -1,0 +1,65 @@
+#!/bin/sh
+# SAGCO Gmail Antibody — kills runaway API processes before gmail-scan runs
+# usage: sagco-gmail-antibody <CASE_ID>
+CASE="$1"
+LOG="sagco_ish/gmail/logs/antibody.csv"
+QUARANTINE="sagco_ish/gmail/quarantine"
+mkdir -p sagco_ish/gmail/logs "$QUARANTINE"
+[ ! -f "$LOG" ] && echo "case,check,result,timestamp" > "$LOG"
+TS=$(busybox date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+PASS=1
+
+# Kill any runaway curl processes consuming >5s
+CURL_PIDS=$(ps 2>/dev/null | awk '/curl/ && !/awk/ {print $1}')
+if [ -n "$CURL_PIDS" ]; then
+  echo "$CURL_PIDS" | xargs kill 2>/dev/null || true
+  echo "$CASE,kill_curl,KILLED_RUNAWAY,$TS" >> "$LOG"
+  PASS=0
+else
+  echo "$CASE,kill_curl,CLEAN,$TS" >> "$LOG"
+fi
+
+# Kill any runaway jq processes
+JQ_PIDS=$(ps 2>/dev/null | awk '/jq/ && !/awk/ {print $1}')
+if [ -n "$JQ_PIDS" ]; then
+  echo "$JQ_PIDS" | xargs kill 2>/dev/null || true
+  echo "$CASE,kill_jq,KILLED_RUNAWAY,$TS" >> "$LOG"
+  PASS=0
+else
+  echo "$CASE,kill_jq,CLEAN,$TS" >> "$LOG"
+fi
+
+# Check available disk space (quarantine if <10MB free)
+FREE_KB=$(df . 2>/dev/null | awk 'NR==2{print $4}' | tr -d ' ')
+if [ -n "$FREE_KB" ] && [ "$FREE_KB" -lt 10240 ] 2>/dev/null; then
+  echo "$CASE,disk_space,LOW_DISK_ABORT,$TS" >> "$LOG"
+  echo "ANTIBODY_ABORT: disk space < 10MB"
+  sagco_ish/shared_state/bin/sagco-state "$CASE" "ANTIBODY_NODE" "ACTIVE" "gmail_blocked_low_disk" 2>/dev/null || true
+  exit 1
+else
+  echo "$CASE,disk_space,OK,$TS" >> "$LOG"
+fi
+
+# Quarantine any existing oversized gmail logs (>500 lines)
+if [ -f "sagco_ish/gmail/logs/gmail_pdf_index.csv" ]; then
+  LINES=$(wc -l < sagco_ish/gmail/logs/gmail_pdf_index.csv | tr -d ' ')
+  if [ "$LINES" -gt 500 ]; then
+    mv sagco_ish/gmail/logs/gmail_pdf_index.csv \
+       "$QUARANTINE/gmail_pdf_index_${TS}.csv.bak"
+    echo "$CASE,quarantine_log,QUARANTINED_${LINES}_LINES,$TS" >> "$LOG"
+  else
+    echo "$CASE,quarantine_log,OK_${LINES}_LINES,$TS" >> "$LOG"
+  fi
+fi
+
+if [ "$PASS" -eq 1 ]; then
+  echo "SAGCO_ANTIBODY_CLEAR"
+  STATUS="ANTIBODY_CLEAR"
+else
+  echo "SAGCO_ANTIBODY_CLEANED"
+  STATUS="ANTIBODY_CLEANED"
+fi
+
+echo "$CASE,overall,$STATUS,$TS" >> "$LOG"
+sagco_ish/shared_state/bin/sagco-state "$CASE" "ANTIBODY_NODE" "ACTIVE" "$STATUS" 2>/dev/null || true
+tail -5 "$LOG"
