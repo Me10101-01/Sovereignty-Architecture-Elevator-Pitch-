@@ -1,0 +1,30 @@
+# SAGCO PHYSICS MAP — FLAME Physics Sandbox
+# Bridges physical constants → FLAME tokens → DNA codons → audio frequencies
+# Format: CONCEPT | FLAME_TOKEN | CODON | OPERATION | FREQUENCY_HZ | NOTE
+#
+# Observation: FREQUENCY is the universal bridge.
+#   Physics measures it in Hz.
+#   Music maps it to pitch (A4=440Hz).
+#   DNA encodes it as codon sequence rate.
+#   FLAME captures it as a weighted token.
+
+MASS        | FLAME_BRICK      | ATG | START        | 27.500  | A0
+VELOCITY    | FLAME_PIPELINE   | AGT | SCAN         | 55.000  | A1
+MOMENTUM    | FLAME_DEPLOY     | GAG | RECORD       | 110.000 | A2
+FORCE       | FLAME_RUST       | CTG | DEPLOY_OP    | 220.000 | A3
+TIME        | FLAME_LINEAGE    | AGC | SEQUENCE     | 440.000 | A4
+DISTANCE    | FLAME_WING       | TCA | TRACE        | 880.000 | A5
+ENERGY      | FLAME_FLAME      | ATG | START        | 1760.000| A6
+FREQUENCY   | FLAME_FREQUENCY  | GTG | WAVE         | 440.000 | A4
+WAVE        | FLAME_CIRCLE     | CGA | CYCLE        | 261.626 | C4
+RESONANCE   | FLAME_STRAND     | AGC | SEQUENCE     | 528.000 | C5_approx
+
+# Bridge equation:
+#   FLAME_TOKEN.weight * 440Hz = root frequency for that token's domain
+#   FLAME_SAGCO weight=14 → 14 * 31.25Hz = 437.5Hz ≈ A4 (440Hz tuning confirmed)
+#   FLAME_DOJO  weight=14 → same frequency family → SIBLING confirmed
+
+# Physics → Audio bridge:
+#   Circle of Fifths step = 7 semitones = 2^(7/12) ≈ 1.4983 ratio
+#   Perfect Fifth = most stable interval = lowest momentum transfer
+#   FLAME_CIRCLE(CGA=CYCLE) ↔ FLAME_FREQUENCY(GTG=WAVE) — confirmed CODON_BRIDGE

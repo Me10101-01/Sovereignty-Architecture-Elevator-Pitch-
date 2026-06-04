@@ -1,0 +1,278 @@
+#!/bin/sh
+# SAGCO-0074: TOKEN_GRAPH
+#
+# Builds the relationship graph that turns the SAGCO dictionary into a brain.
+# Every token gets: RELATED, ANCESTOR, CODON_FAMILY, PHYSICS, SWARM edges.
+#
+# Usage:
+#   ./bin/sagco-token-graph build             # auto-generate all edges
+#   ./bin/sagco-token-graph query  <TOKEN>    # show all relationships
+#   ./bin/sagco-token-graph path   <A> <B>    # relationship path A→B
+#   ./bin/sagco-token-graph codon  <TOKEN>    # DNA codon lookup
+#   ./bin/sagco-token-graph status
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+GRAPH_DIR="$REPO_ROOT/sagco_knowledge_compiler/graph"
+TOKENS_FILE="$REPO_ROOT/sagco_flame_linguistics/tokens/flame_tokens.txt"
+CODON_TABLE="$GRAPH_DIR/codon_table.txt"
+PHYSICS_MAP="$GRAPH_DIR/physics_map.txt"
+EDGES_FILE="$GRAPH_DIR/token_edges.txt"
+STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+
+mkdir -p "$GRAPH_DIR"
+
+log()    { printf "%s\n" "$1"; }
+header() { log ""; log "=== $1 ==="; }
+
+# ── Codon lookup ──────────────────────────────────────────────────────────────
+
+get_codon() {
+  grep "^$1 " "$CODON_TABLE" 2>/dev/null | awk -F'|' '{gsub(/ /,"",$2); print $2}' | head -1
+}
+
+get_operation() {
+  grep "^$1 " "$CODON_TABLE" 2>/dev/null | awk -F'|' '{gsub(/^ | $/,"",$3); print $3}' | head -1
+}
+
+get_domain() {
+  grep "^$1 " "$CODON_TABLE" 2>/dev/null | awk -F'|' '{gsub(/^ | $/,"",$4); print $4}' | head -1
+}
+
+get_weight() {
+  grep "TOKEN=$1 " "$TOKENS_FILE" 2>/dev/null | sed 's/.*WEIGHT=//' | head -1
+}
+
+# ── Edge writer ───────────────────────────────────────────────────────────────
+
+add_edge() {
+  A="$1"; REL="$2"; B="$3"; STRENGTH="$4"
+  printf "%s | %s | %s | %s\n" "$A" "$REL" "$B" "$STRENGTH" >> "$EDGES_FILE"
+}
+
+# ── BUILD: auto-generate all edges ───────────────────────────────────────────
+
+cmd_build() {
+  log "SAGCO-0074 TOKEN_GRAPH BUILD"
+  log "STAMP=$STAMP"
+  log ""
+
+  # Fresh edge file
+  printf "# SAGCO TOKEN GRAPH EDGES\n# STAMP=%s\n# FORMAT: TOKEN_A | RELATION | TOKEN_B | STRENGTH\n\n" "$STAMP" > "$EDGES_FILE"
+
+  TOTAL_EDGES=0
+
+  # Load all tokens into a list
+  TOKENS_LIST="$(awk '{gsub(/TOKEN=/,""); gsub(/ .*/,""); print}' "$TOKENS_FILE")"
+
+  header "1. CODON_FAMILY edges (same DNA operation)"
+  # Group tokens by OPERATION, link same-operation tokens
+  OPERATIONS="START STOP SWARM_RECV SWARM_SEND BUILD REGISTRY RECORD COMPILE SCAN SEQUENCE CYCLE HEAL FUZZ WAVE EMIT INDEX CLASSIFY TRACE ARCHIVE DEPLOY_OP"
+  for OP in $OPERATIONS; do
+    MEMBERS=""
+    echo "$TOKENS_LIST" | while read -r TK; do
+      OP_TK="$(get_operation "$TK")"
+      if [ "$OP_TK" = "$OP" ]; then
+        printf "%s\n" "$TK"
+      fi
+    done > /tmp/sagco_op_members.txt
+    COUNT=$(wc -l < /tmp/sagco_op_members.txt)
+    if [ "$COUNT" -gt 1 ]; then
+      log "  OP=$OP members=$COUNT"
+      while read -r A; do
+        while read -r B; do
+          if [ "$A" != "$B" ] && [ "$A" \< "$B" ]; then
+            add_edge "$A" "CODON_FAMILY" "$B" "0.80"
+            TOTAL_EDGES=$((TOTAL_EDGES + 1))
+          fi
+        done < /tmp/sagco_op_members.txt
+      done < /tmp/sagco_op_members.txt
+    fi
+  done
+
+  header "2. WEIGHT_PEER edges (weight within delta 2)"
+  echo "$TOKENS_LIST" | while read -r A; do
+    WA="$(get_weight "$A")"
+    echo "$TOKENS_LIST" | while read -r B; do
+      if [ "$A" \< "$B" ]; then
+        WB="$(get_weight "$B")"
+        if [ -n "$WA" ] && [ -n "$WB" ]; then
+          DIFF=$(( WA - WB ))
+          if [ "$DIFF" -lt 0 ]; then DIFF=$(( -DIFF )); fi
+          if [ "$DIFF" -le 2 ] && [ "$DIFF" -gt 0 ]; then
+            STRENGTH="$(awk "BEGIN{printf \"%.2f\", 1.0 - ($DIFF * 0.1)}")"
+            add_edge "$A" "WEIGHT_PEER" "$B" "$STRENGTH"
+          fi
+        fi
+      fi
+    done
+  done
+
+  header "3. DOMAIN edges (same semantic domain)"
+  DOMAINS="META SHELL INFRA COMPUTE CLOUD AUDIO QA GUARD ELECTRONICS ORCHESTRATION BIO ENGINE"
+  for DOM in $DOMAINS; do
+    echo "$TOKENS_LIST" | while read -r TK; do
+      D="$(get_domain "$TK")"
+      if [ "$D" = "$DOM" ]; then printf "%s\n" "$TK"; fi
+    done > /tmp/sagco_dom_members.txt
+    COUNT=$(wc -l < /tmp/sagco_dom_members.txt)
+    if [ "$COUNT" -gt 1 ]; then
+      log "  DOMAIN=$DOM members=$COUNT"
+      while read -r A; do
+        while read -r B; do
+          if [ "$A" != "$B" ] && [ "$A" \< "$B" ]; then
+            add_edge "$A" "DOMAIN_SIBLING" "$B" "0.75"
+          fi
+        done < /tmp/sagco_dom_members.txt
+      done < /tmp/sagco_dom_members.txt
+    fi
+  done
+
+  header "4. PHYSICS_BRIDGE edges (from physics_map.txt)"
+  while IFS='|' read -r CONCEPT TOKEN_RAW CODON_RAW OP_RAW FREQ_RAW NOTE_RAW; do
+    case "$CONCEPT" in '#'*|'') continue ;; esac
+    TOKEN="$(echo "$TOKEN_RAW" | tr -d ' ')"
+    CONCEPT_CLEAN="$(echo "$CONCEPT" | tr -d ' ')"
+    if echo "$TOKENS_LIST" | grep -q "^$TOKEN$"; then
+      add_edge "$TOKEN" "PHYSICS_MAP" "CONCEPT_${CONCEPT_CLEAN}" "0.90"
+      log "  $TOKEN → PHYSICS_MAP → $CONCEPT_CLEAN"
+    fi
+  done < "$PHYSICS_MAP"
+
+  header "5. SEMANTIC edges (hand-crafted key relationships)"
+  # Core SAGCO graph — the high-value relationships
+  add_edge "FLAME_SAGCO"      "ANCESTOR"  "FLAME_DOJO"         "0.95"
+  add_edge "FLAME_SAGCO"      "ANCESTOR"  "FLAME_BRICK"        "0.95"
+  add_edge "FLAME_SAGCO"      "ANCESTOR"  "FLAME_KNOWLEDGE"    "0.90"
+  add_edge "FLAME_DOJO"       "SIBLING"   "FLAME_SAGCO"        "0.95"
+  add_edge "FLAME_BRICK"      "ANCESTOR"  "FLAME_TOKEN"        "0.88"
+  add_edge "FLAME_TOKEN"      "ANCESTOR"  "FLAME_LEXICON"      "0.85"
+  add_edge "FLAME_LEXICON"    "SIBLING"   "FLAME_DICTIONARY"   "0.92"
+  add_edge "FLAME_DICTIONARY" "SIBLING"   "FLAME_THESAURUS"    "0.92"
+  add_edge "FLAME_THESAURUS"  "SIBLING"   "FLAME_BIBLIOGRAPHY" "0.90"
+  add_edge "FLAME_KNOWLEDGE"  "ANCESTOR"  "FLAME_LEXICON"      "0.88"
+  add_edge "FLAME_ERROR"      "SWARM"     "FLAME_ANTIBODY"     "0.95"
+  add_edge "FLAME_ERROR"      "SIBLING"   "FLAME_DNA"          "0.72"
+  add_edge "FLAME_PORTFOLIO"  "SIBLING"   "FLAME_BIBLIOGRAPHY" "0.85"
+  add_edge "FLAME_WING"       "ANCESTOR"  "FLAME_LEXICON"      "0.88"
+  add_edge "FLAME_WING"       "SIBLING"   "FLAME_EXCAVATE"     "0.90"
+  add_edge "FLAME_PIPELINE"   "ANCESTOR"  "FLAME_SCAFFOLD"     "0.85"
+  add_edge "FLAME_DEPLOY"     "SIBLING"   "FLAME_CLOUD"        "0.92"
+  add_edge "FLAME_RUST"       "SIBLING"   "FLAME_COMPILE"      "0.88" 2>/dev/null || true
+  add_edge "FLAME_FREQUENCY"  "SIBLING"   "FLAME_CIRCLE"       "0.90"
+  add_edge "FLAME_FREQUENCY"  "CODON_BRIDGE" "FLAME_STRAND"    "0.85"
+  add_edge "FLAME_CIRCLE"     "PHYSICS_BRIDGE" "FLAME_FREQUENCY" "0.90"
+  add_edge "FLAME_DNA"        "ANCESTOR"  "FLAME_STRAND"       "0.90"
+  add_edge "FLAME_DNA"        "ANCESTOR"  "FLAME_CODON"        "0.88" 2>/dev/null || true
+  add_edge "FLAME_UNITY"      "SWARM"     "FLAME_EPIC"         "0.85"
+  add_edge "FLAME_EPIC"       "SWARM"     "FLAME_BLUESCRIPT"   "0.85"
+  add_edge "FLAME_BLUESCRIPT" "SWARM"     "FLAME_UNITY"        "0.85"
+  add_edge "FLAME_WAFER"      "ANCESTOR"  "FLAME_TOKEN"        "0.88"
+  add_edge "FLAME_LINEAGE"    "SIBLING"   "FLAME_TRACE"        "0.87" 2>/dev/null || true
+
+  log ""
+  EDGE_COUNT=$(grep -c '|' "$EDGES_FILE" 2>/dev/null || echo 0)
+  log "EDGES_WRITTEN=$EDGE_COUNT"
+  log "GRAPH=$EDGES_FILE"
+  log "STATUS=SAGCO_TOKEN_GRAPH_BUILT"
+}
+
+# ── QUERY: show all edges for a token ────────────────────────────────────────
+
+cmd_query() {
+  TOKEN="${1:-}"
+  if [ -z "$TOKEN" ]; then log "Usage: sagco-token-graph query <TOKEN>"; exit 1; fi
+  if [ ! -f "$EDGES_FILE" ]; then log "Run: sagco-token-graph build first"; exit 1; fi
+
+  log "QUERY: $TOKEN"
+  log "CODON:  $(get_codon "$TOKEN")  →  $(get_operation "$TOKEN")"
+  log "DOMAIN: $(get_domain "$TOKEN")"
+  log "WEIGHT: $(get_weight "$TOKEN")"
+  log ""
+  log "EDGES:"
+
+  # Outgoing
+  grep "^$TOKEN |" "$EDGES_FILE" | while IFS='|' read -r A REL B STR; do
+    log "  $(echo "$A"|tr -d ' ') --$(echo "$REL"|tr -d ' ')--> $(echo "$B"|tr -d ' ')  [$(echo "$STR"|tr -d ' ')]"
+  done
+
+  # Incoming
+  grep "| $TOKEN |" "$EDGES_FILE" | while IFS='|' read -r A REL B STR; do
+    log "  $(echo "$B"|tr -d ' ') <--$(echo "$REL"|tr -d ' ')-- $(echo "$A"|tr -d ' ')  [$(echo "$STR"|tr -d ' ')]"
+  done
+}
+
+# ── CODON lookup ──────────────────────────────────────────────────────────────
+
+cmd_codon() {
+  TOKEN="${1:-}"
+  if [ -z "$TOKEN" ]; then log "Usage: sagco-token-graph codon <TOKEN>"; exit 1; fi
+  CODON="$(get_codon "$TOKEN")"
+  OP="$(get_operation "$TOKEN")"
+  DOM="$(get_domain "$TOKEN")"
+  log "TOKEN=$TOKEN"
+  log "CODON=$CODON"
+  log "OPERATION=$OP"
+  log "DOMAIN=$DOM"
+  # Physics bridge
+  PHY="$(grep "| $TOKEN " "$PHYSICS_MAP" 2>/dev/null | awk -F'|' '{gsub(/ /,"",$1); print $1}' | head -1)"
+  if [ -n "$PHY" ]; then
+    FREQ="$(grep "| $TOKEN " "$PHYSICS_MAP" | awk -F'|' '{gsub(/ /,"",$5); print $5}' | head -1)"
+    NOTE="$(grep "| $TOKEN " "$PHYSICS_MAP" | awk -F'|' '{gsub(/ /,"",$6); print $6}' | head -1)"
+    log "PHYSICS_CONCEPT=$PHY"
+    log "FREQUENCY=${FREQ}Hz  NOTE=$NOTE"
+  fi
+  log "LINEAGE: wafer_cells → WORD → $TOKEN → $CODON → $OP"
+}
+
+# ── PATH: breadth-first relationship path ────────────────────────────────────
+
+cmd_path() {
+  A="${1:-}"; B="${2:-}"
+  if [ -z "$A" ] || [ -z "$B" ]; then log "Usage: sagco-token-graph path <A> <B>"; exit 1; fi
+  if [ ! -f "$EDGES_FILE" ]; then log "Run: sagco-token-graph build first"; exit 1; fi
+  log "PATH: $A → $B"
+  # Single-hop direct check
+  DIRECT="$(grep "^$A |" "$EDGES_FILE" | grep "| $B |" | head -1)"
+  if [ -n "$DIRECT" ]; then
+    log "  DIRECT: $DIRECT"
+    return
+  fi
+  # Two-hop via intermediate
+  grep "^$A |" "$EDGES_FILE" | while IFS='|' read -r TA REL_AB MID STR_AB; do
+    MID_CLEAN="$(echo "$MID" | tr -d ' ')"
+    HOP2="$(grep "^$MID_CLEAN |" "$EDGES_FILE" | grep "| $B |" | head -1)"
+    if [ -n "$HOP2" ]; then
+      log "  VIA $MID_CLEAN: $A --$(echo "$REL_AB"|tr -d ' ')--> $MID_CLEAN --...→ $B"
+    fi
+  done
+}
+
+# ── STATUS ────────────────────────────────────────────────────────────────────
+
+cmd_status() {
+  header "SAGCO-0074 TOKEN_GRAPH STATUS"
+  log "TOKENS=$(wc -l < "$TOKENS_FILE" 2>/dev/null || echo 0)"
+  log "CODON_ENTRIES=$(grep -c '^FLAME_' "$CODON_TABLE" 2>/dev/null || echo 0)"
+  log "PHYSICS_ENTRIES=$(grep -c '^[A-Z]' "$PHYSICS_MAP" 2>/dev/null || echo 0)"
+  if [ -f "$EDGES_FILE" ]; then
+    log "EDGES=$(grep -c '|' "$EDGES_FILE" 2>/dev/null || echo 0)"
+    log "RELATION_TYPES=$(grep -o '| [A-Z_]* |' "$EDGES_FILE" | sort -u | wc -l)"
+  else
+    log "EDGES=0  (run: sagco-token-graph build)"
+  fi
+  log "STATUS=SAGCO_TOKEN_GRAPH_READY"
+}
+
+# ── Dispatch ──────────────────────────────────────────────────────────────────
+
+CMD="${1:-status}"
+shift 2>/dev/null || true
+
+case "$CMD" in
+  build)  cmd_build        ;;
+  query)  cmd_query  "$@"  ;;
+  codon)  cmd_codon  "$@"  ;;
+  path)   cmd_path   "$@"  ;;
+  status) cmd_status       ;;
+  *)      log "Usage: sagco-token-graph [build|query|codon|path|status]"; exit 1 ;;
+esac
