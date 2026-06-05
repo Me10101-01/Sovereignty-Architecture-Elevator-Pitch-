@@ -33,6 +33,8 @@ TRUTH="sagco_ish/hallucheck/source_truth/sagco_os_truth.txt"
 if [ -f "$TRUTH" ] && [ -f "$REPORT" ]; then
   run_agent hallucheck "sagco_ish/hallucheck/bin/sagco-hallucheck $CASE $TRUTH $REPORT runtime_alpha_self_audit"
 fi
+# Translation Engine: verify all registered symbol translations still compute
+run_agent translate-verify "sagco_ish/lineage/bin/sagco-translate --list"
 run_agent eru-benchmark  "sagco_ish/eru/bin/sagco-eru-benchmark $CASE"
 run_agent bibliography   "sagco_ish/bibliography/bin/sagco-bibliography $CASE"
 run_agent evo            "sagco_ish/evo/bin/sagco-evo $CASE"

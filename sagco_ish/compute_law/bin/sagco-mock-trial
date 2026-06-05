@@ -1,0 +1,208 @@
+#!/bin/sh
+# SAGCO Mock Trial — Brick 060
+# usage: sagco-mock-trial TRIAL_ID CLAIM_LABEL [CASE]
+# Structured adversarial compute-law review. Runs before any claim enters blueprint.
+# Format: CLAIM → PROSECUTION_CHALLENGE → DEFENSE_EXHIBITS → VERDICT
+# Each exhibit is a sagco-compute-law call. Aggregate verdict = court ruling.
+TRIAL_ID="$1"
+CLAIM_LABEL="$2"
+CASE="${3:-C1602_CASE_001}"
+
+[ -z "$TRIAL_ID" ]    && echo "usage: sagco-mock-trial TRIAL_ID CLAIM_LABEL" && exit 1
+[ -z "$CLAIM_LABEL" ] && echo "CLAIM_LABEL required" && exit 1
+
+LOG="sagco_ish/compute_law/logs/mock_trial.csv"
+REPORT="sagco_ish/compute_law/trials/trial_${TRIAL_ID}.md"
+CL="sagco_ish/compute_law/bin/sagco-compute-law"
+mkdir -p sagco_ish/compute_law/trials sagco_ish/compute_law/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "trial_id,claim,exhibits_total,computable,mythology,verdict,timestamp" > "$LOG"
+
+TOTAL=0; COMP=0; MYTH=0; PARTIAL_COUNT=0
+
+# exhibit EXHIBIT_ID DESCRIPTION TEST_CMD EXPECTED
+exhibit() {
+  EX_ID="$1"; DESC="$2"; CMD="$3"; EXP="$4"
+  TOTAL=$((TOTAL+1))
+  RESULT=$("$CL" "$CASE" "trial_${TRIAL_ID}_${EX_ID}" "$CMD" "$EXP" 2>/dev/null | grep "^VERDICT:" | awk '{print $2}')
+  [ -z "$RESULT" ] && RESULT="MYTHOLOGY"
+  case "$RESULT" in
+    COMPUTABLE) COMP=$((COMP+1));     SYM="✅ COMPUTABLE" ;;
+    PARTIAL)    PARTIAL_COUNT=$((PARTIAL_COUNT+1)); SYM="⚠️  PARTIAL" ;;
+    *)          MYTH=$((MYTH+1));     SYM="❌ MYTHOLOGY" ;;
+  esac
+  printf "  Exhibit %-4s %s\n" "$EX_ID:" "$SYM"
+  printf "           %s\n" "$DESC"
+  # Accumulate for report
+  echo "| $EX_ID | $DESC | $SYM |" >> "$REPORT.tmp"
+}
+
+# ── TRIAL HEADER ──────────────────────────────────────────────────────────────
+echo "======================================="
+echo " SAGCO MOCK TRIAL — $TRIAL_ID"
+echo "======================================="
+echo " Claim  : $CLAIM_LABEL"
+echo " Case   : $CASE"
+echo " Judge  : Compute Law Standard"
+echo " Date   : $TS"
+echo ""
+
+# Start report accumulator
+> "$REPORT.tmp"
+
+# ── DISPATCH: which trial to run ──────────────────────────────────────────────
+case "$TRIAL_ID" in
+
+TRIAL_001)
+  echo "CLAIM: The Law of Translation (Wing F) enforces Story→Engineering→Compute"
+  echo "       on real bricks, not just in a specification document."
+  echo ""
+  echo "PROSECUTION:"
+  echo "  'sagco-translate was built hours ago. It has 11 entries — all hand-registered"
+  echo "   in one session. No new brick has been forced through it as a precondition."
+  echo "   The enforcement is aspirational. The gate is not wired into creation.'"
+  echo ""
+  echo "DEFENSE EXHIBITS:"
+
+  exhibit "A" "sagco-translate binary exists and is executable" \
+    "test -x sagco_ish/lineage/bin/sagco-translate" "EXIT_0"
+
+  exhibit "B" "registry contains 11 registered translations" \
+    "sagco_ish/lineage/bin/sagco-translate --list" "Computable: 11"
+
+  exhibit "C" "Purple_Node lookup returns Engineering Name" \
+    "sagco_ish/lineage/bin/sagco-translate --lookup Purple_Node" \
+    "Evidence_Reconciliation"
+
+  exhibit "D" "Purple_Node verify runs its compute test live" \
+    "sagco_ish/lineage/bin/sagco-translate --verify Purple_Node" \
+    "COMPUTABLE"
+
+  exhibit "E" "New brick can be registered and verified in single command" \
+    "sagco_ish/lineage/bin/sagco-translate Trial_Brick_060 Mock_Trial_Compute_Test test -f README.md EXIT_0" \
+    "SAGCO_TRANSLATION_REGISTERED"
+
+  exhibit "F" "Prosecution claim: enforcement not wired into run-alpha — TRUE OR FALSE" \
+    "grep -c 'sagco-translate' sagco_ish/runtime/bin/sagco-run-alpha" \
+    "EXIT_NONZERO"
+
+  PROSECUTION_CONCEDES="F"
+  ;;
+
+TRIAL_002)
+  echo "CLAIM: SAGCO's Adaptation Lineage is a measurable, computable pattern"
+  echo "       — not just a narrative description."
+  echo ""
+  echo "PROSECUTION:"
+  echo "  'The Evolution Center produces weights, but CREATION=15 in a system with"
+  echo "   59 registered bricks suggests the creation events are not being captured"
+  echo "   accurately. The weights are plausible but not validated against a ground truth.'"
+  echo ""
+  echo "DEFENSE EXHIBITS:"
+
+  exhibit "A" "sagco-evo produces CREATION ADAPTATION ERROR RESOLUTION weights" \
+    "sagco_ish/evo/bin/sagco-evo C1602_CASE_001" "CURRENT_KEY"
+
+  exhibit "B" "antibody archive has >= 11 entries (errors that became bricks)" \
+    "test $(grep -v '^ab_id' sagco_ish/antibody/data/antibody_archive.csv | wc -l | tr -d ' ') -ge 11" \
+    "EXIT_0"
+
+  exhibit "C" "INV-008 Survival Rule is registered with field-observation origin" \
+    "grep -c 'INV-008' sagco_ish/lineage/inventions/inventions.csv" \
+    "EXIT_0"
+
+  exhibit "D" "localhost failure created link-bridge (AB in antibody archive)" \
+    "grep -c 'link_bridge\|localhost' sagco_ish/antibody/data/antibody_archive.csv" \
+    "EXIT_0"
+
+  exhibit "E" "Prosecution concession: CREATION weight undercounts pre-session bricks" \
+    "test $(grep -v '^brick' sagco_ish/lineage/citations/citations.csv | wc -l | tr -d ' ') -gt 15" \
+    "EXIT_0"
+  ;;
+
+*)
+  echo "Unknown TRIAL_ID: $TRIAL_ID"
+  echo "Available: TRIAL_001 (Translation Engine), TRIAL_002 (Adaptation Lineage)"
+  exit 1
+  ;;
+esac
+
+# ── VERDICT ───────────────────────────────────────────────────────────────────
+echo ""
+echo "--- COURT RULING ---"
+echo "Exhibits   : $TOTAL"
+echo "COMPUTABLE : $COMP"
+echo "MYTHOLOGY  : $MYTH"
+echo "PARTIAL    : $PARTIAL_COUNT"
+echo ""
+
+VERDICT="CLAIM_SURVIVES"
+[ "$MYTH" -ge 2 ]                     && VERDICT="CLAIM_DISMISSED"
+[ "$MYTH" -eq 1 ] && [ "$COMP" -le 2 ] && VERDICT="CLAIM_REMANDED"
+[ "$COMP" -ge 4 ] && [ "$MYTH" -eq 0 ] && VERDICT="CLAIM_UPHELD"
+
+echo "VERDICT: $VERDICT"
+echo ""
+
+case "$VERDICT" in
+  CLAIM_UPHELD)
+    echo "→ Claim is eligible for Blueprint and Canon."
+    echo "  All exhibits pass. Prosecution challenge addressed."
+    ;;
+  CLAIM_SURVIVES)
+    echo "→ Claim survives with known weaknesses."
+    echo "  Partial exhibits documented. Strengthen before filing."
+    ;;
+  CLAIM_REMANDED)
+    echo "→ Claim remanded for further evidence."
+    echo "  One exhibit failed. Fix gap, re-run trial."
+    ;;
+  CLAIM_DISMISSED)
+    echo "→ Claim dismissed. Too many failed exhibits."
+    echo "  Do not enter Canon until gaps resolved."
+    ;;
+esac
+
+# ── Write trial report ─────────────────────────────────────────────────────────
+cat > "$REPORT" <<RPT
+# SAGCO Mock Trial: $TRIAL_ID
+**Claim:** $CLAIM_LABEL
+**Case:** $CASE | **Date:** $TS
+**Verdict:** $VERDICT ($COMP/$TOTAL COMPUTABLE)
+
+---
+
+## Exhibits
+
+| ID | Description | Result |
+|----|-------------|--------|
+$(cat "$REPORT.tmp" 2>/dev/null)
+
+---
+
+## Court Ruling
+
+**$VERDICT** — $COMP of $TOTAL exhibits COMPUTABLE, $MYTH MYTHOLOGY, $PARTIAL_COUNT PARTIAL.
+
+$(case "$VERDICT" in
+  CLAIM_UPHELD)   echo "Claim is eligible for Blueprint and Canon. Prosecution challenge fully addressed." ;;
+  CLAIM_SURVIVES) echo "Claim survives with documented weaknesses. Prosecution Exhibit F confirmed: sagco-translate not yet wired into sagco-run-alpha as precondition. Strengthen before patent filing." ;;
+  CLAIM_REMANDED) echo "Claim remanded. Fix failing exhibit, then re-run." ;;
+  CLAIM_DISMISSED) echo "Claim dismissed. Return when gaps resolved." ;;
+esac)
+
+---
+
+*Generated by \`sagco-mock-trial\` — Brick 060 · SAGCO OS*
+RPT
+rm -f "$REPORT.tmp"
+
+# Log
+echo "$TRIAL_ID,$CLAIM_LABEL,$TOTAL,$COMP,$MYTH,$VERDICT,$TS" >> "$LOG"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "MOCK_TRIAL_NODE" \
+  "TRIAL_${VERDICT}" "trial_${TRIAL_ID}_comp_${COMP}_of_${TOTAL}" 2>/dev/null || true
+
+echo ""
+echo "SAGCO_MOCK_TRIAL_COMPLETE"
+echo "REPORT: $REPORT"

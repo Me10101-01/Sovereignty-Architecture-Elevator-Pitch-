@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "COMPUTE_LAW_NODE",
-  "status": "COMPUTE_LAW_COMPUTABLE",
-  "note": "claim_INV-008_survival_rule_itself_computes_hash_f3b2f872ceeb7569",
-  "updated": "2026-06-05T00:48:19Z"
+  "last_node": "MOCK_TRIAL_NODE",
+  "status": "TRIAL_CLAIM_SURVIVES",
+  "note": "trial_TRIAL_002_comp_4_of_5",
+  "updated": "2026-06-05T00:53:19Z"
 }

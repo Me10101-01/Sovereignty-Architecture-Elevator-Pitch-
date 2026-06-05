@@ -1,0 +1,115 @@
+#!/bin/sh
+# SAGCO Weight Calculator — Wing G / Brick 061
+# usage: sagco-weight BRICK_NAME [CASE]
+# Computes governance weight from: compute-law, ERU, lineage, antibodies, deps, survival
+# Output: WEIGHT score + GOVERNANCE_TIER + which reviewers wake
+BRICK="$1"
+CASE="${2:-C1602_CASE_001}"
+
+[ -z "$BRICK" ] && echo "usage: sagco-weight BRICK_NAME [CASE]" && exit 1
+
+LOG="sagco_ish/governance_fleet/logs/weight_scores.csv"
+COMPUTE_LOG="sagco_ish/compute_law/logs/compute_law.csv"
+ANTIBODY="sagco_ish/antibody/data/antibody_archive.csv"
+MANIFEST="sagco_ish/registry/data/brick_manifest.csv"
+DEPS="sagco_ish/deps/data/deps.csv"
+CITES="sagco_ish/lineage/citations/citations.csv"
+ERU_LOG="sagco_ish/eru/logs/eru_benchmark.csv"
+INVS="sagco_ish/lineage/inventions/inventions.csv"
+TRANSLATE="sagco_ish/lineage/translations/translation_registry.csv"
+
+mkdir -p sagco_ish/governance_fleet/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "case,brick,creation,adaptation,dependency,eru,survival,novelty,total,tier,timestamp" > "$LOG"
+
+SAFE=$(echo "$BRICK" | tr '-' '_' | tr '[:upper:]' '[:lower:]')
+
+echo "=== SAGCO WEIGHT: $BRICK ==="
+echo "Case: $CASE"
+echo ""
+
+# ── CREATION WEIGHT: registered + manifested + cited ─────────────────────────
+W_CREATE=0
+grep -qi "^${BRICK},"       "$MANIFEST"  2>/dev/null && W_CREATE=$((W_CREATE+10))
+grep -qi "${BRICK}"         "$CITES"     2>/dev/null && W_CREATE=$((W_CREATE+5))
+# Each invention that descends from this brick adds weight
+grep -qi "${SAFE}"          "$INVS"      2>/dev/null && W_CREATE=$((W_CREATE+15))
+printf "  Creation   : %3d  (manifest+citations+inventions)\n" $W_CREATE
+
+# ── ADAPTATION WEIGHT: antibodies triggered, fixes applied ────────────────────
+W_ADAPT=0
+AB_COUNT=$(grep -ic "${SAFE}\|${BRICK}" "$ANTIBODY" 2>/dev/null | tr -d ' ')
+W_ADAPT=$(awk "BEGIN{print $AB_COUNT * 8}")
+# compute-law passes also signal adaptation value
+CL_PASS=$(grep -ic "${SAFE}\|${BRICK}" "$COMPUTE_LOG" 2>/dev/null | tr -d ' ')
+W_ADAPT=$(awk "BEGIN{print $W_ADAPT + $CL_PASS * 3}")
+printf "  Adaptation : %3d  (antibodies×8 + compute-law×3)\n" $W_ADAPT
+
+# ── DEPENDENCY WEIGHT: how many bricks depend on it ──────────────────────────
+W_DEP=0
+DEP_COUNT=$(grep -ic ",${BRICK}," "$DEPS" 2>/dev/null | tr -d ' ')
+W_DEP=$(awk "BEGIN{print $DEP_COUNT * 6}")
+printf "  Dependency : %3d  (callers×6)\n" $W_DEP
+
+# ── ERU WEIGHT: green scores in eru-benchmark ─────────────────────────────────
+W_ERU=0
+if [ -f "$ERU_LOG" ]; then
+  ERU_GREEN=$(grep -ic "${SAFE}\|GREEN\|OVERPERFORM" "$ERU_LOG" 2>/dev/null | tr -d ' ')
+  W_ERU=$(awk "BEGIN{print $ERU_GREEN * 4}")
+fi
+printf "  ERU        : %3d  (green_signals×4)\n" $W_ERU
+
+# ── SURVIVAL WEIGHT: cycles survived, compute-law COMPUTABLE ──────────────────
+W_SURV=0
+SURV_COUNT=$(grep -ic "COMPUTABLE" "$COMPUTE_LOG" 2>/dev/null | tr -d ' ')
+W_SURV=$(awk "BEGIN{print $SURV_COUNT * 2}")
+# Each mock trial survived adds weight
+TRIAL_COUNT=$(grep -ic "UPHELD\|SURVIVES" "sagco_ish/compute_law/logs/mock_trial.csv" 2>/dev/null | tr -d ' ')
+W_SURV=$(awk "BEGIN{print $W_SURV + $TRIAL_COUNT * 10}")
+printf "  Survival   : %3d  (compute-law×2 + trials×10)\n" $W_SURV
+
+# ── NOVELTY WEIGHT: translation registry + blueprint mention ──────────────────
+W_NOVEL=0
+grep -qi "${SAFE}\|${BRICK}" "$TRANSLATE" 2>/dev/null && W_NOVEL=$((W_NOVEL+20))
+grep -qi "${SAFE}\|${BRICK}" "sagco_ish/canon/patents/SAGCO_Engineering_Blueprint_v1.0.md" 2>/dev/null && \
+  W_NOVEL=$((W_NOVEL+25))
+grep -qi "${SAFE}\|${BRICK}" "sagco_ish/canon/patents/prior_art_differentiation_matrix.md" 2>/dev/null && \
+  W_NOVEL=$((W_NOVEL+15))
+printf "  Novelty    : %3d  (translation+blueprint+matrix)\n" $W_NOVEL
+
+# ── TOTAL ─────────────────────────────────────────────────────────────────────
+TOTAL=$(awk "BEGIN{print $W_CREATE + $W_ADAPT + $W_DEP + $W_ERU + $W_SURV + $W_NOVEL}")
+echo ""
+printf "  TOTAL      : %3d\n" $TOTAL
+echo ""
+
+# ── GOVERNANCE TIER ───────────────────────────────────────────────────────────
+if   awk "BEGIN{exit !($TOTAL > 100)}"; then
+  TIER="FULL_FLEET"
+  WAKE="peer_review + patent + legal + cpa + engineering + human_board"
+elif awk "BEGIN{exit !($TOTAL > 50)}"; then
+  TIER="PATENT_REVIEW"
+  WAKE="peer_review + patent + legal + cpa"
+elif awk "BEGIN{exit !($TOTAL > 25)}"; then
+  TIER="TECHNICAL_REVIEW"
+  WAKE="peer_review + engineering"
+elif awk "BEGIN{exit !($TOTAL > 10)}"; then
+  TIER="PEER_REVIEW"
+  WAKE="peer_review"
+else
+  TIER="LOCAL_EXPERIMENTAL"
+  WAKE="self_review_only"
+fi
+
+echo "  TIER  : $TIER"
+echo "  WAKE  : $WAKE"
+echo ""
+
+# ── Log ───────────────────────────────────────────────────────────────────────
+echo "$CASE,$BRICK,$W_CREATE,$W_ADAPT,$W_DEP,$W_ERU,$W_SURV,$W_NOVEL,$TOTAL,$TIER,$TS" >> "$LOG"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "WEIGHT_NODE" \
+  "WEIGHT_${TIER}" "brick_${BRICK}_total_${TOTAL}" 2>/dev/null || true
+
+echo "SAGCO_WEIGHT_COMPLETE"
+echo "WEIGHT: $TOTAL  TIER: $TIER"

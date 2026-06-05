@@ -1,0 +1,160 @@
+#!/bin/sh
+# SAGCO Governance Fleet — Wing G / Brick 061b
+# usage: sagco-governance BRICK_NAME [CASE]
+# Computes weight → dispatches appropriate review level → logs governance verdict
+# COMMANDMENT: NO REVIEW WITHOUT WEIGHT.
+BRICK="$1"
+CASE="${2:-C1602_CASE_001}"
+[ -z "$BRICK" ] && echo "usage: sagco-governance BRICK_NAME [CASE]" && exit 1
+
+WEIGHT_BIN="sagco_ish/governance_fleet/bin/sagco-weight"
+LOG="sagco_ish/governance_fleet/logs/governance_verdicts.csv"
+REPORT="sagco_ish/governance_fleet/logs/governance_${BRICK}.md"
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "case,brick,weight,tier,peer,patent,legal,cpa,final_class,timestamp" > "$LOG"
+
+echo "=== SAGCO GOVERNANCE FLEET ==="
+echo "Brick: $BRICK  |  Case: $CASE"
+echo ""
+
+# ── Get weight ────────────────────────────────────────────────────────────────
+WEIGHT_OUT=$("$WEIGHT_BIN" "$BRICK" "$CASE" 2>/dev/null)
+TOTAL=$(echo "$WEIGHT_OUT" | grep "^WEIGHT:" | awk '{print $2}')
+TIER=$(echo  "$WEIGHT_OUT" | grep "^WEIGHT:" | awk '{print $4}')
+[ -z "$TOTAL" ] && TOTAL=0
+[ -z "$TIER"  ] && TIER="LOCAL_EXPERIMENTAL"
+
+echo "$WEIGHT_OUT" | grep -E "Creation|Adaptation|Dependency|ERU|Survival|Novelty|TOTAL|TIER|WAKE"
+echo ""
+
+# ── Peer Review ───────────────────────────────────────────────────────────────
+peer_review() {
+  echo "--- PEER REVIEW ---"
+  PASS=0; FAIL=0
+  # Is it in the manifest?
+  grep -qi "^${BRICK}," sagco_ish/registry/data/brick_manifest.csv 2>/dev/null && \
+    echo "  ✅ Manifested (purpose, input, output declared)" && PASS=$((PASS+1)) || \
+    echo "  ❌ Not in manifest" && FAIL=$((FAIL+1))
+  # Does it have a compute test?
+  grep -qi "${BRICK}" sagco_ish/compute_law/logs/compute_law.csv 2>/dev/null && \
+    echo "  ✅ Has compute-law entry" && PASS=$((PASS+1)) || \
+    echo "  ⚠️  No compute-law entry" && FAIL=$((FAIL+1))
+  # Does it have lineage?
+  grep -qi "${BRICK}" sagco_ish/lineage/citations/citations.csv 2>/dev/null && \
+    echo "  ✅ Cited in lineage" && PASS=$((PASS+1)) || \
+    echo "  ⚠️  No lineage citation"
+  PEER_VERDICT="PEER_PASS"; [ "$FAIL" -gt 1 ] && PEER_VERDICT="PEER_FAIL"
+  echo "  PEER: $PEER_VERDICT ($PASS pass, $FAIL fail)"
+  echo "$PEER_VERDICT"
+}
+
+# ── Engineering Review ────────────────────────────────────────────────────────
+engineering_review() {
+  echo "--- ENGINEERING REVIEW ---"
+  PASS=0
+  grep -qi "^${BRICK}," sagco_ish/registry/logs/command_registry.csv 2>/dev/null && \
+    echo "  ✅ Registered in command registry" && PASS=$((PASS+1)) || \
+    echo "  ❌ Not in command registry"
+  test -x "$(grep "^${BRICK}," sagco_ish/registry/logs/command_registry.csv 2>/dev/null | cut -d, -f2)" 2>/dev/null && \
+    echo "  ✅ Binary is executable" && PASS=$((PASS+1)) || \
+    echo "  ⚠️  Binary not found or not executable"
+  ENG_VERDICT="ENG_PASS"; [ "$PASS" -lt 1 ] && ENG_VERDICT="ENG_FAIL"
+  echo "  ENGINEERING: $ENG_VERDICT"
+  echo "$ENG_VERDICT"
+}
+
+# ── Patent Review ─────────────────────────────────────────────────────────────
+patent_review() {
+  echo "--- PATENT REVIEW ---"
+  # Is it in the blueprint?
+  grep -qi "$BRICK" sagco_ish/canon/patents/SAGCO_Engineering_Blueprint_v1.0.md 2>/dev/null && \
+    echo "  ✅ Referenced in Blueprint v1.0" || echo "  ⚠️  Not in Blueprint v1.0"
+  # Is it in the prior art matrix?
+  grep -qi "$BRICK" sagco_ish/canon/patents/prior_art_differentiation_matrix.md 2>/dev/null && \
+    echo "  ✅ Differentiated in Prior Art Matrix" || \
+    echo "  ⚠️  Not in Prior Art Matrix — add before filing"
+  # Translation registered?
+  SAFE=$(echo "$BRICK" | tr '-' '_')
+  grep -qi "${SAFE}" sagco_ish/lineage/translations/translation_registry.csv 2>/dev/null && \
+    echo "  ✅ Story/Engineering/Compute triad registered" || \
+    echo "  ❌ No translation entry — required for Wing F claim"
+  PAT_VERDICT="PATENT_REVIEW_COMPLETE"
+  echo "  PATENT: $PAT_VERDICT"
+  echo "$PAT_VERDICT"
+}
+
+# ── CPA Review ────────────────────────────────────────────────────────────────
+cpa_review() {
+  echo "--- CPA / AUDIT REVIEW ---"
+  grep -qi "TIMESTAMP\|$(date +%Y)" sagco_ish/governance_fleet/logs/weight_scores.csv 2>/dev/null && \
+    echo "  ✅ Weight audit trail exists" || echo "  ⚠️  No audit trail"
+  grep -qi "$BRICK" sagco_ish/shared_state/logs/state_updates.csv 2>/dev/null && \
+    echo "  ✅ State mesh entries present" || echo "  ⚠️  No state entries"
+  CPA_VERDICT="CPA_AUDIT_PASS"
+  echo "  CPA: $CPA_VERDICT"
+  echo "$CPA_VERDICT"
+}
+
+# ── Dispatch by tier ──────────────────────────────────────────────────────────
+PEER_V="SKIPPED"; ENG_V="SKIPPED"; PAT_V="SKIPPED"; CPA_V="SKIPPED"
+
+case "$TIER" in
+  LOCAL_EXPERIMENTAL)
+    echo "TIER: LOCAL_EXPERIMENTAL — self-review only, no fleet dispatch"
+    FINAL_CLASS="EXPERIMENT"
+    ;;
+  PEER_REVIEW)
+    PEER_V=$(peer_review); echo ""
+    FINAL_CLASS="TOOL"
+    ;;
+  TECHNICAL_REVIEW)
+    PEER_V=$(peer_review); echo ""
+    ENG_V=$(engineering_review); echo ""
+    FINAL_CLASS="TOOL"
+    [ "$ENG_V" = "ENG_PASS" ] && FINAL_CLASS="METHODOLOGY"
+    ;;
+  PATENT_REVIEW)
+    PEER_V=$(peer_review); echo ""
+    ENG_V=$(engineering_review); echo ""
+    PAT_V=$(patent_review); echo ""
+    CPA_V=$(cpa_review); echo ""
+    FINAL_CLASS="PATENT_CANDIDATE"
+    [ "$PEER_V" = "PEER_FAIL" ] && FINAL_CLASS="TOOL"
+    ;;
+  FULL_FLEET)
+    PEER_V=$(peer_review); echo ""
+    ENG_V=$(engineering_review); echo ""
+    PAT_V=$(patent_review); echo ""
+    CPA_V=$(cpa_review); echo ""
+    FINAL_CLASS="PATENT_CANDIDATE"
+    echo "--- HUMAN REVIEW BOARD ---"
+    echo "  ⚠️  Weight >100 — flag for human strategic review"
+    echo "  Recommendation: schedule IP attorney consultation"
+    ;;
+esac
+
+echo ""
+echo "=== GOVERNANCE VERDICT ==="
+echo "  Brick        : $BRICK"
+echo "  Weight       : $TOTAL"
+echo "  Tier         : $TIER"
+echo "  Final Class  : $FINAL_CLASS"
+echo ""
+
+case "$FINAL_CLASS" in
+  EXPERIMENT)       echo "  → Keep. Lightweight. Self-review sufficient." ;;
+  TOOL)             echo "  → Keep. Computes. Useful. No IP claim." ;;
+  METHODOLOGY)      echo "  → Document fully. Peer-reviewed. Eligible for capstone." ;;
+  PATENT_CANDIDATE) echo "  → Escalate. Run prior art search. Consult IP attorney." ;;
+  BUSINESS_ASSET)   echo "  → Flag for DAO governance. Business valuation needed." ;;
+esac
+
+# Log
+echo "$CASE,$BRICK,$TOTAL,$TIER,$PEER_V,$PAT_V,$CPA_V,$ENG_V,$FINAL_CLASS,$TS" >> "$LOG"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "GOVERNANCE_NODE" \
+  "GOVERNED_${FINAL_CLASS}" "brick_${BRICK}_weight_${TOTAL}_tier_${TIER}" 2>/dev/null || true
+
+echo ""
+echo "SAGCO_GOVERNANCE_COMPLETE"
+echo "CLASS: $FINAL_CLASS  |  WEIGHT: $TOTAL  |  TIER: $TIER"

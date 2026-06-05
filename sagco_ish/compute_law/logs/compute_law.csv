@@ -10,3 +10,14 @@ C1602_CASE_001,Claim_3_MIDI_sonification_daemon_telemetry_to_musical_events,sagc
 C1602_CASE_001,Claim_4_cross_device_evidence_transport_LAN_translation,sagco_ish/link_bridge/bin/sagco-link-bridge http://localhost:8080 192.168.1.100 blueprint_verify,SAGCO_LINK_BRIDGED,0,SAGCO_LINK_BRIDGED|Case    : C1602_CASE_001|Original: http://localhost:8080|LAN ,COMPUTABLE,c9bf5912f18e365c,2026-06-05T00:45:08Z
 C1602_CASE_001,selftest,test,-f,1,EMPTY,MYTHOLOGY,d354caf95d3e6516,2026-06-05T00:48:19Z
 C1602_CASE_001,INV-008_survival_rule_itself_computes,sagco_ish/compute_law/bin/sagco-compute-law C1602_CASE_001 selftest test -f README.md EXIT_0,SAGCO_COMPUTE_LAW_COMPLETE,0,=== SAGCO COMPUTE LAW ===|Case   : C1602_CASE_001|Claim  : selftest|Test   : tes,COMPUTABLE,f3b2f872ceeb7569,2026-06-05T00:48:19Z
+C1602_CASE_001,trial_TRIAL_001_A,test -x sagco_ish/lineage/bin/sagco-translate,EXIT_0,0,EMPTY,COMPUTABLE,7cdf3fcfe287a580,2026-06-05T00:51:12Z
+C1602_CASE_001,trial_TRIAL_001_B,sagco_ish/lineage/bin/sagco-translate --list,Computable: 11,0,=== SAGCO TRANSLATION REGISTRY ===||  ✅ Purple_Node                    → Evi,COMPUTABLE,b4789d68b586b435,2026-06-05T00:51:12Z
+C1602_CASE_001,trial_TRIAL_001_C,sagco_ish/lineage/bin/sagco-translate --lookup Purple_Node,Evidence_Reconciliation,0,=== TRANSLATION: Purple_Node ===|Story Name      : Purple_Node|Engineering Name:,COMPUTABLE,c1ee1315abf528c1,2026-06-05T00:51:12Z
+C1602_CASE_001,trial_TRIAL_001_D,sagco_ish/lineage/bin/sagco-translate --verify Purple_Node,COMPUTABLE,0,=== VERIFY: Purple_Node ===|Test: test -x sagco_ish/hallucheck/bin/sagco-halluch,COMPUTABLE,c9a8174c7d80037f,2026-06-05T00:51:12Z
+C1602_CASE_001,trial_TRIAL_001_E,sagco_ish/lineage/bin/sagco-translate Trial_Brick_060 Mock_Trial_Compute_Test test -f README.md EXIT_0,SAGCO_TRANSLATION_REGISTERED,0,SAGCO_TRANSLATION_REGISTERED|Story Name      : Trial_Brick_060|Engineering Name:,COMPUTABLE,2e0a5086b6add199,2026-06-05T00:51:12Z
+C1602_CASE_001,trial_TRIAL_001_F,grep -c 'sagco-translate' sagco_ish/runtime/bin/sagco-run-alpha,EXIT_NONZERO,1,0|,COMPUTABLE,c2f46ca4b26363fc,2026-06-05T00:51:12Z
+C1602_CASE_001,trial_TRIAL_002_A,sagco_ish/evo/bin/sagco-evo C1602_CASE_001,CURRENT_KEY,0,=== SAGCO EVOLUTION LEDGER ===|Case: C1602_CASE_001  |  Generated: 2026-06-05T00,COMPUTABLE,b9f0aaeaf4679a01,2026-06-05T00:53:19Z
+C1602_CASE_001,trial_TRIAL_002_B,test 12 -ge 11,EXIT_0,0,EMPTY,COMPUTABLE,68b308aaff61d944,2026-06-05T00:53:19Z
+C1602_CASE_001,trial_TRIAL_002_C,grep -c 'INV-008' sagco_ish/lineage/inventions/inventions.csv,EXIT_0,0,1|,COMPUTABLE,5685065742a7aa28,2026-06-05T00:53:19Z
+C1602_CASE_001,trial_TRIAL_002_D,grep -c 'link_bridge\|localhost' sagco_ish/antibody/data/antibody_archive.csv,EXIT_0,1,0|,MYTHOLOGY,6f3164a677db97b3,2026-06-05T00:53:19Z
+C1602_CASE_001,trial_TRIAL_002_E,test 44 -gt 15,EXIT_0,0,EMPTY,COMPUTABLE,0e6a37512302e898,2026-06-05T00:53:19Z
