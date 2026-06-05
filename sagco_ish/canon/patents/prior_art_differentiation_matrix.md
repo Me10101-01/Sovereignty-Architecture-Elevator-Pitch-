@@ -13,6 +13,7 @@
 | Adaptation Lineage | Chaos engineering, antibody pattern (Wing G) | Moderate | Measuring CREATION vs ADAPTATION weights over time as a system health metric is novel framing. | `sagco-evo` outputs weights | PARTIAL |
 | Cross-device evidence transport | ngrok, Tailscale, mDNS | Moderate | Auto-replacing localhost in evidence artifacts + provenance logging in shared state mesh is specific combination. | `sagco-link-bridge` exits 0 | PARTIAL |
 | Compute Law enforcement | Formal verification, Hoare logic, model checking | Strong (academic) | SAGCO applies this at the *documentation claim* level, not code level. Every English sentence that makes a claim must pass a terminal test. | `sagco-compute-law` exits 0 | NOVEL FRAMING |
+| Workflow fragmentation scoring | Gloria Mark interruption research (time cost), SPACE framework (surveys), CDN (notation usability) | Weak | Prior art measures **time lost** to context switching. SAGCO measures **structural hop count** across 4 domains (Physical/Logical/Tool/Temporal) and feeds the variance into a governance scheduler. No prior art found combining traversal distance scoring with self-regulating review allocation. | `sagco-collapse-score` exits 0 | NOVEL COMBINATION |
 
 ---
 
@@ -51,8 +52,9 @@ the Story→Engineering→Compute triad. If not found: that is the claim to file
 2. Does any existing observability system derive **musical key from error/resolution ratio** in real time?
 3. Does any documentation system create **antibodies** (defensive artifacts) automatically when a claim fails its compute test?
 4. Does any lineage system explicitly model **backwards discovery** (built before prior art found)?
+5. Does any system measure **multi-device workflow traversal distance** (structural hop count, not time) and use that measurement to govern review depth / resource allocation?
 
-If the answer to all four is no: that is the patent.
+If the answer to all five is no: that is the patent.
 
 ---
 

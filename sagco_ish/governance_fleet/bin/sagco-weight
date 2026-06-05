@@ -20,7 +20,7 @@ TRANSLATE="sagco_ish/lineage/translations/translation_registry.csv"
 
 mkdir -p sagco_ish/governance_fleet/logs
 TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
-[ ! -f "$LOG" ] && echo "case,brick,creation,adaptation,dependency,eru,survival,novelty,total,tier,timestamp" > "$LOG"
+[ ! -f "$LOG" ] && echo "case,brick,creation,adaptation,dependency,eru,survival,novelty,collapse,total,tier,timestamp" > "$LOG"
 
 SAFE=$(echo "$BRICK" | tr '-' '_' | tr '[:upper:]' '[:lower:]')
 
@@ -81,8 +81,21 @@ grep -qi "${SAFE}\|${BRICK}" "sagco_ish/canon/patents/prior_art_differentiation_
   W_NOVEL=$((W_NOVEL+15))
 printf "  Novelty    : %3d  (translation+blueprint+matrix)\n" $W_NOVEL
 
+# ── COLLAPSE WEIGHT: system fragmentation survived (Brick 062) ────────────────
+# If collapse scorer exists, get the last recorded COLLAPSE_WEIGHT for this case.
+# High fragmentation survived = higher governance priority (capped at 40).
+W_COLLAPSE=0
+COLLAPSE_LOG="sagco_ish/collapse/logs/collapse_scores.csv"
+if [ -f "$COLLAPSE_LOG" ]; then
+  LAST_VARIANCE=$(grep -i "$CASE" "$COLLAPSE_LOG" 2>/dev/null | tail -1 | awk -F',' '{print $4}')
+  if [ -n "$LAST_VARIANCE" ] && awk "BEGIN{exit !($LAST_VARIANCE > 0)}"; then
+    W_COLLAPSE=$(awk "BEGIN{w=$LAST_VARIANCE*2; print (w>40)?40:w}")
+  fi
+fi
+printf "  Collapse   : %3d  (workflow_variance×2, cap 40)\n" $W_COLLAPSE
+
 # ── TOTAL ─────────────────────────────────────────────────────────────────────
-TOTAL=$(awk "BEGIN{print $W_CREATE + $W_ADAPT + $W_DEP + $W_ERU + $W_SURV + $W_NOVEL}")
+TOTAL=$(awk "BEGIN{print $W_CREATE + $W_ADAPT + $W_DEP + $W_ERU + $W_SURV + $W_NOVEL + $W_COLLAPSE}")
 echo ""
 printf "  TOTAL      : %3d\n" $TOTAL
 echo ""
@@ -110,7 +123,7 @@ echo "  WAKE  : $WAKE"
 echo ""
 
 # ── Log ───────────────────────────────────────────────────────────────────────
-echo "$CASE,$BRICK,$W_CREATE,$W_ADAPT,$W_DEP,$W_ERU,$W_SURV,$W_NOVEL,$TOTAL,$TIER,$TS" >> "$LOG"
+echo "$CASE,$BRICK,$W_CREATE,$W_ADAPT,$W_DEP,$W_ERU,$W_SURV,$W_NOVEL,$W_COLLAPSE,$TOTAL,$TIER,$TS" >> "$LOG"
 
 sagco_ish/shared_state/bin/sagco-state "$CASE" "WEIGHT_NODE" \
   "WEIGHT_${TIER}" "brick_${BRICK}_total_${TOTAL}" 2>/dev/null || true

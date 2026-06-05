@@ -1,0 +1,100 @@
+#!/bin/sh
+# SAGCO Quadrilateral Collapse Scorer — Wing G / Brick 062
+# usage: sagco-collapse-score [CASE] [EXPECTED_HOPS]
+# Measures actual workflow traversal distance vs expected baseline across four domains:
+#   Physical  — device transitions (unique LAN IPs in link_bridge log)
+#   Logical   — environment shifts (unique state mesh nodes)
+#   Tool      — problem-driven switches (antibody archive entries)
+#   Temporal  — captured implicitly via variance between expected and actual
+# Output: COLLAPSE_SCORE (NOMINAL/LOW/MEDIUM/HIGH/CRITICAL) + raw variance
+# Feeds into sagco-weight as collapse_weight component (Wing G scheduler)
+CASE="${1:-C1602_CASE_001}"
+EXPECTED_HOPS="${2:-3}"
+
+LOG="sagco_ish/collapse/logs/collapse_scores.csv"
+LINK_LOG="sagco_ish/link_bridge/logs/link_bridge.csv"
+STATE_LOG="sagco_ish/shared_state/logs/state_updates.csv"
+ANTIBODY="sagco_ish/antibody/data/antibody_archive.csv"
+
+mkdir -p sagco_ish/collapse/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && \
+  echo "case,expected_hops,actual_hops,variance,device_hops,env_hops,tool_hops,score,timestamp" > "$LOG"
+
+echo "=== SAGCO QUADRILATERAL COLLAPSE SCORER ==="
+echo "Case: $CASE  |  Expected baseline: $EXPECTED_HOPS hops"
+echo ""
+
+# ── Physical domain: unique LAN IPs in link_bridge log ───────────────────────
+DEVICE_HOPS=0
+if [ -f "$LINK_LOG" ]; then
+  DEVICE_HOPS=$(grep -v "^timestamp" "$LINK_LOG" 2>/dev/null | \
+    awk -F',' '{print $4}' | sort -u | grep -c "[0-9]" | tr -d ' ')
+  [ -z "$DEVICE_HOPS" ] || [ "$DEVICE_HOPS" = "0" ] && DEVICE_HOPS=1
+fi
+printf "  Physical  (devices)     : %3d  unique LAN IPs → distinct nodes reached\n" $DEVICE_HOPS
+
+# ── Logical domain: unique state mesh nodes ───────────────────────────────────
+ENV_HOPS=0
+if [ -f "$STATE_LOG" ]; then
+  ENV_HOPS=$(grep -i "$CASE" "$STATE_LOG" 2>/dev/null | \
+    awk -F',' '{print $2}' | sort -u | grep -c "_NODE" | tr -d ' ')
+  [ -z "$ENV_HOPS" ] || [ "$ENV_HOPS" = "0" ] && ENV_HOPS=1
+fi
+printf "  Logical   (env shifts)  : %3d  unique state-mesh nodes touched\n" $ENV_HOPS
+
+# ── Tool domain: antibody entries (each = a problem-driven tool switch) ────────
+TOOL_HOPS=0
+if [ -f "$ANTIBODY" ]; then
+  AB_LINES=$(grep -v "^ab_id" "$ANTIBODY" 2>/dev/null | wc -l | tr -d ' ')
+  # 3 antibodies = 1 meaningful tool-switch event (normalize noise)
+  TOOL_HOPS=$(awk "BEGIN{x=int($AB_LINES/3); print (x<1 && $AB_LINES>0)?1:x}")
+fi
+printf "  Tool      (switches)    : %3d  antibody entries ÷ 3\n" $TOOL_HOPS
+
+# ── Actual hops: sum across all three measured domains ────────────────────────
+ACTUAL_HOPS=$(awk "BEGIN{print $DEVICE_HOPS + $ENV_HOPS + $TOOL_HOPS}")
+VARIANCE=$(awk "BEGIN{print $ACTUAL_HOPS - $EXPECTED_HOPS}")
+
+echo ""
+printf "  Expected baseline  : %3d\n" $EXPECTED_HOPS
+printf "  Actual hops        : %3d  (physical + logical + tool)\n" $ACTUAL_HOPS
+printf "  Variance           : %+d\n" $VARIANCE
+echo ""
+
+# ── Collapse score from variance ──────────────────────────────────────────────
+if   awk "BEGIN{exit !($VARIANCE > 20)}"; then SCORE="CRITICAL"
+elif awk "BEGIN{exit !($VARIANCE > 10)}"; then SCORE="HIGH"
+elif awk "BEGIN{exit !($VARIANCE > 5)}";  then SCORE="MEDIUM"
+elif awk "BEGIN{exit !($VARIANCE > 0)}";  then SCORE="LOW"
+else SCORE="NOMINAL"
+fi
+
+echo "  COLLAPSE_SCORE : $SCORE"
+echo ""
+
+case "$SCORE" in
+  CRITICAL) echo "  → System severely fragmented. Consolidate before new bricks." ;;
+  HIGH)     echo "  → High workflow fragmentation. Document recovery path. Create antibody." ;;
+  MEDIUM)   echo "  → Moderate fragmentation. Expected for active multi-device sessions." ;;
+  LOW)      echo "  → Slight deviation from baseline. Within acceptable range." ;;
+  NOMINAL)  echo "  → Workflow within expected bounds. Proceed." ;;
+esac
+
+# ── Collapse weight for sagco-weight ──────────────────────────────────────────
+# Positive variance adds weight (fragmented systems are higher-value when they survive)
+COLLAPSE_WEIGHT=$(awk "BEGIN{v=$VARIANCE; w=(v>0)?v*2:0; print (w>40)?40:w}")
+echo ""
+printf "  Collapse Weight    : %3d  (variance×2, cap 40)\n" $COLLAPSE_WEIGHT
+echo "  → Pass to sagco-weight via COLLAPSE_WEIGHT env var or direct call"
+
+# ── Log ───────────────────────────────────────────────────────────────────────
+echo "$CASE,$EXPECTED_HOPS,$ACTUAL_HOPS,$VARIANCE,$DEVICE_HOPS,$ENV_HOPS,$TOOL_HOPS,$SCORE,$TS" >> "$LOG"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "COLLAPSE_NODE" \
+  "COLLAPSE_${SCORE}" \
+  "expected_${EXPECTED_HOPS}_actual_${ACTUAL_HOPS}_variance_${VARIANCE}" 2>/dev/null || true
+
+echo ""
+echo "SAGCO_COLLAPSE_SCORE_COMPLETE"
+echo "SCORE: $SCORE  |  VARIANCE: $VARIANCE  |  COLLAPSE_WEIGHT: $COLLAPSE_WEIGHT"

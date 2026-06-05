@@ -21,3 +21,7 @@ C1602_CASE_001,trial_TRIAL_002_B,test 12 -ge 11,EXIT_0,0,EMPTY,COMPUTABLE,68b308
 C1602_CASE_001,trial_TRIAL_002_C,grep -c 'INV-008' sagco_ish/lineage/inventions/inventions.csv,EXIT_0,0,1|,COMPUTABLE,5685065742a7aa28,2026-06-05T00:53:19Z
 C1602_CASE_001,trial_TRIAL_002_D,grep -c 'link_bridge\|localhost' sagco_ish/antibody/data/antibody_archive.csv,EXIT_0,1,0|,MYTHOLOGY,6f3164a677db97b3,2026-06-05T00:53:19Z
 C1602_CASE_001,trial_TRIAL_002_E,test 44 -gt 15,EXIT_0,0,EMPTY,COMPUTABLE,0e6a37512302e898,2026-06-05T00:53:19Z
+C1602_CASE_001,brick_062_collapse_score_binary_exists_and_executable,test -x sagco_ish/collapse/bin/sagco-collapse-score,EXIT_0,0,EMPTY,COMPUTABLE,e6dc0690e11d6b0e,2026-06-05T01:04:30Z
+C1602_CASE_001,brick_062_collapse_score_produces_output,sagco_ish/collapse/bin/sagco-collapse-score C1602_CASE_001 3,SAGCO_COLLAPSE_SCORE_COMPLETE,0,=== SAGCO QUADRILATERAL COLLAPSE SCORER ===|Case: C1602_CASE_001  |  Expected ba,COMPUTABLE,de980e4b06608b8e,2026-06-05T01:04:30Z
+C1602_CASE_001,brick_062_collapse_log_created,test -f sagco_ish/collapse/logs/collapse_scores.csv,EXIT_0,0,EMPTY,COMPUTABLE,35119e093c692cb1,2026-06-05T01:04:30Z
+C1602_CASE_001,brick_062_weight_reads_collapse_component,sagco_ish/governance_fleet/bin/sagco-weight sagco-evo C1602_CASE_001,FULL_FLEET,0,=== SAGCO WEIGHT: sagco-evo ===|Case: C1602_CASE_001||  Creation   :  10  (manif,COMPUTABLE,df8ed65dcdc883d5,2026-06-05T01:04:30Z

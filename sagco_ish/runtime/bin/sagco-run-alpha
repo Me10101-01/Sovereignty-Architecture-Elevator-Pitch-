@@ -38,6 +38,8 @@ run_agent translate-verify "sagco_ish/lineage/bin/sagco-translate --list"
 run_agent eru-benchmark  "sagco_ish/eru/bin/sagco-eru-benchmark $CASE"
 run_agent bibliography   "sagco_ish/bibliography/bin/sagco-bibliography $CASE"
 run_agent evo            "sagco_ish/evo/bin/sagco-evo $CASE"
+# Wing G: score workflow fragmentation before governance runs
+run_agent collapse-score "sagco_ish/collapse/bin/sagco-collapse-score $CASE 3"
 # Commandment XIII: verify core claims compute before cycle ends
 run_agent compute-law-constitution "sagco_ish/compute_law/bin/sagco-compute-law $CASE constitution_upheld sagco_ish/constitution/bin/sagco-commandments CONSTITUTION_EXEMPLARY"
 run_agent compute-law-report "sagco_ish/compute_law/bin/sagco-compute-law-report $CASE"

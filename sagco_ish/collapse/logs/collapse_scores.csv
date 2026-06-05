@@ -1,0 +1,3 @@
+case,expected_hops,actual_hops,variance,device_hops,env_hops,tool_hops,score,timestamp
+C1602_CASE_001,3,34,31,1,29,4,CRITICAL,2026-06-05T01:01:48Z
+C1602_CASE_001,3,35,32,1,30,4,CRITICAL,2026-06-05T01:04:30Z
