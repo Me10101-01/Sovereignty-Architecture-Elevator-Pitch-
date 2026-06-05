@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "CANON_INDEX_NODE",
-  "status": "CANON_INDEX_GENERATED",
-  "note": "computable_5_bricks_16_antibodies_11",
-  "updated": "2026-06-05T00:37:35Z"
+  "last_node": "TRANSLATE_NODE",
+  "status": "TRANSLATION_COMPUTABLE",
+  "note": "story_Distinguished_Engineer",
+  "updated": "2026-06-05T00:42:50Z"
 }

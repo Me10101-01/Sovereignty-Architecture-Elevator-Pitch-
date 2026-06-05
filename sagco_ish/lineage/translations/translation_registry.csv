@@ -1,0 +1,12 @@
+story_name,engineering_name,compute_test,status,timestamp
+Purple_Node,Evidence_Reconciliation_and_Hallucheck_Layer,test -x sagco_ish/hallucheck/bin/sagco-hallucheck,COMPUTABLE,2026-06-05T00:42:50Z
+The_Mansion,SAGCO_OS_Full_Stack_58_bricks,test -f sagco_ish/runtime/bin/sagco-run-alpha,COMPUTABLE,2026-06-05T00:42:50Z
+Theater,SAGCO_EVO_Dashboard_plus_MIDI_Ledger,test -x sagco_ish/evo/bin/sagco-evo,COMPUTABLE,2026-06-05T00:42:50Z
+Legions_of_Minds,Multi_Node_State_Mesh_iPad_ZFold_Pi,test -f sagco_ish/shared_state/logs/state_updates.csv,COMPUTABLE,2026-06-05T00:42:50Z
+The_Score,Evolution_Ledger_CREATION_ADAPTATION_ERROR_RESOLUTION,test -f sagco_ish/evo/logs/evo_ledger.csv,COMPUTABLE,2026-06-05T00:42:50Z
+Antibody,Failure_Pattern_Archived_with_Patch_and_Verification_Cycle,test -f sagco_ish/antibody/data/antibody_archive.csv,COMPUTABLE,2026-06-05T00:42:50Z
+The_Key,CURRENT_KEY_from_sagco-evo_tension_ratio_of_CAER_weights,test -f sagco_ish/evo/logs/evo_ledger.csv,COMPUTABLE,2026-06-05T00:42:50Z
+Red_strikes,OPCODE_TOPOFUZZ_Fuzz_Coverage_and_Attack_Surface_Scan,test -x sagco_ish/fleet/bin/sagco-fleet-eru,COMPUTABLE,2026-06-05T00:42:50Z
+Blue_holds,OPCODE_FORECAST_TOPOLOGY_ERU_Baseline_Monitoring,test -x sagco_ish/health/bin/sagco-health,COMPUTABLE,2026-06-05T00:42:50Z
+Purple_resolves,ERU_GREEN_Claims_PROVEN_Constitution_UPHELD,test -x sagco_ish/constitution/bin/sagco-commandments,COMPUTABLE,2026-06-05T00:42:50Z
+Distinguished_Engineer,SAGCO_Operator_Human_in_the_Loop_Navigator,test -x sagco_ish/registry/bin/sagco-where,COMPUTABLE,2026-06-05T00:42:50Z

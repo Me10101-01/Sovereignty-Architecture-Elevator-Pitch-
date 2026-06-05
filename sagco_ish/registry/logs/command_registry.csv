@@ -59,3 +59,4 @@ link-bridge,sagco_ish/link_bridge/bin/sagco-link-bridge,link_bridge,ACTIVE,2026-
 compute-law,sagco_ish/compute_law/bin/sagco-compute-law,compute_law,ACTIVE,2026-06-05T00:35:23Z
 compute-law-report,sagco_ish/compute_law/bin/sagco-compute-law-report,compute_law,ACTIVE,2026-06-05T00:35:23Z
 canon-index,sagco_ish/canon/bin/sagco-canon-index,tool,ACTIVE,2026-06-05T00:37:41Z
+translate,sagco_ish/lineage/bin/sagco-translate,tool,ACTIVE,2026-06-05T00:43:17Z

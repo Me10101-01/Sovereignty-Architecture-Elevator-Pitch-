@@ -25,3 +25,6 @@ VectorDB_pgvector,open_source,https://github.com/pgvector/pgvector,PostgreSQL ve
 HMAC_gateway,standard,https://datatracker.ietf.org/doc/html/rfc2104,RFC 2104 HMAC — event gateway signature validation,2026-06-04T21:39:54Z
 Java21_virtual_threads,runtime,https://openjdk.org/jeps/444,JEP 444 virtual threads — Java 21 workspace concurrency,2026-06-04T21:39:54Z
 RBAC_k8s,standard,https://kubernetes.io/docs/reference/access-authn-authz/rbac/,K8s role-based access control — governance enforcement,2026-06-04T21:39:54Z
+Cognitive_Dimensions_of_Notations_Green_Petre_1996,academic,https://doi.org/10.1007/3-540-60617-3_16,Framework_for_evaluating_notational_systems_viscosity_role-expressiveness_visibility_hidden_dependencies_cited_1889_times_direct_anchor_for_Law_of_Translation,2026-06-05T00:43:04Z
+Living_Documentation_Martraire_2019,academic,https://www.amazon.com/Living-Documentation-Cyrille-Martraire/dp/0134689321,Documentation_that_stays_synchronized_with_code_DDD_community_supports_Canon_auto-generation_pattern,2026-06-05T00:43:04Z
+Symbolic_Compression_LLM_Efficiency_arxiv_2024,academic,https://arxiv.org/abs/2402.15422,Dense_symbolic_tokens_reduce_cognitive_computational_overhead_for_experts_supports_SAGCO_custom_symbolic_layer_design,2026-06-05T00:43:04Z

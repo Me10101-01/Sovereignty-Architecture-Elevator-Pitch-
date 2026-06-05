@@ -1,0 +1,105 @@
+#!/bin/sh
+# SAGCO Translate — Law of Translation registry
+# usage: sagco-translate STORY_NAME ENGINEERING_NAME COMPUTE_TEST [CASE]
+#        sagco-translate --list
+#        sagco-translate --lookup STORY_NAME
+#        sagco-translate --verify STORY_NAME
+# Registers and queries the three-layer translation: Story → Engineering → Compute
+REG="sagco_ish/lineage/translations/translation_registry.csv"
+LOG="sagco_ish/lineage/translations/translation_eru.csv"
+mkdir -p sagco_ish/lineage/translations
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$REG" ] && echo "story_name,engineering_name,compute_test,status,timestamp" > "$REG"
+[ ! -f "$LOG" ] && echo "case,story_name,verdict,timestamp" > "$LOG"
+
+case "$1" in
+  --list)
+    echo "=== SAGCO TRANSLATION REGISTRY ==="
+    echo ""
+    grep -v "^story_name," "$REG" | while IFS=, read story eng test status ts; do
+      SYM="✅"
+      [ "$status" = "MYTHOLOGY" ] && SYM="❌"
+      [ "$status" = "PARTIAL"   ] && SYM="⚠️ "
+      printf "  %s %-30s → %s\n" "$SYM" "$story" "$eng"
+    done
+    echo ""
+    TOTAL=$(grep -v "^story_name," "$REG" | wc -l | tr -d ' ')
+    COMP=$(grep ",COMPUTABLE," "$REG" | wc -l | tr -d ' ')
+    echo "Total: $TOTAL  Computable: $COMP"
+    ;;
+
+  --lookup)
+    QUERY="$2"
+    [ -z "$QUERY" ] && echo "usage: sagco-translate --lookup STORY_NAME" && exit 1
+    ROW=$(grep -i "^${QUERY}," "$REG" 2>/dev/null | head -1)
+    if [ -z "$ROW" ]; then
+      echo "NOT_FOUND: '$QUERY' — run sagco-translate to register"
+      exit 1
+    fi
+    ENG=$(echo "$ROW" | cut -d, -f2)
+    TEST=$(echo "$ROW" | cut -d, -f3)
+    STATUS=$(echo "$ROW" | cut -d, -f4)
+    echo "=== TRANSLATION: $QUERY ==="
+    echo "Story Name      : $QUERY"
+    echo "Engineering Name: $ENG"
+    echo "Compute Test    : $TEST"
+    echo "Status          : $STATUS"
+    ;;
+
+  --verify)
+    QUERY="$2"
+    CASE="${3:-C1602_CASE_001}"
+    [ -z "$QUERY" ] && echo "usage: sagco-translate --verify STORY_NAME [CASE]" && exit 1
+    ROW=$(grep -i "^${QUERY}," "$REG" 2>/dev/null | head -1)
+    [ -z "$ROW" ] && echo "NOT_REGISTERED: $QUERY" && exit 1
+    TEST=$(echo "$ROW" | cut -d, -f3)
+    echo "=== VERIFY: $QUERY ==="
+    echo "Test: $TEST"
+    sh -c "$TEST" >/dev/null 2>&1
+    CODE=$?
+    if [ "$CODE" -eq 0 ]; then
+      echo "VERDICT: COMPUTABLE ✅"
+      # Update status in registry
+      TMPF="/tmp/trans_tmp_$$.csv"
+      awk -F, -v q="$QUERY" 'BEGIN{OFS=","} tolower($1)==tolower(q){$4="COMPUTABLE"} {print}' "$REG" > "$TMPF" && mv "$TMPF" "$REG"
+    else
+      echo "VERDICT: MYTHOLOGY ❌ (exit $CODE)"
+      TMPF="/tmp/trans_tmp_$$.csv"
+      awk -F, -v q="$QUERY" 'BEGIN{OFS=","} tolower($1)==tolower(q){$4="MYTHOLOGY"} {print}' "$REG" > "$TMPF" && mv "$TMPF" "$REG"
+    fi
+    echo "$CASE,$QUERY,$( [ $CODE -eq 0 ] && echo COMPUTABLE || echo MYTHOLOGY),$TS" >> "$LOG"
+    ;;
+
+  *)
+    # Register mode: sagco-translate STORY ENG TEST [CASE]
+    STORY="$1"; ENG="$2"; TEST="$3"; CASE="${4:-C1602_CASE_001}"
+    [ -z "$STORY" ] && echo "usage: sagco-translate STORY_NAME ENGINEERING_NAME COMPUTE_TEST" && exit 1
+    [ -z "$ENG"   ] && echo "ENGINEERING_NAME required" && exit 1
+    [ -z "$TEST"  ] && echo "COMPUTE_TEST required" && exit 1
+
+    # Run the compute test immediately
+    sh -c "$TEST" >/dev/null 2>&1
+    CODE=$?
+    STATUS="COMPUTABLE"; [ "$CODE" -ne 0 ] && STATUS="MYTHOLOGY"
+
+    # Dedup: remove existing entry for this story name
+    SAFE_STORY=$(echo "$STORY" | tr ' ' '_')
+    TMPF="/tmp/trans_tmp_$$.csv"
+    grep -v "^${SAFE_STORY}," "$REG" > "$TMPF" 2>/dev/null && mv "$TMPF" "$REG"
+
+    SAFE_ENG=$(echo "$ENG"  | tr ' ' '_' | tr ',' ';')
+    SAFE_TEST=$(echo "$TEST" | tr ',' ';')
+    echo "${SAFE_STORY},${SAFE_ENG},${SAFE_TEST},${STATUS},${TS}" >> "$REG"
+    echo "$CASE,$SAFE_STORY,$STATUS,$TS" >> "$LOG"
+
+    SYM="✅ COMPUTABLE"; [ "$STATUS" = "MYTHOLOGY" ] && SYM="❌ MYTHOLOGY"
+    echo "SAGCO_TRANSLATION_REGISTERED"
+    echo "Story Name      : $SAFE_STORY"
+    echo "Engineering Name: $SAFE_ENG"
+    echo "Compute Test    : $SAFE_TEST"
+    echo "Verdict         : $SYM"
+
+    sagco_ish/shared_state/bin/sagco-state "$CASE" "TRANSLATE_NODE" \
+      "TRANSLATION_${STATUS}" "story_${SAFE_STORY}" 2>/dev/null || true
+    ;;
+esac
