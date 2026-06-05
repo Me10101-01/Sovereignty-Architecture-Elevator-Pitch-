@@ -37,3 +37,32 @@ CPA_AUDIT_PASS,--- ENGINEERING REVIEW ---
   ⚠️  Binary not found or not executable
   ENGINEERING: ENG_FAIL
 ENG_FAIL,PATENT_CANDIDATE,2026-06-05T00:53:01Z
+C1602_CASE_001,sagco-evo,85,PATENT_REVIEW,--- PEER REVIEW ---
+  ✅ Manifested (purpose, input, output declared)
+  ✅ Has compute-law entry
+  ⚠️  No lineage citation
+  PEER: PEER_FAIL (2 pass, 2 fail)
+PEER_FAIL,--- PATENT REVIEW ---
+  ✅ Referenced in Blueprint v1.0
+  ✅ Differentiated in Prior Art Matrix
+  ✅ Story/Engineering/Compute triad registered
+  PATENT: PATENT_REVIEW_COMPLETE
+PATENT_REVIEW_COMPLETE,--- CPA / AUDIT REVIEW ---
+  ✅ Weight audit trail exists
+  ✅ State mesh entries present
+  CPA: CPA_AUDIT_PASS
+CPA_AUDIT_PASS,--- ENGINEERING REVIEW ---
+  ❌ Not in command registry
+  ⚠️  Binary not found or not executable
+  ENGINEERING: ENG_FAIL
+ENG_FAIL,PATENT_CANDIDATE,2026-06-05T00:58:14Z
+C1602_CASE_001,sagco-state,30,TECHNICAL_REVIEW,--- PEER REVIEW ---
+  ✅ Manifested (purpose, input, output declared)
+  ⚠️  No compute-law entry
+  ⚠️  No lineage citation
+  PEER: PEER_FAIL (1 pass, 2 fail)
+PEER_FAIL,SKIPPED,SKIPPED,--- ENGINEERING REVIEW ---
+  ❌ Not in command registry
+  ⚠️  Binary not found or not executable
+  ENGINEERING: ENG_FAIL
+ENG_FAIL,TOOL,2026-06-05T00:58:19Z

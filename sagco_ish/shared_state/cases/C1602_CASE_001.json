@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "MOCK_TRIAL_NODE",
-  "status": "TRIAL_CLAIM_SURVIVES",
-  "note": "trial_TRIAL_002_comp_4_of_5",
-  "updated": "2026-06-05T00:53:19Z"
+  "last_node": "GOVERNANCE_NODE",
+  "status": "GOVERNED_TOOL",
+  "note": "brick_sagco-state_weight_30_tier_TECHNICAL_REVIEW",
+  "updated": "2026-06-05T00:58:19Z"
 }

@@ -51,20 +51,24 @@ DEP_COUNT=$(grep -ic ",${BRICK}," "$DEPS" 2>/dev/null | tr -d ' ')
 W_DEP=$(awk "BEGIN{print $DEP_COUNT * 6}")
 printf "  Dependency : %3d  (callers×6)\n" $W_DEP
 
-# ── ERU WEIGHT: green scores in eru-benchmark ─────────────────────────────────
+# ── ERU WEIGHT: green scores in eru-benchmark (brick-specific only) ───────────
+# NOTE: Currently 0 for most bricks — eru_benchmark.csv uses system-wide dimensions.
+#       Will activate once sagco-eru-benchmark gains per-brick rows.
 W_ERU=0
 if [ -f "$ERU_LOG" ]; then
-  ERU_GREEN=$(grep -ic "${SAFE}\|GREEN\|OVERPERFORM" "$ERU_LOG" 2>/dev/null | tr -d ' ')
+  # Must match brick name AND be a green signal — avoids inflating with global counts
+  ERU_GREEN=$(grep -i "${SAFE}\|${BRICK}" "$ERU_LOG" 2>/dev/null | grep -ic "GREEN\|OVERPERFORM" | tr -d ' ')
   W_ERU=$(awk "BEGIN{print $ERU_GREEN * 4}")
 fi
-printf "  ERU        : %3d  (green_signals×4)\n" $W_ERU
+printf "  ERU        : %3d  (brick_green_signals×4)\n" $W_ERU
 
-# ── SURVIVAL WEIGHT: cycles survived, compute-law COMPUTABLE ──────────────────
+# ── SURVIVAL WEIGHT: compute-law entries for this brick ───────────────────────
 W_SURV=0
-SURV_COUNT=$(grep -ic "COMPUTABLE" "$COMPUTE_LOG" 2>/dev/null | tr -d ' ')
+# Count COMPUTABLE verdicts that mention this brick's name
+SURV_COUNT=$(grep -i "${SAFE}\|${BRICK}" "$COMPUTE_LOG" 2>/dev/null | grep -ic "COMPUTABLE" | tr -d ' ')
 W_SURV=$(awk "BEGIN{print $SURV_COUNT * 2}")
-# Each mock trial survived adds weight
-TRIAL_COUNT=$(grep -ic "UPHELD\|SURVIVES" "sagco_ish/compute_law/logs/mock_trial.csv" 2>/dev/null | tr -d ' ')
+# Mock trials mentioning this brick that were upheld/survived
+TRIAL_COUNT=$(grep -i "${SAFE}\|${BRICK}" "sagco_ish/compute_law/logs/mock_trial.csv" 2>/dev/null | grep -ic "UPHELD\|SURVIVES" | tr -d ' ')
 W_SURV=$(awk "BEGIN{print $W_SURV + $TRIAL_COUNT * 10}")
 printf "  Survival   : %3d  (compute-law×2 + trials×10)\n" $W_SURV
 
