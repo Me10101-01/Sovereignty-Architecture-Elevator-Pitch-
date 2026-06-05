@@ -1,0 +1,6 @@
+case,claim,test_cmd,expected,actual_exit,output_sample,verdict,sha256_claim,timestamp
+C1602_CASE_001,SAGCO_MIDI_generates_audible_events_from_runtime_logs,sagco_ish/midi/bin/sagco-midi sagco_ish/fleet/data/sagco_daemon_telemetry_2026-06-03.log midi_law_test,SAGCO_MIDI_GENERATED,0,=== SAGCO-MIDI v2 ===|Input : sagco_ish/fleet/data/sagco_daemon_telemetry_2026-0,COMPUTABLE,c3b2c966b27d5c4b,2026-06-05T00:34:12Z
+C1602_CASE_001,constitution_12_commandments_upheld,sagco_ish/constitution/bin/sagco-commandments C1602_CASE_001,CONSTITUTION_EXEMPLARY,0,=== SAGCO CONSTITUTION ===|Case: C1602_CASE_001  |  Generated: 2026-06-05T00:34:,COMPUTABLE,14c02072d437cab2,2026-06-05T00:34:19Z
+C1602_CASE_001,sagco-pro-review_binary_exists,test -x sagco_ish/pro_review/bin/sagco-pro-review,EXIT_0,0,EMPTY,COMPUTABLE,a474f42ba1d8a003,2026-06-05T00:34:19Z
+C1602_CASE_001,chapter_one_library_file_exists,test -f sagco_ish/library/chapter_one.md,EXIT_0,0,EMPTY,COMPUTABLE,7facd2dda32b2c9b,2026-06-05T00:34:19Z
+C1602_CASE_001,evolution_ledger_produces_key_and_mood,sagco_ish/evo/bin/sagco-evo C1602_CASE_001,CURRENT_KEY,0,=== SAGCO EVOLUTION LEDGER ===|Case: C1602_CASE_001  |  Generated: 2026-06-05T00,COMPUTABLE,c3def40bed7a3ade,2026-06-05T00:34:19Z

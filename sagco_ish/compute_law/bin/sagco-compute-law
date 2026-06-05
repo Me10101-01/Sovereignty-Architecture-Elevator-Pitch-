@@ -1,0 +1,140 @@
+#!/bin/sh
+# SAGCO Compute Law — Brick 058: The Truth Filter
+# usage: sagco-compute-law CASE CLAIM TEST_CMD [EXPECTED_OUTPUT]
+#
+# COMMANDMENT XIII: THOU SHALT COMPUTE BEFORE CLAIMING
+# No claim enters the Library, DAO narrative, capstone, or public proof node
+# unless it passes this filter: run it, see output, log it, measure variance.
+# If it cannot be run → MYTHOLOGY. If it can → EVIDENCE.
+CASE="$1"
+CLAIM="$2"
+TEST_CMD="$3"
+EXPECTED="${4:-EXIT_0}"   # default: just check exit code is 0
+
+[ -z "$CASE"  ] && echo "usage: sagco-compute-law CASE CLAIM TEST_CMD [EXPECTED_OUTPUT]" && exit 1
+[ -z "$CLAIM" ] && echo "usage: sagco-compute-law CASE CLAIM TEST_CMD [EXPECTED_OUTPUT]" && exit 1
+[ -z "$TEST_CMD" ] && echo "usage: sagco-compute-law CASE CLAIM TEST_CMD [EXPECTED_OUTPUT]" && exit 1
+
+LOG="sagco_ish/compute_law/logs/compute_law.csv"
+ERU_LOG="sagco_ish/compute_law/logs/compute_law_eru.csv"
+mkdir -p sagco_ish/compute_law/logs sagco_ish/compute_law/reports
+
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "case,claim,test_cmd,expected,actual_exit,output_sample,verdict,sha256_claim,timestamp" > "$LOG"
+[ ! -f "$ERU_LOG" ] && echo "case,claim,expected,actual,variance,status,timestamp" > "$ERU_LOG"
+
+echo "=== SAGCO COMPUTE LAW ==="
+echo "Case   : $CASE"
+echo "Claim  : $CLAIM"
+echo "Test   : $TEST_CMD"
+echo "Expect : $EXPECTED"
+echo ""
+
+# ── Run the test ──────────────────────────────────────────────────────────────
+TMPOUT="/tmp/compute_law_out_$$.txt"
+TMPERR="/tmp/compute_law_err_$$.txt"
+
+sh -c "$TEST_CMD" > "$TMPOUT" 2>"$TMPERR"
+EXIT_CODE=$?
+
+ACTUAL_OUT=$(cat "$TMPOUT" 2>/dev/null | head -5 | tr '\n' '|')
+ACTUAL_ERR=$(cat "$TMPERR" 2>/dev/null | head -3 | tr '\n' '|')
+OUTPUT_SAMPLE="${ACTUAL_OUT:-${ACTUAL_ERR:-EMPTY}}"
+
+# ── Verdict logic ─────────────────────────────────────────────────────────────
+VERDICT="MYTHOLOGY"
+ERU_STATUS="ALERT"
+
+if [ "$EXPECTED" = "EXIT_0" ]; then
+  [ "$EXIT_CODE" -eq 0 ] && VERDICT="COMPUTABLE" && ERU_STATUS="GREEN"
+
+elif [ "$EXPECTED" = "EXIT_NONZERO" ]; then
+  [ "$EXIT_CODE" -ne 0 ] && VERDICT="COMPUTABLE" && ERU_STATUS="GREEN"
+
+else
+  # Check for expected string in output
+  if [ "$EXIT_CODE" -eq 0 ]; then
+    if grep -q "$EXPECTED" "$TMPOUT" 2>/dev/null; then
+      VERDICT="COMPUTABLE"
+      ERU_STATUS="GREEN"
+    else
+      VERDICT="PARTIAL"
+      ERU_STATUS="PARTIAL"
+    fi
+  fi
+fi
+
+rm -f "$TMPOUT" "$TMPERR"
+
+# ── ERU: expected=COMPUTABLE(1) actual=0/0.5/1 ────────────────────────────────
+ERU_EXP=1
+ERU_ACT=0
+[ "$VERDICT" = "COMPUTABLE" ] && ERU_ACT=1
+[ "$VERDICT" = "PARTIAL"    ] && ERU_ACT=0
+
+VARIANCE=$(awk "BEGIN{printf \"%.1f\", $ERU_ACT - $ERU_EXP}")
+
+# ── SHA256 the claim string for governance chain ──────────────────────────────
+CLAIM_HASH=$(printf '%s' "$CLAIM" | sha256sum 2>/dev/null | awk '{print $1}' | cut -c1-16)
+[ -z "$CLAIM_HASH" ] && CLAIM_HASH="NO_SHA256"
+
+# ── Output ────────────────────────────────────────────────────────────────────
+SYM="❌ MYTHOLOGY"
+[ "$VERDICT" = "COMPUTABLE" ] && SYM="✅ COMPUTABLE"
+[ "$VERDICT" = "PARTIAL"    ] && SYM="⚠️  PARTIAL"
+
+echo "Exit code : $EXIT_CODE"
+echo "Output    : $OUTPUT_SAMPLE"
+echo ""
+echo "VERDICT   : $SYM"
+echo "HASH      : $CLAIM_HASH"
+echo ""
+
+case "$VERDICT" in
+  COMPUTABLE)
+    echo "→ CLAIM IS EVIDENCE. Eligible for: Library, capstone, public proof, DAO narrative."
+    ;;
+  PARTIAL)
+    echo "→ CLAIM IS PARTIAL. Runs but expected output not found."
+    echo "  Eligible for: draft only. Not for public proof or DAO narrative."
+    ;;
+  MYTHOLOGY)
+    echo "→ CLAIM IS MYTHOLOGY. Test failed (exit $EXIT_CODE)."
+    echo "  NOT eligible for Library, capstone, public proof, or DAO narrative."
+    echo "  Create an antibody. Fix the gap. Re-run sagco-compute-law."
+    ;;
+esac
+echo ""
+
+# ── Log entries ───────────────────────────────────────────────────────────────
+SAFE_CLAIM=$(echo "$CLAIM" | tr ',' '_' | tr ' ' '_')
+SAFE_CMD=$(echo "$TEST_CMD" | tr ',' '_')
+SAFE_OUT=$(echo "$OUTPUT_SAMPLE" | tr ',' '_' | cut -c1-80)
+
+echo "$CASE,$SAFE_CLAIM,$SAFE_CMD,$EXPECTED,$EXIT_CODE,$SAFE_OUT,$VERDICT,$CLAIM_HASH,$TS" >> "$LOG"
+echo "$CASE,$SAFE_CLAIM,COMPUTABLE,$VERDICT,$VARIANCE,$ERU_STATUS,$TS" >> "$ERU_LOG"
+
+# ── Auto-create antibody if MYTHOLOGY ─────────────────────────────────────────
+if [ "$VERDICT" = "MYTHOLOGY" ]; then
+  AB_ID="AB-CL-$(date +%s | tail -c 4)"
+  AB_LOG="sagco_ish/antibody/data/antibody_archive.csv"
+  if [ -f "$AB_LOG" ]; then
+    SAFE_FAIL=$(echo "$CLAIM" | tr ',' '_' | tr ' ' '_')
+    echo "$AB_ID,compute_law_fail_${SAFE_FAIL},claim_not_computable,fix_${SAFE_CLAIM},re-run_sagco-compute-law,OPEN,$TS" >> "$AB_LOG"
+    echo "ANTIBODY  : $AB_ID auto-created (OPEN)"
+  fi
+fi
+
+# ── Lineage record ─────────────────────────────────────────────────────────────
+CITE_LOG="sagco_ish/lineage/citations/citations.csv"
+if [ -f "$CITE_LOG" ] && [ "$VERDICT" = "COMPUTABLE" ]; then
+  echo "compute_law,${SAFE_CLAIM},SAGCO_Compute_Law_XIII;hash_${CLAIM_HASH};exit_0_verified,$TS" >> "$CITE_LOG"
+fi
+
+# ── Shared state ──────────────────────────────────────────────────────────────
+sagco_ish/shared_state/bin/sagco-state "$CASE" "COMPUTE_LAW_NODE" \
+  "COMPUTE_LAW_${VERDICT}" "claim_${SAFE_CLAIM}_hash_${CLAIM_HASH}" 2>/dev/null || true
+
+echo "SAGCO_COMPUTE_LAW_COMPLETE"
+echo "LOG    : $LOG"
+echo "VERDICT: $VERDICT"

@@ -1,0 +1,6 @@
+case,claim,expected,actual,variance,status,timestamp
+C1602_CASE_001,SAGCO_MIDI_generates_audible_events_from_runtime_logs,COMPUTABLE,COMPUTABLE,0.0,GREEN,2026-06-05T00:34:12Z
+C1602_CASE_001,constitution_12_commandments_upheld,COMPUTABLE,COMPUTABLE,0.0,GREEN,2026-06-05T00:34:19Z
+C1602_CASE_001,sagco-pro-review_binary_exists,COMPUTABLE,COMPUTABLE,0.0,GREEN,2026-06-05T00:34:19Z
+C1602_CASE_001,chapter_one_library_file_exists,COMPUTABLE,COMPUTABLE,0.0,GREEN,2026-06-05T00:34:19Z
+C1602_CASE_001,evolution_ledger_produces_key_and_mood,COMPUTABLE,COMPUTABLE,0.0,GREEN,2026-06-05T00:34:19Z

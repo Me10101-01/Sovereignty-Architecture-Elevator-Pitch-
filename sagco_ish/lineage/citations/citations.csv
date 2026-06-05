@@ -24,3 +24,8 @@ brick,name,sources,timestamp
 042,REDACT_NODE,NIST_PII_standards;sed_regex_redaction;gonitro;CaseGuard;Microsoft_Presidio;SHA256_pre_post_hash;hallucheck_substance_verify,2026-06-04T21:24:42Z
 043,LINEAGE_READER,Wing_D;citation_registry;prior_art_tracing;memory_library,2026-06-04T21:24:42Z
 ARCH_001,SOVEREIGNTY_ARCHITECTURE,Discord;Kubernetes;GitLens;OpenTelemetry;VectorDB;HMAC_gateway;Java21;RBAC,2026-06-04T21:39:46Z
+compute_law,SAGCO_MIDI_generates_audible_events_from_runtime_logs,SAGCO_Compute_Law_XIII;hash_c3b2c966b27d5c4b;exit_0_verified,2026-06-05T00:34:12Z
+compute_law,constitution_12_commandments_upheld,SAGCO_Compute_Law_XIII;hash_14c02072d437cab2;exit_0_verified,2026-06-05T00:34:19Z
+compute_law,sagco-pro-review_binary_exists,SAGCO_Compute_Law_XIII;hash_a474f42ba1d8a003;exit_0_verified,2026-06-05T00:34:19Z
+compute_law,chapter_one_library_file_exists,SAGCO_Compute_Law_XIII;hash_7facd2dda32b2c9b;exit_0_verified,2026-06-05T00:34:19Z
+compute_law,evolution_ledger_produces_key_and_mood,SAGCO_Compute_Law_XIII;hash_c3def40bed7a3ade;exit_0_verified,2026-06-05T00:34:19Z

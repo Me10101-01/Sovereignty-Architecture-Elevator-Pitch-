@@ -36,6 +36,9 @@ fi
 run_agent eru-benchmark  "sagco_ish/eru/bin/sagco-eru-benchmark $CASE"
 run_agent bibliography   "sagco_ish/bibliography/bin/sagco-bibliography $CASE"
 run_agent evo            "sagco_ish/evo/bin/sagco-evo $CASE"
+# Commandment XIII: verify core claims compute before cycle ends
+run_agent compute-law-constitution "sagco_ish/compute_law/bin/sagco-compute-law $CASE constitution_upheld sagco_ish/constitution/bin/sagco-commandments CONSTITUTION_EXEMPLARY"
+run_agent compute-law-report "sagco_ish/compute_law/bin/sagco-compute-law-report $CASE"
 # Sonify the cycle — feed the runtime log itself into MIDI
 if [ -f "$LOG" ]; then
   run_agent midi "sagco_ish/midi/bin/sagco-midi $LOG ${CASE}_alpha $CASE"

@@ -119,6 +119,15 @@ check "XII_NO_ORPHAN_BRICKS" \
   "sagco_ish/registry/data/brick_manifest.csv" count 5
 echo ""
 
+echo "XIII. THOU SHALT COMPUTE BEFORE CLAIMING"
+echo "   No claim enters the Library, capstone, DAO, or public proof unless it has:"
+echo "   a command, an input, an output, a timestamp, a log, an expected result,"
+echo "   an actual result, an ERU variance, an antibody if it fails, lineage if it passes."
+echo "   If it does not compute, it is mythology. If it computes, it becomes evidence."
+check "XIII_COMPUTE_BEFORE_CLAIMING" \
+  "sagco_ish/compute_law/logs/compute_law.csv" grep "COMPUTABLE"
+echo ""
+
 echo "--- CONSTITUTION SCORE ---"
 TOTAL=$((UPHELD + VIOLATED))
 SCORE=$(awk "BEGIN { if ($TOTAL==0) print 0; else printf \"%.1f\", ($UPHELD/$TOTAL)*100 }")
@@ -139,7 +148,7 @@ cat > "$CONST" <<MD
 
 ---
 
-## The Ten Commandments
+## The Thirteen Commandments
 
 | # | Commandment | Status | Evidence |
 |---|---|---|---|
@@ -155,6 +164,7 @@ cat > "$CONST" <<MD
 | X | Thou Shalt Leave a Better Brick | $(grep ",X_BETTER_BRICK," "$LOG" | tail -1 | awk -F, '{print $5}') | edu/logs/edu_eru.csv |
 | XI | Thou Shalt Connect Before Adding | $(grep ",XI_CONNECT_BEFORE_ADDING," "$LOG" | tail -1 | awk -F, '{print $5}') | deps/data/deps.csv |
 | XII | Thou Shalt Have No Orphan Bricks | $(grep ",XII_NO_ORPHAN_BRICKS," "$LOG" | tail -1 | awk -F, '{print $5}') | registry/data/brick_manifest.csv |
+| XIII | Thou Shalt Compute Before Claiming | $(grep ",XIII_COMPUTE_BEFORE_CLAIMING," "$LOG" | tail -1 | awk -F, '{print $5}') | compute_law/logs/compute_law.csv |
 
 ---
 
