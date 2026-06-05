@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "TRANSLATE_NODE",
-  "status": "TRANSLATION_COMPUTABLE",
-  "note": "story_Distinguished_Engineer",
-  "updated": "2026-06-05T00:42:50Z"
+  "last_node": "COMPUTE_LAW_NODE",
+  "status": "COMPUTE_LAW_COMPUTABLE",
+  "note": "claim_Claim_4_cross_device_evidence_transport_LAN_translation_hash_c9bf5912f18e365c",
+  "updated": "2026-06-05T00:45:08Z"
 }
