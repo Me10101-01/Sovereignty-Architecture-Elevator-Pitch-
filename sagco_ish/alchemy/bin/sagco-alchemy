@@ -15,6 +15,22 @@ TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
 
 case "$1" in
 
+# ── GRADUATE a contradiction → brick (called when compute-law passes) ──────────
+--graduate)
+  CONTR_ID="$2"; BRICK_NAME="$3"
+  [ -z "$CONTR_ID" ] || [ -z "$BRICK_NAME" ] && \
+    echo "usage: sagco-alchemy --graduate CONTR_ID BRICK_NAME" && exit 1
+  SAFE_ID=$(echo "$CONTR_ID" | tr ' ' '_')
+  TMPF="/tmp/alchemy_grad_$$.csv"
+  # Update brick_born and status fields in matching row
+  awk -F',' -v id="$SAFE_ID" -v brick="$BRICK_NAME" -v ts="$TS" 'BEGIN{OFS=","} {
+    if ($1 == id) { $7 = brick; $8 = "BRICK_BORN"; $9 = ts }
+    print
+  }' "$CONTR_LOG" > "$TMPF" && mv "$TMPF" "$CONTR_LOG"
+  echo "SAGCO_ALCHEMY_GRADUATED"
+  echo "CONTR_ID: $CONTR_ID  →  BRICK: $BRICK_NAME"
+  ;;
+
 # ── LIST all registered contradictions ────────────────────────────────────────
 --list)
   CASE="${2:-C1602_CASE_001}"
