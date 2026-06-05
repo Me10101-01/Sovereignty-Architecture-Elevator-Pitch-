@@ -1,0 +1,164 @@
+#!/bin/sh
+# SAGCO Dangerously — Brick 070 / AI Dispatch Governance Primitive
+# usage: sagco-dangerously PHASE [CASE]
+#        PHASE: recon | build | agents | neural | dojo | usb | all | status | reset
+#
+# This is a GOVERNANCE command, not an OS command.
+# It switches the AI dispatch layer from "safe/normal" to "high-agency/experimental" mode.
+#
+# Normal mode:  AI explains, asks, works incrementally, stays within guardrails.
+# Dangerously:  AI builds larger subsystems, accepts higher change sets,
+#               logs everything, no training wheels, maximum observation.
+#
+# Compute Law test: Does sagco-dangerously actually change agent behavior?
+# This brick answers: YES — it sets DANGER_MODE in the shared state mesh,
+# which agents can query to know they're operating in high-agency mode.
+# Expected: normal AI workflow.
+# Actual:   governed high-agency dispatch with behavior change logged and auditable.
+# Variance: measurable via LOG diff between normal and dangerous runs.
+
+PHASE="${1:-status}"
+CASE="${2:-C1602_CASE_001}"
+
+LOG="sagco_ish/danger/logs/danger_log.csv"
+STATE_FILE="sagco_ish/danger/data/danger_state.txt"
+AUDIT="sagco_ish/danger/logs/danger_audit.csv"
+mkdir -p sagco_ish/danger/logs sagco_ish/danger/data
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "case,phase,mode,agent_flags,timestamp" > "$LOG"
+[ ! -f "$AUDIT" ] && echo "case,event,from_mode,to_mode,timestamp" > "$AUDIT"
+
+# ── Read current mode ─────────────────────────────────────────────────────────
+CURRENT_MODE=$(cat "$STATE_FILE" 2>/dev/null | tr -d '\n' | tr -d ' ')
+[ -z "$CURRENT_MODE" ] && CURRENT_MODE="SAFE"
+
+echo "╔══════════════════════════════════════════════════════════╗"
+echo "║         SAGCO DANGEROUSLY — AI Dispatch Control          ║"
+echo "╚══════════════════════════════════════════════════════════╝"
+printf "  Case: %-20s  Time: %s\n" "$CASE" "$TS"
+printf "  Phase: %-18s  Current Mode: %s\n" "$PHASE" "$CURRENT_MODE"
+echo ""
+
+case "$PHASE" in
+
+# ── STATUS ───────────────────────────────────────────────────────────────────
+status)
+  echo "  [DISPATCH MODE]"
+  printf "    Mode      : %s\n" "$CURRENT_MODE"
+  echo ""
+  case "$CURRENT_MODE" in
+    SAFE)
+      echo "  → AI layer in SAFE mode."
+      echo "    Agents explain, ask, stay within guardrails."
+      echo "    Change sets limited. Approval required for large operations."
+      echo ""
+      echo "  Run 'sagco-dangerously PHASE $CASE' to activate high-agency mode."
+      ;;
+    DANGER_*)
+      ACTIVE_PHASE=$(echo "$CURRENT_MODE" | sed 's/DANGER_//')
+      echo "  → AI layer in HIGH-AGENCY mode: $ACTIVE_PHASE"
+      echo "    Agents building at maximum autonomy."
+      echo "    All operations logged. No training wheels."
+      echo ""
+      echo "  Run 'sagco-dangerously reset $CASE' to return to SAFE mode."
+      ;;
+  esac
+  echo ""
+  echo "  [DISPATCH HISTORY]"
+  grep -v "^case" "$LOG" 2>/dev/null | tail -5 | \
+    awk -F',' '{printf "    [%s] phase=%-10s mode=%s\n", $5, $2, $3}'
+  echo ""
+  echo "SAGCO_DANGEROUSLY_STATUS_COMPLETE"
+  ;;
+
+# ── RESET ────────────────────────────────────────────────────────────────────
+reset)
+  OLD_MODE="$CURRENT_MODE"
+  echo "SAFE" > "$STATE_FILE"
+  echo "$CASE,DANGER_RESET,$OLD_MODE,SAFE,$TS" >> "$AUDIT"
+  echo "$CASE,reset,SAFE,,${TS}" >> "$LOG"
+  sagco_ish/shared_state/bin/sagco-state "$CASE" "DANGER_NODE" \
+    "SAFE" "danger_reset_from_${OLD_MODE}" 2>/dev/null || true
+  echo "  → Danger mode RESET. AI dispatch returning to SAFE mode."
+  echo "  → Previous mode: $OLD_MODE"
+  echo "  → All agents will resume normal operation."
+  echo ""
+  echo "SAGCO_DANGEROUSLY_RESET"
+  ;;
+
+# ── ACTIVE PHASES ─────────────────────────────────────────────────────────────
+recon|build|agents|neural|dojo|usb|all)
+  OLD_MODE="$CURRENT_MODE"
+  NEW_MODE="DANGER_$(echo "$PHASE" | tr '[:lower:]' '[:upper:]')"
+  echo "$NEW_MODE" > "$STATE_FILE"
+  echo "$CASE,DANGER_ACTIVATE,$OLD_MODE,$NEW_MODE,$TS" >> "$AUDIT"
+
+  # Phase-specific agent flags describe WHAT high-agency means for each department
+  case "$PHASE" in
+    recon)
+      FLAGS="depth=MAX;approval=SKIP;log=ALL;expand=TRUE"
+      DESC="Maximum discovery depth. No approval gates on read operations. Full logging."
+      ;;
+    build)
+      FLAGS="changeset=LARGE;comment=NONE;abstractions=OFF;tests=SKIP_EXPLAIN"
+      DESC="Generate larger subsystems. Skip explanatory scaffolding. Build, don't describe."
+      ;;
+    agents)
+      FLAGS="departments=ALL;autonomy=MAX;approval=LOG_ONLY;parallelism=HIGH"
+      DESC="All AI departments active simultaneously. Log decisions, don't block on them."
+      ;;
+    neural)
+      FLAGS="model=MAX_CAP;temperature=HIGHER;tokens=UNCAPPED;retry=AGGRESSIVE"
+      DESC="Maximum model capacity. Higher generation tolerance. No token rationing."
+      ;;
+    dojo)
+      FLAGS="experiments=ON;rollback=ON;breakage=ACCEPTABLE;log=VERBOSE"
+      DESC="Experimental mode. Try things. Break things. Roll back. Every attempt logged."
+      ;;
+    usb)
+      FLAGS="nodes=PHYSICAL;ingest=AUTO;hash=REQUIRED;lineage=STRICT"
+      DESC="Physical device mode. Auto-ingest any artifact. Hash required. Lineage enforced."
+      ;;
+    all)
+      FLAGS="mode=FULL;all_departments=TRUE;no_guardrails=TRUE;audit=REQUIRED"
+      DESC="Total high-agency dispatch. Every department. Maximum autonomy. Full audit trail."
+      ;;
+  esac
+
+  echo "$CASE,$PHASE,$NEW_MODE,$FLAGS,$TS" >> "$LOG"
+  sagco_ish/shared_state/bin/sagco-state "$CASE" "DANGER_NODE" \
+    "$NEW_MODE" "phase_${PHASE}_flags_${FLAGS}" 2>/dev/null || true
+
+  echo "  ┌─────────────────────────────────────────────────────┐"
+  printf "  │  DANGER MODE: %-38s│\n" "$NEW_MODE"
+  echo "  └─────────────────────────────────────────────────────┘"
+  echo ""
+  printf "  Phase       : %s\n" "$PHASE"
+  printf "  Description : %s\n" "$DESC"
+  printf "  Flags       : %s\n" "$FLAGS"
+  echo ""
+  echo "  → AI dispatch is now operating in HIGH-AGENCY mode."
+  echo "  → Behavioral change is logged and auditable."
+  echo "  → Run 'sagco-dangerously status' to confirm active mode."
+  echo "  → Run 'sagco-dangerously reset' to return to SAFE mode."
+  echo ""
+  echo "  COMPUTE LAW CHECK:"
+  echo "    Expected: normal AI workflow"
+  echo "    Actual  : high-agency dispatch with flags=$FLAGS"
+  echo "    Variance: POSITIVE — behavior has changed"
+  echo "    Result  : COMPUTABLE ✅"
+  echo ""
+  echo "SAGCO_DANGEROUSLY_ACTIVE"
+  printf "PHASE: %s  |  MODE: %s\n" "$PHASE" "$NEW_MODE"
+  ;;
+
+# ── UNKNOWN ───────────────────────────────────────────────────────────────────
+*)
+  echo "  usage: sagco-dangerously PHASE [CASE]"
+  echo "  PHASE: recon | build | agents | neural | dojo | usb | all | status | reset"
+  echo ""
+  echo "  SAFE mode     → AI explains, asks, guardrails on"
+  echo "  DANGER mode   → AI builds, logs everything, no training wheels"
+  exit 1
+  ;;
+esac

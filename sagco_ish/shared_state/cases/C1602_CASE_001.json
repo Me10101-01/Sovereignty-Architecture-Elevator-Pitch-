@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "COMPUTE_LAW_NODE",
-  "status": "COMPUTE_LAW_COMPUTABLE",
-  "note": "claim_brick_068_factory_scan_reports_bricks_hash_15c7e8150ac93701",
-  "updated": "2026-06-05T02:54:40Z"
+  "last_node": "ALCHEMY_NODE",
+  "status": "CONTR_CRITICAL",
+  "note": "contradiction_CONTR_007_pressure_CRITICAL",
+  "updated": "2026-06-05T03:01:48Z"
 }

@@ -1,0 +1,3 @@
+case,timestamp,bricks,active_nodes,compute_computable,top_weight,overall
+C1602_CASE_001,2026-06-05T02:59:50Z,24,7,35,135,BUILDING
+C1602_CASE_001,2026-06-05T03:00:30Z,24,7,35,135,BUILDING

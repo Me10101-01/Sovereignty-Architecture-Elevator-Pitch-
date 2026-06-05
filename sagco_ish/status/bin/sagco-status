@@ -1,0 +1,178 @@
+#!/bin/sh
+# SAGCO Status — Brick 069
+# usage: sagco-status [CASE] [--json]
+# Reports what is ALIVE right now: hardware, fleet, bricks, scores, compute law.
+# sagco full → shows what EXISTS.
+# sagco status → shows what is ALIVE.
+CASE="${1:-C1602_CASE_001}"
+JSON="${2:-}"
+
+NODE_REG="sagco_ish/nodes/data/node_registry.csv"
+MANIFEST="sagco_ish/registry/data/brick_manifest.csv"
+COMPUTE_LOG="sagco_ish/compute_law/logs/compute_law.csv"
+WEIGHT_LOG="sagco_ish/governance_fleet/logs/weight_scores.csv"
+STATE_LOG="sagco_ish/shared_state/logs/state_updates.csv"
+ANTIBODY="sagco_ish/antibody/data/antibody_archive.csv"
+FACTORY_LOG="sagco_ish/factory/logs/factory_status.csv"
+COLLAPSE_LOG="sagco_ish/collapse/logs/collapse_scores.csv"
+ALCHEMY_LOG="sagco_ish/alchemy/logs/alchemy_log.csv"
+LOG="sagco_ish/status/logs/status_history.csv"
+mkdir -p sagco_ish/status/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "case,timestamp,bricks,active_nodes,compute_computable,top_weight,overall" > "$LOG"
+
+echo "╔══════════════════════════════════════════════════════════╗"
+echo "║                 SAGCO STATUS REPORT                      ║"
+echo "╚══════════════════════════════════════════════════════════╝"
+printf "  Case: %-20s  Time: %s\n" "$CASE" "$TS"
+echo ""
+
+# ── HARDWARE ─────────────────────────────────────────────────────────────────
+echo "  [HARDWARE]"
+# Pull last factory scan metrics (factory_status.csv: timestamp,factory_id,metric,value,status)
+FAC_CPU=$(awk -F',' '$3=="CPU_MODEL"{print $4}' "$FACTORY_LOG" 2>/dev/null | tail -1)
+FAC_RAM=$(awk -F',' '$3=="RAM_GB"{print $4}' "$FACTORY_LOG" 2>/dev/null | tail -1)
+FAC_DOCKER=$(awk -F',' '$3=="DOCKER_CONTAINERS"{print $4}' "$FACTORY_LOG" 2>/dev/null | tail -1)
+FAC_BRICKS=$(awk -F',' '$3=="BRICKS_MANIFESTED"{print $4}' "$FACTORY_LOG" 2>/dev/null | tail -1)
+if [ -n "$FAC_CPU" ]; then
+  [ -z "$FAC_RAM" ] && FAC_RAM="?"
+  [ -z "$FAC_DOCKER" ] && FAC_DOCKER="?"
+  [ -z "$FAC_BRICKS" ] && FAC_BRICKS="?"
+  printf "    CPU        : %s\n" "$FAC_CPU"
+  printf "    RAM        : %s GB\n" "$FAC_RAM"
+  printf "    Docker     : %s containers running\n" "$FAC_DOCKER"
+else
+  echo "    No factory scan on record. Run: sagco-factory-scan SAGCO_FACTORY_001 $CASE"
+fi
+echo ""
+
+# ── FLEET ─────────────────────────────────────────────────────────────────────
+echo "  [FLEET]"
+TOTAL_NODES=$(grep -v "^node_id" "$NODE_REG" 2>/dev/null | wc -l | tr -d ' ')
+ACTIVE_NODES=$(grep -c ",ACTIVE," "$NODE_REG" 2>/dev/null | tr -d ' ')
+ANCESTOR_NODES=$(grep -ic ",ANCESTOR" "$NODE_REG" 2>/dev/null | tr -d ' ')
+STANDBY_NODES=$(grep -c ",STANDBY," "$NODE_REG" 2>/dev/null | tr -d ' ')
+printf "    Nodes total : %s  (%s ACTIVE  %s STANDBY  %s ANCESTOR)\n" \
+  "$TOTAL_NODES" "$ACTIVE_NODES" "$STANDBY_NODES" "$ANCESTOR_NODES"
+echo ""
+# List active nodes
+grep -v "^node_id" "$NODE_REG" 2>/dev/null | while IFS=, read id dtype model role status parent cas ts; do
+  case "$status" in
+    ACTIVE)          SYM="🟢" ;;
+    ANCESTOR_ACTIVE) SYM="🏛️" ;;
+    ANCESTOR)        SYM="🏛️" ;;
+    STANDBY)         SYM="🟡" ;;
+    OFFLINE)         SYM="⚫" ;;
+    *)               SYM="⚪" ;;
+  esac
+  printf "    %s %-22s [%-16s] %s\n" "$SYM" "$id" "$status" "$dtype"
+done
+echo ""
+
+# ── BRICKS ────────────────────────────────────────────────────────────────────
+echo "  [BRICKS]"
+BRICK_COUNT=$(grep -v "^brick\|^name" "$MANIFEST" 2>/dev/null | wc -l | tr -d ' ')
+COMPUTE_COMPUTABLE=$(grep -v "^case" "$COMPUTE_LOG" 2>/dev/null | awk -F',' '$7=="COMPUTABLE"' | wc -l | tr -d ' ')
+COMPUTE_MYTHOLOGY=$(grep -v "^case" "$COMPUTE_LOG" 2>/dev/null | awk -F',' '$7=="MYTHOLOGY"' | wc -l | tr -d ' ')
+printf "    Manifested  : %s bricks\n" "$BRICK_COUNT"
+printf "    COMPUTABLE  : %s claims\n" "$COMPUTE_COMPUTABLE"
+printf "    MYTHOLOGY   : %s claims\n" "$COMPUTE_MYTHOLOGY"
+echo ""
+
+# ── GOVERNANCE WEIGHT ─────────────────────────────────────────────────────────
+echo "  [GOVERNANCE WEIGHT]"
+FULL_FLEET=$(grep -c ",FULL_FLEET," "$WEIGHT_LOG" 2>/dev/null | tr -d ' ')
+PATENT=$(grep -c ",PATENT_REVIEW," "$WEIGHT_LOG" 2>/dev/null | tr -d ' ')
+TECH=$(grep -c ",TECHNICAL_REVIEW," "$WEIGHT_LOG" 2>/dev/null | tr -d ' ')
+TOP_BRICK=$(grep -v "^case" "$WEIGHT_LOG" 2>/dev/null | sort -t',' -k10 -rn | head -1)
+TOP_NAME=$(echo "$TOP_BRICK" | awk -F',' '{print $2}')
+TOP_SCORE=$(echo "$TOP_BRICK" | awk -F',' '{print $10}')
+TOP_TIER=$(echo "$TOP_BRICK" | awk -F',' '{print $11}')
+printf "    FULL_FLEET  : %s bricks\n" "$FULL_FLEET"
+printf "    PATENT_REVIEW:%s bricks\n" "$PATENT"
+printf "    TECH_REVIEW : %s bricks\n" "$TECH"
+[ -n "$TOP_NAME" ] && printf "    Top brick   : %s  score=%s  [%s]\n" "$TOP_NAME" "$TOP_SCORE" "$TOP_TIER"
+echo ""
+
+# ── ALCHEMY ───────────────────────────────────────────────────────────────────
+echo "  [ALCHEMY — Friction → Infrastructure]"
+CONTR_TOTAL=$(grep -v "^contr_id" "$ALCHEMY_LOG" 2>/dev/null | wc -l | tr -d ' ')
+CONTR_BORN=$(grep -c "BRICK_BORN" "$ALCHEMY_LOG" 2>/dev/null | tr -d ' ')
+CONTR_PENDING=$(grep -c "PENDING_BRICK" "$ALCHEMY_LOG" 2>/dev/null | tr -d ' ')
+if [ "$CONTR_TOTAL" -gt 0 ]; then
+  RATE=$(awk "BEGIN{printf \"%.0f\", ($CONTR_BORN/$CONTR_TOTAL)*100}")
+  printf "    Contradictions: %s  Bricks born: %s  Pending: %s  Rate: %s%%\n" \
+    "$CONTR_TOTAL" "$CONTR_BORN" "$CONTR_PENDING" "$RATE"
+else
+  echo "    No contradictions registered yet."
+fi
+echo ""
+
+# ── COLLAPSE SCORE ────────────────────────────────────────────────────────────
+echo "  [QUADRILATERAL COLLAPSE]"
+LAST_COLLAPSE=$(grep -i "$CASE" "$COLLAPSE_LOG" 2>/dev/null | tail -1)
+if [ -n "$LAST_COLLAPSE" ]; then
+  C_ACTUAL=$(echo "$LAST_COLLAPSE" | awk -F',' '{print $3}')
+  C_VAR=$(echo "$LAST_COLLAPSE" | awk -F',' '{print $4}')
+  C_SEV=$(echo "$LAST_COLLAPSE" | awk -F',' '{print $5}')
+  printf "    Actual hops : %s  Variance: %s  Severity: %s\n" "$C_ACTUAL" "$C_VAR" "$C_SEV"
+else
+  echo "    No collapse score on record. Run: sagco-collapse-score $CASE"
+fi
+echo ""
+
+# ── ANTIBODIES ────────────────────────────────────────────────────────────────
+echo "  [ANTIBODIES]"
+AB_TOTAL=$(grep -v "^ab_id" "$ANTIBODY" 2>/dev/null | wc -l | tr -d ' ')
+AB_ACTIVE=$(grep -c ",ACTIVE," "$ANTIBODY" 2>/dev/null | tr -d ' ')
+AB_GRADUATED=$(grep -c ",BRICK_BORN\|,GRADUATED" "$ANTIBODY" 2>/dev/null | tr -d ' ')
+printf "    Total: %s  ACTIVE: %s  Graduated→Brick: %s\n" \
+  "$AB_TOTAL" "$AB_ACTIVE" "$AB_GRADUATED"
+echo ""
+
+# ── OVERALL STATE ─────────────────────────────────────────────────────────────
+echo "────────────────────────────────────────────────────────────"
+# Determine overall health signal
+OVERALL="INITIALIZING"
+if [ "$BRICK_COUNT" -gt 50 ]; then
+  OVERALL="SOVEREIGN"
+elif [ "$BRICK_COUNT" -gt 30 ]; then
+  OVERALL="EVOLVING"
+elif [ "$BRICK_COUNT" -gt 15 ]; then
+  OVERALL="BUILDING"
+elif [ "$BRICK_COUNT" -gt 5 ]; then
+  OVERALL="BOOTSTRAPPING"
+fi
+
+# Degrade if mythology is dominating
+if [ "$COMPUTE_MYTHOLOGY" -gt "$COMPUTE_COMPUTABLE" ] && [ "$COMPUTE_MYTHOLOGY" -gt 0 ]; then
+  OVERALL="${OVERALL}_NEEDS_EVIDENCE"
+fi
+
+echo ""
+printf "  OVERALL: %s\n" "$OVERALL"
+echo ""
+case "$OVERALL" in
+  SOVEREIGN*)
+    echo "  → Architecture is self-sustaining. Contradictions producing infrastructure faster than erosion."
+    ;;
+  EVOLVING*)
+    echo "  → Core bricks operational. New domains being discovered. Collapse still high — stay building."
+    ;;
+  BUILDING*)
+    echo "  → Foundation established. Key contradictions pending brick graduation."
+    ;;
+  BOOTSTRAPPING*)
+    echo "  → Early stage. Each contradiction that survives Compute Law builds the floor."
+    ;;
+  INITIALIZING*)
+    echo "  → First bricks not yet manifested. Run sagco-run-alpha $CASE to bootstrap."
+    ;;
+esac
+echo ""
+
+# ── LOG snapshot ─────────────────────────────────────────────────────────────
+echo "$CASE,$TS,$BRICK_COUNT,$ACTIVE_NODES,$COMPUTE_COMPUTABLE,$TOP_SCORE,$OVERALL" >> "$LOG"
+
+echo "SAGCO_STATUS_COMPLETE"
+echo "BRICKS: $BRICK_COUNT  NODES: $TOTAL_NODES  COMPUTABLE: $COMPUTE_COMPUTABLE  OVERALL: $OVERALL"
