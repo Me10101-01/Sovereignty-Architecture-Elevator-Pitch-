@@ -22,6 +22,13 @@ echo "Routes: red:7001 blue:7002 purple:7003 proof:7004 health:7005"
 echo "        fleet:7006 lineage:7007 claims:7008"
 echo ""
 
+# Auto-generate LAN link for cross-device access (iPad, Android, Z Fold)
+LINK_BRIDGE="$(cd "$(dirname "$0")/../.." && pwd)/link_bridge/bin/sagco-link-bridge"
+if [ -x "$LINK_BRIDGE" ]; then
+  "$LINK_BRIDGE" "http://localhost:$PORT" auto "browser_dock_${PORT}" 2>/dev/null || true
+  echo ""
+fi
+
 cd "$DOCK_SITE" || exit 1
 
 if command -v python3 >/dev/null 2>&1; then

@@ -55,3 +55,4 @@ midi,sagco_ish/midi/bin/sagco-midi,midi,ACTIVE,2026-06-04T23:55:46Z
 bibliography,sagco_ish/bibliography/bin/sagco-bibliography,tool,ACTIVE,2026-06-04T23:55:46Z
 eru-benchmark,sagco_ish/eru/bin/sagco-eru-benchmark,tool,ACTIVE,2026-06-04T23:55:46Z
 evo,sagco_ish/evo/bin/sagco-evo,tool,ACTIVE,2026-06-04T23:59:54Z
+link-bridge,sagco_ish/link_bridge/bin/sagco-link-bridge,link_bridge,ACTIVE,2026-06-05T00:25:16Z

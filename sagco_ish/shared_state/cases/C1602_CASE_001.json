@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "EVO_NODE",
-  "status": "MANSION_ACTIVE",
-  "note": "key_E_MAJOR_mood_RESOLVING_eru_84.9pct",
-  "updated": "2026-06-05T00:06:36Z"
+  "last_node": "LINK_BRIDGE_NODE",
+  "status": "BRIDGED",
+  "note": "lan_192.168.1.100_port_8080_output_webportal_evidence",
+  "updated": "2026-06-05T00:25:10Z"
 }
