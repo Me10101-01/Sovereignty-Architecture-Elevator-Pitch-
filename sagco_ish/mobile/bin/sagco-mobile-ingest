@@ -1,0 +1,72 @@
+#!/bin/sh
+# SAGCO Mobile Ingest — Brick 065
+# usage: sagco-mobile-ingest DEVICE ARTIFACT_TYPE ARTIFACT_PATH [CASE]
+# Turns any device into a first-class SAGCO ingestion node.
+# Artifacts arrive hashed, lineaged, and evidence-ready. No copy/paste. No email.
+# Devices: Galaxy_Fold | iPad | Pi | Windows | WSL | Docker | any node name
+DEVICE="$1"
+ARTIFACT_TYPE="$2"
+ARTIFACT_PATH="$3"
+CASE="${4:-C1602_CASE_001}"
+
+[ -z "$DEVICE" ] || [ -z "$ARTIFACT_TYPE" ] || [ -z "$ARTIFACT_PATH" ] && \
+  echo "usage: sagco-mobile-ingest DEVICE ARTIFACT_TYPE ARTIFACT_PATH [CASE]" && exit 1
+
+LOG="sagco_ish/mobile/logs/mobile_ingest.csv"
+mkdir -p sagco_ish/mobile/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "timestamp,case,device,artifact_type,artifact_path,hash,size_bytes,status" > "$LOG"
+
+echo "=== SAGCO MOBILE INGEST ==="
+echo "Device  : $DEVICE"
+echo "Type    : $ARTIFACT_TYPE"
+echo "Path    : $ARTIFACT_PATH"
+echo "Case    : $CASE"
+echo ""
+
+# ── Hash the artifact ─────────────────────────────────────────────────────────
+if [ -f "$ARTIFACT_PATH" ]; then
+  HASH=$(sha256sum "$ARTIFACT_PATH" 2>/dev/null | awk '{print $1}')
+  [ -z "$HASH" ] && HASH=$(cksum "$ARTIFACT_PATH" 2>/dev/null | awk '{print $1}')
+  SIZE=$(wc -c < "$ARTIFACT_PATH" 2>/dev/null | tr -d ' ')
+  STATUS="INGESTED"
+elif [ -d "$ARTIFACT_PATH" ]; then
+  FILE_COUNT=$(find "$ARTIFACT_PATH" -type f 2>/dev/null | wc -l | tr -d ' ')
+  HASH="DIR_${FILE_COUNT}_files"
+  SIZE=$(du -sb "$ARTIFACT_PATH" 2>/dev/null | awk '{print $1}')
+  STATUS="DIR_INGESTED"
+else
+  HASH="FILE_NOT_FOUND"
+  SIZE=0
+  STATUS="FAILED"
+  echo "  ERROR: $ARTIFACT_PATH not found on this node"
+  echo "  → If running on Windows/iPad, ensure path is mounted and accessible"
+  echo "  → Use sagco-link-bridge to verify cross-device paths"
+fi
+
+printf "  Hash    : %s\n" "$HASH"
+printf "  Size    : %s bytes\n" "$SIZE"
+printf "  Status  : %s\n" "$STATUS"
+echo ""
+
+# ── Log ingestion ─────────────────────────────────────────────────────────────
+echo "$TS,$CASE,$DEVICE,$ARTIFACT_TYPE,$ARTIFACT_PATH,$HASH,$SIZE,$STATUS" >> "$LOG"
+
+# ── Register in shared state as a mobile node event ──────────────────────────
+sagco_ish/shared_state/bin/sagco-state "$CASE" "MOBILE_NODE_${DEVICE}" \
+  "INGEST_${STATUS}" \
+  "device_${DEVICE}_type_${ARTIFACT_TYPE}_hash_${HASH}" 2>/dev/null || true
+
+# ── Cross-register with alchemy if this ingestion resolves a contradiction ────
+# A successful mobile ingest = CONTR: "artifact exists only on phone" is resolved
+if [ "$STATUS" = "INGESTED" ] || [ "$STATUS" = "DIR_INGESTED" ]; then
+  sagco_ish/alchemy/bin/sagco-alchemy \
+    "CONTR_MOBILE_${DEVICE}_${ARTIFACT_TYPE}" \
+    "Artifact exists only on ${DEVICE}" \
+    "Artifact hashed and ingested into SAGCO evidence lineage with SHA256 and node tracking" \
+    "$CASE" 2>/dev/null | grep "PRESSURE\|REGISTERED" || true
+fi
+
+echo "SAGCO_MOBILE_INGEST_COMPLETE"
+echo "DEVICE: $DEVICE  |  HASH: $HASH  |  STATUS: $STATUS"
+echo "INGEST_HASH=$HASH"

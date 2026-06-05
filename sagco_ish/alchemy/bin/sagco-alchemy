@@ -1,0 +1,141 @@
+#!/bin/sh
+# SAGCO Alchemist Wing — Wing I / Brick 064
+# usage: sagco-alchemy CONTR_ID "EXPECTED" "ACTUAL" [CASE]
+#        sagco-alchemy --list [CASE]
+#        sagco-alchemy --report [CASE]
+# Registers the Contradiction → ERU → Pressure → Brick → Compute → Survive chain.
+# Every brick in SAGCO was born from a contradiction. This makes it queryable.
+# COMMANDMENT: Only contradictions that survive Compute Law become bricks.
+#              Friction → Infrastructure. Lead → Gold.
+CONTR_LOG="sagco_ish/alchemy/logs/alchemy_log.csv"
+mkdir -p sagco_ish/alchemy/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$CONTR_LOG" ] && \
+  echo "contr_id,case,expected,actual,word_variance,pressure,brick_born,status,timestamp" > "$CONTR_LOG"
+
+case "$1" in
+
+# ── LIST all registered contradictions ────────────────────────────────────────
+--list)
+  CASE="${2:-C1602_CASE_001}"
+  echo "=== SAGCO ALCHEMY LEDGER ==="
+  echo ""
+  grep -v "^contr_id" "$CONTR_LOG" 2>/dev/null | while IFS=, read id cas exp act var pres brick stat ts; do
+    case "$pres" in
+      CRITICAL) SYM="🔴" ;;
+      HIGH)     SYM="🟠" ;;
+      MEDIUM)   SYM="🟡" ;;
+      *)        SYM="🟢" ;;
+    esac
+    printf "  %s %-12s → %-25s [%s]\n" "$SYM" "$id" "$brick" "$stat"
+    printf "       EXPECTED: %s\n" "$exp"
+    printf "       ACTUAL:   %s\n" "$act"
+    printf "       PRESSURE: %s  VARIANCE: %s words\n" "$pres" "$var"
+    echo ""
+  done
+  TOTAL=$(grep -v "^contr_id" "$CONTR_LOG" 2>/dev/null | wc -l | tr -d ' ')
+  SURVIVED=$(grep -i "COMPUTABLE\|BRICK_BORN" "$CONTR_LOG" 2>/dev/null | wc -l | tr -d ' ')
+  echo "Contradictions registered: $TOTAL"
+  echo "Bricks born from friction: $SURVIVED"
+  echo ""
+  echo "SAGCO_ALCHEMY_LIST_COMPLETE"
+  ;;
+
+# ── REPORT: summary of friction → infrastructure conversion rate ───────────────
+--report)
+  CASE="${2:-C1602_CASE_001}"
+  echo "=== SAGCO ALCHEMY REPORT ==="
+  echo "Case: $CASE | Generated: $TS"
+  echo ""
+  TOTAL=$(grep -v "^contr_id" "$CONTR_LOG" 2>/dev/null | wc -l | tr -d ' ')
+  CRIT=$(grep -c "CRITICAL" "$CONTR_LOG" 2>/dev/null | tr -d ' ')
+  HIGH=$(grep -c ",HIGH," "$CONTR_LOG" 2>/dev/null | tr -d ' ')
+  BORN=$(grep -c "BRICK_BORN" "$CONTR_LOG" 2>/dev/null | tr -d ' ')
+  PENDING=$(grep -c "PENDING" "$CONTR_LOG" 2>/dev/null | tr -d ' ')
+  printf "  Contradictions logged   : %s\n" "$TOTAL"
+  printf "  CRITICAL pressure       : %s\n" "$CRIT"
+  printf "  HIGH pressure           : %s\n" "$HIGH"
+  printf "  Bricks born (survived)  : %s\n" "$BORN"
+  printf "  Awaiting brick (pending): %s\n" "$PENDING"
+  echo ""
+  if [ "$TOTAL" -gt 0 ]; then
+    RATE=$(awk "BEGIN{printf \"%.1f\", ($BORN/$TOTAL)*100}")
+    echo "  Friction → Infrastructure rate: ${RATE}%"
+    echo ""
+    awk "BEGIN{exit !($BORN > 0)}" && \
+      echo "  → Active alchemy. Contradiction pressure is producing infrastructure." || \
+      echo "  → No bricks yet born. Register contradictions as they emerge."
+  fi
+  echo ""
+  echo "SAGCO_ALCHEMY_REPORT_COMPLETE"
+  ;;
+
+# ── REGISTER a new contradiction ──────────────────────────────────────────────
+*)
+  CONTR_ID="$1"
+  EXPECTED="$2"
+  ACTUAL="$3"
+  CASE="${4:-C1602_CASE_001}"
+
+  [ -z "$CONTR_ID" ] && \
+    echo "usage: sagco-alchemy CONTR_ID EXPECTED ACTUAL [CASE]" && \
+    echo "       sagco-alchemy --list | --report [CASE]" && exit 1
+  [ -z "$EXPECTED" ] && echo "EXPECTED state required" && exit 1
+  [ -z "$ACTUAL"   ] && echo "ACTUAL state required"   && exit 1
+
+  # Word-count variance as pressure proxy
+  W_EXP=$(echo "$EXPECTED" | wc -w | tr -d ' ')
+  W_ACT=$(echo "$ACTUAL"   | wc -w | tr -d ' ')
+  VARIANCE=$(awk "BEGIN{d=$W_ACT-$W_EXP; print (d<0)?-d:d}")
+
+  # Pressure from how many extra concepts the ACTUAL requires
+  if   awk "BEGIN{exit !($VARIANCE > 10)}"; then PRESSURE="CRITICAL"
+  elif awk "BEGIN{exit !($VARIANCE > 6)}";  then PRESSURE="HIGH"
+  elif awk "BEGIN{exit !($VARIANCE > 3)}";  then PRESSURE="MEDIUM"
+  else                                           PRESSURE="LOW"
+  fi
+
+  echo "=== SAGCO ALCHEMY: $CONTR_ID ==="
+  echo ""
+  printf "  EXPECTED   : %s\n" "$EXPECTED"
+  printf "  ACTUAL     : %s\n" "$ACTUAL"
+  printf "  VARIANCE   : %s words\n" "$VARIANCE"
+  printf "  PRESSURE   : %s\n" "$PRESSURE"
+  echo ""
+
+  # Suggest brick name from ACTUAL complexity
+  case "$PRESSURE" in
+    CRITICAL|HIGH)
+      echo "  → This contradiction has HIGH enough pressure to become a brick."
+      echo "  → Suggested: sagco-$(echo "$CONTR_ID" | tr '[:upper:]' '[:lower:]' | tr '_' '-')"
+      echo "  → Run sagco-compute-law to gate Canon entry."
+      BRICK_STATUS="PENDING_BRICK"
+      ;;
+    MEDIUM)
+      echo "  → Medium pressure. Create an antibody first. If it recurs: brick."
+      BRICK_STATUS="PENDING_ANTIBODY"
+      ;;
+    LOW)
+      echo "  → Low pressure. Log and continue. No brick required yet."
+      BRICK_STATUS="LOGGED"
+      ;;
+  esac
+
+  # Dedup-safe append
+  SAFE_ID=$(echo "$CONTR_ID" | tr ' ' '_')
+  TMPF="/tmp/alchemy_tmp_$$.csv"
+  grep -v "^${SAFE_ID}," "$CONTR_LOG" > "$TMPF" 2>/dev/null && mv "$TMPF" "$CONTR_LOG"
+
+  SAFE_EXP=$(echo "$EXPECTED" | tr ',' ';')
+  SAFE_ACT=$(echo "$ACTUAL"   | tr ',' ';')
+  echo "${SAFE_ID},${CASE},${SAFE_EXP},${SAFE_ACT},${VARIANCE},${PRESSURE},NONE,${BRICK_STATUS},${TS}" \
+    >> "$CONTR_LOG"
+
+  sagco_ish/shared_state/bin/sagco-state "$CASE" "ALCHEMY_NODE" \
+    "CONTR_${PRESSURE}" "contradiction_${SAFE_ID}_pressure_${PRESSURE}" 2>/dev/null || true
+
+  echo ""
+  echo "SAGCO_ALCHEMY_REGISTERED"
+  echo "CONTR_ID: $CONTR_ID  |  PRESSURE: $PRESSURE  |  STATUS: $BRICK_STATUS"
+  ;;
+esac

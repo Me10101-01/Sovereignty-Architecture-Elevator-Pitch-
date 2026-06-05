@@ -1,0 +1,149 @@
+#!/bin/sh
+# SAGCO Life Test Runner — Brick 066
+# usage: sagco-life-test TEST_ID SOURCE_DEVICE ARTIFACT_PATH ROUTE [CASE]
+# Tests whether a real artifact survives the full physical-to-digital journey
+# without human rewriting, data loss, or lineage gaps.
+# This is the external validation layer — does it work in real life?
+#
+# ROUTE format: "Device1:Device2:Device3" (colon-separated, shell-safe)
+# Example route: "Galaxy_Fold:Windows:Docker:Evidence"
+TEST_ID="$1"
+SOURCE_DEVICE="$2"
+ARTIFACT_PATH="$3"
+ROUTE="$4"
+CASE="${5:-C1602_CASE_001}"
+
+[ -z "$TEST_ID" ] && echo "usage: sagco-life-test TEST_ID DEVICE ARTIFACT_PATH ROUTE [CASE]" && exit 1
+
+LOG="sagco_ish/life_test/logs/life_tests.csv"
+REPORT="sagco_ish/life_test/results/life_test_${TEST_ID}.md"
+mkdir -p sagco_ish/life_test/logs sagco_ish/life_test/results
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "test_id,case,device,artifact,route,expected_hops,actual_hops,hash,verdict,timestamp" > "$LOG"
+
+echo "╔══════════════════════════════════════════════════════════╗"
+printf "║  SAGCO LIFE TEST: %-40s║\n" "$TEST_ID"
+echo "╚══════════════════════════════════════════════════════════╝"
+echo ""
+echo "  Source   : $SOURCE_DEVICE"
+echo "  Artifact : $ARTIFACT_PATH"
+echo "  Route    : ${ROUTE:-not_specified}"
+echo "  Case     : $CASE"
+echo ""
+
+VERDICT="PASS"; FAILURES=0
+
+# ── STEP 1: Ingest artifact from source device ────────────────────────────────
+echo "  [STEP 1] INGEST from $SOURCE_DEVICE"
+INGEST_OUT=$(sh sagco_ish/mobile/bin/sagco-mobile-ingest \
+  "$SOURCE_DEVICE" "LIFE_TEST_ARTIFACT" "$ARTIFACT_PATH" "$CASE" 2>/dev/null)
+INGEST_HASH=$(echo "$INGEST_OUT" | grep "^INGEST_HASH=" | cut -d'=' -f2)
+INGEST_STATUS=$(echo "$INGEST_OUT" | grep "^SAGCO_MOBILE_INGEST_COMPLETE" | wc -l | tr -d ' ')
+
+if [ "$INGEST_STATUS" -ge 1 ] && [ -n "$INGEST_HASH" ] && [ "$INGEST_HASH" != "FILE_NOT_FOUND" ]; then
+  echo "  ✅ Artifact ingested. SHA256: $INGEST_HASH"
+else
+  echo "  ❌ Ingest failed — artifact not found at path on this node"
+  echo "     Expected if file is on $SOURCE_DEVICE and this is a different node"
+  echo "     To test from $SOURCE_DEVICE: run sagco-mobile-ingest directly on that node"
+  FAILURES=$((FAILURES+1))
+  INGEST_HASH="UNAVAILABLE_ON_THIS_NODE"
+fi
+echo ""
+
+# ── STEP 2: Verify hash is logged in mobile_ingest.csv ───────────────────────
+echo "  [STEP 2] LINEAGE check — hash in mobile_ingest log"
+if grep -q "$INGEST_HASH" sagco_ish/mobile/logs/mobile_ingest.csv 2>/dev/null || \
+   [ "$INGEST_HASH" = "UNAVAILABLE_ON_THIS_NODE" ]; then
+  [ "$INGEST_HASH" = "UNAVAILABLE_ON_THIS_NODE" ] && \
+    echo "  ⚠️  Remote device artifact — lineage will be recorded when run on $SOURCE_DEVICE" || \
+    echo "  ✅ Hash is in ingest log — lineage established"
+else
+  echo "  ❌ Hash not found in ingest log — lineage gap"
+  FAILURES=$((FAILURES+1))
+fi
+echo ""
+
+# ── STEP 3: Verify shared state was updated ───────────────────────────────────
+echo "  [STEP 3] STATE MESH check — device node recorded"
+if grep -qi "MOBILE_NODE_${SOURCE_DEVICE}" sagco_ish/shared_state/logs/state_updates.csv 2>/dev/null; then
+  echo "  ✅ Device node $SOURCE_DEVICE registered in state mesh"
+else
+  echo "  ⚠️  Device node not yet in state mesh — will appear after first live ingest"
+fi
+echo ""
+
+# ── STEP 4: ERU variance on expected hops vs actual route ────────────────────
+echo "  [STEP 4] ERU — hop count variance"
+if [ -n "$ROUTE" ]; then
+  # Count hops: use : as separator (e.g. Phone:Windows:Docker:Evidence)
+  # Avoids shell-redirect conflict with -> when passed unquoted
+  ACTUAL_HOPS=$(echo "$ROUTE" | awk -F':' '{print NF}')
+  [ -z "$ACTUAL_HOPS" ] || [ "$ACTUAL_HOPS" -lt 1 ] && ACTUAL_HOPS=1
+  EXPECTED_HOPS=2  # expected: source → evidence (2-hop ideal)
+  HOP_VARIANCE=$((ACTUAL_HOPS - EXPECTED_HOPS))
+  printf "  Expected hops : %d  Actual hops : %d  Variance : %+d\n" \
+    "$EXPECTED_HOPS" "$ACTUAL_HOPS" "$HOP_VARIANCE"
+  if awk "BEGIN{exit !($HOP_VARIANCE > 4)}"; then
+    echo "  ⚠️  HIGH hop variance — consider adding a direct bridge node"
+  elif awk "BEGIN{exit !($HOP_VARIANCE > 0)}"; then
+    echo "  ✅ Manageable hop variance — within acceptable range"
+  else
+    echo "  ✅ Optimal route — direct path"
+  fi
+else
+  ACTUAL_HOPS=0; EXPECTED_HOPS=2; HOP_VARIANCE=0
+  echo "  ℹ️  No route specified — skipping hop variance"
+fi
+echo ""
+
+# ── VERDICT ───────────────────────────────────────────────────────────────────
+[ "$FAILURES" -ge 2 ] && VERDICT="FAIL"
+[ "$FAILURES" -eq 1 ] && VERDICT="PARTIAL"
+
+echo "────────────────────────────────────────────────────────────"
+echo "  VERDICT: $VERDICT  |  Failures: $FAILURES"
+echo ""
+case "$VERDICT" in
+  PASS)
+    echo "  → Artifact survived the full device chain. Lineage established."
+    echo "  → SAGCO is acting as the glue. Human is not the glue."
+    ;;
+  PARTIAL)
+    echo "  → Artifact partially tracked. One step requires manual intervention."
+    echo "  → Run from the source device to complete the lineage."
+    ;;
+  FAIL)
+    echo "  → Multiple steps failed. Artifact not yet in evidence."
+    echo "  → Run sagco-mobile-ingest on $SOURCE_DEVICE to start the chain."
+    ;;
+esac
+
+# ── Write results ─────────────────────────────────────────────────────────────
+echo "$TEST_ID,$CASE,$SOURCE_DEVICE,$ARTIFACT_PATH,${ROUTE:-none},$EXPECTED_HOPS,$ACTUAL_HOPS,$INGEST_HASH,$VERDICT,$TS" >> "$LOG"
+
+cat > "$REPORT" <<RPT
+# SAGCO Life Test: $TEST_ID
+**Case:** $CASE | **Date:** $TS | **Verdict:** $VERDICT
+
+| Step | Check | Result |
+|------|-------|--------|
+| 1 | Ingest from $SOURCE_DEVICE | $([ "$FAILURES" -gt 0 ] && echo "⚠️" || echo "✅") |
+| 2 | Hash in lineage log | $(grep -q "$INGEST_HASH" sagco_ish/mobile/logs/mobile_ingest.csv 2>/dev/null && echo "✅" || echo "⚠️") |
+| 3 | Device node in state mesh | $(grep -qi "MOBILE_NODE_${SOURCE_DEVICE}" sagco_ish/shared_state/logs/state_updates.csv 2>/dev/null && echo "✅" || echo "⚠️") |
+| 4 | Hop variance | $HOP_VARIANCE hops over baseline |
+
+**Route:** ${ROUTE:-not specified}
+**Hash:** $INGEST_HASH
+**Verdict:** $VERDICT — Artifact $([ "$VERDICT" = "PASS" ] && echo "survived full chain" || echo "requires action on source device")
+
+---
+*Generated by \`sagco-life-test\` — Brick 066 · SAGCO OS*
+RPT
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "LIFE_TEST_NODE" \
+  "LIFE_TEST_${VERDICT}" "test_${TEST_ID}_device_${SOURCE_DEVICE}" 2>/dev/null || true
+
+echo ""
+echo "SAGCO_LIFE_TEST_COMPLETE"
+echo "TEST: $TEST_ID  |  VERDICT: $VERDICT  |  HASH: $INGEST_HASH"

@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "COMPUTE_LAW_NODE",
-  "status": "COMPUTE_LAW_COMPUTABLE",
-  "note": "claim_brick_063_coords_reports_FULL_FLEET_for_core_bricks_hash_ba5fec9bab36c3b8",
-  "updated": "2026-06-05T01:59:34Z"
+  "last_node": "TRANSLATE_NODE",
+  "status": "TRANSLATION_COMPUTABLE",
+  "note": "story_Life_Test",
+  "updated": "2026-06-05T02:16:33Z"
 }

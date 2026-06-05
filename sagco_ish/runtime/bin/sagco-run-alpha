@@ -48,6 +48,9 @@ if [ -f "$LOG" ]; then
   run_agent midi "sagco_ish/midi/bin/sagco-midi $LOG ${CASE}_alpha $CASE"
 fi
 # Wing H: close every cycle with coordinate snapshot of core bricks
+# Wing I: log any friction the cycle revealed as a potential contradiction
+run_agent alchemy-report "sagco_ish/alchemy/bin/sagco-alchemy --report $CASE"
+# Wing H: close every cycle with coordinate snapshot of core bricks
 run_agent coords-evo       "sagco_ish/coords/bin/sagco-coords sagco-evo $CASE"
 run_agent coords-translate "sagco_ish/coords/bin/sagco-coords sagco-translate $CASE"
 run_agent coords-compute   "sagco_ish/coords/bin/sagco-coords sagco-compute-law $CASE"

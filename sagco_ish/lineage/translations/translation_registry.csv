@@ -13,3 +13,6 @@ Distinguished_Engineer,SAGCO_Operator_Human_in_the_Loop_Navigator,test -x sagco_
 Trial_Brick_060,Mock_Trial_Compute_Test,test,MYTHOLOGY,2026-06-05T00:51:12Z
 Quadrilateral_Collapse,Workflow_Traversal_Distance_Expected_vs_Actual_Physical_Logical_Tool_Hop_Variance,test -x sagco_ish/collapse/bin/sagco-collapse-score,COMPUTABLE,2026-06-05T01:03:54Z
 Coordinate_System,GPS_Query_for_CASE_BRICK_PID_NODE_DEVICE_WEIGHT_COLLAPSE_STATUS_LINEAGE,test -x sagco_ish/coords/bin/sagco-coords,COMPUTABLE,2026-06-05T01:59:18Z
+Alchemist_Wing,Contradiction_ERU_Variance_Pressure_Brick_Compute_Survive_Pipeline,test -x sagco_ish/alchemy/bin/sagco-alchemy,COMPUTABLE,2026-06-05T02:16:33Z
+Mobile_Node,Device_as_First_Class_SAGCO_Ingestion_Node_with_SHA256_Lineage,test -x sagco_ish/mobile/bin/sagco-mobile-ingest,COMPUTABLE,2026-06-05T02:16:33Z
+Life_Test,Artifact_Survival_Test_Through_Physical_Digital_Device_Chain,test -x sagco_ish/life_test/bin/sagco-life-test,COMPUTABLE,2026-06-05T02:16:33Z

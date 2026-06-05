@@ -1,0 +1,8 @@
+contr_id,case,expected,actual,word_variance,pressure,brick_born,status,timestamp
+CONTR_001,C1602_CASE_001,Run software on Windows,OS edition matters — Home cannot run Docker natively — need WSL — need virtualization — need Docker Desktop — need volume management — need PID tracking,17,CRITICAL,NONE,PENDING_BRICK,2026-06-05T02:12:59Z
+CONTR_002,C1602_CASE_001,Access local server from iPad,localhost not reachable from iPad — need LAN IP — need IP detection — need URL substitution — need evidence logging — created sagco-link-bridge,14,CRITICAL,NONE,PENDING_BRICK,2026-06-05T02:12:59Z
+CONTR_003,C1602_CASE_001,Claim computes,Claim may not compute — need test command — need expected output — need SHA256 — need antibody on failure — need lineage on pass — need COMPUTABLE verdict — created sagco-compute-law,23,CRITICAL,NONE,PENDING_BRICK,2026-06-05T02:12:59Z
+CONTR_MOBILE_Windows_Node_LIFE_TEST_ARTIFACT,C1602_CASE_001,Artifact exists only on Windows_Node,Artifact hashed and ingested into SAGCO evidence lineage with SHA256 and node tracking,8,HIGH,NONE,PENDING_BRICK,2026-06-05T02:14:21Z
+CONTR_TEST_CL,C1602_CASE_001,Test_Expected,Test_Actual,0,LOW,NONE,LOGGED,2026-06-05T02:14:31Z
+CONTR_MOBILE_test_node_README,C1602_CASE_001,Artifact exists only on test_node,Artifact hashed and ingested into SAGCO evidence lineage with SHA256 and node tracking,8,HIGH,NONE,PENDING_BRICK,2026-06-05T02:14:31Z
+CONTR_MOBILE_test_node_LIFE_TEST_ARTIFACT,C1602_CASE_001,Artifact exists only on test_node,Artifact hashed and ingested into SAGCO evidence lineage with SHA256 and node tracking,8,HIGH,NONE,PENDING_BRICK,2026-06-05T02:16:11Z

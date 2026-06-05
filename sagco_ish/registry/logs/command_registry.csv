@@ -64,3 +64,6 @@ weight,sagco_ish/governance_fleet/bin/sagco-weight,tool,ACTIVE,2026-06-05T00:53:
 governance,sagco_ish/governance_fleet/bin/sagco-governance,tool,ACTIVE,2026-06-05T00:53:32Z
 collapse-score,sagco_ish/collapse/bin/sagco-collapse-score,tool,ACTIVE,2026-06-05T01:03:50Z
 coords,sagco_ish/coords/bin/sagco-coords,tool,ACTIVE,2026-06-05T01:59:18Z
+alchemy,sagco_ish/alchemy/bin/sagco-alchemy,tool,ACTIVE,2026-06-05T02:16:26Z
+mobile-ingest,sagco_ish/mobile/bin/sagco-mobile-ingest,tool,ACTIVE,2026-06-05T02:16:26Z
+life-test,sagco_ish/life_test/bin/sagco-life-test,tool,ACTIVE,2026-06-05T02:16:26Z
