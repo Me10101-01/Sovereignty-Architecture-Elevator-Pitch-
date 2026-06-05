@@ -1,5 +1,5 @@
 # SAGCO Link Bridge Report
-**Case:** C1602_CASE_001 | **Generated:** 2026-06-05T00:25:10Z
+**Case:** C1602_CASE_001 | **Generated:** 2026-06-05T00:45:08Z
 
 ## Link Translation
 
@@ -9,7 +9,7 @@
 | LAN IP | 192.168.1.100 |
 | Replaced URL | **http://192.168.1.100:8080** |
 | Port | 8080 |
-| Output Name | webportal_evidence |
+| Output Name | blueprint_verify |
 
 ## Cross-Device Instructions
 

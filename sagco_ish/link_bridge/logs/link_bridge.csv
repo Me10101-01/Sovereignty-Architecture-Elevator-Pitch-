@@ -1,2 +1,3 @@
 timestamp,case,original_url,lan_ip,replaced_url,output_name,status
 2026-06-05T00:25:10Z,C1602_CASE_001,http://localhost:8080,192.168.1.100,http://192.168.1.100:8080,webportal_evidence,BRIDGED
+2026-06-05T00:45:08Z,C1602_CASE_001,http://localhost:8080,192.168.1.100,http://192.168.1.100:8080,blueprint_verify,BRIDGED
