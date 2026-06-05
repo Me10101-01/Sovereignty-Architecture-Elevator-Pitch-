@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "ALCHEMY_NODE",
-  "status": "CONTR_CRITICAL",
-  "note": "contradiction_CONTR_004_pressure_CRITICAL",
-  "updated": "2026-06-05T02:27:36Z"
+  "last_node": "TRANSLATE_NODE",
+  "status": "TRANSLATION_COMPUTABLE",
+  "note": "story_Hardware_Fleet",
+  "updated": "2026-06-05T02:35:01Z"
 }

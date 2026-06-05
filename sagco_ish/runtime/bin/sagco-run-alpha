@@ -19,6 +19,8 @@ run_agent() {
   [ $STATUS -ne 0 ] && echo "WARNING: $NAME exited with code $STATUS"
 }
 echo "===== SAGCO RUNTIME ALPHA START: $CASE ====="
+# Wing K: hardware fleet status at the start of every cycle
+run_agent fleet "sagco_ish/nodes/bin/sagco-nodes --fleet"
 run_agent state-read     "sagco_ish/shared_state/bin/sagco-state-read $CASE"
 run_agent portfolio-fuzz "sagco_ish/portfolio/bin/sagco-portfolio-fuzz $CASE sagco_ish"
 run_agent bill-fuzz      "sagco_ish/fuzz/bin/sagco-bill-fuzz $CASE sagco_ish"

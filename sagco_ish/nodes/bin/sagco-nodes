@@ -1,0 +1,114 @@
+#!/bin/sh
+# SAGCO Node Registry — Wing K / Brick 067
+# usage: sagco-nodes register NODE_ID DEVICE_TYPE MAKE_MODEL ROLE STATUS [PARENT_NODE] [CASE]
+#        sagco-nodes --list [CASE]
+#        sagco-nodes --query NODE_ID
+#        sagco-nodes --fleet
+# Registers every physical device that joins the Mansion as a first-class node.
+# Hardware has lineage just like software. Every device that survives configuration,
+# driver patches, and integration earns a node entry. Nothing is just an output device.
+NODE_REG="sagco_ish/nodes/data/node_registry.csv"
+NODE_LOG="sagco_ish/nodes/logs/node_events.csv"
+mkdir -p sagco_ish/nodes/data sagco_ish/nodes/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$NODE_REG" ] && \
+  echo "node_id,device_type,make_model,role,status,parent_node,case,registered" > "$NODE_REG"
+[ ! -f "$NODE_LOG" ] && \
+  echo "node_id,event,note,timestamp" > "$NODE_LOG"
+
+case "$1" in
+
+# ── FLEET overview ────────────────────────────────────────────────────────────
+--fleet)
+  echo "╔══════════════════════════════════════════════════════════╗"
+  echo "║              SAGCO HARDWARE FLEET                       ║"
+  echo "╚══════════════════════════════════════════════════════════╝"
+  echo ""
+  grep -v "^node_id" "$NODE_REG" 2>/dev/null | while IFS=, read id dtype model role status parent cas ts; do
+    case "$status" in
+      ACTIVE)    SYM="🟢" ;;
+      ANCESTOR)  SYM="🏛️" ;;
+      OFFLINE)   SYM="⚫" ;;
+      STANDBY)   SYM="🟡" ;;
+      *)         SYM="⚪" ;;
+    esac
+    printf "  %s %-22s [%-12s] %s\n" "$SYM" "$id" "$status" "$role"
+    printf "       Device : %s — %s\n" "$dtype" "$model"
+    [ -n "$parent" ] && [ "$parent" != "NONE" ] && \
+      printf "       Parent : %s\n" "$parent"
+    echo ""
+  done
+  TOTAL=$(grep -v "^node_id" "$NODE_REG" 2>/dev/null | wc -l | tr -d ' ')
+  ACTIVE=$(grep -c ",ACTIVE," "$NODE_REG" 2>/dev/null | tr -d ' ')
+  ANCESTOR=$(grep -c ",ANCESTOR," "$NODE_REG" 2>/dev/null | tr -d ' ')
+  printf "  Fleet size: %s nodes (%s ACTIVE, %s ANCESTOR)\n" "$TOTAL" "$ACTIVE" "$ANCESTOR"
+  echo ""
+  echo "SAGCO_FLEET_COMPLETE"
+  ;;
+
+# ── QUERY a single node ───────────────────────────────────────────────────────
+--query)
+  NODE_ID="$2"
+  [ -z "$NODE_ID" ] && echo "usage: sagco-nodes --query NODE_ID" && exit 1
+  ROW=$(grep -i "^${NODE_ID}," "$NODE_REG" 2>/dev/null | head -1)
+  [ -z "$ROW" ] && echo "Node not found: $NODE_ID" && exit 1
+  echo "=== NODE: $NODE_ID ==="
+  echo "$ROW" | awk -F',' '{
+    print "  Device  : " $2 " — " $3
+    print "  Role    : " $4
+    print "  Status  : " $5
+    print "  Parent  : " $6
+    print "  Case    : " $7
+    print "  Since   : " $8
+  }'
+  # Show events
+  echo ""
+  echo "  Events:"
+  grep -i "^${NODE_ID}," "$NODE_LOG" 2>/dev/null | \
+    awk -F',' '{printf "    [%s] %s — %s\n", $4, $2, $3}'
+  echo ""
+  echo "SAGCO_NODE_QUERY_COMPLETE"
+  ;;
+
+# ── LIST all nodes ────────────────────────────────────────────────────────────
+--list)
+  CASE="${2:-ALL}"
+  echo "=== SAGCO NODE LIST ==="
+  grep -v "^node_id" "$NODE_REG" 2>/dev/null | \
+    awk -F',' '{printf "  %-22s %-12s %s\n", $1, $5, $4}'
+  echo ""
+  TOTAL=$(grep -v "^node_id" "$NODE_REG" 2>/dev/null | wc -l | tr -d ' ')
+  echo "Total nodes: $TOTAL"
+  echo "SAGCO_NODE_LIST_COMPLETE"
+  ;;
+
+# ── REGISTER a node ───────────────────────────────────────────────────────────
+register)
+  NODE_ID="$2"; DTYPE="$3"; MODEL="$4"; ROLE="$5"
+  STATUS="${6:-ACTIVE}"; PARENT="${7:-NONE}"; CASE="${8:-C1602_CASE_001}"
+  [ -z "$NODE_ID" ] || [ -z "$DTYPE" ] || [ -z "$MODEL" ] || [ -z "$ROLE" ] && \
+    echo "usage: sagco-nodes register NODE_ID DEVICE_TYPE MAKE_MODEL ROLE [STATUS] [PARENT] [CASE]" && exit 1
+
+  # Dedup-safe
+  TMPF="/tmp/nodes_tmp_$$.csv"
+  grep -v "^${NODE_ID}," "$NODE_REG" > "$TMPF" 2>/dev/null && mv "$TMPF" "$NODE_REG"
+
+  SAFE_MODEL=$(echo "$MODEL" | tr ',' ';')
+  echo "${NODE_ID},${DTYPE},${SAFE_MODEL},${ROLE},${STATUS},${PARENT},${CASE},${TS}" >> "$NODE_REG"
+  echo "${NODE_ID},REGISTERED,status_${STATUS}_role_${ROLE},${TS}" >> "$NODE_LOG"
+
+  sagco_ish/shared_state/bin/sagco-state "$CASE" "NODE_REGISTRY" \
+    "NODE_${STATUS}" "node_${NODE_ID}_role_${ROLE}" 2>/dev/null || true
+
+  printf "  %-22s registered  [%s]  →  %s\n" "$NODE_ID" "$STATUS" "$ROLE"
+  echo "SAGCO_NODE_REGISTERED"
+  ;;
+
+*)
+  echo "usage: sagco-nodes register NODE_ID DTYPE MODEL ROLE [STATUS] [PARENT] [CASE]"
+  echo "       sagco-nodes --fleet"
+  echo "       sagco-nodes --list"
+  echo "       sagco-nodes --query NODE_ID"
+  exit 1
+  ;;
+esac
