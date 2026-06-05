@@ -1,9 +1,9 @@
 # SAGCO Constitution
-**Case:** C1602_CASE_001  |  **Generated:** 2026-06-04T23:56:16Z  |  **Score:** 100.0%  |  **Verdict:** CONSTITUTION_EXEMPLARY
+**Case:** C1602_CASE_001  |  **Generated:** 2026-06-05T00:34:46Z  |  **Score:** 100.0%  |  **Verdict:** CONSTITUTION_EXEMPLARY
 
 ---
 
-## The Ten Commandments
+## The Thirteen Commandments
 
 | # | Commandment | Status | Evidence |
 |---|---|---|---|
@@ -19,6 +19,7 @@
 | X | Thou Shalt Leave a Better Brick | UPHELD | edu/logs/edu_eru.csv |
 | XI | Thou Shalt Connect Before Adding | UPHELD | deps/data/deps.csv |
 | XII | Thou Shalt Have No Orphan Bricks | UPHELD | registry/data/brick_manifest.csv |
+| XIII | Thou Shalt Compute Before Claiming | UPHELD | compute_law/logs/compute_law.csv |
 
 ---
 
