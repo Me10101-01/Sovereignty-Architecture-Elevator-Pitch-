@@ -2,6 +2,11 @@
 ## Volume I — The Act of Listening
 ### Chapter One · MIDI #001 · Page 21
 
+> **LIBRARY REGISTER** — This chapter describes what it felt like.
+> It does not describe executable commands. Every event referenced has a Canon
+> counterpart in `sagco_ish/compute_law/logs/compute_law.csv`.
+> The chapter does not need to compute. The bricks that inspired it do.
+
 ---
 
 The Distinguished Engineer sat in the dark.

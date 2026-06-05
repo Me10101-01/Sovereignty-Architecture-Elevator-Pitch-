@@ -1,5 +1,9 @@
 # SAGCO: The Two Tracks
 
+> **CANON DESCRIBES WHAT COMPUTED.**
+> **LIBRARY DESCRIBES WHAT IT FELT LIKE.**
+> **NEITHER MAY PRETEND TO BE THE OTHER.**
+
 SAGCO publishes in two parallel registers. Every artifact belongs to exactly one.
 
 ---
@@ -79,6 +83,45 @@ device, the Mansion mythology, the DAO origin story as told from inside the work
 
 ---
 
+## Purple Team: The Bridge
+
+Purple Team does not belong to either hemisphere alone. It is the translation layer.
+
+```
+Canon → Experience → Library
+         (Purple)
+
+Library → Inspiration → New Canon
+            (Purple)
+```
+
+This is the Creation vs Adaptation loop made visible. Every Library chapter
+was born from a Canon event. Every new Canon brick was inspired by the Library
+asking "what should exist next?"
+
+**Same event. Two views. One Mansion.**
+
+| Event | Canon View | Library View |
+|-------|-----------|--------------|
+| localhost timeout → link-bridge | `sagco-compute-law: COMPUTABLE hash=c3b2` | "another note entered the score" |
+| terminal flood → gmail-antibody | `ANTIBODY AB-016 VERIFIED` | "C minor → G major (resolution)" |
+| Brick 057 born from friction | `manifest: cross-device evidence transport` | "A sustained chord over the entire orchestra" |
+| constitution 13/13 upheld | `SCORE=100.0% VERDICT=EXEMPLARY` | "the Proof Node marking time" |
+
+---
+
+## How to Answer Each Question
+
+| Question | Where to point |
+|----------|---------------|
+| "Is this real?" | Canon. Run `sagco-compute-law`. |
+| "What is the Purple Node?" | Library. Read Chapter One. |
+| "How did Brick 057 happen?" | Both. Canon for the localhost error + fix. Library for what it meant. |
+| "Can I reproduce this?" | Canon only. `sagco-run-alpha C1602_CASE_001`. |
+| "Why does this matter?" | Library first. Canon to verify the claim. |
+
+---
+
 ## Why Both Exist
 
 The Canon keeps the system honest.
@@ -92,6 +135,8 @@ a rigorous engineering artifact *and* a witnessed act of creation.
 
 The Canon proves it works.
 The Library explains why it matters.
+The brick that inspired the chapter does the computing.
+The chapter never has to.
 
 ---
 
