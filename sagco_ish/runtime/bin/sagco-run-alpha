@@ -35,6 +35,7 @@ if [ -f "$TRUTH" ] && [ -f "$REPORT" ]; then
 fi
 run_agent eru-benchmark  "sagco_ish/eru/bin/sagco-eru-benchmark $CASE"
 run_agent bibliography   "sagco_ish/bibliography/bin/sagco-bibliography $CASE"
+run_agent evo            "sagco_ish/evo/bin/sagco-evo $CASE"
 # Sonify the cycle — feed the runtime log itself into MIDI
 if [ -f "$LOG" ]; then
   run_agent midi "sagco_ish/midi/bin/sagco-midi $LOG ${CASE}_alpha $CASE"

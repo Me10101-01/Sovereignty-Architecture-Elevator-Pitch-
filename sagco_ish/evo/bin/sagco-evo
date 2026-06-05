@@ -1,0 +1,249 @@
+#!/bin/sh
+# SAGCO-EVO — Brick 056: Engineering Consciousness Ledger
+# usage: sagco-evo [CASE] [--watch]
+# Scans all SAGCO logs → classifies events → CREATION/ADAPTATION/ERROR/RESOLUTION
+# Computes: weights, TENSION, CURRENT_KEY, SYSTEM_MOOD, ERU_SCORE
+# Outputs: ASCII dashboard + evolution ledger CSV
+CASE="${1:-C1602_CASE_001}"
+WATCH="$2"
+LOG="sagco_ish/evo/logs/evo_ledger.csv"
+REPORT="sagco_ish/evo/exports/evo_dashboard.txt"
+mkdir -p sagco_ish/evo/logs sagco_ish/evo/exports
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "case,cycle,creation,adaptation,error,resolution,tension_pct,key,mood,eru_score,timestamp" > "$LOG"
+
+# ── Event classification patterns ────────────────────────────────────────────
+# Files to scan in priority order
+SCAN_FILES="
+sagco_ish/shared_state/logs/state_updates.csv
+sagco_ish/runtime/logs/runtime_alpha.csv
+sagco_ish/antibody/data/antibody_archive.csv
+sagco_ish/constitution/logs/commandments_eru.csv
+sagco_ish/claims/logs/claims_report.csv
+sagco_ish/registry/logs/command_registry.csv
+sagco_ish/fleet/data/sagco_daemon_telemetry_2026-06-03.log
+sagco_ish/midi/logs/midi_eru.csv
+sagco_ish/lineage/citations/citations.csv
+sagco_ish/lineage/inventions/inventions.csv
+sagco_ish/eru/logs/eru_benchmark.csv
+sagco_ish/edu/logs/edu_eru.csv
+sagco_ish/wafer/logs/wafer_eru.csv
+"
+
+# Accumulate weights via awk across all files
+WEIGHTS=$(
+for F in $SCAN_FILES; do
+  [ -f "$F" ] && cat "$F"
+done | awk '
+BEGIN { C=0; A=0; E=0; R=0; total=0 }
+
+# ── CREATION: new things coming into existence ───────────────────────────────
+/SAGCO_MANIFEST_REGISTERED/  { C+=1 }
+/SAGCO_CITATION_REGISTERED/  { C+=1 }
+/SAGCO_COMMAND_REGISTERED/   { C+=1 }
+/SAGCO_REGISTERED/           { C+=1 }
+/SAGCO_INVENTION_REGISTERED/ { C+=2 }
+/INV-[0-9]/                  { C+=1 }
+/_GENERATED$/                { C+=1 }
+/BIBLIOGRAPHY_GENERATED/     { C+=1 }
+/Start_track/                { C+=1 }
+
+# ── ADAPTATION: system learning, adjusting, patching ────────────────────────
+/ANTIBODY/                   { A+=2 }
+/PATCH/                      { A+=2 }
+/SAGCO_SHARED_STATE_UPDATED/ { A+=1 }
+/SAGCO_REDACT/               { A+=1 }
+/ADAPTATION/                 { A+=2 }
+/WARN:/                      { A+=1 }
+/antibody/                   { A+=1 }
+/fix/                        { A+=1 }
+/UPDATED/                    { A+=1 }
+/SAGCO_BIBLIOGRAPHY_COMPLETE/ { A+=1 }
+/OVERPERFORM/                { A+=1 }
+
+# ── ERROR: tension, failure, contradiction (weight=2, errors cost more) ──────
+/panicked/                   { E+=4 }
+/ALERT/                      { E+=2 }
+/VIOLATED/                   { E+=3 }
+/FAIL[^_]/                   { E+=2 }
+/_FAIL$/                     { E+=2 }
+/FAIL,/                      { E+=2 }
+/ERROR/                      { E+=2 }
+/PANIC/                      { E+=3 }
+/CREEP_ALERT/                { E+=2 }
+/MISSING/                    { E+=1 }
+/NOT_FOUND/                  { E+=1 }
+/UNPROVEN/                   { E+=1 }
+/failed to run/              { E+=2 }
+/No such file/               { E+=2 }
+/UNDER_PRESSURE/             { E+=1 }
+
+# ── RESOLUTION: tension released, system stabilized ─────────────────────────
+/_PASS/                      { R+=2 }
+/GREEN/                      { R+=2 }
+/UPHELD/                     { R+=2 }
+/RESOLVED/                   { R+=2 }
+/COMPLETE/                   { R+=1 }
+/PROVEN/                     { R+=2 }
+/VERIFIED/                   { R+=2 }
+/EXEMPLARY/                  { R+=3 }
+/MAJOR_RESOLUTION/           { R+=3 }
+/MINOR_TENSION/              { R+=1 }
+/ACTIVE/                     { R+=1 }
+/constitution_score/         { R+=1 }
+/SAGCO_ERU_BENCHMARK_COMPLETE/ { R+=2 }
+/SAGCO_MIDI_GENERATED/       { R+=2 }
+
+END {
+    printf "C=%d A=%d E=%d R=%d\n", C, A, E, R
+}
+')
+
+# Parse weights
+W_C=$(echo "$WEIGHTS" | grep -o 'C=[0-9]*' | cut -d= -f2); W_C="${W_C:-0}"
+W_A=$(echo "$WEIGHTS" | grep -o 'A=[0-9]*' | cut -d= -f2); W_A="${W_A:-0}"
+W_E=$(echo "$WEIGHTS" | grep -o 'E=[0-9]*' | cut -d= -f2); W_E="${W_E:-0}"
+W_R=$(echo "$WEIGHTS" | grep -o 'R=[0-9]*' | cut -d= -f2); W_R="${W_R:-0}"
+
+TOTAL=$(awk "BEGIN{print $W_C + $W_A + $W_E + $W_R}")
+
+# ── Musical key and mood from tension ratio ──────────────────────────────────
+# TENSION = E / (E + R + 1) — how much unresolved vs resolved
+# CREATION_RATIO = C / (total + 1) — how much building vs adapting/resolving
+TENSION=$(awk "BEGIN{printf \"%.1f\", ($W_E/($W_E+$W_R+1))*100}")
+ERU_SCORE=$(awk "BEGIN{printf \"%.1f\", ($W_R/($W_R+$W_E+1))*100}")
+CREATION_RATIO=$(awk "BEGIN{printf \"%.1f\", ($W_C/($TOTAL+1))*100}")
+
+KEY_MOOD=$(awk "BEGIN {
+  e=$W_E; r=$W_R; a=$W_A; c=$W_C; tot=$TOTAL
+  tension = e / (e + r + 1)
+  creation = c / (tot + 1)
+
+  if (tension < 0.08) {
+    if (creation > 0.30) { print \"A_MAJOR CREATING\" }
+    else if (r >= a)     { print \"G_MAJOR STABLE\" }
+    else                 { print \"C_MAJOR RESOLVING\" }
+  } else if (tension < 0.20) {
+    if (a > r)           { print \"D_MAJOR ADAPTING\" }
+    else                 { print \"E_MAJOR RESOLVING\" }
+  } else if (tension < 0.35) {
+    if (a > e)           { print \"F_MAJOR UNDER_PRESSURE\" }
+    else                 { print \"E_MINOR UNDER_PRESSURE\" }
+  } else if (tension < 0.55) {
+    print \"D_MINOR STRUGGLING\"
+  } else {
+    if (c > r)           { print \"C_MINOR ADAPTING_CRISIS\" }
+    else                 { print \"Bb_MINOR CRISIS\" }
+  }
+}")
+
+CURRENT_KEY=$(echo "$KEY_MOOD" | awk '{print $1}')
+SYSTEM_MOOD=$(echo "$KEY_MOOD" | awk '{print $2}')
+
+# ── VERDICT ──────────────────────────────────────────────────────────────────
+VERDICT="MANSION_ACTIVE"
+awk "BEGIN{exit !($W_R > $W_E * 3 && $W_E < 50)}" && VERDICT="MANSION_THRIVING"
+awk "BEGIN{exit !($W_E > $W_R)}"                   && VERDICT="MANSION_UNDER_SIEGE"
+awk "BEGIN{exit !($ERU_SCORE >= 90)}"              && VERDICT="MANSION_EXEMPLARY"
+awk "BEGIN{exit !($W_C > $W_A && $W_C > $W_E)}"   && VERDICT="MANSION_EXPANDING"
+
+# ── ASCII bar chart ───────────────────────────────────────────────────────────
+bar() {
+  VAL="$1"; MAX="$2"; WIDTH=40
+  FILL=$(awk "BEGIN{v=int(($VAL/$MAX)*$WIDTH); if(v>$WIDTH)v=$WIDTH; print v}")
+  EMPTY=$((WIDTH - FILL))
+  printf ""
+  i=0; while [ $i -lt $FILL ];  do printf "#"; i=$((i+1)); done
+  i=0; while [ $i -lt $EMPTY ]; do printf "."; i=$((i+1)); done
+}
+
+# Scale all bars to same max for visual comparison
+MAX_W=$(awk "BEGIN{
+  m=$W_C; if($W_A>m)m=$W_A; if($W_E>m)m=$W_E; if($W_R>m)m=$W_R
+  if(m==0)m=1
+  print m
+}")
+
+echo "=== SAGCO EVOLUTION LEDGER ==="
+echo "Case: $CASE  |  Generated: $TS"
+echo ""
+printf "  CREATION    [%s] %4d\n"   "$(bar $W_C $MAX_W)" "$W_C"
+printf "  ADAPTATION  [%s] %4d\n"   "$(bar $W_A $MAX_W)" "$W_A"
+printf "  ERROR       [%s] %4d\n"   "$(bar $W_E $MAX_W)" "$W_E"
+printf "  RESOLUTION  [%s] %4d\n"   "$(bar $W_R $MAX_W)" "$W_R"
+echo ""
+echo "  TENSION       : ${TENSION}%  (unresolved pressure)"
+echo "  CREATION_RATIO: ${CREATION_RATIO}%  (building vs total)"
+echo "  CURRENT_KEY   : $CURRENT_KEY"
+echo "  SYSTEM_MOOD   : $SYSTEM_MOOD"
+echo "  ERU_SCORE     : ${ERU_SCORE}%"
+echo ""
+
+# ── Candlestick row ───────────────────────────────────────────────────────────
+MAX_C=500
+echo "  CANDLESTICK (per 500 max):"
+printf "  C%s%4d  A%s%4d  E%s%4d  R%s%4d\n" \
+  "$(bar $W_C $MAX_C)" "$W_C" \
+  "$(bar $W_A $MAX_C)" "$W_A" \
+  "$(bar $W_E $MAX_C)" "$W_E" \
+  "$(bar $W_R $MAX_C)" "$W_R"
+echo ""
+
+echo "  VERDICT       : $VERDICT"
+echo ""
+
+# ── Key interpretation ────────────────────────────────────────────────────────
+case "$CURRENT_KEY" in
+  G_MAJOR) echo "  G Major — Home. System stable. Errors absorbed. Resolution dominant." ;;
+  C_MAJOR) echo "  C Major — Clean slate. Good resolution flow, steady adaptation." ;;
+  A_MAJOR) echo "  A Major — Bright. Creation is leading. Mansion is expanding." ;;
+  D_MAJOR) echo "  D Major — Working through it. Adaptation catching errors." ;;
+  E_MAJOR) echo "  E Major — Confident. Small tension, strong resolution." ;;
+  F_MAJOR) echo "  F Major — Complex. High adaptation, tension present but managed." ;;
+  E_MINOR) echo "  E Minor — Pressure. Errors accumulating, resolution needed." ;;
+  D_MINOR) echo "  D Minor — Struggling. More errors than resolution. Antibodies needed." ;;
+  C_MINOR) echo "  C Minor — Crisis + Creation. Building under fire." ;;
+  Bb_MINOR) echo "  Bb Minor — Crisis. Errors dominating. System under siege." ;;
+esac
+echo ""
+
+# ── Log entry ─────────────────────────────────────────────────────────────────
+CYCLE=$(grep -c "^$CASE," "$LOG" 2>/dev/null | tr -d ' ')
+echo "$CASE,$CYCLE,$W_C,$W_A,$W_E,$W_R,$TENSION,$CURRENT_KEY,$SYSTEM_MOOD,$ERU_SCORE,$TS" >> "$LOG"
+
+# ── Write dashboard snapshot ──────────────────────────────────────────────────
+{
+echo "=== SAGCO EVOLUTION LEDGER SNAPSHOT ==="
+echo "Case: $CASE  |  $TS"
+echo ""
+echo "CREATION_WEIGHT   = $W_C"
+echo "ADAPTATION_WEIGHT = $W_A"
+echo "ERROR_WEIGHT      = $W_E"
+echo "RESOLUTION_WEIGHT = $W_R"
+echo ""
+echo "TENSION           = ${TENSION}%"
+echo "CURRENT_KEY       = $CURRENT_KEY"
+echo "SYSTEM_MOOD       = $SYSTEM_MOOD"
+echo "ERU_SCORE         = ${ERU_SCORE}%"
+echo "VERDICT           = $VERDICT"
+echo ""
+echo "---"
+echo "MUSICAL INTERPRETATION:"
+case "$CURRENT_KEY" in
+  G_MAJOR|C_MAJOR|E_MAJOR) echo "Resolution dominant → Mansion survived." ;;
+  A_MAJOR) echo "Creation dominant → Mansion expanding." ;;
+  D_MAJOR|F_MAJOR) echo "Adaptation dominant → Mansion learning." ;;
+  E_MINOR|D_MINOR) echo "Error pressure building → Antibodies needed." ;;
+  C_MINOR|Bb_MINOR) echo "Crisis state → Immediate intervention." ;;
+esac
+echo ""
+echo "CARGO_FAIL → ADAPTATION → MIDI_GENERATED:"
+echo "  This is the score. Not a log. A musical event."
+} > "$REPORT"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "EVO_NODE" "$VERDICT" \
+  "key_${CURRENT_KEY}_mood_${SYSTEM_MOOD}_eru_${ERU_SCORE}pct" 2>/dev/null || true
+
+echo "SAGCO_EVO_COMPLETE"
+echo "LEDGER  : $LOG"
+echo "SNAPSHOT: $REPORT"

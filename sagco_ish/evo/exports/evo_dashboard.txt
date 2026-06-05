@@ -1,0 +1,20 @@
+=== SAGCO EVOLUTION LEDGER SNAPSHOT ===
+Case: C1602_CASE_001  |  2026-06-04T23:59:42Z
+
+CREATION_WEIGHT   = 15
+ADAPTATION_WEIGHT = 79
+ERROR_WEIGHT      = 64
+RESOLUTION_WEIGHT = 364
+
+TENSION           = 14.9%
+CURRENT_KEY       = E_MAJOR
+SYSTEM_MOOD       = RESOLVING
+ERU_SCORE         = 84.8%
+VERDICT           = MANSION_ACTIVE
+
+---
+MUSICAL INTERPRETATION:
+Resolution dominant → Mansion survived.
+
+CARGO_FAIL → ADAPTATION → MIDI_GENERATED:
+  This is the score. Not a log. A musical event.
