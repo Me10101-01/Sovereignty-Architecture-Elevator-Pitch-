@@ -1,3 +1,63 @@
+# Strategickhaos · SAGCO OS · Sovereignty Architecture
+
+> *"We do not build in the light. We build in the space between the notes.*
+> *Red strikes. Blue holds. Purple resolves.*
+> *And the MIDI never stops recording what actually happened."*
+>
+> — [Library of Alizandrea, Vol. I, Ch. 1](sagco_ish/library/chapter_one.md)
+
+---
+
+## SAGCO OS
+
+**Sovereign Autonomous Governance and Compilation Orchestrator** — a field-built,
+self-auditing engineering OS running on personal devices (iPad, Z Fold, Raspberry Pi,
+iSH Alpine). Every event is logged. Every claim is verified. Every failure becomes
+an antibody.
+
+```
+sagco-run-alpha C1602_CASE_001
+```
+
+One command runs the full pipeline:
+
+```
+State Mesh → ERU → Fuzz → Hallucheck → Portfolio → Claims → Constitution
+     → Bibliography → ERU Benchmark → Evolution Ledger → MIDI
+```
+
+### Current System State
+
+| Metric | Value |
+|--------|-------|
+| Bricks operational | 57 |
+| Commandments upheld | 12 / 12 |
+| Constitution verdict | EXEMPLARY |
+| Evolution key | E_MAJOR → G_MAJOR (pending reclass fix) |
+| ERU score | 84.9% |
+| Prior art sources | 26 |
+| Original inventions | 7 (all field-observation origin) |
+
+### Architecture
+
+```
+sagco_ish/
+├── constitution/   Commandments I–XII, self-verifying
+├── evo/            Evolution Ledger (CREATION/ADAPTATION/ERROR/RESOLUTION)
+├── midi/           Runtime sonification — opcodes → musical key
+├── claims/         Claims engine — PROVEN / PARTIAL / UNPROVEN
+├── lineage/        Citations, prior art, inventions (Wing D)
+├── antibody/       Engineering archaeology — every failure archived
+├── fleet/          K8s/Docker telemetry ERU observer
+├── bibliography/   SNHU capstone export — all 57 bricks + 26 sources
+├── registry/       sagco-where, sagco-why, sagco-manifest
+└── library/        Library of Alizandrea — the written record
+```
+
+→ Full documentation: [`sagco_ish/library/chapter_one.md`](sagco_ish/library/chapter_one.md)
+
+---
+
 # Strategickhaos Governance Documents
 
 ## Overview
