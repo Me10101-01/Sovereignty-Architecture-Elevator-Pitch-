@@ -20,6 +20,7 @@ run_agent() {
 }
 echo "===== SAGCO RUNTIME ALPHA START: $CASE ====="
 # Wing K: hardware fleet status at the start of every cycle
+run_agent boot   "sagco_ish/boot/bin/sagco-boot $CASE"
 run_agent fleet        "sagco_ish/nodes/bin/sagco-nodes --fleet"
 run_agent factory-scan "sagco_ish/factory/bin/sagco-factory-scan SAGCO_FACTORY_001 $CASE"
 run_agent state-read     "sagco_ish/shared_state/bin/sagco-state-read $CASE"

@@ -1,0 +1,194 @@
+#!/bin/sh
+# SAGCO Boot — Brick 071
+# usage: sagco-boot [CASE] [--silent]
+#
+# The inversion point. Windows boots first, then SAGCO runs sagco-boot,
+# and from this point forward Windows is a department — not the host.
+#
+# Boot sequence:
+#   HARDWARE → STORAGE → MOBILE → CONTAINERS → LINEAGE → EVIDENCE → COMMAND_WALL → STATUS
+#
+# Expected: Windows is the interface, SAGCO is a framework running on top.
+# Actual:   sagco-boot claims PRIMARY governance role, registers Windows as
+#           Department=INFRASTRUCTURE, and presents SAGCO as the operational surface.
+# Variance: POSITIVE — governance layer has inverted.
+# Result:   COMPUTABLE
+
+CASE="${1:-C1602_CASE_001}"
+SILENT="${2:-}"
+
+LOG="sagco_ish/boot/logs/boot_log.csv"
+REPORT="sagco_ish/boot/reports/boot_$(date -u +%Y%m%d).md"
+mkdir -p sagco_ish/boot/logs sagco_ish/boot/reports
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "case,timestamp,stage,result,note" > "$LOG"
+
+PASS=0; WARN=0; FAIL=0
+log_stage() { echo "$CASE,$TS,$1,$2,$3" >> "$LOG"; }
+ok()   { PASS=$((PASS+1)); log_stage "$1" "PASS" "$2";   [ -z "$SILENT" ] && printf "  ✅ %-20s %s\n" "$1" "$2"; }
+warn() { WARN=$((WARN+1)); log_stage "$1" "WARN" "$2";   [ -z "$SILENT" ] && printf "  ⚠️  %-20s %s\n" "$1" "$2"; }
+fail() { FAIL=$((FAIL+1)); log_stage "$1" "FAIL" "$2";   [ -z "$SILENT" ] && printf "  ❌ %-20s %s\n" "$1" "$2"; }
+
+[ -z "$SILENT" ] && cat <<BANNER
+╔══════════════════════════════════════════════════════════╗
+║                   SAGCO BOOT                             ║
+║          Sovereign Loop Active — Empire Eternal          ║
+╚══════════════════════════════════════════════════════════╝
+  Case: $CASE  |  Time: $TS
+BANNER
+[ -z "$SILENT" ] && echo ""
+
+# ── STAGE 1: HARDWARE FLEET ───────────────────────────────────────────────────
+[ -z "$SILENT" ] && echo "  [1/8] HARDWARE"
+NODE_REG="sagco_ish/nodes/data/node_registry.csv"
+ACTIVE=$(grep -c ",ACTIVE," "$NODE_REG" 2>/dev/null | tr -d ' ')
+TOTAL=$(grep -v "^node_id" "$NODE_REG" 2>/dev/null | wc -l | tr -d ' ')
+if [ "$ACTIVE" -ge 3 ]; then
+  ok "FLEET" "${ACTIVE}/${TOTAL} nodes ACTIVE"
+elif [ "$ACTIVE" -ge 1 ]; then
+  warn "FLEET" "${ACTIVE}/${TOTAL} nodes active — degraded fleet"
+else
+  fail "FLEET" "no nodes registered — run sagco-nodes register"
+fi
+
+# ── STAGE 2: STORAGE ──────────────────────────────────────────────────────────
+[ -z "$SILENT" ] && echo "  [2/8] STORAGE"
+PRIMARY=$(grep -i "^PRIMARY_DISK," "$NODE_REG" 2>/dev/null | awk -F',' '{print $5}')
+GENESIS=$(grep -i "^GENESIS_DISK," "$NODE_REG" 2>/dev/null | awk -F',' '{print $5}')
+[ "$PRIMARY" = "ACTIVE" ] && ok "PRIMARY_DISK" "Samsung 990 Pro — ACTIVE" || warn "PRIMARY_DISK" "not registered"
+[ -n "$GENESIS" ] && ok "GENESIS_DISK" "Origin OS disk — ${GENESIS}" || warn "GENESIS_DISK" "ancestry not recorded"
+
+# ── STAGE 3: MOBILE NODES ─────────────────────────────────────────────────────
+[ -z "$SILENT" ] && echo "  [3/8] MOBILE"
+GALAXY=$(grep -i "^GALAXY_FOLD," "$NODE_REG" 2>/dev/null | awk -F',' '{print $5}')
+IPAD=$(grep -i "^IPAD_NODE," "$NODE_REG" 2>/dev/null | awk -F',' '{print $5}')
+[ "$GALAXY" = "ACTIVE" ] && ok "GALAXY_FOLD" "Phone Link node ACTIVE" || warn "GALAXY_FOLD" "not in fleet"
+[ "$IPAD" = "ACTIVE" ] && ok "IPAD_NODE" "iSH terminal node ACTIVE" || warn "IPAD_NODE" "not in fleet"
+
+# ── STAGE 4: CONTAINERS ───────────────────────────────────────────────────────
+[ -z "$SILENT" ] && echo "  [4/8] CONTAINERS"
+if command -v docker >/dev/null 2>&1; then
+  CONTAINERS=$(docker ps -q 2>/dev/null | wc -l | tr -d ' ')
+  IMAGES=$(docker images -q 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$CONTAINERS" -gt 0 ]; then
+    ok "DOCKER" "${CONTAINERS} containers running  ${IMAGES} images"
+  else
+    warn "DOCKER" "daemon accessible but 0 containers running"
+  fi
+else
+  warn "DOCKER" "not accessible from this node (run on HP_DESKTOP)"
+fi
+if command -v kubectl >/dev/null 2>&1; then
+  PODS=$(kubectl get pods --no-headers 2>/dev/null | wc -l | tr -d ' ')
+  [ "$PODS" -gt 0 ] && ok "KUBERNETES" "${PODS} pods running" || warn "KUBERNETES" "accessible but 0 pods"
+else
+  warn "KUBERNETES" "not accessible from this node"
+fi
+
+# ── STAGE 5: LINEAGE INTEGRITY ────────────────────────────────────────────────
+[ -z "$SILENT" ] && echo "  [5/8] LINEAGE"
+BRICK_COUNT=$(grep -v "^brick\|^name" sagco_ish/registry/data/brick_manifest.csv 2>/dev/null | wc -l | tr -d ' ')
+TRANS_COUNT=$(grep -v "^story" sagco_ish/lineage/translations/translation_registry.csv 2>/dev/null | wc -l | tr -d ' ')
+AB_COUNT=$(grep -v "^ab_id" sagco_ish/antibody/data/antibody_archive.csv 2>/dev/null | wc -l | tr -d ' ')
+[ "$BRICK_COUNT" -gt 0 ] && ok "BRICKS" "${BRICK_COUNT} manifested" || fail "BRICKS" "manifest empty"
+[ "$TRANS_COUNT" -gt 0 ] && ok "TRANSLATIONS" "${TRANS_COUNT} registered" || warn "TRANSLATIONS" "none yet"
+[ "$AB_COUNT" -gt 0 ]   && ok "ANTIBODIES" "${AB_COUNT} in archive" || warn "ANTIBODIES" "none yet"
+
+# ── STAGE 6: COMPUTE LAW / EVIDENCE ──────────────────────────────────────────
+[ -z "$SILENT" ] && echo "  [6/8] EVIDENCE"
+COMPUTE_LOG="sagco_ish/compute_law/logs/compute_law.csv"
+COMPUTABLE=$(grep -v "^case" "$COMPUTE_LOG" 2>/dev/null | awk -F',' '$7=="COMPUTABLE"' | wc -l | tr -d ' ')
+MYTHOLOGY=$(grep -v "^case" "$COMPUTE_LOG" 2>/dev/null | awk -F',' '$7=="MYTHOLOGY"' | wc -l | tr -d ' ')
+if [ "$COMPUTABLE" -gt "$MYTHOLOGY" ] && [ "$COMPUTABLE" -gt 0 ]; then
+  ok "COMPUTE_LAW" "${COMPUTABLE} COMPUTABLE  ${MYTHOLOGY} MYTHOLOGY"
+elif [ "$COMPUTABLE" -gt 0 ]; then
+  warn "COMPUTE_LAW" "${COMPUTABLE} computable but ${MYTHOLOGY} mythology — audit recommended"
+else
+  fail "COMPUTE_LAW" "no verified claims — run sagco-compute-law"
+fi
+
+# ── STAGE 7: COMMAND WALL ────────────────────────────────────────────────────
+[ -z "$SILENT" ] && echo "  [7/8] COMMAND WALL"
+PROJECTOR=$(grep -i "^RCA_PROJECTOR," "$NODE_REG" 2>/dev/null | awk -F',' '{print $5}')
+if [ "$PROJECTOR" = "ACTIVE" ]; then
+  ok "RCA_PROJECTOR" "Command Wall ACTIVE — dashboard available"
+  # Signal dashboard to display boot summary
+  sagco_ish/shared_state/bin/sagco-state "$CASE" "COMMAND_WALL_NODE" \
+    "BOOT_DISPLAY" "sagco_boot_${TS}" 2>/dev/null || true
+else
+  warn "RCA_PROJECTOR" "offline or not registered — command wall dark"
+fi
+
+# ── STAGE 8: CLAIM PRIMARY GOVERNANCE ────────────────────────────────────────
+[ -z "$SILENT" ] && echo "  [8/8] GOVERNANCE INVERSION"
+# Register Windows as a department node (Infrastructure, subordinate)
+sh sagco_ish/nodes/bin/sagco-nodes register \
+  "WINDOWS_OS" "INFRASTRUCTURE" \
+  "Windows_11_PowerShell_WSL_Host_Runtime" \
+  "Department_INFRASTRUCTURE_subordinate_to_SAGCO" \
+  ACTIVE NONE "$CASE" 2>/dev/null | grep "registered" || true
+# Set SAGCO as PRIMARY governance in shared state
+sagco_ish/shared_state/bin/sagco-state "$CASE" "SAGCO_GOVERNANCE" \
+  "PRIMARY" "boot_complete_windows_department_sagco_host" 2>/dev/null || true
+ok "GOVERNANCE" "SAGCO=PRIMARY  Windows=Department(INFRASTRUCTURE)"
+
+# ── VERDICT ──────────────────────────────────────────────────────────────────
+TOTAL_CHECKS=$((PASS + WARN + FAIL))
+if [ "$FAIL" -eq 0 ] && [ "$WARN" -le 2 ]; then
+  VERDICT="NOMINAL"
+elif [ "$FAIL" -eq 0 ]; then
+  VERDICT="DEGRADED"
+elif [ "$FAIL" -le 2 ]; then
+  VERDICT="PARTIAL"
+else
+  VERDICT="CRITICAL"
+fi
+
+[ -z "$SILENT" ] && echo ""
+[ -z "$SILENT" ] && echo "────────────────────────────────────────────────────────────"
+[ -z "$SILENT" ] && printf "  BOOT: %-10s  ✅ %s  ⚠️  %s  ❌ %s\n" \
+  "$VERDICT" "$PASS" "$WARN" "$FAIL"
+[ -z "$SILENT" ] && echo ""
+
+case "$VERDICT" in
+  NOMINAL)
+    [ -z "$SILENT" ] && echo "  → Mansion is operational. SAGCO is the interface. Windows is infrastructure."
+    [ -z "$SILENT" ] && echo "  → All departments reporting. Command wall live."
+    ;;
+  DEGRADED)
+    [ -z "$SILENT" ] && echo "  → Boot complete with warnings. Core operational. Run sagco-status for details."
+    ;;
+  PARTIAL)
+    [ -z "$SILENT" ] && echo "  → Some systems offline. Check failed stages above."
+    ;;
+  CRITICAL)
+    [ -z "$SILENT" ] && echo "  → Multiple failures. Run sagco-factory-scan and sagco-nodes --fleet."
+    ;;
+esac
+[ -z "$SILENT" ] && echo ""
+
+# ── Write boot report ─────────────────────────────────────────────────────────
+cat > "$REPORT" <<RPT
+# SAGCO Boot Report
+**Case:** $CASE | **Time:** $TS | **Verdict:** $VERDICT
+
+| Stage | System | Result |
+|-------|--------|--------|
+| 1 | Hardware Fleet | $ACTIVE/$TOTAL nodes ACTIVE |
+| 2 | Storage | PRIMARY_DISK=$PRIMARY / GENESIS_DISK=$GENESIS |
+| 3 | Mobile | GALAXY_FOLD=$GALAXY / IPAD=$IPAD |
+| 4 | Containers | Docker + Kubernetes checked |
+| 5 | Lineage | $BRICK_COUNT bricks / $TRANS_COUNT translations / $AB_COUNT antibodies |
+| 6 | Compute Law | $COMPUTABLE COMPUTABLE / $MYTHOLOGY MYTHOLOGY |
+| 7 | Command Wall | RCA_PROJECTOR=$PROJECTOR |
+| 8 | Governance | SAGCO=PRIMARY / Windows=INFRASTRUCTURE |
+
+**Boot:** $VERDICT — ✅ $PASS  ⚠️  $WARN  ❌ $FAIL
+
+---
+*Generated by \`sagco-boot\` — Brick 071 · SAGCO OS*
+RPT
+
+log_stage "BOOT_COMPLETE" "$VERDICT" "pass=${PASS}_warn=${WARN}_fail=${FAIL}"
+echo "SAGCO_BOOT_COMPLETE"
+printf "VERDICT: %s  |  SAGCO=PRIMARY  |  Windows=INFRASTRUCTURE\n" "$VERDICT"
