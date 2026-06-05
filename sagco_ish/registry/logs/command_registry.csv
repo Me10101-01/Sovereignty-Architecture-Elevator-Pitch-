@@ -68,3 +68,4 @@ alchemy,sagco_ish/alchemy/bin/sagco-alchemy,tool,ACTIVE,2026-06-05T02:16:26Z
 mobile-ingest,sagco_ish/mobile/bin/sagco-mobile-ingest,tool,ACTIVE,2026-06-05T02:16:26Z
 life-test,sagco_ish/life_test/bin/sagco-life-test,tool,ACTIVE,2026-06-05T02:16:26Z
 nodes,sagco_ish/nodes/bin/sagco-nodes,tool,ACTIVE,2026-06-05T02:35:01Z
+factory-scan,sagco_ish/factory/bin/sagco-factory-scan,tool,ACTIVE,2026-06-05T02:54:40Z

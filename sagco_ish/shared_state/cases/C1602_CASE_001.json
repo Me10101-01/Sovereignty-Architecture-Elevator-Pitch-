@@ -1,7 +1,7 @@
 {
   "case": "C1602_CASE_001",
-  "last_node": "NODE_REGISTRY",
-  "status": "NODE_ACTIVE",
-  "note": "node_PRIMARY_DISK_role_Current_SAGCO_OS_Docker_Fleet_Kubernetes_Lineage_Logs_All_Bricks",
-  "updated": "2026-06-05T02:52:31Z"
+  "last_node": "COMPUTE_LAW_NODE",
+  "status": "COMPUTE_LAW_COMPUTABLE",
+  "note": "claim_brick_068_factory_scan_reports_bricks_hash_15c7e8150ac93701",
+  "updated": "2026-06-05T02:54:40Z"
 }

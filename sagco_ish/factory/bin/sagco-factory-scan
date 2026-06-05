@@ -1,0 +1,150 @@
+#!/bin/sh
+# SAGCO Factory Scan — Brick 068
+# usage: sagco-factory-scan [FACTORY_ID] [CASE]
+# Turns the physical workstation into a queryable node.
+# Reports its own hardware state into the SAGCO fleet registry.
+# Run this ON the factory node (HP Desktop, WSL, or iSH).
+# Graceful fallbacks for every command — works in containers too.
+FACTORY_ID="${1:-SAGCO_FACTORY_001}"
+CASE="${2:-C1602_CASE_001}"
+
+LOG="sagco_ish/factory/logs/factory_status.csv"
+REPORT="sagco_ish/factory/logs/factory_${FACTORY_ID}.md"
+mkdir -p sagco_ish/factory/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "timestamp,factory_id,metric,value,status" > "$LOG"
+
+log_metric() { echo "$TS,$FACTORY_ID,$1,$2,$3" >> "$LOG"; }
+
+echo "╔══════════════════════════════════════════════════════════╗"
+printf "║  SAGCO FACTORY SCAN: %-36s║\n" "$FACTORY_ID"
+echo "╚══════════════════════════════════════════════════════════╝"
+echo "  Case: $CASE  |  Time: $TS"
+echo ""
+
+# ── CPU ───────────────────────────────────────────────────────────────────────
+echo "  [CPU]"
+CPU_MODEL="UNKNOWN"
+CPU_CORES="0"
+if [ -f /proc/cpuinfo ]; then
+  CPU_MODEL=$(grep "model name" /proc/cpuinfo 2>/dev/null | head -1 | cut -d':' -f2 | sed 's/^ //')
+  CPU_CORES=$(grep -c "^processor" /proc/cpuinfo 2>/dev/null | tr -d ' ')
+fi
+[ -z "$CPU_MODEL" ] && CPU_MODEL=$(uname -m 2>/dev/null || echo "UNKNOWN")
+printf "    Model  : %s\n" "$CPU_MODEL"
+printf "    Cores  : %s\n" "$CPU_CORES"
+log_metric "CPU_MODEL" "$CPU_MODEL" "OK"
+log_metric "CPU_CORES" "$CPU_CORES" "OK"
+
+# ── RAM ───────────────────────────────────────────────────────────────────────
+echo "  [RAM]"
+RAM_GB="0"
+if [ -f /proc/meminfo ]; then
+  RAM_KB=$(awk '/MemTotal/{print $2}' /proc/meminfo 2>/dev/null)
+  RAM_GB=$(awk "BEGIN{printf \"%.1f\", $RAM_KB/1024/1024}")
+fi
+printf "    Total  : %s GB\n" "$RAM_GB"
+log_metric "RAM_GB" "$RAM_GB" "OK"
+
+# ── STORAGE ───────────────────────────────────────────────────────────────────
+echo "  [STORAGE]"
+if command -v lsblk >/dev/null 2>&1; then
+  lsblk -dno NAME,SIZE,TYPE 2>/dev/null | grep -v "loop\|ram" | while read name size type; do
+    printf "    /dev/%-6s %s\n" "$name" "$size"
+  done
+else
+  # Fallback: df on key paths
+  df -h / 2>/dev/null | tail -1 | awk '{printf "    /  %s total  %s used  %s free\n", $2, $3, $4}'
+fi
+DF_ROOT=$(df -h / 2>/dev/null | tail -1 | awk '{print $2}')
+log_metric "ROOT_DISK_SIZE" "$DF_ROOT" "OK"
+
+# ── DOCKER ────────────────────────────────────────────────────────────────────
+echo "  [DOCKER]"
+DOCKER_STATUS="NOT_FOUND"
+DOCKER_RUNNING="0"
+DOCKER_IMAGES="0"
+if command -v docker >/dev/null 2>&1; then
+  DOCKER_RUNNING=$(docker ps -q 2>/dev/null | wc -l | tr -d ' ')
+  DOCKER_IMAGES=$(docker images -q 2>/dev/null | wc -l | tr -d ' ')
+  DOCKER_STATUS="RUNNING"
+  [ "$DOCKER_RUNNING" = "0" ] && DOCKER_STATUS="IDLE"
+fi
+printf "    Status    : %s\n" "$DOCKER_STATUS"
+printf "    Containers: %s running  %s images\n" "$DOCKER_RUNNING" "$DOCKER_IMAGES"
+log_metric "DOCKER_STATUS" "$DOCKER_STATUS" "OK"
+log_metric "DOCKER_CONTAINERS" "$DOCKER_RUNNING" "OK"
+
+# ── KUBERNETES ────────────────────────────────────────────────────────────────
+echo "  [KUBERNETES]"
+K8S_STATUS="NOT_FOUND"
+K8S_PODS="0"
+if command -v kubectl >/dev/null 2>&1; then
+  K8S_PODS=$(kubectl get pods --no-headers 2>/dev/null | wc -l | tr -d ' ')
+  K8S_STATUS="ACTIVE"
+  [ "$K8S_PODS" = "0" ] && K8S_STATUS="IDLE"
+fi
+printf "    Status: %s  Pods: %s\n" "$K8S_STATUS" "$K8S_PODS"
+log_metric "K8S_STATUS" "$K8S_STATUS" "OK"
+log_metric "K8S_PODS" "$K8S_PODS" "OK"
+
+# ── NODE REGISTRY cross-check ─────────────────────────────────────────────────
+echo "  [NODE REGISTRY]"
+NODE_COUNT=$(grep -v "^node_id" sagco_ish/nodes/data/node_registry.csv 2>/dev/null | wc -l | tr -d ' ')
+ACTIVE_NODES=$(grep -c ",ACTIVE," sagco_ish/nodes/data/node_registry.csv 2>/dev/null | tr -d ' ')
+ANCESTOR=$(grep -ic ",ANCESTOR" sagco_ish/nodes/data/node_registry.csv 2>/dev/null | tr -d ' ')
+printf "    Fleet: %s total  %s ACTIVE  %s ANCESTOR\n" "$NODE_COUNT" "$ACTIVE_NODES" "$ANCESTOR"
+log_metric "FLEET_NODES" "$NODE_COUNT" "OK"
+log_metric "FLEET_ACTIVE" "$ACTIVE_NODES" "OK"
+
+# ── SAGCO STACK health ────────────────────────────────────────────────────────
+echo "  [SAGCO STACK]"
+BRICK_COUNT=$(grep -v "^brick\|^name" sagco_ish/registry/data/brick_manifest.csv 2>/dev/null | wc -l | tr -d ' ')
+CMD_COUNT=$(grep -v "^name" sagco_ish/registry/logs/command_registry.csv 2>/dev/null | wc -l | tr -d ' ')
+TRANS_COUNT=$(grep -v "^story" sagco_ish/lineage/translations/translation_registry.csv 2>/dev/null | wc -l | tr -d ' ')
+AB_COUNT=$(grep -v "^ab_id" sagco_ish/antibody/data/antibody_archive.csv 2>/dev/null | wc -l | tr -d ' ')
+printf "    Manifested bricks: %s\n" "$BRICK_COUNT"
+printf "    Commands registered: %s\n" "$CMD_COUNT"
+printf "    Translations: %s\n" "$TRANS_COUNT"
+printf "    Antibodies: %s\n" "$AB_COUNT"
+log_metric "BRICKS_MANIFESTED" "$BRICK_COUNT" "OK"
+log_metric "COMMANDS_REGISTERED" "$CMD_COUNT" "OK"
+
+# ── Write markdown report ──────────────────────────────────────────────────────
+cat > "$REPORT" <<RPT
+# SAGCO Factory Scan: $FACTORY_ID
+**Case:** $CASE | **Scanned:** $TS
+
+| Metric | Value |
+|--------|-------|
+| CPU | $CPU_MODEL ($CPU_CORES cores) |
+| RAM | ${RAM_GB} GB |
+| Root Disk | $DF_ROOT |
+| Docker | $DOCKER_STATUS ($DOCKER_RUNNING containers, $DOCKER_IMAGES images) |
+| Kubernetes | $K8S_STATUS ($K8S_PODS pods) |
+| Fleet nodes | $NODE_COUNT total ($ACTIVE_NODES ACTIVE, $ANCESTOR ANCESTOR) |
+| Bricks manifested | $BRICK_COUNT |
+| Commands registered | $CMD_COUNT |
+| Translations | $TRANS_COUNT |
+| Antibodies | $AB_COUNT |
+
+---
+*Generated by \`sagco-factory-scan\` — Brick 068 · SAGCO OS*
+RPT
+
+# ── Update node registry with live factory state ──────────────────────────────
+sh sagco_ish/nodes/bin/sagco-nodes register \
+  "$FACTORY_ID" FACTORY_NODE \
+  "AMD_Ryzen_${CPU_CORES}core_${RAM_GB}GB_RAM_990Pro_1TB" \
+  "Self_Reporting_Factory_Node_Docker_K8s_SAGCO_Stack" \
+  ACTIVE GENESIS_DISK "$CASE" 2>/dev/null | grep "registered" || true
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "FACTORY_SCAN_NODE" \
+  "FACTORY_ACTIVE" \
+  "factory_${FACTORY_ID}_ram_${RAM_GB}GB_docker_${DOCKER_RUNNING}_bricks_${BRICK_COUNT}" \
+  2>/dev/null || true
+
+echo ""
+echo "SAGCO_FACTORY_SCAN_COMPLETE"
+echo "FACTORY: $FACTORY_ID  |  RAM: ${RAM_GB}GB  |  DOCKER: $DOCKER_RUNNING  |  BRICKS: $BRICK_COUNT"
+echo "REPORT: $REPORT"

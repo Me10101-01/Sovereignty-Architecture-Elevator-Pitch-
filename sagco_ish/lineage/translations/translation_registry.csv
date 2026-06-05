@@ -17,3 +17,4 @@ Alchemist_Wing,Contradiction_ERU_Variance_Pressure_Brick_Compute_Survive_Pipelin
 Mobile_Node,Device_as_First_Class_SAGCO_Ingestion_Node_with_SHA256_Lineage,test -x sagco_ish/mobile/bin/sagco-mobile-ingest,COMPUTABLE,2026-06-05T02:16:33Z
 Life_Test,Artifact_Survival_Test_Through_Physical_Digital_Device_Chain,test -x sagco_ish/life_test/bin/sagco-life-test,COMPUTABLE,2026-06-05T02:16:33Z
 Hardware_Fleet,Physical_Node_Registry_Every_Device_That_Joins_Mansion_Gets_Status_Lineage_Role,test -x sagco_ish/nodes/bin/sagco-nodes,COMPUTABLE,2026-06-05T02:35:01Z
+Factory_Node,Self_Reporting_Physical_Workstation_CPU_RAM_Docker_K8s_Fleet_SAGCO_Stack,test -x sagco_ish/factory/bin/sagco-factory-scan,COMPUTABLE,2026-06-05T02:54:40Z
