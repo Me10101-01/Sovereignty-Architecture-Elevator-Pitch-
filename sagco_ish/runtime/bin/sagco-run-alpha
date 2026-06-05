@@ -47,6 +47,10 @@ run_agent compute-law-report "sagco_ish/compute_law/bin/sagco-compute-law-report
 if [ -f "$LOG" ]; then
   run_agent midi "sagco_ish/midi/bin/sagco-midi $LOG ${CASE}_alpha $CASE"
 fi
+# Wing H: close every cycle with coordinate snapshot of core bricks
+run_agent coords-evo       "sagco_ish/coords/bin/sagco-coords sagco-evo $CASE"
+run_agent coords-translate "sagco_ish/coords/bin/sagco-coords sagco-translate $CASE"
+run_agent coords-compute   "sagco_ish/coords/bin/sagco-coords sagco-compute-law $CASE"
 sagco_ish/shared_state/bin/sagco-state "$CASE" "RUNTIME_ALPHA_NODE" "ACTIVE" "alpha_cycle_complete_$(TS)" 2>/dev/null || true
 echo "===== SAGCO RUNTIME ALPHA COMPLETE ====="
 tail -25 "$LOG"

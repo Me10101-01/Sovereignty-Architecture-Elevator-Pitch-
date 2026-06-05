@@ -63,3 +63,4 @@ translate,sagco_ish/lineage/bin/sagco-translate,tool,ACTIVE,2026-06-05T00:43:17Z
 weight,sagco_ish/governance_fleet/bin/sagco-weight,tool,ACTIVE,2026-06-05T00:53:32Z
 governance,sagco_ish/governance_fleet/bin/sagco-governance,tool,ACTIVE,2026-06-05T00:53:32Z
 collapse-score,sagco_ish/collapse/bin/sagco-collapse-score,tool,ACTIVE,2026-06-05T01:03:50Z
+coords,sagco_ish/coords/bin/sagco-coords,tool,ACTIVE,2026-06-05T01:59:18Z

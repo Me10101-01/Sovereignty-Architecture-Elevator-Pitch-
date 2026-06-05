@@ -1,0 +1,132 @@
+#!/bin/sh
+# SAGCO Coordinate System — Wing H / Brick 063
+# usage: sagco-coords BRICK [CASE]
+# Answers: WHERE IS BRICK X?
+# Queries all known coordinate axes simultaneously:
+#   CASE · BRICK · PID · NODE · DEVICE · WEIGHT · COLLAPSE · STATUS · LINEAGE
+# This is the GPS layer — built after the roads, reads every road at once.
+BRICK="$1"
+CASE="${2:-C1602_CASE_001}"
+[ -z "$BRICK" ] && echo "usage: sagco-coords BRICK [CASE]" && exit 1
+
+LOG="sagco_ish/coords/logs/coords.csv"
+MANIFEST="sagco_ish/registry/data/brick_manifest.csv"
+STATE_LOG="sagco_ish/shared_state/logs/state_updates.csv"
+COMPUTE_LOG="sagco_ish/compute_law/logs/compute_law.csv"
+COLLAPSE_LOG="sagco_ish/collapse/logs/collapse_scores.csv"
+LINK_LOG="sagco_ish/link_bridge/logs/link_bridge.csv"
+CITES="sagco_ish/lineage/citations/citations.csv"
+INVS="sagco_ish/lineage/inventions/inventions.csv"
+DEPS="sagco_ish/deps/data/deps.csv"
+
+mkdir -p sagco_ish/coords/logs
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo NO_DATE)
+[ ! -f "$LOG" ] && echo "case,brick,pid,node,device,weight,tier,collapse,status,timestamp" > "$LOG"
+
+SAFE=$(echo "$BRICK" | tr '-' '_' | tr '[:upper:]' '[:lower:]')
+
+echo "╔══════════════════════════════════════════════════════════╗"
+printf "║  SAGCO COORDINATES: %-38s║\n" "$BRICK"
+echo "╚══════════════════════════════════════════════════════════╝"
+echo ""
+
+# ── CASE axis ─────────────────────────────────────────────────────────────────
+printf "  CASE      : %s\n" "$CASE"
+
+# ── BRICK axis: manifest registration ────────────────────────────────────────
+BRICK_REG="NOT_IN_MANIFEST"
+if grep -qi "^${BRICK}," "$MANIFEST" 2>/dev/null; then
+  PURPOSE=$(grep -i "^${BRICK}," "$MANIFEST" 2>/dev/null | head -1 | cut -d',' -f2)
+  BRICK_REG="MANIFESTED (${PURPOSE})"
+fi
+printf "  BRICK      : %s\n" "$BRICK_REG"
+
+# ── PID axis: is the brick binary currently running? ─────────────────────────
+BINARY=$(grep -i "^${BRICK}," sagco_ish/registry/logs/command_registry.csv 2>/dev/null | \
+  head -1 | cut -d',' -f2)
+PID_STATUS="NOT_RUNNING"
+PID_VAL="—"
+if [ -n "$BINARY" ]; then
+  PID_VAL=$(pgrep -f "$BINARY" 2>/dev/null | head -1)
+  [ -n "$PID_VAL" ] && PID_STATUS="RUNNING (PID $PID_VAL)" || PID_STATUS="IDLE"
+fi
+printf "  PID        : %s\n" "$PID_STATUS"
+
+# ── NODE axis: which state mesh node last touched this brick ──────────────────
+LAST_NODE=$(grep -i "${SAFE}\|${BRICK}" "$STATE_LOG" 2>/dev/null | \
+  tail -1 | awk -F',' '{print $2}')
+[ -z "$LAST_NODE" ] && LAST_NODE="NO_STATE_ENTRY"
+printf "  NODE       : %s\n" "$LAST_NODE"
+
+# ── DEVICE axis: last LAN IP that interacted with this case ──────────────────
+LAST_IP=$(grep -v "^timestamp" "$LINK_LOG" 2>/dev/null | tail -1 | awk -F',' '{print $4}')
+[ -z "$LAST_IP" ] && LAST_IP="SINGLE_NODE"
+printf "  DEVICE     : %s\n" "$LAST_IP"
+
+# ── WEIGHT axis ───────────────────────────────────────────────────────────────
+WEIGHT_OUT=$(sh sagco_ish/governance_fleet/bin/sagco-weight "$BRICK" "$CASE" 2>/dev/null)
+WEIGHT_VAL=$(echo "$WEIGHT_OUT" | grep "^WEIGHT:" | awk '{print $2}')
+TIER_VAL=$(echo  "$WEIGHT_OUT" | grep "^WEIGHT:" | awk '{print $4}')
+[ -z "$WEIGHT_VAL" ] && WEIGHT_VAL=0
+[ -z "$TIER_VAL"  ] && TIER_VAL="UNWEIGHED"
+printf "  WEIGHT     : %s  [%s]\n" "$WEIGHT_VAL" "$TIER_VAL"
+
+# ── COLLAPSE axis: current workflow fragmentation ────────────────────────────
+COLLAPSE_VAL="NO_SCORE"
+if [ -f "$COLLAPSE_LOG" ]; then
+  LAST_ROW=$(grep -i "$CASE" "$COLLAPSE_LOG" 2>/dev/null | tail -1)
+  if [ -n "$LAST_ROW" ]; then
+    C_SCORE=$(echo "$LAST_ROW" | awk -F',' '{print $8}')
+    C_VAR=$(echo "$LAST_ROW" | awk -F',' '{print $4}')
+    COLLAPSE_VAL="${C_SCORE} (variance ${C_VAR})"
+  fi
+fi
+printf "  COLLAPSE   : %s\n" "$COLLAPSE_VAL"
+
+# ── STATUS axis: last compute-law verdict ────────────────────────────────────
+LAST_VERDICT=$(grep -i "${SAFE}\|${BRICK}" "$COMPUTE_LOG" 2>/dev/null | \
+  grep "COMPUTABLE\|MYTHOLOGY\|PARTIAL" | tail -1 | awk -F',' '{print $7}')
+[ -z "$LAST_VERDICT" ] && LAST_VERDICT="NO_COMPUTE_LAW_ENTRY"
+printf "  STATUS     : %s\n" "$LAST_VERDICT"
+
+# ── LINEAGE axis: citations + inventions ─────────────────────────────────────
+CITE_COUNT=$(grep -ic "${SAFE}\|${BRICK}" "$CITES" 2>/dev/null | tr -d ' ')
+INV_COUNT=$(grep -ic "${SAFE}\|${BRICK}" "$INVS" 2>/dev/null | tr -d ' ')
+DEP_COUNT=$(grep -ic ",${BRICK}," "$DEPS" 2>/dev/null | tr -d ' ')
+printf "  LINEAGE    : citations=%s  inventions=%s  dependents=%s\n" \
+  "$CITE_COUNT" "$INV_COUNT" "$DEP_COUNT"
+
+echo ""
+echo "────────────────────────────────────────────────────────────"
+
+# ── Narrative summary ────────────────────────────────────────────────────────
+case "$TIER_VAL" in
+  FULL_FLEET)
+    echo "  This brick is a core methodology artifact. Weight >100."
+    echo "  Eligible for full governance review. Escalate to IP attorney."
+    ;;
+  PATENT_REVIEW)
+    echo "  This brick has earned patent-layer review. Weight 50-100."
+    echo "  Run: sagco-governance $BRICK $CASE"
+    ;;
+  TECHNICAL_REVIEW)
+    echo "  This brick is an active engineering tool. Weight 25-50."
+    ;;
+  PEER_REVIEW)
+    echo "  This brick is active and peer-reviewable. Weight 10-25."
+    ;;
+  *)
+    echo "  This brick is experimental or unregistered. Weight <10."
+    ;;
+esac
+
+echo ""
+
+# ── Log ───────────────────────────────────────────────────────────────────────
+echo "$CASE,$BRICK,$PID_VAL,$LAST_NODE,$LAST_IP,$WEIGHT_VAL,$TIER_VAL,$COLLAPSE_VAL,$LAST_VERDICT,$TS" >> "$LOG"
+
+sagco_ish/shared_state/bin/sagco-state "$CASE" "COORDS_NODE" \
+  "COORDS_QUERIED" "brick_${BRICK}_weight_${WEIGHT_VAL}_status_${LAST_VERDICT}" 2>/dev/null || true
+
+echo "SAGCO_COORDS_COMPLETE"
+echo "BRICK: $BRICK  |  WEIGHT: $WEIGHT_VAL  |  TIER: $TIER_VAL  |  STATUS: $LAST_VERDICT"
