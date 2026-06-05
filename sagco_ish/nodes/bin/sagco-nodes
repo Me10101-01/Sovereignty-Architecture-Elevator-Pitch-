@@ -26,8 +26,9 @@ case "$1" in
   echo ""
   grep -v "^node_id" "$NODE_REG" 2>/dev/null | while IFS=, read id dtype model role status parent cas ts; do
     case "$status" in
-      ACTIVE)    SYM="🟢" ;;
-      ANCESTOR)  SYM="🏛️" ;;
+      ACTIVE)         SYM="🟢" ;;
+      ANCESTOR)       SYM="🏛️" ;;
+      ANCESTOR_ACTIVE) SYM="🏛️" ;;
       OFFLINE)   SYM="⚫" ;;
       STANDBY)   SYM="🟡" ;;
       *)         SYM="⚪" ;;
@@ -40,8 +41,8 @@ case "$1" in
   done
   TOTAL=$(grep -v "^node_id" "$NODE_REG" 2>/dev/null | wc -l | tr -d ' ')
   ACTIVE=$(grep -c ",ACTIVE," "$NODE_REG" 2>/dev/null | tr -d ' ')
-  ANCESTOR=$(grep -c ",ANCESTOR," "$NODE_REG" 2>/dev/null | tr -d ' ')
-  printf "  Fleet size: %s nodes (%s ACTIVE, %s ANCESTOR)\n" "$TOTAL" "$ACTIVE" "$ANCESTOR"
+  ANCESTOR=$(grep -ic ",ANCESTOR" "$NODE_REG" 2>/dev/null | tr -d ' ')
+  printf "  Fleet size: %s nodes (%s ACTIVE, %s ANCESTOR/ANCESTOR_ACTIVE)\n" "$TOTAL" "$ACTIVE" "$ANCESTOR"
   echo ""
   echo "SAGCO_FLEET_COMPLETE"
   ;;

@@ -2,6 +2,6 @@
   "case": "C1602_CASE_001",
   "last_node": "NODE_REGISTRY",
   "status": "NODE_ACTIVE",
-  "note": "node_GALAXY_FOLD_role_Mobile_Ingest_Node_Camera_Barcode_Clipboard_Files_Mounts_via_PhoneLink",
-  "updated": "2026-06-05T02:41:08Z"
+  "note": "node_PRIMARY_DISK_role_Current_SAGCO_OS_Docker_Fleet_Kubernetes_Lineage_Logs_All_Bricks",
+  "updated": "2026-06-05T02:52:31Z"
 }
