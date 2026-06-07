@@ -133,6 +133,35 @@ def cmd_run(path: str) -> None:
     print(f"PIDs:    {len(vm.pid_table)}")
 
 
+def cmd_net(sub: str = "", do_ping: bool = False) -> None:
+    from sagco_true.worlds.net.net import discover, sync_to_wafers
+    wn = discover(ping=(do_ping or sub == "ping"))
+    if sub == "sync":
+        wafer_dir = _ROOT / "wafers"
+        out = sync_to_wafers(wn, wafer_dir)
+        print(f"Synced → {out}")
+        print(wn.to_yaml())
+    elif sub == "json":
+        print(json.dumps(wn.to_dict(), indent=2))
+    else:
+        print(wn.to_yaml())
+        if wn.reachability:
+            print("\nReachability:")
+            for r in wn.reachability:
+                icon = "✓" if r.reachable else "✗"
+                lat = f"{r.latency_ms}ms" if r.latency_ms else ""
+                print(f"  {icon} {r.name:12s}  {r.ip:18s}  {lat}")
+
+
+def cmd_import(path: str | None = None) -> None:
+    from sagco_true.wafers.importer import import_all, merge_with_runner
+    wafers = import_all(path)
+    report = merge_with_runner(wafers)
+    print(json.dumps(report, indent=2))
+    print(f"\nImported: {report['total']} wafers")
+    print(f"Status:   {report['status']}")
+
+
 def cmd_manifest() -> None:
     from sagco_true.language.vm.vm import run_file
     manifest_path = _ROOT / "MANIFEST.sagco"
@@ -163,6 +192,8 @@ def main() -> None:
         "truth":      lambda: cmd_truth(),
         "antibodies": lambda: cmd_antibodies(),
         "manifest":   lambda: cmd_manifest(),
+        "net":        lambda: cmd_net(rest[0] if rest else "", "--ping" in rest),
+        "import":     lambda: cmd_import(rest[0] if rest else None),
         "lex":        lambda: cmd_lex(rest[0]) if rest else print("usage: sagco lex <file.sagco>"),
         "parse":      lambda: cmd_parse(rest[0]) if rest else print("usage: sagco parse <file.sagco>"),
         "compile":    lambda: cmd_compile(rest[0], rest[1] if len(rest) > 1 else None) if rest else print("usage: sagco compile <file.sagco>"),
