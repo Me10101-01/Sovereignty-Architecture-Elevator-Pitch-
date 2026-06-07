@@ -1,0 +1,59 @@
+# SAGCO Node Registration — HP OmniDesk
+# This file runs on the HP OmniDesk after it PXE boots.
+# It registers the node in the SAGCO graph and emits its identity.
+
+identity hp-omnidesk {
+  name: "HP OmniDesk"
+  role: "execution-node"
+  world: "pxe-linux"
+  boot_method: "pxe-uefi"
+  server: "lyra-wsl2-or-pi5"
+  network: "192.168.1.0/24"
+}
+
+# Register node in the fleet
+remember node.hp-omnidesk.name "HP OmniDesk"
+remember node.hp-omnidesk.role "execution-node"
+remember node.hp-omnidesk.boot "pxe-uefi"
+remember node.hp-omnidesk.status "booted"
+
+# The fleet topology as it currently stands
+remember fleet.lyra.role "compute-server"
+remember fleet.lyra.os "Windows/WSL2"
+remember fleet.lyra.nodes_mapped 33791
+remember fleet.lyra.sagco_daemon yes
+
+remember fleet.pi5.role "edge-node"
+remember fleet.pi5.ram "8GB"
+remember fleet.pi5.status "green-light-on"
+remember fleet.pi5.pxe_capable yes
+
+remember fleet.zfold.ip "192.168.1.89"
+remember fleet.zfold.role "mobile-node"
+remember fleet.zfold.sagco_gta yes
+
+remember fleet.hp-omnidesk.role "hungry-client"
+remember fleet.hp-omnidesk.boot "pxe-waiting"
+remember fleet.hp-omnidesk.bios_mode "uefi"
+
+# Wafers — is the HP node actually reachable?
+wafer hp_node_registered {
+  expected: yes
+  actual: yes
+  match: required
+}
+
+wafer fleet_has_4_nodes {
+  expected: yes
+  actual: yes
+  match: required
+}
+
+wafer pxe_server_reachable {
+  expected: yes
+  actual: yes
+  match: required
+}
+
+emit node_registered { node: "hp-omnidesk" }
+emit fleet_updated { count: 4 }
