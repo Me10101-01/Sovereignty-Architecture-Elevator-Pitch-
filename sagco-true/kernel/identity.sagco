@@ -1,0 +1,43 @@
+# SAGCO Kernel — Identity Layer
+# Every process knows who built it and why.
+
+identity sagco-identity-module {
+  name: "SAGCO Identity"
+  version: "0.1.0"
+  type: "identity-layer"
+}
+
+# Creator fingerprint
+remember identity.creator.name "Domenic Gabriel Garza"
+remember identity.creator.alias "strategickhaos"
+remember identity.creator.node "ZFold + HP mini + Athena + Lyra + Nova + iPower"
+remember identity.creator.philosophy "No vendor owns the organism. Tools are replaceable. SAGCO owns the pattern."
+
+# SAGCO entity identity
+remember identity.sagco.name "SAGCO"
+remember identity.sagco.full_name "Sovereignty Architecture Graph Command Orchestrator"
+remember identity.sagco.version "0.1.0"
+remember identity.sagco.type "workflow-orchestration-layer"
+remember identity.sagco.current_stage "System Mapper / early Agent Architect"
+
+# Honest status — what is true today
+remember identity.honest.kernel false
+remember identity.honest.pid_allocator false
+remember identity.honest.scheduler false
+remember identity.honest.custom_os false
+remember identity.honest.workflow_orchestration yes
+remember identity.honest.semantic_graph no
+remember identity.honest.filesystem_graph yes
+
+# The song
+remember identity.song.title "Through Glass"
+remember identity.song.artist "Stone Sour"
+remember identity.song.meaning "Building a language that can remember what mattered"
+
+wafer can_remember_identity {
+  expected: yes
+  actual: yes
+  match: required
+}
+
+emit identity_module_loaded

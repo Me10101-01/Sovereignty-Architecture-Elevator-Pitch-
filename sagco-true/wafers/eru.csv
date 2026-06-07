@@ -1,0 +1,10 @@
+name,expected,actual,delta,unit,mode,category,note
+language_lines,500,1840,+1340,lines,required,language,sagco/ Python runtime lines
+sagco_true_lines,0,2000,+2000,lines,required,language,sagco-true/ runtime lines being added
+kernel_files,5,5,0,files,required,kernel,boot/identity/memory/scheduler/syscall
+wafer_checks,7,7,0,count,required,wafers,SAGCO_ARE_YOU_TRUE wafers
+antibody_checks,8,8,0,count,required,antibodies,registered antibody detectors
+worlds_supported,7,1,+6,worlds,optional,portability,target 7 worlds detected today 1 (linux)
+build_targets,4,0,+4,targets,optional,build,exe/linux/termux/apk not yet built
+boards_defined,6,6,0,count,required,boards,all 6 board directories created
+apps_defined,4,4,0,count,required,apps,lyric-os/oyster-drop/mobius-mathml/homework-gates

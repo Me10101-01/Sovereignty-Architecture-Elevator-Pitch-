@@ -1,0 +1,78 @@
+# SAGCO Kernel — Boot Sequence
+# This file IS the boot logic.
+# The Python runtime (boot.py) executes it.
+# If you replace the Python runtime with Rust, Go, or C,
+# this file stays the same. SAGCO owns the pattern.
+
+identity sagco-kernel {
+  name: "SAGCO Kernel"
+  version: "0.1.0"
+  type: "boot-sequence"
+  author: "Domenic Gabriel Garza"
+  philosophy: "No vendor owns the organism. Tools are replaceable. SAGCO owns the pattern."
+}
+
+# Step 1: Detect the world we're running in
+do detect_world {
+  let world = detect("world")
+  remember world.name world
+  emit world_detected
+}
+
+# Step 2: Load identity from PROVENANCE
+do load_identity {
+  let identity_file = detect("file:PROVENANCE.yaml")
+  remember identity.loaded identity_file
+  emit identity_loaded
+}
+
+# Step 3: Mount memory — establish persistent key-value store
+do mount_memory {
+  remember memory.format "sagco-kv-v1"
+  remember memory.backend "in-process"
+  emit memory_mounted
+}
+
+# Step 4: Start scheduler — register boot jobs
+do start_scheduler {
+  remember scheduler.mode "sequential"
+  remember scheduler.priority "boot"
+  emit scheduler_started
+}
+
+# Step 5: Run antibody check
+do run_antibodies {
+  remember antibody.check "pending"
+  emit antibody_check_requested
+}
+
+# Step 6: Signal readiness
+do emit_ready {
+  remember boot.status "ready"
+  emit kernel_ready
+}
+
+# Boot sequence definition — controls step order
+boot {
+  step detect_world
+  step load_identity
+  step mount_memory
+  step start_scheduler
+  step run_antibodies
+  step emit_ready
+}
+
+# Truth wafers for the kernel boot
+wafer can_boot {
+  expected: yes
+  actual: yes
+  match: required
+}
+
+wafer world_detectable {
+  expected: yes
+  actual: yes
+  match: required
+}
+
+measure all_wafers

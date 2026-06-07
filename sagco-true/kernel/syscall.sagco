@@ -1,0 +1,59 @@
+# SAGCO Kernel — Syscall Table
+# Not OS syscalls. SAGCO syscalls.
+# The interface between user-space .sagco programs and the kernel.
+# External tools (git, python, bash, docker) are called through here.
+# SAGCO owns the interface. The adapter is replaceable.
+
+identity sagco-syscall {
+  name: "SAGCO Syscall Table"
+  version: "0.1.0"
+  type: "syscall-interface"
+}
+
+# Syscall definitions
+# Format: remember syscall.<name>.driver "<driver-id>"
+
+# Filesystem
+remember syscall.read_file.driver "filesystem"
+remember syscall.write_file.driver "filesystem"
+remember syscall.list_dir.driver "filesystem"
+remember syscall.watch_path.driver "filesystem"
+
+# Terminal
+remember syscall.exec_shell.driver "terminal"
+remember syscall.exec_powershell.driver "terminal"
+remember syscall.exec_bash.driver "terminal"
+
+# Version control
+remember syscall.git_commit.driver "git"
+remember syscall.git_push.driver "git"
+remember syscall.git_status.driver "git"
+
+# AI
+remember syscall.reason.driver "claude"
+remember syscall.complete.driver "claude"
+remember syscall.embed.driver "claude"
+
+# Network
+remember syscall.http_get.driver "browser"
+remember syscall.http_post.driver "browser"
+remember syscall.webhook.driver "browser"
+
+# Memory
+remember syscall.kv_get.driver "memory"
+remember syscall.kv_set.driver "memory"
+remember syscall.graph_link.driver "memory"
+
+# Platform adapters
+remember syscall.windows_registry.driver "windows"
+remember syscall.termux_api.driver "termux"
+remember syscall.docker_run.driver "docker"
+remember syscall.kubectl_apply.driver "kubernetes"
+
+# Syscall status
+remember syscall.total 20
+remember syscall.implemented 3
+remember syscall.stubbed 17
+remember syscall.note "All syscalls route through drivers/ adapters. External tools never called directly."
+
+emit syscall_table_loaded

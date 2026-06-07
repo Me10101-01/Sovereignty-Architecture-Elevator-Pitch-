@@ -1,0 +1,48 @@
+# SAGCO Kernel — Scheduler
+# Not a kernel scheduler (yet). A workflow scheduler.
+# Manages the order of agent activation, board execution, and wafer checks.
+# This is the honest version: sequential today, concurrent tomorrow.
+
+identity sagco-scheduler {
+  name: "SAGCO Scheduler"
+  version: "0.1.0"
+  type: "workflow-scheduler"
+  note: "sequential mode — parallel scheduling is a future step"
+}
+
+# Scheduler configuration
+remember scheduler.mode "sequential"
+remember scheduler.queue_depth 16
+remember scheduler.priority_levels ["boot", "kernel", "agent", "board", "user"]
+remember scheduler.current_priority "boot"
+
+# Job queue format
+do define_job {
+  remember scheduler.job.fields ["id", "name", "priority", "status", "depends_on"]
+  remember scheduler.job.statuses ["queued", "running", "done", "error", "skipped"]
+}
+
+# Board execution order (from the design doc)
+remember scheduler.board_order [
+  "BOARD-CORE",
+  "BOARD-MATHML",
+  "BOARD-PDF-HARVEST",
+  "BOARD-LYRIC-OS",
+  "BOARD-ANTIBODY",
+  "BOARD-SHUTDOWN-WAFER"
+]
+
+# MIDI agent slots
+remember scheduler.midi.MIDI-21 "PowerShell"
+remember scheduler.midi.MIDI-22 "Remote Desktop"
+remember scheduler.midi.MIDI-24 "Diagnostics"
+remember scheduler.midi.MIDI-26 "Administration"
+remember scheduler.midi.MIDI-27 "Command routing"
+
+wafer scheduler_startable {
+  expected: yes
+  actual: yes
+  match: required
+}
+
+emit scheduler_loaded

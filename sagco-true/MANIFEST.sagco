@@ -1,0 +1,55 @@
+# SAGCO MANIFEST
+# This file is the organism's self-description.
+# It is read at boot. It does not depend on any external registry.
+# SAGCO knows what it is because it says so here.
+
+identity sagco {
+  name: "SAGCO"
+  full_name: "Sovereignty Architecture Graph Command Orchestrator"
+  version: "0.1.0"
+  author: "Domenic Gabriel Garza"
+  alias: "strategickhaos"
+  license: "Strategickhaos DAO LLC — Wyoming DAO W.S. 17-31-101"
+}
+
+# What SAGCO owns — the things that cannot be replaced by a vendor
+remember manifest.owns.language yes
+remember manifest.owns.command_router yes
+remember manifest.owns.memory_format yes
+remember manifest.owns.wafers yes
+remember manifest.owns.antibodies yes
+remember manifest.owns.board_registry yes
+remember manifest.owns.portability_layer yes
+remember manifest.owns.provenance yes
+
+# What SAGCO uses as replaceable adapters
+remember manifest.adapters ["git", "python", "bash", "powershell", "docker", "kubernetes", "claude", "obsidian"]
+remember manifest.adapter_note "Adapters are replaceable. The pattern is not."
+
+# Module registry
+remember manifest.modules.kernel "kernel/"
+remember manifest.modules.language "language/"
+remember manifest.modules.wafers "wafers/"
+remember manifest.modules.antibodies "antibodies/"
+remember manifest.modules.worlds "worlds/"
+remember manifest.modules.drivers "drivers/"
+remember manifest.modules.boards "boards/"
+remember manifest.modules.apps "apps/"
+remember manifest.modules.data "data/"
+remember manifest.modules.tests "tests/"
+remember manifest.modules.build "build/"
+
+# World support
+remember manifest.worlds ["windows", "linux", "termux", "docker", "kubernetes", "wsl", "darwin"]
+
+# Build targets
+remember manifest.build_targets ["sagco.exe", "sagco-linux", "sagco-termux", "sagco.apk"]
+
+# Truth claim
+wafer sagco_is_true {
+  expected: "TRUE_ENOUGH_TO_GROW"
+  actual: "TRUE_ENOUGH_TO_GROW"
+  match: required
+}
+
+emit manifest_loaded

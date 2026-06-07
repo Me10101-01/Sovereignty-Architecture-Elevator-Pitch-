@@ -1,0 +1,9 @@
+name,expected,actual,result,mode,category,note
+can_boot,yes,yes,PASS,required,kernel,
+can_remember_identity,yes,yes,PASS,required,kernel,
+can_detect_world,yes,yes,PASS,required,kernel,
+can_measure_reality,yes,yes,PASS,required,kernel,
+can_learn_from_error,yes,yes,PASS,required,antibody,
+can_run_on_phone,yes,partial,PASS,optional,portability,
+world,detected,linux,FAIL,optional,environment,
+python_version,3.x,3.11,FAIL,optional,runtime,

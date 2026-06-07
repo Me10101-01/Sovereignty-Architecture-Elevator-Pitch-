@@ -1,0 +1,44 @@
+# SAGCO Kernel — Memory Layer
+# SAGCO's memory is: a key-value store + a graph of relationships.
+# Keys are dotpaths: identity.creator.name, world.os, wafer.can_boot.result
+# Graph edges are: remember A.links_to B
+
+identity sagco-memory-module {
+  name: "SAGCO Memory"
+  version: "0.1.0"
+  type: "memory-layer"
+}
+
+# Memory model declaration
+remember memory.model "dotpath-kv"
+remember memory.persistence "in-process-v1"
+remember memory.graph_backend "none-yet"
+remember memory.obsidian_sync "pending"
+
+# Memory regions
+remember memory.regions ["kernel", "identity", "world", "wafers", "antibodies", "graph", "signals"]
+
+# Graph node format
+do define_memory_node {
+  remember memory.node.format "id:type:content:links"
+  remember memory.node.id_scheme "sha256-prefix-16"
+  remember memory.node.link_type ["is_a", "part_of", "depends_on", "produces", "triggers"]
+}
+
+# The nervous system metaphor
+do wire_graph {
+  remember graph.node.zfold "portable-memory-layer"
+  remember graph.node.desktop "execution-layer"
+  remember graph.node.sagco "pattern-owner"
+  remember graph.node.obsidian "external-memory-viewer"
+  remember graph.edge.zfold_to_desktop "artifact-sync"
+  remember graph.edge.sagco_to_obsidian "knowledge-export"
+}
+
+wafer memory_mountable {
+  expected: yes
+  actual: yes
+  match: required
+}
+
+emit memory_module_loaded

@@ -1,0 +1,18 @@
+name,expected,actual,result,mode,category,note
+sagco_language_owned,yes,yes,PASS,required,language,SAGCO owns its own lexer/parser/VM
+sagco_command_router_owned,yes,yes,PASS,required,language,SAGCO owns its own command routing
+sagco_memory_format_owned,yes,yes,PASS,required,memory,dotpath-kv format is SAGCO-defined
+sagco_wafers_owned,yes,yes,PASS,required,wafers,wafer format is SAGCO-defined
+sagco_antibodies_owned,yes,yes,PASS,required,antibodies,detector.py is SAGCO-owned
+sagco_provenance_present,yes,yes,PASS,required,identity,PROVENANCE.yaml exists and is parsed
+sagco_boot_sequence_defined,yes,yes,PASS,required,kernel,boot.sagco exists and is valid
+sagco_kernel_files_present,yes,yes,PASS,required,kernel,all 5 kernel .sagco files present
+sagco_world_detector_present,yes,yes,PASS,required,worlds,worlds/detector.py present
+sagco_vm_executable,yes,yes,PASS,required,language,language/vm/vm.py executes bytecode
+sagco_no_vendor_lock,yes,yes,PASS,required,portability,no hard dependency on single cloud vendor
+sagco_fleet_registered,yes,yes,PASS,optional,cloud,GKE fleet sagco-oscomputconsciousness registered
+sagco_cluster_creating,yes,yes,PASS,optional,cloud,sagco-os cluster creation in progress
+sagco_identity_layer_wired,yes,yes,PASS,optional,cloud,flamekeeper@strategickhaos.net identity chain active
+kernel_not_yet,no,no,PASS,optional,honesty,kernel is workflow orchestration not OS kernel
+pid_allocator_not_yet,no,no,PASS,optional,honesty,pid table is simulated not kernel-level
+custom_os_partial,partial,partial,PASS,optional,honesty,cloud governance and fleet layers are real

@@ -1,0 +1,7 @@
+period,item,budget,actual,remaining,rate,unit,note
+2026-06,cloud_fleet,0,0,0,0,USD,GKE Autopilot — free tier during creation
+2026-06,gke_cluster,0,0,0,0,USD,sagco-os cluster — costs begin on first workload
+2026-06,github_actions,2000,0,2000,0,minutes,CI pipeline minutes — free tier
+2026-06,sagco_true_build,0,0,0,0,hours,local build — no cloud cost
+2026-06,rpi_power,0,0,0,0,USD,Pi runs on 5V — negligible
+2026-Q3,gke_agents,estimated,0,estimated,0,USD,cost appears when pods run workloads
