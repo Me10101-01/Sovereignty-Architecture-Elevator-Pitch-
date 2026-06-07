@@ -16,6 +16,20 @@ Usage:
   ./sagco wafer <name>
   ./sagco manifest
   ./sagco version
+
+  # Replication
+  ./sagco replicate --target usb    --mount /Volumes/SAGCO
+  ./sagco replicate --target pi     --ip 192.168.1.42
+  ./sagco replicate --target phone  --via termux --ip 192.168.1.89
+  ./sagco replicate --target phone  --via adb
+  ./sagco replicate --target pxe    --ip 192.168.1.98
+  ./sagco replicate --target local  --mount /tmp/sagco-clone
+  ./sagco replicate --target pi     --ip 192.168.1.42 --mode verify
+  ./sagco replicate --target usb    --mount /mnt/usb   --dry-run
+
+  # Cell division
+  ./sagco divide --new-cell "HP-Node-01" --target-type pi --ip 192.168.1.42
+  ./sagco divide --new-cell "ZFold-Node" --target-type phone --out /tmp/cells
 """
 
 import json
@@ -162,6 +176,118 @@ def cmd_import(path: str | None = None) -> None:
     print(f"Status:   {report['status']}")
 
 
+def _parse_flags(args: list[str]) -> dict:
+    """Minimal flag parser for --key value and --bool-flag forms."""
+    flags: dict = {}
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a.startswith("--"):
+            key = a[2:].replace("-", "_")
+            if i + 1 < len(args) and not args[i + 1].startswith("--"):
+                flags[key] = args[i + 1]
+                i += 2
+            else:
+                flags[key] = True
+                i += 1
+        else:
+            i += 1
+    return flags
+
+
+def cmd_replicate(args: list[str]) -> None:
+    from sagco_true.replicator.replicator import replicate_cli
+
+    flags = _parse_flags(args)
+
+    target_name = flags.get("target")
+    if not target_name:
+        print("[error] --target required. Choose: usb, pi, phone, pxe, local")
+        print("  Examples:")
+        print("    sagco replicate --target pi    --ip 192.168.1.42")
+        print("    sagco replicate --target usb   --mount /Volumes/SAGCO")
+        print("    sagco replicate --target phone --via termux")
+        print("    sagco replicate --target pxe   --ip 192.168.1.98")
+        return
+
+    port_raw = flags.get("port")
+    port = int(port_raw) if port_raw and str(port_raw).isdigit() else None
+
+    source = flags.get("source") or str(_ROOT.parent)
+
+    session = replicate_cli(
+        target_name=target_name,
+        source_root=source,
+        ip=flags.get("ip"),
+        mount=flags.get("mount"),
+        device=flags.get("device"),
+        via=flags.get("via", "ssh"),
+        host=flags.get("host"),
+        user=flags.get("user"),
+        port=port,
+        ssh_key=flags.get("ssh_key"),
+        pxe_root=flags.get("pxe_root"),
+        tftp_root=flags.get("tftp_root"),
+        iface=flags.get("iface", "eth0"),
+        mode=flags.get("mode", "smart"),
+        dry_run=bool(flags.get("dry_run", False)),
+        verify_after=not bool(flags.get("no_verify", False)),
+        print_summary=True,
+    )
+
+    if session.result and not session.result.success:
+        sys.exit(1)
+
+
+def cmd_divide(args: list[str]) -> None:
+    from sagco_true.replicator.cell_division import divide
+
+    flags = _parse_flags(args)
+
+    new_cell = flags.get("new_cell")
+    if not new_cell:
+        print("[error] --new-cell <name> required")
+        print("  Examples:")
+        print("    sagco divide --new-cell 'HP-Node-01' --target-type pi --ip 192.168.1.42")
+        print("    sagco divide --new-cell 'ZFold-Node' --target-type phone")
+        return
+
+    target_type  = flags.get("target_type", "local")
+    ip           = flags.get("ip")
+    out_dir      = flags.get("out") or flags.get("output")
+    custom_raw   = flags.get("boards", "")
+    custom_boards = [b.strip() for b in custom_raw.split(",") if b.strip()] if custom_raw else []
+
+    source_root = flags.get("source") or str(_ROOT.parent)
+
+    print(f"\nSAGCO Cell Division")
+    print(f"  New cell    : {new_cell}")
+    print(f"  Target type : {target_type}")
+    if ip:
+        print(f"  Target IP   : {ip}")
+    if out_dir:
+        print(f"  Output dir  : {out_dir}")
+
+    identity = divide(
+        source_root=source_root,
+        new_cell_name=new_cell,
+        target_type=target_type,
+        target_ip=ip,
+        custom_boards=custom_boards or None,
+        output_dir=out_dir,
+    )
+
+    print(f"\n  Cell ID     : {identity.cell_id}")
+    print(f"  Generation  : {identity.generation}")
+    print(f"  Parent cell : {identity.parent_cell}")
+    if out_dir:
+        print(f"\n  Files written to: {out_dir}")
+        print(f"    cell_identity.sagco")
+        print(f"    DIVISION_MANIFEST.json")
+        print(f"    cell_boot_wafer.sagco")
+    print(f"\n  STATUS: CELL_DIVIDED")
+
+
 def cmd_manifest() -> None:
     from sagco_true.language.vm.vm import run_file
     manifest_path = _ROOT / "MANIFEST.sagco"
@@ -198,6 +324,8 @@ def main() -> None:
         "parse":      lambda: cmd_parse(rest[0]) if rest else print("usage: sagco parse <file.sagco>"),
         "compile":    lambda: cmd_compile(rest[0], rest[1] if len(rest) > 1 else None) if rest else print("usage: sagco compile <file.sagco>"),
         "run":        lambda: cmd_run(rest[0]) if rest else print("usage: sagco run <file.sagco>"),
+        "replicate":  lambda: cmd_replicate(rest),
+        "divide":     lambda: cmd_divide(rest),
     }
 
     fn = dispatch.get(cmd)
