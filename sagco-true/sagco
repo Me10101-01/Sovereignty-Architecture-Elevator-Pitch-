@@ -176,6 +176,89 @@ def cmd_import(path: str | None = None) -> None:
     print(f"Status:   {report['status']}")
 
 
+def cmd_palace(sub: str = "", args: list[str] = []) -> None:
+    from sagco_true.worlds.palace import scan, diff_nodes, print_status, PalaceIndex
+
+    flags = _parse_flags(args)
+    organism_root = flags.get("root") or str(_ROOT.parent)
+    palace_file   = _ROOT.parent / "palace.json"
+
+    if sub in ("", "status"):
+        print("  Scanning organism...")
+        idx = scan(organism_root, verbose=True)
+        print_status(idx)
+        idx.save(palace_file)
+        print(f"  Index saved → {palace_file}")
+
+    elif sub == "scan":
+        idx = scan(organism_root, verbose=True)
+        print_status(idx)
+        idx.save(palace_file)
+        print(f"  Index saved → {palace_file}")
+
+    elif sub == "locate":
+        query = args[0] if args and not args[0].startswith("--") else flags.get("name", "")
+        if not query:
+            print("[error] sagco palace locate <name>")
+            return
+        if palace_file.exists():
+            idx = PalaceIndex.load(palace_file)
+        else:
+            idx = scan(organism_root)
+        results = idx.locate(query)
+        if not results:
+            print(f"  Not found: {query!r}")
+        else:
+            for e in results:
+                print(f"  {e.kind:12s}  {e.node:12s}  {e.path}")
+
+    elif sub == "diff":
+        nodes = [a for a in args if not a.startswith("--")]
+        if len(nodes) < 2:
+            print("[error] sagco palace diff <node-a> <node-b>")
+            print("  Known nodes: local, wd-black, docker, zfold, pi")
+            return
+        node_a, node_b = nodes[0], nodes[1]
+        if palace_file.exists():
+            idx = PalaceIndex.load(palace_file)
+        else:
+            idx = scan(organism_root)
+        deltas = diff_nodes(idx, node_a, node_b)
+        if not deltas:
+            print(f"  No differences between {node_a} and {node_b}")
+            return
+        only_a   = [d for d in deltas if d.status == "only-in-a"]
+        only_b   = [d for d in deltas if d.status == "only-in-b"]
+        differs  = [d for d in deltas if d.status == "checksum-differs"]
+        print(f"\n  Palace diff: {node_a} ↔ {node_b}")
+        print(f"  Only in {node_a}  : {len(only_a)}")
+        print(f"  Only in {node_b}  : {len(only_b)}")
+        print(f"  Checksum differs  : {len(differs)}")
+        for d in only_a[:10]:
+            print(f"    > {d.kind:10s}  {d.name}")
+        for d in only_b[:10]:
+            print(f"    < {d.kind:10s}  {d.name}")
+        for d in differs[:10]:
+            print(f"    ~ {d.kind:10s}  {d.name}")
+
+    elif sub == "json":
+        if palace_file.exists():
+            idx = PalaceIndex.load(palace_file)
+        else:
+            idx = scan(organism_root)
+        idx._rebuild_lookups()
+        print(json.dumps(idx.to_dict(), indent=2))
+
+    elif sub == "register":
+        idx = scan(organism_root, verbose=True)
+        idx.save(palace_file)
+        print(f"  Node registered → {palace_file}")
+
+    else:
+        print(f"[palace] unknown subcommand: {sub!r}")
+        print("  sagco palace [scan|status|locate <name>|diff <a> <b>|json|register]")
+
+
 def _parse_flags(args: list[str]) -> dict:
     """Minimal flag parser for --key value and --bool-flag forms."""
     flags: dict = {}
@@ -326,6 +409,7 @@ def main() -> None:
         "run":        lambda: cmd_run(rest[0]) if rest else print("usage: sagco run <file.sagco>"),
         "replicate":  lambda: cmd_replicate(rest),
         "divide":     lambda: cmd_divide(rest),
+        "palace":     lambda: cmd_palace(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
     }
 
     fn = dispatch.get(cmd)

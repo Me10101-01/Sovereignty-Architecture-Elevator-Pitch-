@@ -1,0 +1,484 @@
+{
+  "palace": {
+    "organism": "SAGCO",
+    "version": "0.1.0",
+    "cell_id": "7b91d2bbfc81087f",
+    "generated_at": 1780869845.2708797
+  },
+  "nodes": {
+    "local": {
+      "id": "local",
+      "role": "source-of-truth",
+      "root": "/home/user/Sovereignty-Architecture-Elevator-Pitch-",
+      "online": true,
+      "component_counts": {
+        "boards": 6,
+        "agents": 2,
+        "wafers": 4,
+        "manifests": 2,
+        "kernels": 5,
+        "logs": 2,
+        "language": 13
+      },
+      "last_scan": 1780869845.2817767
+    },
+    "wd-black": {
+      "id": "wd-black",
+      "role": "primary-memory",
+      "root": "E:\\SAGCO-WORLD",
+      "online": false,
+      "component_counts": {},
+      "last_scan": 0.0
+    },
+    "docker": {
+      "id": "docker",
+      "role": "containerized-body",
+      "root": "/var/sagco",
+      "online": false,
+      "component_counts": {},
+      "last_scan": 0.0
+    },
+    "zfold": {
+      "id": "zfold",
+      "role": "mobile-node",
+      "root": "/data/data/com.termux/files/home/sagco-world",
+      "online": false,
+      "component_counts": {},
+      "last_scan": 0.0
+    },
+    "pi": {
+      "id": "pi",
+      "role": "edge-node",
+      "root": "/home/pi/sagco-world",
+      "online": false,
+      "component_counts": {},
+      "last_scan": 0.0
+    }
+  },
+  "index": {
+    "boards": [
+      {
+        "name": "__init__",
+        "kind": "boards",
+        "node": "local",
+        "path": "sagco-true/boards/BOARD-SHUTDOWN-WAFER/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.373472,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "__init__",
+        "kind": "boards",
+        "node": "local",
+        "path": "sagco-true/boards/BOARD-PDF-HARVEST/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.369472,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "__init__",
+        "kind": "boards",
+        "node": "local",
+        "path": "sagco-true/boards/BOARD-ANTIBODY/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.373472,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "__init__",
+        "kind": "boards",
+        "node": "local",
+        "path": "sagco-true/boards/BOARD-LYRIC-OS/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.369472,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "__init__",
+        "kind": "boards",
+        "node": "local",
+        "path": "sagco-true/boards/BOARD-MATHML/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.3654718,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "__init__",
+        "kind": "boards",
+        "node": "local",
+        "path": "sagco-true/boards/BOARD-CORE/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.357472,
+        "checksum": "e3b0c44298fc1c14"
+      }
+    ],
+    "agents": [
+      {
+        "name": "worker",
+        "kind": "agents",
+        "node": "local",
+        "path": "agents/worker.py",
+        "size": 4326,
+        "mtime": 1780271085.2636719,
+        "checksum": "935bf578c1796c30"
+      },
+      {
+        "name": "promptsvc",
+        "kind": "agents",
+        "node": "local",
+        "path": "agents/promptsvc.py",
+        "size": 3153,
+        "mtime": 1780271085.2584722,
+        "checksum": "e051ced784f1bc67"
+      }
+    ],
+    "wafers": [
+      {
+        "name": "reality_match",
+        "kind": "wafers",
+        "node": "local",
+        "path": "sagco-true/wafers/reality_match.csv",
+        "size": 448,
+        "mtime": 1780852425.4178197,
+        "checksum": "25c0e307b7269a2e"
+      },
+      {
+        "name": "burnrate",
+        "kind": "wafers",
+        "node": "local",
+        "path": "sagco-true/wafers/burnrate.csv",
+        "size": 501,
+        "mtime": 1780852339.02147,
+        "checksum": "1d34b940b9d65ada"
+      },
+      {
+        "name": "expected_actual",
+        "kind": "wafers",
+        "node": "local",
+        "path": "sagco-true/wafers/expected_actual.csv",
+        "size": 1594,
+        "mtime": 1780852328.0934699,
+        "checksum": "f7459236b36c9f3d"
+      },
+      {
+        "name": "eru",
+        "kind": "wafers",
+        "node": "local",
+        "path": "sagco-true/wafers/eru.csv",
+        "size": 786,
+        "mtime": 1780852334.2614698,
+        "checksum": "d5ca03595ab2dd27"
+      }
+    ],
+    "manifests": [
+      {
+        "name": "PROVENANCE",
+        "kind": "manifests",
+        "node": "local",
+        "path": "PROVENANCE.yaml",
+        "size": 3832,
+        "mtime": 1780273731.49455,
+        "checksum": "5823fa55eb63ffe4"
+      },
+      {
+        "name": "palace",
+        "kind": "manifests",
+        "node": "local",
+        "path": "palace.json",
+        "size": 4871,
+        "mtime": 1780869809.1955962,
+        "checksum": "187bf3cc0d02c7b2"
+      }
+    ],
+    "kernels": [
+      {
+        "name": "identity",
+        "kind": "kernels",
+        "node": "local",
+        "path": "sagco-true/kernel/identity.sagco",
+        "size": 1475,
+        "mtime": 1780852281.8574681,
+        "checksum": "b3e0495e49b5069d"
+      },
+      {
+        "name": "boot",
+        "kind": "kernels",
+        "node": "local",
+        "path": "sagco-true/kernel/boot.sagco",
+        "size": 1720,
+        "mtime": 1780852273.773468,
+        "checksum": "7f64c07d7416c554"
+      },
+      {
+        "name": "memory",
+        "kind": "kernels",
+        "node": "local",
+        "path": "sagco-true/kernel/memory.sagco",
+        "size": 1331,
+        "mtime": 1780852290.4214685,
+        "checksum": "5db8c354cbe5c403"
+      },
+      {
+        "name": "scheduler",
+        "kind": "kernels",
+        "node": "local",
+        "path": "sagco-true/kernel/scheduler.sagco",
+        "size": 1390,
+        "mtime": 1780852297.8334687,
+        "checksum": "c7409840b9e77409"
+      },
+      {
+        "name": "syscall",
+        "kind": "kernels",
+        "node": "local",
+        "path": "sagco-true/kernel/syscall.sagco",
+        "size": 1791,
+        "mtime": 1780852306.173469,
+        "checksum": "8c811af1dcb33af1"
+      }
+    ],
+    "logs": [
+      {
+        "name": "dna_synthesis",
+        "kind": "logs",
+        "node": "local",
+        "path": "data/legion/dna_synthesis.log",
+        "size": 1060,
+        "mtime": 1780271085.470897,
+        "checksum": "4c8c5f7cd39d7453"
+      },
+      {
+        "name": "dna_synthesis",
+        "kind": "logs",
+        "node": "local",
+        "path": "data/windows_dna/dna_synthesis.log",
+        "size": 2258,
+        "mtime": 1780271085.470897,
+        "checksum": "1c6a15575df8c6b6"
+      }
+    ],
+    "language": [
+      {
+        "name": "__init__",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.329472,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "__init__",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/parser/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.333472,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "parser",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/parser/parser.py",
+        "size": 10586,
+        "mtime": 1780852414.0614727,
+        "checksum": "c80d641fbe2f19d5"
+      },
+      {
+        "name": "__init__",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/stdlib/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.341472,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "__init__",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/bytecode/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.337472,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "opcodes",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/bytecode/opcodes.py",
+        "size": 4664,
+        "mtime": 1780852139.8214636,
+        "checksum": "c430f3f7f9aac533"
+      },
+      {
+        "name": "compiler",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/bytecode/compiler.py",
+        "size": 5406,
+        "mtime": 1780852158.937464,
+        "checksum": "7b1e5c1749f3bfe0"
+      },
+      {
+        "name": "lexer",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/lexer/lexer.py",
+        "size": 6404,
+        "mtime": 1780852073.5214612,
+        "checksum": "fef6651ca5615f4c"
+      },
+      {
+        "name": "__init__",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/lexer/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.329472,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "nodes",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/ast/nodes.py",
+        "size": 3263,
+        "mtime": 1780852085.2614617,
+        "checksum": "17e0ee254f7731cc"
+      },
+      {
+        "name": "__init__",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/ast/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.333472,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "__init__",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/vm/__init__.py",
+        "size": 0,
+        "mtime": 1780852394.337472,
+        "checksum": "e3b0c44298fc1c14"
+      },
+      {
+        "name": "vm",
+        "kind": "language",
+        "node": "local",
+        "path": "sagco-true/language/vm/vm.py",
+        "size": 11783,
+        "mtime": 1780852201.3494656,
+        "checksum": "a71b3591b17e2c3f"
+      }
+    ]
+  },
+  "locator": {
+    "boards.__init__": {
+      "node": "local",
+      "path": "sagco-true/boards/BOARD-CORE/__init__.py"
+    },
+    "agents.worker": {
+      "node": "local",
+      "path": "agents/worker.py"
+    },
+    "agents.promptsvc": {
+      "node": "local",
+      "path": "agents/promptsvc.py"
+    },
+    "wafers.reality_match": {
+      "node": "local",
+      "path": "sagco-true/wafers/reality_match.csv"
+    },
+    "wafers.burnrate": {
+      "node": "local",
+      "path": "sagco-true/wafers/burnrate.csv"
+    },
+    "wafers.expected_actual": {
+      "node": "local",
+      "path": "sagco-true/wafers/expected_actual.csv"
+    },
+    "wafers.eru": {
+      "node": "local",
+      "path": "sagco-true/wafers/eru.csv"
+    },
+    "manifests.PROVENANCE": {
+      "node": "local",
+      "path": "PROVENANCE.yaml"
+    },
+    "manifests.palace": {
+      "node": "local",
+      "path": "palace.json"
+    },
+    "kernels.identity": {
+      "node": "local",
+      "path": "sagco-true/kernel/identity.sagco"
+    },
+    "kernels.boot": {
+      "node": "local",
+      "path": "sagco-true/kernel/boot.sagco"
+    },
+    "kernels.memory": {
+      "node": "local",
+      "path": "sagco-true/kernel/memory.sagco"
+    },
+    "kernels.scheduler": {
+      "node": "local",
+      "path": "sagco-true/kernel/scheduler.sagco"
+    },
+    "kernels.syscall": {
+      "node": "local",
+      "path": "sagco-true/kernel/syscall.sagco"
+    },
+    "logs.dna_synthesis": {
+      "node": "local",
+      "path": "data/windows_dna/dna_synthesis.log"
+    },
+    "language.__init__": {
+      "node": "local",
+      "path": "sagco-true/language/vm/__init__.py"
+    },
+    "language.parser": {
+      "node": "local",
+      "path": "sagco-true/language/parser/parser.py"
+    },
+    "language.opcodes": {
+      "node": "local",
+      "path": "sagco-true/language/bytecode/opcodes.py"
+    },
+    "language.compiler": {
+      "node": "local",
+      "path": "sagco-true/language/bytecode/compiler.py"
+    },
+    "language.lexer": {
+      "node": "local",
+      "path": "sagco-true/language/lexer/lexer.py"
+    },
+    "language.nodes": {
+      "node": "local",
+      "path": "sagco-true/language/ast/nodes.py"
+    },
+    "language.vm": {
+      "node": "local",
+      "path": "sagco-true/language/vm/vm.py"
+    }
+  },
+  "summary": {
+    "total_entries": 34,
+    "total_size_kb": 70.9,
+    "nodes_online": 1,
+    "kinds": {
+      "boards": 6,
+      "agents": 2,
+      "wafers": 4,
+      "manifests": 2,
+      "kernels": 5,
+      "logs": 2,
+      "language": 13
+    }
+  }
+}
