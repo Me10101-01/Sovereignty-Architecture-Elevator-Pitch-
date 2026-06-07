@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.3.3",
+  "vendor": "Strategickhaos DAO LLC",
+  "name": "SAGCO-ORGANISM",
+  "version": "0.1.0",
+  "title": "SAGCO Organism",
+  "description": "Sovereignty Architecture Graph Command Orchestrator — Fleet Dashboard. A place where the tools can find each other.",
+  "icon": "sagco.svg",
+  "ui": {
+    "dashboard-tab": {
+      "title": "SAGCO",
+      "root": "/ui",
+      "src": "index.html"
+    }
+  },
+  "host": {
+    "binaries": [
+      {
+        "darwin": [{ "path": "/darwin/sagco-host" }],
+        "windows": [{ "path": "/windows/sagco-host.exe" }],
+        "linux": [{ "path": "/linux/sagco-host" }]
+      }
+    ]
+  }
+}

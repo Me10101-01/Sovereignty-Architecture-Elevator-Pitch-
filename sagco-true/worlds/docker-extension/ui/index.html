@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAGCO-ORGANISM — Fleet Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:        #0a0a0a;
+    --surface:   #111111;
+    --border:    #1e1e1e;
+    --orange:    #ff6b00;
+    --orange-dim:#7a3200;
+    --green:     #00c853;
+    --red:       #ff1744;
+    --yellow:    #ffd600;
+    --text:      #e0e0e0;
+    --muted:     #666666;
+    --font:      'Courier New', 'Menlo', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    height: 100vh;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 48px 1fr;
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Header ──────────────────────────────────────────────── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--orange-dim);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 14px;
+  }
+  .logo { width: 28px; height: 28px; }
+  .title { color: var(--orange); font-size: 15px; font-weight: bold; letter-spacing: 2px; }
+  .subtitle { color: var(--muted); font-size: 10px; margin-left: 4px; }
+  .status-pill {
+    margin-left: auto;
+    background: #0d2200;
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .clock { color: var(--muted); font-size: 11px; }
+
+  /* ── Main grid ───────────────────────────────────────────── */
+  main {
+    display: grid;
+    grid-template-columns: 280px 1fr 260px;
+    grid-template-rows: 1fr 180px;
+    gap: 1px;
+    background: var(--border);
+    overflow: hidden;
+  }
+
+  .panel {
+    background: var(--surface);
+    padding: 14px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .panel-title {
+    color: var(--orange);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--orange-dim);
+    padding-bottom: 6px;
+    flex-shrink: 0;
+  }
+
+  /* ── Fleet nodes ─────────────────────────────────────────── */
+  .node-card {
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--orange-dim);
+    padding: 8px 10px;
+    border-radius: 4px;
+    transition: border-color 0.2s;
+  }
+  .node-card.online  { border-left-color: var(--green); }
+  .node-card.booting { border-left-color: var(--yellow); animation: pulse-border 1.5s infinite; }
+  .node-card.offline { border-left-color: var(--red); }
+
+  @keyframes pulse-border {
+    0%, 100% { border-left-color: var(--yellow); }
+    50%       { border-left-color: #7a6000; }
+  }
+
+  .node-name  { color: var(--text); font-weight: bold; font-size: 12px; }
+  .node-role  { color: var(--muted); font-size: 10px; margin-top: 2px; }
+  .node-ip    { color: var(--orange); font-size: 10px; margin-top: 3px; }
+  .node-meta  { color: #555; font-size: 10px; margin-top: 2px; }
+  .node-badge {
+    display: inline-block;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-top: 4px;
+    margin-right: 3px;
+    letter-spacing: 0.5px;
+  }
+  .badge-green  { background: #0d2200; color: var(--green); border: 1px solid #1a4400; }
+  .badge-orange { background: #1a0a00; color: var(--orange); border: 1px solid #3a1a00; }
+  .badge-yellow { background: #1a1400; color: var(--yellow); border: 1px solid #3a2e00; }
+  .badge-red    { background: #1a0000; color: var(--red); border: 1px solid #3a0000; }
+
+  /* ── Graph canvas ────────────────────────────────────────── */
+  #graph-panel {
+    grid-row: 1;
+    grid-column: 2;
+    position: relative;
+    overflow: hidden;
+  }
+  canvas#graph {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .graph-overlay {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 1px;
+    pointer-events: none;
+  }
+
+  /* ── Wafers ──────────────────────────────────────────────── */
+  .wafer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid #151515;
+    font-size: 11px;
+  }
+  .wafer-name { color: var(--text); }
+  .wafer-pass { color: var(--green);  font-weight: bold; }
+  .wafer-fail { color: var(--red);    font-weight: bold; }
+  .wafer-optional { color: var(--yellow); font-weight: bold; }
+
+  .truth-banner {
+    background: #0d2200;
+    border: 1px solid var(--green);
+    color: var(--green);
+    text-align: center;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── Signal bus ──────────────────────────────────────────── */
+  #bus-panel {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    border-top: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .bus-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-y: auto;
+    max-height: calc(180px - 40px);
+    padding-right: 4px;
+  }
+  .signal {
+    display: flex;
+    gap: 10px;
+    font-size: 10px;
+    padding: 2px 0;
+    border-bottom: 1px solid #111;
+    align-items: baseline;
+  }
+  .signal-ts     { color: #444; flex-shrink: 0; width: 80px; }
+  .signal-source { color: var(--orange); flex-shrink: 0; width: 90px; }
+  .signal-name   { color: #aaa; flex-shrink: 0; width: 180px; }
+  .signal-payload{ color: #555; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .signal-new    { animation: flash-in 0.4s ease-out; }
+
+  @keyframes flash-in {
+    from { background: #1a0d00; }
+    to   { background: transparent; }
+  }
+
+  /* ── Scrollbar ───────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #0a0a0a; }
+  ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--orange-dim); }
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="40" fill="none" stroke="#ff6b00" stroke-width="2" opacity="0.6"/>
+    <circle cx="50" cy="50" r="26" fill="none" stroke="#ff6b00" stroke-width="1" opacity="0.3"/>
+    <circle cx="50" cy="50" r="7" fill="#ff6b00"/>
+    <circle cx="50" cy="12" r="4" fill="#ff6b00" opacity="0.8"/>
+    <circle cx="50" cy="88" r="4" fill="#ff6b00" opacity="0.8"/>
+    <circle cx="12" cy="50" r="4" fill="#ff6b00" opacity="0.8"/>
+    <circle cx="88" cy="50" r="4" fill="#ff6b00" opacity="0.8"/>
+    <line x1="50" y1="50" x2="50" y2="16" stroke="#ff6b00" stroke-width="1" opacity="0.4"/>
+    <line x1="50" y1="50" x2="50" y2="84" stroke="#ff6b00" stroke-width="1" opacity="0.4"/>
+    <line x1="50" y1="50" x2="16" y2="50" stroke="#ff6b00" stroke-width="1" opacity="0.4"/>
+    <line x1="50" y1="50" x2="84" y2="50" stroke="#ff6b00" stroke-width="1" opacity="0.4"/>
+  </svg>
+  <span class="title">SAGCO-ORGANISM</span>
+  <span class="subtitle">v0.1.0 — Sovereignty Architecture Graph Command Orchestrator</span>
+  <div class="status-pill" id="overall-status">TRUE_ENOUGH_TO_GROW</div>
+  <span class="clock" id="clock"></span>
+</header>
+
+<main>
+
+  <!-- Fleet panel -->
+  <div class="panel" id="fleet-panel">
+    <div class="panel-title">Fleet Nodes</div>
+    <div id="fleet-nodes"></div>
+  </div>
+
+  <!-- Graph -->
+  <div class="panel" id="graph-panel" style="padding:0;">
+    <canvas id="graph"></canvas>
+    <div class="graph-overlay">SAGCO NODE GRAPH  ·  192.168.1.0/24</div>
+  </div>
+
+  <!-- Wafers -->
+  <div class="panel" id="wafer-panel">
+    <div class="panel-title">Truth Wafers — SAGCO_ARE_YOU_TRUE</div>
+    <div id="wafer-rows"></div>
+  </div>
+
+  <!-- Signal bus -->
+  <div class="panel" id="bus-panel">
+    <div class="panel-title">Signal Bus</div>
+    <div class="bus-scroll" id="bus-signals"></div>
+  </div>
+
+</main>
+
+<script>
+// ── Data ────────────────────────────────────────────────────────────────────
+
+const FLEET = [
+  {
+    id: "lyra",
+    name: "Lyra",
+    role: "Compute Server",
+    os: "Windows / WSL2",
+    ip: "192.168.1.x",
+    status: "online",
+    badges: ["sagco-daemon", "33,791 nodes", "chain verified"],
+    colors: ["badge-green", "badge-orange", "badge-green"],
+  },
+  {
+    id: "pi5",
+    name: "Pi 5 (8GB)",
+    role: "Edge Node / PXE Server",
+    os: "Raspberry Pi OS",
+    ip: "192.168.1.x",
+    status: "online",
+    badges: ["green light ON", "PXE ready", "edge"],
+    colors: ["badge-green", "badge-orange", "badge-green"],
+  },
+  {
+    id: "zfold",
+    name: "Z Fold",
+    role: "Mobile Node",
+    os: "Android / Termux",
+    ip: "192.168.1.89",
+    status: "online",
+    badges: ["SAGCO-GTA", "sagco-daemon", "fold is the node"],
+    colors: ["badge-orange", "badge-green", "badge-orange"],
+  },
+  {
+    id: "hp",
+    name: "HP OmniDesk",
+    role: "PXE Client",
+    os: "Awaiting netboot",
+    ip: "—",
+    status: "booting",
+    badges: ["BIOS OPEN", "PXE IPv4+IPv6", "UEFI ready"],
+    colors: ["badge-yellow", "badge-yellow", "badge-yellow"],
+  },
+  {
+    id: "sagco-os",
+    name: "sagco-os (GKE)",
+    role: "Cloud Cluster",
+    os: "GKE Autopilot",
+    ip: "sagco-oscomputconsciousness",
+    status: "online",
+    badges: ["Fleet registered", "cluster creating", "GKE"],
+    colors: ["badge-green", "badge-yellow", "badge-orange"],
+  },
+];
+
+const WAFERS = [
+  { name: "can_boot",              result: "PASS", mode: "required" },
+  { name: "can_remember_identity", result: "PASS", mode: "required" },
+  { name: "can_detect_world",      result: "PASS", mode: "required" },
+  { name: "can_measure_reality",   result: "PASS", mode: "required" },
+  { name: "can_learn_from_error",  result: "PASS", mode: "required" },
+  { name: "can_run_on_phone",      result: "PASS", mode: "optional" },
+  { name: "fleet_has_4_nodes",     result: "PASS", mode: "required" },
+  { name: "pxe_server_reachable",  result: "WAIT", mode: "required" },
+  { name: "hp_node_registered",    result: "WAIT", mode: "required" },
+  { name: "sagco_language_owned",  result: "PASS", mode: "required" },
+];
+
+const INITIAL_SIGNALS = [
+  { ts: "boot",       source: "kernel",    name: "kernel_ready",          payload: "version=0.1.0" },
+  { ts: "boot+0.1s",  source: "identity",  name: "identity_loaded",       payload: "creator=Domenic Gabriel Garza" },
+  { ts: "boot+0.2s",  source: "memory",    name: "memory_mounted",        payload: "format=dotpath-kv-v1" },
+  { ts: "boot+0.3s",  source: "scheduler", name: "scheduler_started",     payload: "mode=sequential boards=6" },
+  { ts: "boot+0.4s",  source: "fleet",     name: "node_registered",       payload: "node=lyra status=online" },
+  { ts: "boot+0.5s",  source: "fleet",     name: "node_registered",       payload: "node=pi5 status=online" },
+  { ts: "boot+0.6s",  source: "fleet",     name: "node_registered",       payload: "node=zfold ip=192.168.1.89" },
+  { ts: "boot+0.7s",  source: "fleet",     name: "fleet_updated",         payload: "count=3" },
+  { ts: "pxe",        source: "pxe",       name: "pxe_server_active",     payload: "mode=proxy-dhcp uefi+bios" },
+  { ts: "pxe+Xs",     source: "pxe",       name: "hp_node_boot_attempt",  payload: "status=waiting mac=?" },
+  { ts: "cloud",      source: "gke",       name: "fleet_registered",      payload: "fleet=sagco-oscomputconsciousness" },
+  { ts: "cloud+Xs",   source: "gke",       name: "cluster_creating",      payload: "cluster=sagco-os region=us-central1" },
+  { ts: "docker",     source: "organism",  name: "extension_installed",   payload: "name=SAGCO-ORGANISM home=docker-desktop" },
+];
+
+// ── Render fleet ─────────────────────────────────────────────────────────────
+
+function renderFleet() {
+  const el = document.getElementById("fleet-nodes");
+  el.innerHTML = FLEET.map(n => `
+    <div class="node-card ${n.status}" style="margin-bottom:8px">
+      <div class="node-name">◉ ${n.name}</div>
+      <div class="node-role">${n.role}</div>
+      <div class="node-ip">${n.ip}</div>
+      <div class="node-meta">${n.os}</div>
+      <div>
+        ${n.badges.map((b, i) => `<span class="node-badge ${n.colors[i]}">${b}</span>`).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
+// ── Render wafers ─────────────────────────────────────────────────────────────
+
+function renderWafers() {
+  const el = document.getElementById("wafer-rows");
+  const rows = WAFERS.map(w => {
+    let cls = w.result === "PASS" ? "wafer-pass"
+            : w.result === "FAIL" ? "wafer-fail"
+            : "wafer-optional";
+    let label = w.result === "WAIT" ? "WAIT…" : w.result;
+    return `<div class="wafer-row">
+      <span class="wafer-name">${w.name}</span>
+      <span class="${cls}">${label}</span>
+    </div>`;
+  }).join("");
+
+  const passed = WAFERS.filter(w => w.result === "PASS").length;
+  const total  = WAFERS.length;
+
+  el.innerHTML = `
+    <div class="truth-banner">TRUE_ENOUGH_TO_GROW — ${passed}/${total}</div>
+    ${rows}
+  `;
+}
+
+// ── Signal bus ────────────────────────────────────────────────────────────────
+
+function ts() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`;
+}
+
+function pushSignal(source, name, payload, isNew = false) {
+  const el = document.getElementById("bus-signals");
+  const row = document.createElement("div");
+  row.className = "signal" + (isNew ? " signal-new" : "");
+  row.innerHTML = `
+    <span class="signal-ts">${ts()}</span>
+    <span class="signal-source">${source}</span>
+    <span class="signal-name">${name}</span>
+    <span class="signal-payload">${payload}</span>
+  `;
+  el.prepend(row);
+  // trim to last 80 signals
+  while (el.children.length > 80) el.removeChild(el.lastChild);
+}
+
+function loadInitialSignals() {
+  [...INITIAL_SIGNALS].reverse().forEach(s => pushSignal(s.source, s.name, s.payload, false));
+}
+
+// ── Graph canvas ──────────────────────────────────────────────────────────────
+
+const NODE_POSITIONS = {
+  sagco:   { label: "SAGCO",    color: "#ff6b00", r: 8,  glow: true },
+  lyra:    { label: "Lyra",     color: "#00c853", r: 6 },
+  pi5:     { label: "Pi 5",     color: "#00c853", r: 5 },
+  zfold:   { label: "Z Fold",   color: "#ff6b00", r: 5 },
+  hp:      { label: "HP",       color: "#ffd600", r: 5 },
+  gke:     { label: "GKE",      color: "#64b5f6", r: 5 },
+  obsidian:{ label: "Obsidian", color: "#7c4dff", r: 4 },
+  git:     { label: "Git",      color: "#f4511e", r: 4 },
+  rpi:     { label: "PXE",      color: "#00acc1", r: 4 },
+};
+
+const EDGES = [
+  ["sagco","lyra"], ["sagco","pi5"], ["sagco","zfold"], ["sagco","hp"],
+  ["sagco","gke"],  ["lyra","hp"],   ["pi5","hp"],     ["lyra","obsidian"],
+  ["sagco","git"],  ["pi5","rpi"],   ["rpi","hp"],
+];
+
+let nodeCoords = {};
+let frame = 0;
+
+function initGraph() {
+  const canvas = document.getElementById("graph");
+  const parent = canvas.parentElement;
+
+  function resize() {
+    canvas.width  = parent.clientWidth;
+    canvas.height = parent.clientHeight;
+    placeNodes();
+  }
+
+  function placeNodes() {
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H / 2;
+    const keys = Object.keys(NODE_POSITIONS);
+    nodeCoords = { sagco: { x: cx, y: cy } };
+    const others = keys.filter(k => k !== "sagco");
+    others.forEach((k, i) => {
+      const angle = (i / others.length) * Math.PI * 2 - Math.PI / 2;
+      const r = Math.min(W, H) * 0.32;
+      nodeCoords[k] = {
+        x: cx + Math.cos(angle) * r + (Math.random() - 0.5) * 30,
+        y: cy + Math.sin(angle) * r + (Math.random() - 0.5) * 30,
+      };
+    });
+  }
+
+  function draw() {
+    frame++;
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "#0a0a0a";
+    ctx.fillRect(0, 0, W, H);
+
+    // Background dots
+    ctx.fillStyle = "rgba(255,107,0,0.04)";
+    for (let x = 20; x < W; x += 28) {
+      for (let y = 20; y < H; y += 28) {
+        ctx.beginPath();
+        ctx.arc(x, y, 0.8, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    // Edges
+    EDGES.forEach(([a, b]) => {
+      const pa = nodeCoords[a], pb = nodeCoords[b];
+      if (!pa || !pb) return;
+      const pulse = 0.3 + 0.15 * Math.sin(frame * 0.03 + a.charCodeAt(0));
+      ctx.beginPath();
+      ctx.moveTo(pa.x, pa.y);
+      ctx.lineTo(pb.x, pb.y);
+      ctx.strokeStyle = `rgba(255,107,0,${pulse})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    });
+
+    // Nodes
+    Object.entries(NODE_POSITIONS).forEach(([key, node]) => {
+      const pos = nodeCoords[key];
+      if (!pos) return;
+
+      if (node.glow) {
+        const glow = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, node.r * 4);
+        glow.addColorStop(0, "rgba(255,107,0,0.3)");
+        glow.addColorStop(1, "rgba(255,107,0,0)");
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, node.r * 4, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+      }
+
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, node.r, 0, Math.PI * 2);
+      ctx.fillStyle = node.color;
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(220,220,220,0.75)";
+      ctx.font = "9px 'Courier New', monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(node.label, pos.x, pos.y + node.r + 11);
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+  draw();
+}
+
+// ── Clock ─────────────────────────────────────────────────────────────────────
+
+function updateClock() {
+  document.getElementById("clock").textContent = new Date().toLocaleTimeString();
+}
+
+// ── Live simulation ───────────────────────────────────────────────────────────
+
+const LIVE_SIGNALS = [
+  { source: "lyra",      name: "heartbeat",           payload: "nodes=33791 status=ok" },
+  { source: "zfold",     name: "sagco_gta_tick",       payload: "ip=192.168.1.89 active=true" },
+  { source: "pi5",       name: "pxe_listening",        payload: "waiting for HP DHCP discover" },
+  { source: "gke",       name: "cluster_status",       payload: "sagco-os provisioning..." },
+  { source: "scheduler", name: "board_tick",           payload: "BOARD-CORE sequence running" },
+  { source: "antibody",  name: "environment_clean",    payload: "8 checks passed" },
+  { source: "organism",  name: "docker_extension_live",payload: "dashboard rendering" },
+  { source: "memory",    name: "dotpath_kv_tick",      payload: "keys=47 stable" },
+];
+
+let liveIdx = 0;
+function emitLiveSignal() {
+  const s = LIVE_SIGNALS[liveIdx % LIVE_SIGNALS.length];
+  pushSignal(s.source, s.name, s.payload, true);
+  liveIdx++;
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+
+renderFleet();
+renderWafers();
+loadInitialSignals();
+initGraph();
+updateClock();
+setInterval(updateClock, 1000);
+setInterval(emitLiveSignal, 3200);
+
+// Push the "you are here" signal
+setTimeout(() => pushSignal("organism", "extension_booted", "SAGCO-ORGANISM is live inside Docker Desktop", true), 800);
+</script>
+</body>
+</html>
