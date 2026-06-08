@@ -371,6 +371,16 @@ def cmd_divide(args: list[str]) -> None:
     print(f"\n  STATUS: CELL_DIVIDED")
 
 
+def cmd_serve(args: list[str]) -> None:
+    from sagco_true.worlds.serve import serve
+    flags = _parse_flags(args)
+    port_raw = flags.get("port", "8080")
+    port = int(port_raw) if str(port_raw).isdigit() else 8080
+    root = flags.get("root") or str(_ROOT.parent)
+    readonly = not bool(flags.get("rw", False))
+    serve(organism_root=root, port=port, readonly=readonly)
+
+
 def cmd_manifest() -> None:
     from sagco_true.language.vm.vm import run_file
     manifest_path = _ROOT / "MANIFEST.sagco"
@@ -410,6 +420,7 @@ def main() -> None:
         "replicate":  lambda: cmd_replicate(rest),
         "divide":     lambda: cmd_divide(rest),
         "palace":     lambda: cmd_palace(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
+        "serve":      lambda: cmd_serve(rest),
     }
 
     fn = dispatch.get(cmd)
