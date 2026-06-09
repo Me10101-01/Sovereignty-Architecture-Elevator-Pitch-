@@ -555,6 +555,26 @@ def cmd_khaos(sub: str = "", args: list[str] = []) -> None:
             print(f"  Strand: {strand}")
             print(f"  WAV → {path}")
 
+    elif sub in ("maat", "truth", "weigh"):
+        from sagco_true.khaos.maat import (
+            weigh_concert, weigh, print_judgment,
+            PHRASE_MAAT_IGNORES_HEART, MAAT_VOCABULARY,
+        )
+        from sagco_true.worlds.concert import Concert
+
+        if "vocab" in args or "vocabulary" in args:
+            print(f"\n  MAAT VOCABULARY — Ancient Egyptian → SAGCO\n")
+            print(f"  {PHRASE_MAAT_IGNORES_HEART}")
+            print(f"  \"Mꜣꜥt n sḏm ỉb\" — Truth does not listen to the heart\n")
+            for word, (meaning, sagco) in MAAT_VOCABULARY.items():
+                print(f"  {word:<8}  {meaning}")
+                print(f"           → {sagco}")
+        else:
+            c = Concert()
+            result = c.run(title="maat-weigh", save=False)
+            j = weigh_concert(result)
+            print_judgment(j)
+
     elif sub in ("scan", "resonance", "coherence"):
         from sagco_true.khaos.oscillator import KHAOSOscillator
         osc = KHAOSOscillator()
