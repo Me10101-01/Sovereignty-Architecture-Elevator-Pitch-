@@ -543,6 +543,16 @@ def cmd_khaos(sub: str = "", args: list[str] = []) -> None:
         print(f"  + delta {delta:+d}")
         print(f"  → oxidation {oxidized.oxidation} ({oxidized.privilege})")
 
+    elif sub in ("369", "vortex"):
+        from sagco_true.khaos.vortex import print_vortex, encode_to_wav_vortex
+        flags2 = _parse_flags(args)
+        print_vortex()
+        if "wav" in args or flags2.get("wav"):
+            out = flags2.get("out", "khaos_vortex_369.wav")
+            path = encode_to_wav_vortex(out)
+            print(f"\n  Vortex WAV → {path}")
+            print(f"  Play: aplay {path}")
+
     else:
         print(f"  KHAOS Periodic Table of Process States")
         print(f"  Strategickhaos DAO LLC | v1.0.0")
