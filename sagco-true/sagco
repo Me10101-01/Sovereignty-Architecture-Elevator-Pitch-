@@ -649,7 +649,85 @@ def cmd_khaos(sub: str = "", args: list[str] = []) -> None:
         print(f"  sagco khaos 369 [--wav] [--out FILE]     — vortex derivation + optional WAV")
 
 
-def cmd_serve(args: list[str]) -> None:
+def cmd_inspect(path: str) -> None:
+    """Inspect memory keys from a .sagcob bytecode file."""
+    from sagco_true.language.bytecode.opcodes import Bytecode
+    from sagco_true.language.vm.vm import SAGCOVirtualMachine
+    from collections import defaultdict
+
+    bc = Bytecode.load(path)
+    vm = SAGCOVirtualMachine()
+    vm.run(bc)
+
+    # Group by prefix
+    groups: dict[str, dict] = defaultdict(dict)
+    for k, v in sorted(vm.memory.items()):
+        prefix = k.split(".")[0] if "." in k else "_root"
+        groups[prefix][k] = v
+
+    report = vm.truth_report()
+    print(f"\n  ══════════════════════════════════════════════════════════")
+    print(f"  SAGCO INSPECT — {path}")
+    print(f"  Status: {report.get('status', 'UNKNOWN')}  |  "
+          f"{len(vm.memory)} keys  |  {len(bc.instructions)} instructions")
+    print(f"  ══════════════════════════════════════════════════════════")
+
+    for prefix, keys in sorted(groups.items()):
+        print(f"\n  [{prefix}]  ({len(keys)} key{'s' if len(keys) != 1 else ''})")
+        for k, v in sorted(keys.items()):
+            display = str(v)
+            if isinstance(v, str):
+                display = v[:64] + "..." if len(v) > 64 else v
+            print(f"    {k:<48} {display!r}")
+
+    print(f"\n  Ticks  : {len(vm._ticks)}")
+    print(f"  Signals: {len(vm.bus)}  ({set(s.name for s in vm.bus)})")
+    print(f"  ══════════════════════════════════════════════════════════")
+
+
+def cmd_heal(args: list[str]) -> None:
+    """Run the SAGCO self-healing loop."""
+    from sagco_true.worlds.healer import Healer
+    from sagco_true.language.compiler.flame_compiler import compile_ir
+    from sagco_true.language.vm.vm import SAGCOVirtualMachine
+
+    flags      = _parse_flags(args)
+    title      = flags.get("title", "self-heal")
+    max_rounds = int(flags.get("rounds", "6"))
+    quiet      = "quiet" in args or bool(flags.get("quiet"))
+
+    print(f"  SAGCO Self-Healing Loop — {title}")
+    print(f"  Max rounds: {max_rounds}")
+    print(f"  ─────────────────────────────────────────────────────")
+
+    healer = Healer()
+    result = healer.run(title=title, max_rounds=max_rounds, verbose=not quiet)
+
+    print(f"  ─────────────────────────────────────────────────────")
+    print(f"  Final Status : {result.final_status}")
+    print(f"  Healed       : {result.healed}")
+    print(f"  Rounds used  : {result.rounds}")
+    print(f"  Tick seal    : {result.tick_seal[:32]}...")
+
+    if result.healed:
+        print(f"\n  STATUS: ORGANISM_HARMONIZED")
+    else:
+        print(f"\n  STATUS: HEALING_EXHAUSTED")
+        print(f"  Last resonance_score: "
+              f"{result.attempts[-1].resonance_score:.6f}")
+        print(f"  Recommendation: external diagnosis needed — "
+              f"check process load, network state, or wafer results")
+
+    # If --compile flag: compile the final Concert IR to bytecode
+    if "compile" in args or flags.get("compile"):
+        bc      = compile_ir(result.final_concert.ir)
+        out     = flags.get("out", f"{title}-healed.sagcob")
+        bc.save(out)
+        vm      = SAGCOVirtualMachine()
+        vm.run(bc)
+        vm_report = vm.truth_report()
+        print(f"\n  Compiled bytecode → {out}  ({len(bc.instructions)} instructions)")
+        print(f"  VM Status: {vm_report.get('status', 'UNKNOWN')}")
     from sagco_true.worlds.serve import serve
     flags = _parse_flags(args)
     port_raw = flags.get("port", "8080")
@@ -702,6 +780,8 @@ def main() -> None:
         "concert":    lambda: cmd_concert(rest),
         "monitor":    lambda: cmd_monitor(rest),
         "serve":      lambda: cmd_serve(rest),
+        "inspect":    lambda: cmd_inspect(rest[0]) if rest else print("usage: sagco inspect <file.sagcob>"),
+        "heal":       lambda: cmd_heal(rest),
     }
 
     fn = dispatch.get(cmd)
