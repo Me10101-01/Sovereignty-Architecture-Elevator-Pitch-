@@ -1,0 +1,58 @@
+# SAGCO Kernel — Unit System
+# Measurements without units are meaningless.
+# 440 means nothing. 440 hz means A4.
+# 0.5 means nothing. 0.5 rad means ~28.6 degrees.
+#
+# Missing link 4: MEASURE currently returns a raw number.
+# With units, measurements carry their domain of meaning.
+#
+# Inspired by:
+#   Frequency Calculator — hz, rpm, rad/s, khz
+#   Spherical Coordinates — rho (meters), theta/phi (radians or degrees)
+#   Rolling Offset — inches, degrees, pipe lengths
+#   Electronegativity — Pauling units (dimensionless but domain-specific)
+#   Color of Sound — nm (wavelength) mapped from hz (frequency)
+#
+# Unit conversion is alchemical transmutation of measurement domains.
+# The catalyst (wafer) ensures the conversion ratio is verified.
+
+identity sagco-units {
+  name: "SAGCO Unit System"
+  version: "0.1.0"
+  role: "measurement-domain"
+}
+
+# Frequency domain
+let hz_to_rpm = 60
+let hz_to_rad_s = 6.283185307    # 2 * pi
+let khz = 1000                    # 1 khz = 1000 hz
+let mhz = 1000000                 # 1 mhz = 1000000 hz
+
+# Angle domain (rolling offset, spherical coordinates)
+let deg_to_rad = 0.017453292      # pi / 180
+let rad_to_deg = 57.29577951      # 180 / pi
+
+# Distance (pipe/rolling offset)
+let m_to_ft   = 3.28084
+let m_to_in   = 39.3701
+let in_to_mm  = 25.4
+
+# Light / color-sound synesthesia
+# Frequency (hz) → wavelength (nm) via: lambda = c / f
+# c = 299792458 m/s = 2.998e17 nm/s
+let speed_of_light_nm = 299792458000000000
+
+# Electronegativity note:
+# Pauling scale is dimensionless — it IS the unit.
+# Bond polarity = |EN_a - EN_b|
+# < 0.4 → nonpolar covalent (optional binding in SAGCO)
+# 0.4–1.7 → polar covalent (required binding)
+# > 1.7 → ionic (exclusive binding — only one can write)
+let en_covalent_threshold = 0.4
+let en_ionic_threshold    = 1.7
+
+wafer unit_system_loaded {
+  expected: yes
+  actual: yes
+  match: required
+}

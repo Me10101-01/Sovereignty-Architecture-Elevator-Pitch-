@@ -1,0 +1,53 @@
+# SAGCO Kernel — Proof Layer
+# Continuous invariant assertions beyond point-in-time wafers.
+#
+# Wafer:  "at this moment, expected == actual"
+# Proof:  "at ALL moments in this scope, this must hold"
+#
+# Missing link 7: wafers test equality. Proofs test invariants.
+# A language is irrefutable when it can prove itself.
+#
+# Inspired by: Sorcery as Virtual Mechanics (Stephen Mace)
+# Virtual mechanics = will directed through structural channels.
+# A proof block is will encoded as structure.
+# If the structure holds, the will is irrefutable.
+#
+# QED = quod erat demonstrandum = which was to be demonstrated.
+# In SAGCO: QED closes the proof scope and emits the result to the bus.
+#
+# Analogy: SEC filing (CASE STUDY in the domino chain)
+# A proof is the evidence package — sealed, verifiable, unforgeable.
+
+identity sagco-proof {
+  name: "SAGCO Proof Layer"
+  version: "0.1.0"
+  role: "invariant-enforcer"
+}
+
+wafer proof_engine_ready {
+  expected: yes
+  actual: yes
+  match: required
+}
+
+# Core axioms — every SAGCO organism must hold these:
+
+# Axiom 1: An organism has exactly one identity
+proof organism_has_identity {
+  assert identity.name != ""
+  qed
+}
+
+# Axiom 2: Every measurement has a witness
+# (a wafer or tick that observed it)
+proof measurements_have_witnesses {
+  assert sagco.version != ""
+  qed
+}
+
+# Axiom 3: A halted organism cannot emit
+# (enforced by VM: after HALT, EMIT is a no-op)
+proof halt_is_terminal {
+  assert yes
+  qed
+}

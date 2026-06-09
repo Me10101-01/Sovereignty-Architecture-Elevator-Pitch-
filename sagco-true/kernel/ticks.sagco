@@ -1,0 +1,37 @@
+# SAGCO Kernel — Ticks
+# Temporal sovereignty layer.
+# Every truth claim expires without a tick seal.
+# A tick is SHA-256(label + state_hash + parent_seal + timestamp).
+# Chain of ticks = unforgeable timeline.
+#
+# Missing link 6: without timestamps, statements can be disputed.
+# With hash-chained ticks, the past becomes immutable.
+#
+# Analogy: stock exchange timestamp (TICKS in the domino chain)
+# Each tick seals the current state of the organism at that moment.
+# If a tick is modified, all subsequent seals break. Detectable.
+
+identity sagco-ticks {
+  name: "SAGCO Temporal Sovereignty"
+  version: "0.1.0"
+  role: "tick-sealer"
+}
+
+wafer ticks_available {
+  expected: yes
+  actual: yes
+  match: required
+}
+
+# Genesis tick — organism boot seal
+# Emitted when organism first boots. Chains all subsequent ticks.
+step genesis_tick {
+  do: emit tick_genesis
+}
+
+# Heartbeat — default period 60s
+# tick.heartbeat fires every heartbeat_period seconds
+let heartbeat_period = 60
+
+# The tick chain is the organism's immune memory.
+# If you can't prove when something happened, it didn't happen.

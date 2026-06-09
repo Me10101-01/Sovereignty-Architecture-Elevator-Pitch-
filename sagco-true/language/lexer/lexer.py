@@ -38,6 +38,19 @@ class TT(Enum):
     HEAL      = auto()
     IMPORT    = auto()
     EXPORT    = auto()
+    # missing-link keywords
+    PROOF     = auto()   # continuous invariant block (sorcery = intent = will)
+    BIND      = auto()   # dependency bond (electronegativity)
+    RELEASE   = auto()   # dissolve bond
+    TICK      = auto()   # hash-sealed timestamp (temporal sovereignty)
+    CAST      = auto()   # alchemical transmutation (type coercion)
+    UNIT      = auto()   # measurement unit annotation
+    ASSERT    = auto()   # hard invariant assertion
+    PIPE      = auto()   # explicit transform pipeline
+    PERIOD    = auto()   # oscillatory interval declaration
+    FREQUENCY = auto()   # 1/period
+    PHASE     = auto()   # position in oscillation cycle
+    QED       = auto()   # close proof scope
     # values
     YES       = auto()
     NO        = auto()
@@ -77,6 +90,12 @@ KEYWORDS: dict[str, TT] = {
     "halt": TT.HALT,         "detect": TT.DETECT,  "match": TT.MATCH,
     "trigger": TT.TRIGGER,   "response": TT.RESPONSE, "heal": TT.HEAL,
     "import": TT.IMPORT,     "export": TT.EXPORT,
+    "proof": TT.PROOF,       "bind": TT.BIND,
+    "release": TT.RELEASE,   "tick": TT.TICK,
+    "cast": TT.CAST,         "unit": TT.UNIT,
+    "assert": TT.ASSERT,     "pipe": TT.PIPE,
+    "period": TT.PERIOD,     "frequency": TT.FREQUENCY,
+    "phase": TT.PHASE,       "qed": TT.QED,
     "yes": TT.YES,           "no": TT.NO,
     "required": TT.REQUIRED, "optional": TT.OPTIONAL,
 }

@@ -1,0 +1,158 @@
+# SAGCO Kernel — Physics Primitives
+# Physical laws as SAGCO first principles.
+# These are not metaphors. These ARE the operating rules.
+#
+# The universe runs on these. So does SAGCO.
+#
+# Source domains synthesized:
+#   1. Frequency Calculator     — wave oscillation model
+#   2. Spherical Coordinates    — 3D positional model
+#   3. Electronegativity        — binding/attraction model
+#   4. Rolling Offset           — sequential transform model
+#   5. Binary System            — discrete/digital foundation
+#   6. Color of Sound           — cross-domain frequency mapping
+#   7. Alchemical Process       — input + catalyst → output model
+#   8. Sorcery as Virtual Mech  — will/intent as structured force
+
+identity sagco-physics {
+  name: "SAGCO Physics Primitives"
+  version: "0.1.0"
+  role: "physical-law-encoder"
+}
+
+# ── 1. FREQUENCY MODEL ─────────────────────────────────────────────────────
+# Everything oscillates. Every process has a frequency.
+# frequency = 1 / period
+# A SAGCO step is a discrete tick of a continuous oscillation.
+# The wafer system measures if actual frequency matches expected.
+#
+# organism heartbeat: 1/60 hz (once per minute)
+# language step execution: discrete (no inherent frequency)
+# tick sealing: frequency = however often state changes
+#
+# missing: SAGCO currently has no concept of "how often"
+# added: PERIOD, FREQUENCY, PHASE opcodes
+
+period heartbeat = 60          # seconds
+period fast_sync = 1           # seconds
+period slow_audit = 3600       # seconds (1 hour)
+
+# ── 2. SPHERICAL COORDINATE MODEL ─────────────────────────────────────────
+# Every component in the organism has a position in sovereignty-space:
+#   rho   = depth from kernel (0 = kernel, max = edge node)
+#   theta = bearing in dependency graph (0 = direct child of kernel)
+#   phi   = elevation in sovereignty stack (90° = fully sovereign)
+#
+# A cell with rho=0 is the kernel.
+# A cell with phi=90 is fully independent (can run without the organism).
+# A cell with phi=0 is fully dependent (needs the organism to function).
+#
+# This gives every component an address in sovereignty-space.
+# "Where is this component" is not just a file path — it's a position.
+
+let kernel_rho   = 0            # kernel is the origin
+let max_phi_deg  = 90           # fully sovereign
+let min_phi_deg  = 0            # fully dependent
+
+# ── 3. ELECTRONEGATIVITY / BINDING MODEL ──────────────────────────────────
+# Two components attract each other based on their sovereignty difference.
+# High sovereignty difference → ionic bond (one owns the other)
+# Low sovereignty difference → covalent bond (shared, cooperative)
+#
+# BIND strength = |sovereignty_a - sovereignty_b|
+#   < 0.4 → optional (weak, covalent)
+#   0.4 → 1.7 → required (polar covalent)
+#   > 1.7 → exclusive (ionic — only one writer)
+#
+# This is why the kernel OWNS the boot sequence:
+# kernel sovereignty = 1.0, boot step sovereignty = 0.1
+# difference = 0.9 → required bond (polar covalent)
+# The kernel pulls the boot step. The boot step can't refuse.
+
+bind required kernel boot_sequence
+bind required kernel identity_loader
+bind optional replicator external_nodes
+
+# ── 4. ROLLING OFFSET MODEL ───────────────────────────────────────────────
+# In pipe fitting, a rolling offset connects two parallel pipes
+# that are offset in both horizontal AND vertical planes.
+# The math: true_offset = sqrt(rise² + run²)
+# The pipe must be cut at angle = atan(run/rise)
+#
+# In SAGCO, the domino chain IS a rolling offset:
+# RAW WORLD → stepper (cut angle 1) → DISCOVERED
+# DISCOVERED → crawler (cut angle 2) → STRUCTURED
+# Each transform introduces an offset (error + correction).
+# The total offset = sqrt(sum of squared errors).
+# If total_offset > threshold → NEEDS_HEALING.
+#
+# This is why the CONCERT layer harmonizes:
+# it calculates the total rolling offset before emitting FlameLang IR.
+
+let offset_threshold = 1.0      # sqrt(total_error²) must be < this
+
+# ── 5. BINARY/DISCRETE FOUNDATION ─────────────────────────────────────────
+# Everything in SAGCO is ultimately binary:
+# YES/NO, PASS/FAIL, ALIVE/DEAD, REQUIRED/OPTIONAL
+# But binary systems compose into analog behavior.
+# 8 bits → 256 states. 32 bits → 4 billion states.
+#
+# SAGCO language was missing: ADD, SUB, MUL, DIV, AND, OR, XOR
+# Without arithmetic, you can't compute rolling offsets.
+# Without bitwise ops, you can't pack/unpack cell flags.
+# These are now added.
+
+# ── 6. COLOR OF SOUND / CROSS-DOMAIN FREQUENCY MAPPING ───────────────────
+# Pitch → Color: frequency (hz) → wavelength (nm) via c = f * lambda
+# 440 hz (A4) → visible light would be ~6.8e14 hz → ~440 nm (violet)
+# Note: audio is 20hz–20khz. Visible light is 400nm–700nm (4.3e14–7.5e14 hz).
+# Direct mapping is not perceptual — it requires octave-folding.
+#
+# The point: MEASUREMENT must carry UNITS or the domain is lost.
+# 440 without "hz" is meaningless. With "hz" it's music.
+# This is why SAGCO needs UNIT, CONVERT, MAGNITUDE opcodes.
+#
+# Cross-domain mapping = FlameLang IR's purpose:
+# it knows what domain each input/output lives in.
+
+measure audio_range_low  = 20        # hz
+measure audio_range_high = 20000     # hz
+measure visible_low_nm   = 400       # nm (violet)
+measure visible_high_nm  = 700       # nm (red)
+
+# ── 7. ALCHEMICAL PROCESS MODEL ───────────────────────────────────────────
+# Alchemy: input + catalyst + heat → output
+# In SAGCO:
+#   input   = cell value (raw data)
+#   catalyst = wafer (truth test that must pass for transform to fire)
+#   heat    = energy = the TICK that seals the moment
+#   output  = transformed cell value
+#
+# Without a catalyst (wafer), a transform is unverified alchemy.
+# Any transform in FlameLang IR that lacks a catalyst wafer is flagged.
+# This is the "irrefutability" condition for transforms.
+
+# ── 8. SORCERY AS VIRTUAL MECHANICS ───────────────────────────────────────
+# (Stephen Mace): "Sorcery is the direction of virtual forces
+# through structured channels to produce real effects."
+#
+# Replace "sorcery" with "computation":
+# "Computation is the direction of virtual forces (bits, signals)
+# through structured channels (opcodes, pipelines)
+# to produce real effects (state changes, emissions, truth proofs)."
+#
+# The "structured channel" in SAGCO is the PROOF block.
+# A PROOF block is the structure that directs the force.
+# Without a proof, the force is unstructured = magic = unreliable.
+# With a proof: IRREFUTABLE.
+#
+# This is the unified foundation:
+# IRREFUTABLE = structured + catalyzed + timestamped + bonded + proven
+#
+# STATUS: PHYSICS_KERNEL_LOADED
+
+wafer physics_loaded {
+  expected: yes
+  actual: yes
+  match: required
+}

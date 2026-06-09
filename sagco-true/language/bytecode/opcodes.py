@@ -60,6 +60,57 @@ class Op(Enum):
     LT       = "LT"
     GT       = "GT"
 
+    # Arithmetic — binary numbers need math (missing link 1)
+    ADD      = "ADD"      # ADD              — pop b, pop a, push a+b
+    SUB      = "SUB"      # SUB              — pop b, pop a, push a-b
+    MUL      = "MUL"      # MUL              — pop b, pop a, push a*b
+    DIV      = "DIV"      # DIV              — pop b, pop a, push a/b (push None if b==0)
+    MOD      = "MOD"      # MOD              — pop b, pop a, push a%b
+    NEG      = "NEG"      # NEG              — pop a, push -a
+    ABS      = "ABS"      # ABS              — pop a, push |a|
+
+    # Bitwise — discrete/binary completeness (missing link 2)
+    B_AND    = "B_AND"    # B_AND            — bitwise AND
+    B_OR     = "B_OR"     # B_OR             — bitwise OR
+    B_XOR    = "B_XOR"    # B_XOR            — bitwise XOR
+    B_NOT    = "B_NOT"    # B_NOT            — bitwise NOT
+    B_SHL    = "B_SHL"    # B_SHL <n>        — shift left n bits
+    B_SHR    = "B_SHR"    # B_SHR <n>        — shift right n bits
+
+    # Alchemical transmutation — cast = type coercion (missing link 3)
+    CAST     = "CAST"     # CAST <type>      — transmute top of stack to type (int/float/str/bool)
+    TYPE_OF  = "TYPE_OF"  # TYPE_OF          — push type name of top of stack
+
+    # Measurement with units — frequency needs Hz, distance needs m (missing link 4)
+    UNIT     = "UNIT"     # UNIT <symbol>    — annotate top of stack with unit symbol
+    CONVERT  = "CONVERT"  # CONVERT <to>     — unit conversion (hz→rpm, rad→deg, etc.)
+    MAGNITUDE = "MAGNITUDE" # MAGNITUDE      — strip unit, push raw scalar
+
+    # Binding/dependency semantics — electronegativity (missing link 5)
+    BIND     = "BIND"     # BIND <name>      — declare named bond; pop two IDs, bind them
+    RELEASE  = "RELEASE"  # RELEASE <name>   — dissolve named bond
+    BONDS    = "BONDS"    # BONDS            — push list of active bonds
+
+    # Tick/temporal sovereignty — hash-chained timestamps (missing link 6)
+    TICK     = "TICK"     # TICK <label>     — seal current state into a tick (SHA-256 chained)
+    TICK_GET = "TICK_GET" # TICK_GET <label> — push tick record onto stack
+    TICK_VERIFY = "TICK_VERIFY" # TICK_VERIFY <label> — verify tick chain integrity
+
+    # Proof/invariant layer — continuous assertions beyond wafers (missing link 7)
+    ASSERT   = "ASSERT"   # ASSERT <msg>     — pop value; halt CRITICAL if falsy
+    PROOF    = "PROOF"    # PROOF <name>     — begin proof scope; all assertions named
+    QED      = "QED"      # QED              — close proof scope; emit proof result
+
+    # Pipeline / transform chain — rolling offset = sequential feed-through (missing link 8)
+    PIPE     = "PIPE"     # PIPE <proc>      — run top of stack through named procedure
+    COMPOSE  = "COMPOSE"  # COMPOSE <n>      — pop n proc-names, create composed transform
+    FOLD     = "FOLD"     # FOLD <proc>      — reduce stack list through proc
+
+    # Frequency / periodicity primitives (missing link 9)
+    PERIOD   = "PERIOD"   # PERIOD <label>   — declare oscillation period in SAGCO ticks
+    FREQUENCY = "FREQUENCY" # FREQUENCY      — pop period, push 1/period
+    PHASE    = "PHASE"    # PHASE <label>    — push current phase (0.0–1.0) of named period
+
     # No-op / debug
     NOP      = "NOP"
     DEBUG    = "DEBUG"    # DEBUG <msg>      — log message without side effects

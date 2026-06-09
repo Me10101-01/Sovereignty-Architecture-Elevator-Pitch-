@@ -6,6 +6,8 @@ process table, and world context. No external runtime dependencies.
 
 from __future__ import annotations
 import hashlib
+import json
+import math
 import os
 import platform
 import time
@@ -81,6 +83,54 @@ class WaferResult:
 
 # ── Virtual Machine ───────────────────────────────────────────────────────
 
+@dataclass
+class TickRecord:
+    label: str
+    seal: str        # SHA-256 of (label + state_hash + parent_seal)
+    state_hash: str  # SHA-256 of memory snapshot at tick time
+    ts: float
+    parent: str      # seal of previous tick in chain (empty = genesis)
+
+
+@dataclass
+class BondRecord:
+    name: str
+    a: str
+    b: str
+    strength: str = "required"  # required | optional (covalent | ionic)
+
+
+@dataclass
+class ProofScope:
+    name: str
+    assertions: list[dict] = field(default_factory=list)
+    passed: bool = True
+
+
+# ── Unit system — frequency/chemistry/geometry need this ──────────────────
+
+UNIT_CONVERSIONS: dict[str, dict[str, float]] = {
+    # frequency
+    "hz":  {"rpm": 60.0,  "rad_s": 2 * math.pi,  "khz": 0.001,  "mhz": 1e-6},
+    "rpm": {"hz": 1/60,   "rad_s": 2*math.pi/60},
+    "khz": {"hz": 1000,   "mhz": 0.001},
+    "mhz": {"hz": 1e6,    "khz": 1000},
+    "rad_s": {"hz": 1/(2*math.pi), "rpm": 60/(2*math.pi)},
+    # angles
+    "deg": {"rad": math.pi/180, "grad": 10/9},
+    "rad": {"deg": 180/math.pi, "grad": 200/math.pi},
+    # distance
+    "m":   {"ft": 3.28084, "in": 39.3701, "mm": 1000, "cm": 100, "km": 0.001},
+    "ft":  {"m": 0.3048,   "in": 12,      "mm": 304.8},
+    "in":  {"m": 0.0254,   "ft": 1/12,    "mm": 25.4, "cm": 2.54},
+    "mm":  {"m": 0.001,    "in": 1/25.4,  "cm": 0.1},
+    "cm":  {"m": 0.01,     "in": 1/2.54,  "mm": 10},
+    # color/light
+    "nm":  {"um": 0.001,   "ang": 10},   # nanometer wavelength
+    "ang": {"nm": 0.1},                   # Angstrom
+}
+
+
 class SAGCOVirtualMachine:
     def __init__(self) -> None:
         self.stack: list[Any] = []
@@ -91,6 +141,10 @@ class SAGCOVirtualMachine:
         self.wafer_results: list[WaferResult] = []
         self._procs: dict[str, list[Instruction]] = {}   # named procedures
         self._ip: int = 0
+        self._ticks: list[TickRecord] = []
+        self._bonds: dict[str, BondRecord] = {}
+        self._proof_stack: list[ProofScope] = []
+        self._periods: dict[str, float] = {}  # label -> period in seconds
 
         # seed identity
         self.memory["world"] = self.world
@@ -233,6 +287,255 @@ class SAGCOVirtualMachine:
             elif op == Op.DEBUG:
                 pass  # silent in production
 
+            # ── Arithmetic ────────────────────────────────────────────────
+            elif op == Op.ADD:
+                b, a = self._pop(), self._pop()
+                try:
+                    self._push(a + b)
+                except TypeError:
+                    self._push(str(a) + str(b))
+
+            elif op == Op.SUB:
+                b, a = self._pop(), self._pop()
+                try:
+                    self._push(a - b)
+                except TypeError:
+                    self._push(None)
+
+            elif op == Op.MUL:
+                b, a = self._pop(), self._pop()
+                try:
+                    self._push(a * b)
+                except TypeError:
+                    self._push(None)
+
+            elif op == Op.DIV:
+                b, a = self._pop(), self._pop()
+                self._push(a / b if b else None)
+
+            elif op == Op.MOD:
+                b, a = self._pop(), self._pop()
+                self._push(a % b if b else None)
+
+            elif op == Op.NEG:
+                self._push(-self._pop())
+
+            elif op == Op.ABS:
+                self._push(abs(self._pop()))
+
+            # ── Bitwise ───────────────────────────────────────────────────
+            elif op == Op.B_AND:
+                b, a = int(self._pop()), int(self._pop())
+                self._push(a & b)
+
+            elif op == Op.B_OR:
+                b, a = int(self._pop()), int(self._pop())
+                self._push(a | b)
+
+            elif op == Op.B_XOR:
+                b, a = int(self._pop()), int(self._pop())
+                self._push(a ^ b)
+
+            elif op == Op.B_NOT:
+                self._push(~int(self._pop()))
+
+            elif op == Op.B_SHL:
+                n = int(operand) if operand is not None else int(self._pop())
+                self._push(int(self._pop()) << n)
+
+            elif op == Op.B_SHR:
+                n = int(operand) if operand is not None else int(self._pop())
+                self._push(int(self._pop()) >> n)
+
+            # ── Alchemical cast ───────────────────────────────────────────
+            elif op == Op.CAST:
+                val = self._pop()
+                target = str(operand).lower() if operand else "str"
+                try:
+                    if target in ("int", "integer"):
+                        self._push(int(float(str(val))))
+                    elif target in ("float", "number", "real"):
+                        self._push(float(str(val)))
+                    elif target in ("str", "string", "text"):
+                        self._push(str(val))
+                    elif target in ("bool", "boolean"):
+                        self._push(bool(val))
+                    else:
+                        self._push(val)
+                except (ValueError, TypeError):
+                    self._push(None)
+
+            elif op == Op.TYPE_OF:
+                val = self._peek_stack()
+                name = type(val).__name__
+                self._push(name)
+
+            # ── Units (frequency / chemistry / geometry) ──────────────────
+            elif op == Op.UNIT:
+                val = self._pop()
+                symbol = str(operand).lower() if operand else "?"
+                self._push({"__sagco_unit__": symbol, "value": val})
+
+            elif op == Op.CONVERT:
+                target = str(operand).lower() if operand else ""
+                top = self._pop()
+                if isinstance(top, dict) and "__sagco_unit__" in top:
+                    src = top["__sagco_unit__"]
+                    val = top["value"]
+                    factor = UNIT_CONVERSIONS.get(src, {}).get(target)
+                    if factor is not None:
+                        self._push({"__sagco_unit__": target, "value": val * factor})
+                    else:
+                        self._push({"__sagco_unit__": target, "value": val, "conversion": "unknown"})
+                else:
+                    self._push({"__sagco_unit__": target, "value": top})
+
+            elif op == Op.MAGNITUDE:
+                top = self._pop()
+                if isinstance(top, dict) and "__sagco_unit__" in top:
+                    self._push(top["value"])
+                else:
+                    self._push(top)
+
+            # ── Binding (electronegativity model) ─────────────────────────
+            elif op == Op.BIND:
+                b = str(self._pop())
+                a = str(self._pop())
+                name = str(operand) if operand else f"{a}:{b}"
+                strength = "required"
+                self._bonds[name] = BondRecord(name, a, b, strength)
+                self.memory[f"bond.{name}"] = {"a": a, "b": b, "strength": strength}
+
+            elif op == Op.RELEASE:
+                name = str(operand) if operand else ""
+                self._bonds.pop(name, None)
+                self.memory.pop(f"bond.{name}", None)
+
+            elif op == Op.BONDS:
+                self._push([{"name": b.name, "a": b.a, "b": b.b, "strength": b.strength}
+                             for b in self._bonds.values()])
+
+            # ── Tick / temporal sovereignty ───────────────────────────────
+            elif op == Op.TICK:
+                label = str(operand) if operand else f"tick_{len(self._ticks)}"
+                state_snapshot = json.dumps(
+                    {k: str(v) for k, v in self.memory.items()}, sort_keys=True
+                ).encode()
+                state_hash = hashlib.sha256(state_snapshot).hexdigest()
+                parent_seal = self._ticks[-1].seal if self._ticks else ""
+                raw = f"{label}:{state_hash}:{parent_seal}:{time.time()}".encode()
+                seal = hashlib.sha256(raw).hexdigest()
+                rec = TickRecord(label, seal, state_hash, time.time(), parent_seal)
+                self._ticks.append(rec)
+                self.memory[f"tick.{label}.seal"] = seal
+                self.memory[f"tick.{label}.ts"] = rec.ts
+                self._push(seal)
+
+            elif op == Op.TICK_GET:
+                label = str(operand) if operand else ""
+                tick = next((t for t in reversed(self._ticks) if t.label == label), None)
+                self._push({"label": tick.label, "seal": tick.seal, "ts": tick.ts} if tick else None)
+
+            elif op == Op.TICK_VERIFY:
+                label = str(operand) if operand else ""
+                ticks_for = [t for t in self._ticks if t.label == label]
+                ok = True
+                for i, t in enumerate(ticks_for):
+                    expected_parent = ticks_for[i-1].seal if i > 0 else ""
+                    if t.parent != expected_parent:
+                        ok = False
+                        break
+                self._push(ok)
+
+            # ── Proof / invariant assertions ──────────────────────────────
+            elif op == Op.PROOF:
+                name = str(operand) if operand else f"proof_{len(self._proof_stack)}"
+                self._proof_stack.append(ProofScope(name))
+
+            elif op == Op.ASSERT:
+                msg = str(operand) if operand else "assertion"
+                val = self._pop()
+                passed = bool(val)
+                entry = {"msg": msg, "passed": passed}
+                if self._proof_stack:
+                    self._proof_stack[-1].assertions.append(entry)
+                    if not passed:
+                        self._proof_stack[-1].passed = False
+                if not passed:
+                    self.bus.append(Signal("PROOF_VIOLATION", {"msg": msg, "status": "CRITICAL"}))
+
+            elif op == Op.QED:
+                if self._proof_stack:
+                    scope = self._proof_stack.pop()
+                    passed = scope.passed
+                    self.memory[f"proof.{scope.name}.passed"] = passed
+                    self.memory[f"proof.{scope.name}.assertions"] = len(scope.assertions)
+                    self.bus.append(Signal("QED", {"proof": scope.name, "passed": passed}))
+                    self._push(passed)
+
+            # ── Pipeline / transform chain ────────────────────────────────
+            elif op == Op.PIPE:
+                proc_name = str(operand) if operand else ""
+                val = self._pop()
+                target_label = f"__do__{proc_name}"
+                if target_label in labels:
+                    self._push(val)
+                    call_stack.append(ip)
+                    ip = labels[target_label] + 1
+                else:
+                    self._push(val)   # pass through unchanged
+
+            elif op == Op.COMPOSE:
+                n = int(operand) if operand else 2
+                procs = [str(self._pop()) for _ in range(n)]
+                procs.reverse()
+                self._push({"__sagco_composed__": procs})
+
+            elif op == Op.FOLD:
+                proc_name = str(operand) if operand else ""
+                lst = self._pop()
+                if not isinstance(lst, list) or not lst:
+                    self._push(None)
+                else:
+                    acc = lst[0]
+                    target_label = f"__do__{proc_name}"
+                    for item in lst[1:]:
+                        if target_label in labels:
+                            self._push(acc)
+                            self._push(item)
+                            call_stack.append(ip)
+                            ip = labels[target_label] + 1
+                        acc = self._pop() if self.stack else acc
+                    self._push(acc)
+
+            # ── Frequency / periodicity ───────────────────────────────────
+            elif op == Op.PERIOD:
+                label = str(operand) if operand else "default"
+                val = self._pop()
+                try:
+                    self._periods[label] = float(val)
+                    self.memory[f"period.{label}"] = float(val)
+                except (TypeError, ValueError):
+                    pass
+
+            elif op == Op.FREQUENCY:
+                val = self._pop()
+                try:
+                    p = float(val)
+                    self._push(1.0 / p if p != 0 else None)
+                except (TypeError, ValueError):
+                    self._push(None)
+
+            elif op == Op.PHASE:
+                label = str(operand) if operand else "default"
+                period = self._periods.get(label, 1.0)
+                start_key = f"period.{label}.start"
+                started = self.memory.get(start_key, time.time())
+                self.memory.setdefault(start_key, started)
+                elapsed = time.time() - started
+                phase = (elapsed % period) / period if period else 0.0
+                self._push(round(phase, 6))
+
             elif op == Op.READ:
                 try:
                     content = open(str(operand)).read()
@@ -295,15 +598,31 @@ class SAGCOVirtualMachine:
         total = len(self.wafer_results)
         passed = sum(1 for w in self.wafer_results if w.passed)
         failed = [w for w in self.wafer_results if not w.passed and w.mode == "required"]
+        proof_violations = [
+            s for s in self.bus if s.name == "PROOF_VIOLATION"
+        ]
+        irrefutable = not failed and not proof_violations
         return {
             "total": total,
             "passed": passed,
             "failed_required": len(failed),
-            "status": "TRUE_ENOUGH_TO_GROW" if not failed else "NEEDS_HEALING",
+            "proof_violations": len(proof_violations),
+            "tick_chain_length": len(self._ticks),
+            "active_bonds": len(self._bonds),
+            "status": "IRREFUTABLE" if irrefutable and total > 0
+                      else ("TRUE_ENOUGH_TO_GROW" if not failed else "NEEDS_HEALING"),
             "wafers": [
                 {"name": w.name, "expected": w.expected,
                  "actual": w.actual, "passed": w.passed, "mode": w.mode}
                 for w in self.wafer_results
+            ],
+            "ticks": [
+                {"label": t.label, "seal": t.seal[:16] + "...", "ts": t.ts}
+                for t in self._ticks
+            ],
+            "bonds": [
+                {"name": b.name, "a": b.a, "b": b.b, "strength": b.strength}
+                for b in self._bonds.values()
             ],
         }
 
