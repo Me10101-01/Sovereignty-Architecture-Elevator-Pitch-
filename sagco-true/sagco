@@ -127,6 +127,48 @@ def cmd_parse(path: str) -> None:
 
 
 def cmd_compile(path: str, output: str | None = None) -> None:
+    flags = _parse_flags(sys.argv[3:])
+
+    # FlameIR path: .flame.json → FlameIR Compiler → Bytecode
+    if path.endswith(".flame.json") or path.endswith(".flame"):
+        from sagco_true.language.compiler.flame_compiler import (
+            compile_ir_file, disassemble,
+        )
+        bc = compile_ir_file(path)
+        out_path = output or path.replace(".flame.json", ".sagcob").replace(".flame", ".sagcob")
+        bc.save(out_path)
+        print(f"  FlameIR  → {path}")
+        print(f"  Bytecode → {out_path}  ({len(bc.instructions)} instructions)")
+        if "--dis" in sys.argv or flags.get("dis"):
+            print("\n" + disassemble(bc))
+        return
+
+    # CONCERT live compile: sagco compile --concert [--title NAME]
+    if path in ("--concert", "concert") or flags.get("concert"):
+        from sagco_true.worlds.concert import Concert
+        from sagco_true.language.compiler.flame_compiler import compile_ir, disassemble
+        from sagco_true.language.vm.vm import SAGCOVirtualMachine
+        title = flags.get("title", "live-compile")
+        concert = Concert()
+        result  = concert.run(title=title, save=True)
+        bc      = compile_ir(result.ir)
+        # only accept output if it doesn't look like a flag
+        safe_out = output if (output and not output.startswith("-")) else None
+        out_path = safe_out or f"{title}.sagcob"
+        bc.save(out_path)
+        vm = SAGCOVirtualMachine()
+        vm.run(bc)
+        report = vm.truth_report()
+        print(f"  Concert  → {result.status}")
+        print(f"  FlameIR  → {len(result.ir.graph.nodes)} nodes")
+        print(f"  Bytecode → {out_path}  ({len(bc.instructions)} instructions)")
+        print(f"  VM       → {report.get('status', 'UNKNOWN')}")
+        print(f"  Memory   → {len(vm.memory)} keys")
+        if "--dis" in sys.argv or flags.get("dis"):
+            print("\n" + disassemble(bc))
+        return
+
+    # Default: .sagco source → Bytecode
     from sagco_true.language.bytecode.compiler import compile_source
     source = open(path).read()
     bc = compile_source(source, path)
