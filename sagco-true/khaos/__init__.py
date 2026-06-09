@@ -43,7 +43,7 @@ from .monitor import KHAOSMonitor, MonitorSnapshot, read_procs, system_metrics
 from .calendar import (
     gregorian_to_jdn, jdn_to_gregorian, today_jdn,
     compare_all, eru_burn_rate, calendar_date,
-    primameria_day, today_vortex,
+    primameria_day, today_vortex, daily_rite_wav,
     PrimameriaDay, CalendarComparison, EruBurnRate,
     print_full_report, print_primameria, print_calendar_table, print_eru_report,
 )
@@ -58,7 +58,7 @@ __all__ = [
     "print_strand_score", "KHAOSBridge",
     "gregorian_to_jdn", "jdn_to_gregorian", "today_jdn",
     "compare_all", "eru_burn_rate", "calendar_date",
-    "primameria_day", "today_vortex",
+    "primameria_day", "today_vortex", "daily_rite_wav",
     "PrimameriaDay", "CalendarComparison", "EruBurnRate",
     "print_full_report", "print_primameria", "print_calendar_table", "print_eru_report",
 ]

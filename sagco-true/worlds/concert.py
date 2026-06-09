@@ -38,6 +38,7 @@ from ..language.flameir.flame import (
 from ..khaos.oscillator import KHAOSOscillator, CoherenceResult
 from ..khaos.monitor import KHAOSMonitor, MonitorSnapshot, system_metrics
 from ..khaos.bridge import KHAOSBridge
+from ..khaos.calendar import today_vortex, primameria_day
 
 
 # ── Concert result ────────────────────────────────────────────────────────
@@ -52,6 +53,7 @@ class ConcertResult:
     proof_passed: bool
     tick_seal: str
     duration_ms: float
+    primameria: dict | None = None
     saved_to: str | None = None
 
     @property
@@ -73,6 +75,7 @@ class ConcertResult:
             "duration_ms": round(self.duration_ms, 2),
             "ir_nodes": len(self.ir.graph.nodes),
             "ir_edges": len(self.ir.graph.edges),
+            "primameria": self.primameria,
             "saved_to": self.saved_to,
         }
 
@@ -152,6 +155,26 @@ class Concert:
             meta=sys_m,
         ))
 
+        # SOURCE node: Primameria temporal context
+        tv = today_vortex()
+        pd_today = primameria_day()
+        graph.add_node(FlameNode(
+            id="primameria_today",
+            kind=FlameNodeKind.SOURCE,
+            label="Primameria Sovereign Calendar",
+            intent="inject vortex-aligned temporal context into FlameIR",
+            outputs=[
+                FlamePort("day_vortex",    "int",   ""),
+                FlamePort("vortex_track",  "str",   ""),
+                FlamePort("khaos_element", "str",   ""),
+                FlamePort("mumiah_freq",   "float", "Hz"),
+                FlamePort("phase",         "float", "rad"),
+                FlamePort("status",        "str",   ""),
+            ],
+            provenance=f"primameria@{tv['date']}",
+            meta=tv,
+        ))
+
         # TRANSFORM node: KHAOS classification
         graph.add_node(FlameNode(
             id="khaos_classify",
@@ -204,6 +227,7 @@ class Concert:
         # TICK node: temporal seal
         tick_content = json.dumps({
             "coherence": coherence.to_dict(),
+            "primameria": tv,
             "sys": sys_m,
             "ts": time.time(),
         }, sort_keys=True).encode()
@@ -242,13 +266,15 @@ class Concert:
         ))
 
         # ── Edges ─────────────────────────────────────────────────────────
-        graph.connect("ingest",         "cpu_pct",          "khaos_classify",  "cpu_pct")
-        graph.connect("ingest",         "mem_pct",          "khaos_classify",  "mem_pct")
-        graph.connect("khaos_classify", "red_amp",          "coherence_check", "red_amp")
-        graph.connect("khaos_classify", "blue_amp",         "coherence_check", "blue_amp")
-        graph.connect("khaos_classify", "purple_amp",       "coherence_check", "purple_amp")
-        graph.connect("coherence_check","coherence_status", "concert_output",  "coherence_status")
-        graph.connect("tick_seal",      "seal",             "concert_output",  "tick_seal",
+        graph.connect("ingest",           "cpu_pct",          "khaos_classify",  "cpu_pct")
+        graph.connect("ingest",           "mem_pct",          "khaos_classify",  "mem_pct")
+        graph.connect("khaos_classify",   "red_amp",          "coherence_check", "red_amp")
+        graph.connect("khaos_classify",   "blue_amp",         "coherence_check", "blue_amp")
+        graph.connect("khaos_classify",   "purple_amp",       "coherence_check", "purple_amp")
+        graph.connect("coherence_check",  "coherence_status", "concert_output",  "coherence_status")
+        graph.connect("primameria_today", "day_vortex",       "concert_output",  "primameria_vortex")
+        graph.connect("primameria_today", "khaos_element",    "coherence_check", "temporal_element")
+        graph.connect("tick_seal",        "seal",             "concert_output",  "tick_seal",
                       bond_strength="required")
         # Connect wafer catalysts to output
         for wname in list(wafer_results.keys())[:4]:  # top 4
@@ -283,6 +309,7 @@ class Concert:
             proof_passed=proof_passed,
             tick_seal=tick_seal,
             duration_ms=duration_ms,
+            primameria=tv,
             saved_to=saved_to,
         )
 

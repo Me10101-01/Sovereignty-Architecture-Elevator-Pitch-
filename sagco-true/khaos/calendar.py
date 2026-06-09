@@ -481,6 +481,84 @@ def today_vortex() -> dict:
     }
 
 
+# ── Daily Primameria Rite WAV ─────────────────────────────────────────────────
+
+# Vortex track anchor frequencies (from vortex.py WAV encoder)
+_TRACK_HZ = {
+    "3-track": 300.0,   # Nelchael — 3-track anchor
+    "6-track": 360.0,   # Iehuiah  — 6-track anchor (hz DR=9, inverted)
+    "9-track": 240.0,   # Haziel   — 9-track anchor (hz DR=6, inverted)
+}
+
+
+def daily_rite_wav(output_path: str, jdn: Optional[int] = None, duration: float = 9.0) -> str:
+    """
+    Generate the Primameria Daily Rite WAV.
+
+    Layer 1: today's KHAOS element carrier (left = hz, right = hz + beat)
+    Layer 2: vortex track anchor frequency blended in
+    Layer 3: Mumiah 555hz overlay at Primameria phase angle — faint attractor
+
+    Duration: 9 seconds by default (the fixed-point number).
+    """
+    import struct
+    import wave as _wave
+
+    SAMPLE_RATE = 44100
+    pd = primameria_day(jdn)
+
+    # Carrier = today's element
+    carrier_hz = float(pd.khaos_hz)
+    beat_hz    = 4.0   # default 4hz beat (theta boundary)
+
+    # Track layer
+    track_hz = _TRACK_HZ.get(pd.vortex_track, MUMIAH_HZ)
+
+    # Mumiah phase offset converts to a time shift
+    mumiah_offset = pd.phase_rad / (2 * math.pi)  # [0,1] fraction of its period
+
+    amp_carrier = 0.45
+    amp_track   = 0.25
+    amp_mumiah  = 0.15
+
+    n_samples = int(duration * SAMPLE_RATE)
+    fade      = int(0.03 * SAMPLE_RATE)
+    frames    = []
+
+    for i in range(n_samples):
+        t   = i / SAMPLE_RATE
+
+        # Layer 1: binaural carrier
+        left_c  = amp_carrier * math.sin(2 * math.pi * carrier_hz * t)
+        right_c = amp_carrier * math.sin(2 * math.pi * (carrier_hz + beat_hz) * t)
+
+        # Layer 2: vortex track anchor
+        v_track = amp_track * math.sin(2 * math.pi * track_hz * t)
+
+        # Layer 3: Mumiah phase attractor (mono overlay, phase-shifted)
+        t_mumiah = t + mumiah_offset / MUMIAH_HZ
+        mumiah   = amp_mumiah * math.sin(2 * math.pi * MUMIAH_HZ * t_mumiah)
+
+        left  = left_c  + v_track + mumiah
+        right = right_c + v_track + mumiah
+
+        # fade envelope
+        fv    = min(1.0, i / fade, (n_samples - i) / fade)
+        left  = max(-1.0, min(1.0, left  * fv))
+        right = max(-1.0, min(1.0, right * fv))
+
+        frames.append(struct.pack("<h", int(left  * 32767)))
+        frames.append(struct.pack("<h", int(right * 32767)))
+
+    with _wave.open(output_path, "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(SAMPLE_RATE)
+        w.writeframes(b"".join(frames))
+
+    return output_path
+
+
 # ── Print helpers ─────────────────────────────────────────────────────────────
 
 def print_primameria(pd: Optional[PrimameriaDay] = None) -> None:

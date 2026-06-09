@@ -488,15 +488,30 @@ def cmd_khaos(sub: str = "", args: list[str] = []) -> None:
         print(f"  Play: aplay {path}  or  mpv {path}")
 
     elif sub == "hymn":
-        from sagco_true.khaos.hymn import encode_strand
-        strand = flags.get("strand") or (args[0] if args and not args[0].startswith("--") else None)
-        if not strand:
-            print("[error] sagco khaos hymn --strand SAGCO-ATG-FLM2-KERNEL")
-            return
-        out = flags.get("out", "khaos_strand.wav")
-        path = encode_strand(strand, out)
-        print(f"  Strand: {strand}")
-        print(f"  WAV → {path}")
+        if "calendar" in args or flags.get("calendar"):
+            from sagco_true.khaos.calendar import daily_rite_wav, primameria_day
+            pd  = primameria_day()
+            out = flags.get("out", f"primameria_rite_{pd.khaos_element.lower().replace(' ','_')}.wav")
+            dur = float(flags.get("dur", "9.0"))
+            path = daily_rite_wav(out, duration=dur)
+            print(f"  Primameria Daily Rite WAV")
+            print(f"  Element : {pd.khaos_element} @ {pd.khaos_hz} Hz")
+            print(f"  Vortex  : day {pd.vortex_day} ({pd.vortex_track})")
+            print(f"  Phase   : {pd.phase_rad:.4f} rad  ({pd.phase_rad*180/3.14159:.1f}°)")
+            print(f"  Freq    : {pd.primameria_freq:.1f} Hz (Mumiah anchor)")
+            print(f"  WAV     → {path}  ({dur}s)")
+            print(f"  Play    : aplay {path}")
+        else:
+            from sagco_true.khaos.hymn import encode_strand
+            strand = flags.get("strand") or (args[0] if args and not args[0].startswith("--") else None)
+            if not strand:
+                print("[error] sagco khaos hymn --strand SAGCO-ATG-FLM2-KERNEL")
+                print("        sagco khaos hymn --calendar           (today's Primameria rite)")
+                return
+            out = flags.get("out", "khaos_strand.wav")
+            path = encode_strand(strand, out)
+            print(f"  Strand: {strand}")
+            print(f"  WAV → {path}")
 
     elif sub in ("scan", "resonance", "coherence"):
         from sagco_true.khaos.oscillator import KHAOSOscillator
