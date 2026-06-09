@@ -371,6 +371,129 @@ def cmd_divide(args: list[str]) -> None:
     print(f"\n  STATUS: CELL_DIVIDED")
 
 
+def cmd_khaos(sub: str = "", args: list[str] = []) -> None:
+    flags = _parse_flags(args)
+
+    if sub in ("", "list", "table"):
+        from sagco_true.khaos.elements import print_table
+        print_table()
+
+    elif sub == "get":
+        from sagco_true.khaos.elements import get
+        name_or_id = args[0] if args and not args[0].startswith("--") else flags.get("name", "0")
+        try:
+            key = int(name_or_id)
+        except ValueError:
+            key = name_or_id
+        el = get(key)
+        if el:
+            import json
+            print(json.dumps(el.to_dict(), indent=2))
+        else:
+            print(f"  Not found: {name_or_id!r}")
+
+    elif sub == "glyph":
+        from sagco_true.khaos.glyph import print_table as glyph_table
+        glyph_table()
+
+    elif sub == "encode":
+        from sagco_true.khaos.glyph import encode as glyph_encode
+        text = args[0] if args and not args[0].startswith("--") else flags.get("text", "SAGCO")
+        glyphs = glyph_encode(text)
+        print(f"  Encoded {len(text)} chars → {len(glyphs)} glyphs:")
+        print("  " + " ".join(glyphs[:32]))
+        if len(glyphs) > 32:
+            print(f"  ... ({len(glyphs) - 32} more)")
+
+    elif sub == "score":
+        from sagco_true.khaos.hymn import print_strand_score
+        strand = flags.get("strand") or (args[0] if args and not args[0].startswith("--") else "SAGCO-BOOT-IRREFUTABLE")
+        print_strand_score(strand)
+
+    elif sub == "play":
+        from sagco_true.khaos.hymn import encode_strand, encode_table_hymn
+        strand = flags.get("strand")
+        out    = flags.get("out", "khaos_hymn.wav")
+        if strand:
+            path = encode_strand(strand, out)
+        else:
+            print("  Encoding full KHAOS table hymn (72 elements)...")
+            path = encode_table_hymn(out)
+        print(f"  WAV written → {path}")
+        print(f"  Play: aplay {path}  or  mpv {path}")
+
+    elif sub == "hymn":
+        from sagco_true.khaos.hymn import encode_strand
+        strand = flags.get("strand") or (args[0] if args and not args[0].startswith("--") else None)
+        if not strand:
+            print("[error] sagco khaos hymn --strand SAGCO-ATG-FLM2-KERNEL")
+            return
+        out = flags.get("out", "khaos_strand.wav")
+        path = encode_strand(strand, out)
+        print(f"  Strand: {strand}")
+        print(f"  WAV → {path}")
+
+    elif sub in ("scan", "resonance", "coherence"):
+        from sagco_true.khaos.oscillator import KHAOSOscillator
+        osc = KHAOSOscillator()
+        cpu_raw = flags.get("cpu", "")
+        mem_raw = flags.get("mem", "")
+        err_raw = flags.get("err", "0")
+        metrics = {}
+        if cpu_raw:
+            metrics["cpu"] = float(cpu_raw)
+        if mem_raw:
+            metrics["mem"] = float(mem_raw)
+        metrics["err_count"] = int(err_raw)
+        osc.feed_metrics(metrics)
+        samples = int(flags.get("samples", "16"))
+        results = osc.scan(duration=1.0, samples=samples)
+        osc.print_scan(results)
+
+    elif sub == "bridge":
+        from sagco_true.khaos.bridge import KHAOSBridge
+        import json
+        br = KHAOSBridge()
+        # Ingest the standard SAGCO boot signal chain
+        for sig in ["boot_genesis", "identity_loaded", "world_detected", "wafers_run", "tick_sealed"]:
+            br.ingest_signal(sig)
+        report = br.resonance_report()
+        print(json.dumps(report, indent=2))
+
+    elif sub == "oxidize":
+        from sagco_true.khaos.elements import get, oxidize, print_table
+        name_or_id = args[0] if args and not args[0].startswith("--") else "0"
+        delta_raw  = flags.get("delta", "1")
+        try:
+            key = int(name_or_id)
+        except ValueError:
+            key = name_or_id
+        el = get(key)
+        if not el:
+            print(f"  Not found: {name_or_id!r}")
+            return
+        delta = int(delta_raw)
+        oxidized = oxidize(el, delta)
+        print(f"  {el.name}: oxidation {el.oxidation} ({el.privilege})")
+        print(f"  + delta {delta:+d}")
+        print(f"  → oxidation {oxidized.oxidation} ({oxidized.privilege})")
+
+    else:
+        print(f"  KHAOS Periodic Table of Process States")
+        print(f"  Strategickhaos DAO LLC | v1.0.0")
+        print(f"")
+        print(f"  sagco khaos list                         — print 72-element table")
+        print(f"  sagco khaos get <name|id>                — get one element")
+        print(f"  sagco khaos glyph                        — print 64-glyph system")
+        print(f"  sagco khaos encode <text>                — text → glyph sequence")
+        print(f"  sagco khaos score [--strand STRAND]      — strand sheet music")
+        print(f"  sagco khaos hymn --strand A-B-C          — strand → WAV")
+        print(f"  sagco khaos play [--strand A-B-C]        — play full table hymn")
+        print(f"  sagco khaos scan [--cpu N] [--mem N]     — coherence scan")
+        print(f"  sagco khaos bridge                       — SAGCO signal bridge")
+        print(f"  sagco khaos oxidize <name> [--delta N]   — privilege shift")
+
+
 def cmd_serve(args: list[str]) -> None:
     from sagco_true.worlds.serve import serve
     flags = _parse_flags(args)
@@ -420,6 +543,7 @@ def main() -> None:
         "replicate":  lambda: cmd_replicate(rest),
         "divide":     lambda: cmd_divide(rest),
         "palace":     lambda: cmd_palace(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
+        "khaos":      lambda: cmd_khaos(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
         "serve":      lambda: cmd_serve(rest),
     }
 
