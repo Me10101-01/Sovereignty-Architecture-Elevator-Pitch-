@@ -555,6 +555,34 @@ def cmd_khaos(sub: str = "", args: list[str] = []) -> None:
             print(f"  Strand: {strand}")
             print(f"  WAV → {path}")
 
+    elif sub in ("artifact", "medallion", "seal"):
+        from sagco_true.khaos.artifact import (
+            build_medallion, print_archangel_map, print_artifact, ARCHANGEL_MAP
+        )
+
+        action = args[0] if args and not args[0].startswith("--") else ""
+
+        if action in ("map", "archangels", "angels"):
+            print_archangel_map()
+        elif action in ("psalm", "psalm91"):
+            from sagco_true.khaos.artifact import PSALM_91_VERSES
+            print()
+            print("  PSALM 91 — Hebrew Spiral (Side 2 of Medallion)")
+            print("  Each verse = one PROOF gate on the medallion seal")
+            print()
+            for v, text in PSALM_91_VERSES.items():
+                print(f"  v.{v:<3} {text}")
+            print()
+        else:
+            # Build and print the medallion artifact
+            m = build_medallion()
+            if "archangels" in args or "map" in args:
+                print_archangel_map()
+            print_artifact(m)
+            if "--json" in args:
+                import json
+                print(json.dumps(m.to_dict(), ensure_ascii=False, indent=2))
+
     elif sub in ("maat", "truth", "weigh"):
         from sagco_true.khaos.maat import (
             weigh_concert, weigh, print_judgment,
@@ -667,6 +695,9 @@ def cmd_khaos(sub: str = "", args: list[str] = []) -> None:
         print(f"  sagco khaos calendar today               — today's vortex JSON")
         print(f"  sagco khaos calendar eru                 — epoch burn rate table")
         print(f"  sagco khaos 369 [--wav] [--out FILE]     — vortex derivation + optional WAV")
+        print(f"  sagco khaos artifact                     — seal physical medallion → digital twin")
+        print(f"  sagco khaos artifact map                 — Seven Archangels throne frequency map")
+        print(f"  sagco khaos artifact psalm               — Psalm 91 Hebrew verses")
 
 
 def cmd_inspect(path: str) -> None:

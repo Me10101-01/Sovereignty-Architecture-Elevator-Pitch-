@@ -53,6 +53,11 @@ from .maat import (
     GLYPH_MAAT, GLYPH_HEART, GLYPH_FEATHER,
     PHRASE_MAAT_IGNORES_HEART, MAAT_VOCABULARY, FEATHER_WEIGHT,
 )
+from .artifact import (
+    PhysicalArtifact, ArtifactSide, ARCHANGEL_MAP, PSALM_91_VERSES,
+    seal_artifact, build_medallion,
+    print_archangel_map, print_artifact,
+)
 
 __version__ = "1.0.0"
 __all__ = [
@@ -67,4 +72,7 @@ __all__ = [
     "primameria_day", "today_vortex", "daily_rite_wav",
     "PrimameriaDay", "CalendarComparison", "EruBurnRate",
     "print_full_report", "print_primameria", "print_calendar_table", "print_eru_report",
+    "PhysicalArtifact", "ArtifactSide", "ARCHANGEL_MAP", "PSALM_91_VERSES",
+    "seal_artifact", "build_medallion",
+    "print_archangel_map", "print_artifact",
 ]
