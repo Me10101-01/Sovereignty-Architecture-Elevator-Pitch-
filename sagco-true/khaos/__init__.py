@@ -39,6 +39,7 @@ from .oscillator import KHAOSOscillator, ChannelState, CoherenceResult
 from .glyph import GLYPHS, FAMILIES, encode as glyph_encode, decode as glyph_decode, to_score
 from .hymn import encode_strand, encode_text, encode_elements, encode_table_hymn, print_strand_score
 from .bridge import KHAOSBridge, ProcessClassification
+from .monitor import KHAOSMonitor, MonitorSnapshot, read_procs, system_metrics
 
 __version__ = "1.0.0"
 __all__ = [

@@ -371,6 +371,71 @@ def cmd_divide(args: list[str]) -> None:
     print(f"\n  STATUS: CELL_DIVIDED")
 
 
+def cmd_concert(args: list[str] = []) -> None:
+    from sagco_true.worlds.concert import Concert
+    flags = _parse_flags(args)
+
+    root     = flags.get("root") or str(_ROOT.parent)
+    title    = flags.get("title")
+    intent   = flags.get("intent")
+    stream   = "stream" in args or bool(flags.get("stream", False))
+    count_r  = flags.get("count", "1")
+    interval_r = flags.get("interval", "2")
+    count    = int(count_r) if str(count_r).isdigit() else 1
+    interval = float(interval_r)
+    nosave   = bool(flags.get("nosave", False))
+
+    c = Concert(organism_root=root)
+
+    if stream or count > 1:
+        print(f"\n  SAGCO CONCERT — streaming {count if count else '∞'} ticks"
+              f" @ {interval}s interval")
+        print(f"  Ctrl-C to stop\n")
+        try:
+            for i, result in enumerate(c.stream(interval=interval, count=count or None,
+                                                 verbose=True)):
+                if count and i + 1 >= count:
+                    break
+        except KeyboardInterrupt:
+            print("\n  Concert stopped.")
+    else:
+        print(f"\n  SAGCO CONCERT — single run")
+        result = c.run(title=title, intent=intent, save=not nosave)
+        c._print_result(result)
+        if not nosave and result.saved_to:
+            print(f"\n  FlameIR → {result.saved_to}")
+            print(f"  Bytecode hints:")
+            for line in result.ir.to_sagco_bytecode_hints()[:12]:
+                print(f"    {line}")
+
+
+def cmd_monitor(args: list[str] = []) -> None:
+    from sagco_true.khaos.monitor import KHAOSMonitor
+    flags = _parse_flags(args)
+
+    interval_r = flags.get("interval", "2")
+    count_r    = flags.get("count")
+    interval   = float(interval_r)
+    count      = int(count_r) if count_r and str(count_r).isdigit() else None
+    json_out   = bool(flags.get("json", False))
+
+    mon = KHAOSMonitor()
+    print(f"\n  KHAOS Process Monitor  (interval={interval}s)")
+    print(f"  Ctrl-C to stop\n")
+
+    try:
+        for i, snap in enumerate(mon.stream(interval=interval, count=count)):
+            if json_out:
+                import json
+                print(json.dumps(snap.to_dict(), indent=2))
+            else:
+                mon.print_snapshot(snap)
+            if count and i + 1 >= count:
+                break
+    except KeyboardInterrupt:
+        print("\n  Monitor stopped.")
+
+
 def cmd_khaos(sub: str = "", args: list[str] = []) -> None:
     flags = _parse_flags(args)
 
@@ -544,6 +609,8 @@ def main() -> None:
         "divide":     lambda: cmd_divide(rest),
         "palace":     lambda: cmd_palace(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
         "khaos":      lambda: cmd_khaos(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
+        "concert":    lambda: cmd_concert(rest),
+        "monitor":    lambda: cmd_monitor(rest),
         "serve":      lambda: cmd_serve(rest),
     }
 

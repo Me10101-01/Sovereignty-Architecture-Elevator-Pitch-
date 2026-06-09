@@ -37,3 +37,4 @@ target/
 workspace/
 __pycache__/
 *.pyc
+*.flame.json
