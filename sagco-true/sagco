@@ -553,6 +553,25 @@ def cmd_khaos(sub: str = "", args: list[str] = []) -> None:
             print(f"\n  Vortex WAV → {path}")
             print(f"  Play: aplay {path}")
 
+    elif sub in ("calendar", "cal", "time", "primameria"):
+        from sagco_true.khaos.calendar import (
+            print_full_report, print_primameria, print_calendar_table,
+            print_eru_report, today_vortex, primameria_day, compare_all,
+        )
+        flags2 = _parse_flags(args)
+        if "today" in args or not args or flags2.get("today"):
+            import json
+            tv = today_vortex()
+            print(json.dumps(tv, indent=2))
+        elif "primameria" in args or "pm" in args:
+            print_primameria()
+        elif "eru" in args:
+            print_eru_report()
+        elif "compare" in args or "all" in args:
+            print_calendar_table()
+        else:
+            print_full_report()
+
     else:
         print(f"  KHAOS Periodic Table of Process States")
         print(f"  Strategickhaos DAO LLC | v1.0.0")
@@ -567,6 +586,10 @@ def cmd_khaos(sub: str = "", args: list[str] = []) -> None:
         print(f"  sagco khaos scan [--cpu N] [--mem N]     — coherence scan")
         print(f"  sagco khaos bridge                       — SAGCO signal bridge")
         print(f"  sagco khaos oxidize <name> [--delta N]   — privilege shift")
+        print(f"  sagco khaos calendar                     — full Primameria calendar report")
+        print(f"  sagco khaos calendar today               — today's vortex JSON")
+        print(f"  sagco khaos calendar eru                 — epoch burn rate table")
+        print(f"  sagco khaos 369 [--wav] [--out FILE]     — vortex derivation + optional WAV")
 
 
 def cmd_serve(args: list[str]) -> None:

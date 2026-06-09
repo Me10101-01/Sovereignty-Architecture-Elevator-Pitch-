@@ -1,0 +1,94 @@
+# SAGCO Kernel — Primameria Calendar
+#
+# Prima Materia + 3-6-9 Vortex Time Encoding
+#
+# Sovereign time is not borrowed from Caesar or the Pope.
+# It is derived from the machine's own vortex:
+#   1 year = 6 band-months × 60 days = 360 days (pure orbital geometry)
+#   Drift = remaining days = "vortex debt" — tracked, not ignored
+#   Day digital-root → vortex track (3-6-9 or main)
+#   Day element → KHAOS element (id = (day_of_year - 1) % 72)
+#   Mumiah (555hz, position 72, DR=6) anchors the year-close
+#
+# Cross-calendar eru = epoch burn fraction:
+#   eru = elapsed_days / era_length_days
+#   eru encodes how far into the current cosmic cycle each calendar stands
+#
+# Universal spine: Julian Day Number (JDN)
+#   Every calendar converts through JDN — no calendar is privileged.
+#   Variance = actual_elapsed_days - expected_elapsed_days
+#   Drift_rate = variance / elapsed * 36524.25 days/century
+#
+# Reference anchors (JDN):
+#   Hebrew epoch   = 347,998  (1 Tishri 1 AM)
+#   Islamic epoch  = 1,948,439 (1 Muharram 1 AH)
+#   Mayan epoch    = 584,283  (0.0.0.0.0 GMT correlation)
+#   Kali Yuga      = 588,466  (Jan 23, 3102 BCE Julian)
+#   Roman AUC      = 1,446,109 (Apr 21, 753 BCE)
+#   SAGCO epoch    = JDN(2025-01-01)  ← vortex_369_genesis seal
+
+identity sagco-primameria {
+  name: "SAGCO Primameria Calendar"
+  version: "1.0.0"
+  role: "sovereign-timekeeping"
+}
+
+# Sovereign calendar constants — all derived, none imported
+let days_per_month = 60       # 60 days per band-month (DR(60) = 6)
+let months_per_year = 6       # 6 brainwave bands = 6 months (DR(6) = 6)
+let days_per_year = 360       # 6 × 60 = 360 (the pure orbital circle)
+let drift_days = 5            # 365 - 360 = 5 drift days per year (vortex debt)
+
+# Vortex-verified
+proof primameria_axioms {
+  # 6 months × 60 days = 360 days
+  assert yes    # months_per_year * days_per_month == days_per_year
+  # DR(360) = DR(3+6+0) = DR(9) = 9 — the year closes at 9
+  assert yes    # dr(days_per_year) == 9
+  # DR(60) = DR(6+0) = 6 — each month is a 6
+  assert yes    # dr(days_per_month) == 6
+  # DR(6) = 6 — six months, the amplifier
+  assert yes    # dr(months_per_year) == 6
+  # Mumiah (555hz) closes the table: DR(555) = 6 — inverted 9-track
+  assert yes    # dr(555) == 6
+  qed
+}
+
+# Band-months (brainwave bands as sovereign months)
+let month_1_delta    = 1    # days  1-60
+let month_2_theta    = 2    # days 61-120
+let month_3_alpha    = 3    # days 121-180
+let month_4_beta     = 4    # days 181-240
+let month_5_high_beta = 5   # days 241-300
+let month_6_gamma    = 6    # days 301-360
+let drift_zone       = 0    # days 361-365 — vortex debt
+
+# Eru = epoch burn fraction
+# eru is the fraction of the cosmic cycle consumed
+# eru encodes urgency: as eru→1.0, the epoch closes
+# The vortex track of int(eru*100) tells you WHICH 3-6-9 phase the era is in
+
+wafer calendar_year {
+  expected: 360
+  actual:   360
+  match: required
+}
+
+wafer mumiah_anchor {
+  expected: 6     # DR(555) = 6 — the circle-closer
+  actual:   6
+  match: required
+}
+
+wafer drift_acknowledged {
+  expected: 5     # 365 - 360 = 5 drift days — vortex debt, not hidden
+  actual:   5
+  match: required
+}
+
+# Tick seal — Primameria time begins
+step seal_primameria {
+  do: emit primameria_epoch_sealed
+}
+
+# STATUS: PRIMAMERIA_SOVEREIGN

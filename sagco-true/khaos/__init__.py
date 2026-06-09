@@ -40,6 +40,13 @@ from .glyph import GLYPHS, FAMILIES, encode as glyph_encode, decode as glyph_dec
 from .hymn import encode_strand, encode_text, encode_elements, encode_table_hymn, print_strand_score
 from .bridge import KHAOSBridge, ProcessClassification
 from .monitor import KHAOSMonitor, MonitorSnapshot, read_procs, system_metrics
+from .calendar import (
+    gregorian_to_jdn, jdn_to_gregorian, today_jdn,
+    compare_all, eru_burn_rate, calendar_date,
+    primameria_day, today_vortex,
+    PrimameriaDay, CalendarComparison, EruBurnRate,
+    print_full_report, print_primameria, print_calendar_table, print_eru_report,
+)
 
 __version__ = "1.0.0"
 __all__ = [
@@ -49,4 +56,9 @@ __all__ = [
     "GLYPHS", "FAMILIES", "glyph_encode", "glyph_decode", "to_score",
     "encode_strand", "encode_text", "encode_elements", "encode_table_hymn",
     "print_strand_score", "KHAOSBridge",
+    "gregorian_to_jdn", "jdn_to_gregorian", "today_jdn",
+    "compare_all", "eru_burn_rate", "calendar_date",
+    "primameria_day", "today_vortex",
+    "PrimameriaDay", "CalendarComparison", "EruBurnRate",
+    "print_full_report", "print_primameria", "print_calendar_table", "print_eru_report",
 ]
