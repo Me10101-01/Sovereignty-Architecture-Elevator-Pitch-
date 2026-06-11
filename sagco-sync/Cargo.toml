@@ -1,0 +1,21 @@
+[package]
+name = "sagco-sync"
+version = "0.1.0"
+edition = "2021"
+description = "SAGCO-SYNC — Field EVM + Productivity Dashboard"
+
+[[bin]]
+name = "sagco-sync"
+path = "src/main.rs"
+
+[lib]
+name = "sagco_sync"
+path = "src/lib.rs"
+
+[dependencies]
+csv = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+clap = { version = "4", features = ["derive"] }
+rand = "0.8"
+rust_xlsxwriter = "0.80"
