@@ -38,3 +38,6 @@ workspace/
 __pycache__/
 *.pyc
 *.flame.json
+
+# Claude Code worktrees (managed by claude-code, not project code)
+.claude/worktrees/
