@@ -1,0 +1,66 @@
+[brick]
+id          = "sagco-node-hp"
+name        = "HP Sovereign Node"
+version     = "0.1.0"
+description = "HP Windows 11 local compute node. Runs Docker Desktop, Ollama (local LLM), WSL2, SSH-agent, Node.js, Python, Git. Classified as: sovereign-adjacent (Windows, not pure Linux), high-capability, on-premise."
+language    = "multi"
+layer       = "core"
+owner       = "Strategickhaos DAO LLC"
+path        = "sagco-node-hp"
+
+[provides]
+capabilities = [
+  "local-compute",
+  "ollama-llm",
+  "docker-runtime",
+  "wsl2-linux",
+  "ssh-server",
+  "node-runtime",
+  "python-runtime",
+  "git",
+]
+apis = [
+  "ollama:11434/api/tags",
+  "ollama:11434/api/generate",
+  "docker:2375 (Docker Desktop API)",
+  "ssh:22 (OpenSSH for Windows)",
+]
+ports = ["22", "11434", "2375"]
+
+[trust]
+trust_level        = "high"
+node_class         = "local_compute_node"
+sovereignty        = true
+offline_capable    = true
+owned_model        = true       # Ollama = owned local LLM weights
+vendor_dependency  = "Windows OS, Docker Desktop"
+antibody           = "OLLAMA_LOCAL_ONLY — do not send private data to external LLMs when local is available"
+
+[observed_processes]
+ollama         = "ollama / ollama app (port 11434)"
+docker         = "Docker Desktop Backend, docker-agent, docker-mcp, docker-sandbox"
+wsl2           = "VmmemWSL (22.6% CPU, 7.7 GB RAM observed)"
+ssh_agent      = "ssh-agent (OpenSSH for Windows)"
+node           = "Node.js JavaScript Runtime (multiple)"
+python         = "Python"
+git            = "Git for Windows"
+dropbox        = "Dropbox (9 processes, 269.7 MB)"
+onedrive       = "Microsoft OneDrive (10.6% CPU, 814.5 MB)"
+
+[reach]
+probe_command  = "sagco node hp probe"
+ssh_command    = "sagco node hp ssh"
+ollama_command = "sagco node hp ollama"
+config_file    = "~/.sagco/nodes.json"
+
+[depends_on]
+
+[wafers]
+test_command = "python sagco-node-hp/probe.py --node hp --quick"
+status       = "PROBE"
+coverage     = "connectivity"
+seal         = "live-probe"
+
+[audit]
+layer_status = "ACTIVE"
+notes        = "Observed via Task Manager: Ollama running (owned local LLM), Docker+WSL2 (heavy), SSH agent active. Primary local compute node. Reach via: sagco node hp probe."

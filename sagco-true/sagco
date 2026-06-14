@@ -885,6 +885,153 @@ def cmd_manifest(sub: str = "", args: list = []) -> None:
         print()
 
 
+def cmd_node(sub: str = "", args: list[str] = []) -> None:
+    """
+    SAGCO Node — reach and probe hardware nodes in the sovereign network.
+
+    Usage:
+      sagco node hp probe          — probe HP node (ping + services)
+      sagco node hp probe --quick  — SSH + Ollama only
+      sagco node hp probe --json   — JSON output
+      sagco node hp set-ip <ip>    — save HP's IP to ~/.sagco/nodes.json
+      sagco node hp ollama         — list Ollama models on HP
+      sagco node hp ssh            — open SSH session to HP node
+      sagco node hp status         — one-line status
+      sagco node list              — list all registered nodes
+    """
+    import json
+    from pathlib import Path
+
+    _PROBE = _ROOT.parent / "sagco-node-hp" / "probe.py"
+    _NODES_CONFIG = Path.home() / ".sagco" / "nodes.json"
+
+    def _load_ip(node_name: str) -> str | None:
+        if not _NODES_CONFIG.exists():
+            return None
+        try:
+            return json.loads(_NODES_CONFIG.read_text()).get("nodes", {}).get(node_name, {}).get("ip")
+        except Exception:
+            return None
+
+    def _tcp_check(ip: str, port: int, timeout: float = 3.0) -> tuple[bool, float | None]:
+        import socket, time
+        try:
+            t0 = time.perf_counter()
+            with socket.create_connection((ip, port), timeout=timeout):
+                return True, round((time.perf_counter() - t0) * 1000, 1)
+        except OSError:
+            return False, None
+
+    node_name = sub if sub and sub not in ("list", "help") else "hp"
+    action    = args[0] if args else "status"
+    rest_args = args[1:]
+
+    if sub == "list":
+        print()
+        print("  SAGCO Network Nodes:")
+        nodes = [
+            ("hp",   "HP Windows 11",       "core",      "Docker+Ollama+WSL2+SSH"),
+            ("ipad", "iPad Pro 12.9",        "extension", "sagco-ish / SSH client"),
+            ("deepai","DeepAI External Node","extension", "probe/sandbox (low trust)"),
+        ]
+        for nid, name, layer, caps in nodes:
+            ip = _load_ip(nid) or "—"
+            print(f"  [{layer:>10}] {nid:<10} {name:<22} ip={ip}  ({caps})")
+        print()
+        print("  Set an IP:  sagco node <name> set-ip <ip>")
+        print()
+        return
+
+    if action == "set-ip":
+        if not rest_args:
+            print(f"  Usage: sagco node {node_name} set-ip <ip-address>")
+            return
+        ip = rest_args[0]
+        _NODES_CONFIG.parent.mkdir(parents=True, exist_ok=True)
+        data = {}
+        if _NODES_CONFIG.exists():
+            try: data = json.loads(_NODES_CONFIG.read_text())
+            except Exception: pass
+        data.setdefault("nodes", {})[node_name] = {"ip": ip}
+        _NODES_CONFIG.write_text(json.dumps(data, indent=2))
+        print(f"  Saved: {node_name} → {ip}  ({_NODES_CONFIG})")
+        return
+
+    ip = _load_ip(node_name)
+
+    if action == "status":
+        if not ip:
+            print(f"  [{node_name}] IP not set. Run: sagco node {node_name} set-ip <ip>")
+            return
+        ssh_ok, ssh_ms  = _tcp_check(ip, 22)
+        oll_ok, oll_ms  = _tcp_check(ip, 11434)
+        print(f"  [{node_name}] {ip}")
+        print(f"    SSH    :{22}  {'✓' if ssh_ok else '✗'}  {f'{ssh_ms}ms' if ssh_ms else ''}")
+        print(f"    Ollama :{11434}  {'✓' if oll_ok else '✗'}  {f'{oll_ms}ms' if oll_ms else ''}")
+        print(f"  Status: {'ALIVE' if ssh_ok or oll_ok else 'UNREACHABLE'}")
+        return
+
+    if action == "probe":
+        if not ip:
+            print(f"  [{node_name}] IP not set. Run: sagco node {node_name} set-ip <ip>")
+            return
+        import subprocess
+        probe_args = [sys.executable, str(_PROBE), "--node", node_name, "--ip", ip]
+        if "--quick" in rest_args: probe_args.append("--quick")
+        if "--json"  in rest_args: probe_args.append("--json")
+        subprocess.run(probe_args)
+        return
+
+    if action == "ollama":
+        if not ip:
+            print(f"  [{node_name}] IP not set. Run: sagco node {node_name} set-ip <ip>")
+            return
+        import urllib.request
+        try:
+            url = f"http://{ip}:11434/api/tags"
+            with urllib.request.urlopen(url, timeout=5) as r:
+                data = json.loads(r.read())
+            models = [m.get("name", "") for m in data.get("models", [])]
+            print(f"\n  Ollama on {node_name} ({ip}:11434):")
+            if models:
+                for m in models:
+                    print(f"    • {m}")
+            else:
+                print("  No models found (Ollama reachable but empty).")
+            print()
+        except Exception as e:
+            print(f"  Cannot reach Ollama on {ip}:11434 — {e}")
+            print("  Is Ollama running? Is the HP on the same network?")
+        return
+
+    if action == "ssh":
+        if not ip:
+            print(f"  [{node_name}] IP not set. Run: sagco node {node_name} set-ip <ip>")
+            return
+        import subprocess
+        print(f"  Opening SSH to {node_name} ({ip})...")
+        print(f"  Command: ssh {ip}")
+        print()
+        try:
+            subprocess.run(["ssh", ip])
+        except FileNotFoundError:
+            print("  ssh not found. On Windows/iPad: use Shelly, Blink, or PuTTY.")
+            print(f"  Connect manually to: {ip} port 22")
+        return
+
+    # fallback: help
+    print()
+    print("  sagco node list                   — list all nodes")
+    print("  sagco node hp status              — quick alive check")
+    print("  sagco node hp probe               — full connectivity probe")
+    print("  sagco node hp probe --quick       — SSH + Ollama only")
+    print("  sagco node hp probe --json        — JSON output")
+    print("  sagco node hp set-ip <ip>         — save HP's IP address")
+    print("  sagco node hp ollama              — list local Ollama models")
+    print("  sagco node hp ssh                 — open SSH session")
+    print()
+
+
 def main() -> None:
     args = sys.argv[1:]
 
@@ -918,6 +1065,7 @@ def main() -> None:
         "serve":      lambda: cmd_serve(rest),
         "inspect":    lambda: cmd_inspect(rest[0]) if rest else print("usage: sagco inspect <file.sagcob>"),
         "heal":       lambda: cmd_heal(rest),
+        "node":       lambda: cmd_node(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
     }
 
     fn = dispatch.get(cmd)

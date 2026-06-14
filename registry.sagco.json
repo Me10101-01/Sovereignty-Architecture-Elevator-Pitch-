@@ -1,8 +1,8 @@
 {
   "sagco_registry_version": "1.0.0",
-  "scanned_at": 1781457459.026841,
-  "brick_count": 8,
-  "seal": "6a2811842506ed83",
+  "scanned_at": 1781461175.5731182,
+  "brick_count": 9,
+  "seal": "ec1427288b729e22",
   "bricks": [
     {
       "id": "flamelang",
@@ -155,6 +155,28 @@
       "coverage": "full",
       "audit_status": "PASS",
       "notes": "Append-only, no in-place updates. Tombstone deletion. CRC32 integrity on every cell."
+    },
+    {
+      "id": "sagco-node-hp",
+      "name": "HP Sovereign Node",
+      "version": "0.1.0",
+      "description": "HP Windows 11 local compute node. Runs Docker Desktop, Ollama (local LLM), WSL2, SSH-agent, Node.js, Python, Git. Classified as: sovereign-adjacent (Windows, not pure Linux), high-capability, on-premise.",
+      "language": "multi",
+      "layer": "core",
+      "owner": "Strategickhaos DAO LLC",
+      "path": "/home/user/Sovereignty-Architecture-Elevator-Pitch-/sagco-node-hp",
+      "capabilities": [],
+      "apis": [],
+      "ports": [
+        "22",
+        "11434",
+        "2375"
+      ],
+      "depends_on": {},
+      "wafer_status": "PROBE",
+      "coverage": "connectivity",
+      "audit_status": "ACTIVE",
+      "notes": "Observed via Task Manager: Ollama running (owned local LLM), Docker+WSL2 (heavy), SSH agent active. Primary local compute node. Reach via: sagco node hp probe."
     },
     {
       "id": "sagco-chess-stack",
