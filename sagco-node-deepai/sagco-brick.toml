@@ -1,0 +1,70 @@
+[brick]
+id          = "deepai"
+name        = "DeepAI External Node"
+version     = "0.1.0"
+description = "External AI web node — probe/sandbox role only. Vendor-hosted. Not sovereign, not offline, not an owned model. Use for prompt comparison, image/video experiments, and creative tests. DO NOT use as source-of-truth or for private data."
+language    = "external"
+layer       = "extension"
+owner       = "Strategickhaos DAO LLC"
+path        = "sagco-node-deepai"
+
+[provides]
+capabilities = [
+  "prompt-probe",
+  "image-generation",
+  "video-generation",
+  "model-comparison",
+  "creative-sandbox",
+]
+apis = [
+  "deepai text-generator",
+  "deepai image-generator",
+  "deepai video-generator",
+  "deepai art-generator",
+]
+ports = ["https://api.deepai.org"]
+
+[trust]
+trust_level       = "low"
+node_class        = "external_ai_node"
+sovereignty       = false
+offline_capable   = false
+owned_model       = false
+vendor_dependency = "DeepAI (third-party SaaS)"
+
+antibody = "DO_NOT_TRUST_AS_SOURCE_OF_TRUTH"
+
+[use_for]
+permitted = [
+  "prompt comparison across models",
+  "image / video experiment sandbox",
+  "creative probes and style tests",
+  "quick capability benchmarks",
+]
+
+prohibited = [
+  "final verification of any SAGCO computation",
+  "secrets or private credentials",
+  "private / proprietary data",
+  "source-of-truth decisions",
+  "wafer audit sign-off",
+]
+
+[mansion_role]
+gpt_codex    = "architecture + reasoning"
+claude       = "build / dispatch / co-work"
+deepai       = "probe / image-video sandbox"   # this node
+local_kali   = "sovereign execution"
+sagco_registry = "truth layer"
+
+[depends_on]
+
+[wafers]
+test_command = "echo 'DeepAI: external node — no wafer tests (no secrets in CI)'"
+status       = "EXTERNAL"
+coverage     = "n/a"
+seal         = "vendor-managed"
+
+[audit]
+layer_status = "PROBE"
+notes        = "External AI node. Classified honestly: possible=YES, core=NO, probe/sandbox=YES. Risk: vendor dependency. Antibody: DO_NOT_TRUST_AS_SOURCE_OF_TRUTH."

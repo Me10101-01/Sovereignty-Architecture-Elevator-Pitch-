@@ -1,8 +1,8 @@
 {
   "sagco_registry_version": "1.0.0",
-  "scanned_at": 1781421709.535404,
-  "brick_count": 6,
-  "seal": "224d4adacd432263",
+  "scanned_at": 1781457459.026841,
+  "brick_count": 8,
+  "seal": "6a2811842506ed83",
   "bricks": [
     {
       "id": "flamelang",
@@ -157,6 +157,24 @@
       "notes": "Append-only, no in-place updates. Tombstone deletion. CRC32 integrity on every cell."
     },
     {
+      "id": "sagco-chess-stack",
+      "name": "SAGCO Chess Stack",
+      "version": "0.1.0",
+      "description": "640-node callable execution grid: 10 stacked 8×8 chessboards. 2040 hidden square-patterns. Loop closer: closed path = QED proof. Rubik equiv ≈ 37.78 cubes.",
+      "language": "rust",
+      "layer": "platform",
+      "owner": "Strategickhaos DAO LLC",
+      "path": "/home/user/Sovereignty-Architecture-Elevator-Pitch-/sagco-chess-stack",
+      "capabilities": [],
+      "apis": [],
+      "ports": [],
+      "depends_on": {},
+      "wafer_status": "UNKNOWN",
+      "coverage": "",
+      "audit_status": "UNKNOWN",
+      "notes": ""
+    },
+    {
       "id": "sagco-sync",
       "name": "SAGCO Sync",
       "version": "0.1.0",
@@ -230,6 +248,26 @@
       "coverage": "healer + concert",
       "audit_status": "PASS",
       "notes": "Concert injects Primameria calendar as SOURCE FlameNode. Healer: PHASE_NUDGE, AMPLITUDE_BALANCE, ERROR_CLEAR, ELEMENT_SHIFT. MAX_ROUNDS=6. Stagnation guard escalates to ELEMENT_SHIFT."
+    },
+    {
+      "id": "deepai",
+      "name": "DeepAI External Node",
+      "version": "0.1.0",
+      "description": "External AI web node — probe/sandbox role only. Vendor-hosted. Not sovereign, not offline, not an owned model. Use for prompt comparison, image/video experiments, and creative tests. DO NOT use as source-of-truth or for private data.",
+      "language": "external",
+      "layer": "extension",
+      "owner": "Strategickhaos DAO LLC",
+      "path": "/home/user/Sovereignty-Architecture-Elevator-Pitch-/sagco-node-deepai",
+      "capabilities": [],
+      "apis": [],
+      "ports": [
+        "https://api.deepai.org"
+      ],
+      "depends_on": {},
+      "wafer_status": "EXTERNAL",
+      "coverage": "n/a",
+      "audit_status": "PROBE",
+      "notes": "External AI node. Classified honestly: possible=YES, core=NO, probe/sandbox=YES. Risk: vendor dependency. Antibody: DO_NOT_TRUST_AS_SOURCE_OF_TRUTH."
     }
   ]
 }
