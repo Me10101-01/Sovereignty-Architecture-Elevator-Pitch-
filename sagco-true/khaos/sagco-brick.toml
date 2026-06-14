@@ -1,0 +1,25 @@
+[brick]
+id = "khaos"
+name = "KHAOS Periodic Table"
+version = "1.0.0"
+description = "72-element vibrational registry. Tri-channel oscillator (RED/BLUE/PURPLE). Glyph system. WAV encoder. Calendar engine. Maat protocol. Physical artifact bridge."
+language = "python"
+layer = "core"
+owner = "Strategickhaos DAO LLC"
+
+[provides]
+capabilities = ["element-registry", "oscillator", "glyph-encode", "wav-synthesis", "calendar-comparison", "epoch-burn-rate", "maat-judgment", "artifact-seal", "primameria-calendar"]
+apis = ["khaos elements", "khaos oscillator", "khaos hymn", "khaos calendar", "khaos maat", "khaos artifact", "khaos 369"]
+ports = ["RED-channel", "BLUE-channel", "PURPLE-channel"]
+
+[depends_on]
+
+[wafers]
+test_command = "python wafers/test_calendar.py && python wafers/test_vortex_369.py && python wafers/test_artifact.py"
+status = "PASS"
+coverage = "75+75+209 gates"
+seal = "SHA256 TICK-sealed"
+
+[audit]
+layer_status = "PASS"
+notes = "72 Shemhamphorash = 72 KHAOS elements. 7 Archangels = planetary band-lords. Gabriel=Mumiah=555hz=year-close. Maat judgment: heart=resonance_score, feather=DRIFT_THRESHOLD=0.3."

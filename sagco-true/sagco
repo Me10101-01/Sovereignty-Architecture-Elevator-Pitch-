@@ -788,16 +788,101 @@ def cmd_heal(args: list[str]) -> None:
     serve(organism_root=root, port=port, readonly=readonly)
 
 
-def cmd_manifest() -> None:
-    from sagco_true.language.vm.vm import run_file
-    manifest_path = _ROOT / "MANIFEST.sagco"
-    if not manifest_path.exists():
-        print(f"[error] MANIFEST.sagco not found at {manifest_path}")
-        return
-    vm = run_file(str(manifest_path))
-    owned = {k: v for k, v in vm.memory.items() if k.startswith("manifest.owns")}
-    adapters = vm.memory.get("manifest.adapters", [])
-    print(json.dumps({"owned": owned, "adapters": adapters, "world": vm.world}, indent=2))
+def cmd_manifest(sub: str = "", args: list = []) -> None:
+    from sagco_true.registry.store import Registry
+
+    flags   = _parse_flags(args)
+    repo_root = _ROOT.parent   # one level up from sagco-true/
+
+    if sub in ("", "list"):
+        reg = Registry.scan(repo_root)
+        print(reg.summary())
+
+    elif sub in ("audit", "check"):
+        reg = Registry.scan(repo_root)
+        reg.print_audit()
+
+    elif sub in ("graph", "deps"):
+        reg = Registry.scan(repo_root)
+        target = args[0] if args and not args[0].startswith("--") else None
+        if target:
+            print()
+            print(f"  Dependency tree for: {target}")
+            print()
+            print(reg.dep_tree(target))
+            print()
+        else:
+            reg.print_graph()
+
+    elif sub in ("caps", "capabilities"):
+        reg = Registry.scan(repo_root)
+        reg.print_capabilities()
+
+    elif sub in ("show", "info"):
+        target = args[0] if args and not args[0].startswith("--") else None
+        if not target:
+            print("[error] sagco manifest show <brick-id>")
+            return
+        reg = Registry.scan(repo_root)
+        brick = reg.get(target)
+        if not brick:
+            print(f"[error] brick '{target}' not found in registry")
+            all_ids = [b.id for b in reg.bricks]
+            print(f"  Known bricks: {', '.join(all_ids)}")
+            return
+        print()
+        print(f"  ── BRICK: {brick.id} ──────────────────────────────────────────")
+        print(f"  Name        : {brick.name}")
+        print(f"  Version     : {brick.version}")
+        print(f"  Layer       : {brick.layer_icon} {brick.layer}")
+        print(f"  Language    : {brick.language}")
+        print(f"  Path        : {brick.path}")
+        print(f"  Description : {brick.description}")
+        print()
+        print(f"  Provides ({len(brick.capabilities)} capabilities):")
+        for cap in brick.capabilities:
+            print(f"    ═══ {cap}")
+        if brick.apis:
+            print(f"  APIs:")
+            for api in brick.apis:
+                print(f"    › {api}")
+        if brick.depends_on:
+            print(f"  Depends on:")
+            for dep_id, ver in brick.depends_on.items():
+                print(f"    ─── {dep_id}  {ver}")
+        print()
+        print(f"  Wafers      : {brick.wafer_status}  ({brick.coverage})")
+        print(f"  Seal        : {brick.seal}")
+        print(f"  Notes       : {brick.notes[:120] if brick.notes else '—'}")
+        print()
+
+    elif sub in ("save", "snapshot"):
+        reg = Registry.scan(repo_root)
+        path = reg.save()
+        print(f"  Registry snapshot saved → {path}")
+        print(f"  Bricks: {len(reg.bricks)}")
+
+    elif sub in ("order", "build-order"):
+        reg = Registry.scan(repo_root)
+        order = reg.build_order()
+        print()
+        print("  BUILD ORDER (deps before dependents):")
+        print()
+        for i, b in enumerate(order, 1):
+            print(f"  {i:>2}. {b.layer_icon} {b.id:<28} [{b.layer}]")
+        print()
+
+    else:
+        print()
+        print("  sagco manifest                   — list all registered bricks")
+        print("  sagco manifest audit             — wafer status for every brick")
+        print("  sagco manifest graph             — full dependency graph")
+        print("  sagco manifest graph <brick>     — dependency tree for one brick")
+        print("  sagco manifest caps              — capability index")
+        print("  sagco manifest show <brick>      — full brick detail")
+        print("  sagco manifest order             — build order (topo sort)")
+        print("  sagco manifest save              — write registry.sagco.json snapshot")
+        print()
 
 
 def main() -> None:
@@ -817,7 +902,7 @@ def main() -> None:
         "boot":       lambda: cmd_boot(),
         "truth":      lambda: cmd_truth(),
         "antibodies": lambda: cmd_antibodies(),
-        "manifest":   lambda: cmd_manifest(),
+        "manifest":   lambda: cmd_manifest(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
         "net":        lambda: cmd_net(rest[0] if rest else "", "--ping" in rest),
         "import":     lambda: cmd_import(rest[0] if rest else None),
         "lex":        lambda: cmd_lex(rest[0]) if rest else print("usage: sagco lex <file.sagco>"),

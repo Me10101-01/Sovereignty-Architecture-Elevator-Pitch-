@@ -1,0 +1,26 @@
+[brick]
+id = "sagco-sync"
+name = "SAGCO Sync"
+version = "0.1.0"
+description = "Field EVM productivity dashboard. Rust language stack (lexer/parser/AST) + EVM engine + Monte Carlo simulation + Excel chart export."
+language = "rust"
+layer = "platform"
+owner = "Strategickhaos DAO LLC"
+
+[provides]
+capabilities = ["evm-dashboard", "field-productivity", "excel-export", "monte-carlo-sim", "ra-sheet-parsing", "difficulty-weights", "cpi-trend", "dsl-parser"]
+apis = ["sagco-sync productivity", "sagco-sync rates", "sagco-sync simulate", "sagco-sync export", "sagco-sync parse", "sagco-sync status"]
+ports = []
+
+[depends_on]
+sagco-cell-db = "0.1.0"
+
+[wafers]
+test_command = "cargo test"
+status = "4/4 PASS"
+coverage = "integration"
+seal = "SHA256"
+
+[audit]
+layer_status = "PASS"
+notes = "EVM column map: E=PV, U=AC, LNF%×E=EV. CPI=EV/AC. EAC=PV/CPI. Monte Carlo P20/P50/P80. Difficulty weights self-extracted from estimate column."

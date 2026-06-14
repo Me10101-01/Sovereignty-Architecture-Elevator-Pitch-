@@ -1,0 +1,25 @@
+[brick]
+id = "sagco-cell-db"
+name = "SAGCO Cell DB"
+version = "0.1.0"
+description = "Append-only storage engine built from cells up. 7-brick architecture: cell, storage, query, index, table, planner, antibody."
+language = "rust"
+layer = "core"
+owner = "Strategickhaos DAO LLC"
+
+[provides]
+capabilities = ["key-value-store", "query-engine", "hash-index", "health-diagnostics", "compaction"]
+apis = ["sagco-db put", "sagco-db get", "sagco-db del", "sagco-db query", "sagco-db scan", "sagco-db antibody", "sagco-db compact", "sagco-db explain"]
+ports = []
+
+[depends_on]
+
+[wafers]
+test_command = "cargo test"
+status = "PASS"
+coverage = "full"
+seal = "CRC32+SHA256"
+
+[audit]
+layer_status = "PASS"
+notes = "Append-only, no in-place updates. Tombstone deletion. CRC32 integrity on every cell."

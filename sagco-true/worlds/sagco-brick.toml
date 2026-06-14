@@ -1,0 +1,27 @@
+[brick]
+id = "worlds"
+name = "SAGCO Worlds"
+version = "1.0.0"
+description = "Runtime concert engine. Self-healing antibody loop (Healer). Palace memory. Serve layer. Detector. Multi-platform targets: Linux, Pi, Termux, Windows, Docker, K8s, PXE."
+language = "python"
+layer = "platform"
+owner = "Strategickhaos DAO LLC"
+
+[provides]
+capabilities = ["concert-run", "flameir-generation", "self-healing", "palace-memory", "http-serve", "process-detection", "multi-target-deploy"]
+apis = ["sagco boot", "sagco heal", "sagco world", "sagco truth", "sagco antibodies"]
+ports = ["FlamePort-concert", "FlamePort-heal", "FlamePort-serve"]
+
+[depends_on]
+khaos = "1.0.0"
+flamelang = "1.0.0"
+
+[wafers]
+test_command = "python wafers/test_healer.py"
+status = "36/36 PASS"
+coverage = "healer + concert"
+seal = "SHA256 tick-sealed per heal round"
+
+[audit]
+layer_status = "PASS"
+notes = "Concert injects Primameria calendar as SOURCE FlameNode. Healer: PHASE_NUDGE, AMPLITUDE_BALANCE, ERROR_CLEAR, ELEMENT_SHIFT. MAX_ROUNDS=6. Stagnation guard escalates to ELEMENT_SHIFT."

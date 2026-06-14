@@ -1,0 +1,30 @@
+[brick]
+id = "sagco-organism"
+name = "SAGCO Organism"
+version = "1.0.0"
+description = "The sovereign organism root. Integrates all sub-bricks. CLI launcher. Kernel .sagco definitions. Wafer test suite. Replicator. Build system."
+language = "python"
+layer = "kernel"
+owner = "Strategickhaos DAO LLC"
+
+[provides]
+capabilities = ["organism-boot", "cli-launcher", "kernel-definitions", "wafer-suite", "replication", "version-truth"]
+apis = ["sagco run", "sagco boot", "sagco truth", "sagco manifest", "sagco version", "sagco replicate", "sagco divide"]
+ports = ["sagco-cli"]
+
+[depends_on]
+khaos = "1.0.0"
+flamelang = "1.0.0"
+worlds = "1.0.0"
+sagco-cell-db = "0.1.0"
+sagco-sync = "0.1.0"
+
+[wafers]
+test_command = "python wafers/runner.py"
+status = "ALL PASS"
+coverage = "full organism"
+seal = "SHA256 TICK-chain"
+
+[audit]
+layer_status = "PASS"
+notes = "12 build phases complete. sovereign-boot.sagcob: 166 instructions, 18 FlameIR nodes, 74 memory keys. STATUS: IRREFUTABLE."

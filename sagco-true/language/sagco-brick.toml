@@ -1,0 +1,26 @@
+[brick]
+id = "flamelang"
+name = "FlameLang VM"
+version = "1.0.0"
+description = "Sovereign programming language. Lexer → Parser → AST → FlameIR → Compiler → Bytecode → VM. Proof/Assert/QED truth engine. Tick-sealed execution."
+language = "python"
+layer = "kernel"
+owner = "Strategickhaos DAO LLC"
+
+[provides]
+capabilities = ["lexer", "parser", "ast", "flameir-compiler", "bytecode-vm", "proof-engine", "tick-chain", "wafer-gates"]
+apis = ["sagco lex", "sagco parse", "sagco compile", "sagco run", "sagco inspect"]
+ports = ["FlamePort-in", "FlamePort-out"]
+
+[depends_on]
+khaos = "1.0.0"
+
+[wafers]
+test_command = "python wafers/test_flame_compiler.py"
+status = "29/29 PASS"
+coverage = "compiler + vm"
+seal = "SHA256 bytecode seal"
+
+[audit]
+layer_status = "PASS"
+notes = "Domino chain: RAW WORLD → stepper → DISCOVERED → crawler → STRUCTURED → ticks → INGEST → IN MEMORY → CONCERT → FLAMEIR → COMPILER → BYTECODE → SOVEREIGN. Closed."
