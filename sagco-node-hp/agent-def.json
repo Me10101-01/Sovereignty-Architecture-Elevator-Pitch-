@@ -1,0 +1,82 @@
+{
+  "_comment": "SAGCO HP Node — Custom Claude Code Agent Definition",
+  "_version": "0.1.0",
+
+  "agent": {
+    "id":          "sagco-agent-hp",
+    "name":        "SAGCO HP Sovereign Agent",
+    "node":        "hp",
+    "node_ip":     "192.168.1.98",
+    "model":       "claude-sonnet-4-6",
+    "trust_level": "sovereign",
+    "mode":        "dangerous"
+  },
+
+  "hardware": {
+    "cpu":     "AMD 3.74 GHz (multi-core)",
+    "ram_gb":  31.1,
+    "ram_mts": 4800,
+    "ssd_gb":  932,
+    "ssd_type":"NVMe",
+    "gpu": {
+      "name":            "AMD Radeon 740M",
+      "architecture":    "RDNA3",
+      "dedicated_mb":    512,
+      "shared_gb":       15.5,
+      "directx":         "12 (FL 12.2)",
+      "driver":          "32.0.21034.41",
+      "driver_date":     "2025-10-28",
+      "rocm_target":     "gfx1100",
+      "directml":        true,
+      "temp_c":          52
+    },
+    "network": {
+      "type":    "Ethernet",
+      "ip":      "192.168.1.98",
+      "dns":     "attlocal.net",
+      "isp":     "AT&T"
+    }
+  },
+
+  "runtime": {
+    "os":     "Windows 11",
+    "wsl2":   true,
+    "docker": true,
+    "ollama": {
+      "port":   11434,
+      "gpu":    "amd-740m",
+      "driver": "directml"
+    },
+    "ssh":    { "port": 22, "server": "OpenSSH for Windows" },
+    "node":   true,
+    "python": true,
+    "git":    true,
+    "rust":   "via WSL2"
+  },
+
+  "permissions": {
+    "dangerouslySkipPermissions": true,
+    "allow_all_bash":             true,
+    "allow_all_file_ops":         true,
+    "allow_mcp":                  true,
+    "log_to":                     "~/.sagco/hp-audit.log"
+  },
+
+  "ollama_models_recommended": [
+    { "model": "llama3.2:3b",    "reason": "fast, fits in 3B on shared VRAM" },
+    { "model": "llama3.1:8b",    "reason": "quality balance, ~8GB shared VRAM" },
+    { "model": "phi3.5",         "reason": "Microsoft, fast on AMD iGPU" },
+    { "model": "deepseek-r1:7b", "reason": "reasoning model, 7B fits comfortably" },
+    { "model": "codellama:7b",   "reason": "code assistance, stays local" }
+  ],
+
+  "sagco_commands": {
+    "probe":   "sagco node hp probe",
+    "status":  "sagco node hp status",
+    "ollama":  "sagco node hp ollama",
+    "ssh":     "sagco node hp ssh",
+    "set_ip":  "sagco node hp set-ip 192.168.1.98"
+  },
+
+  "antibody": "OLLAMA_LOCAL_ONLY — use local models before external APIs. This node owns the weights."
+}

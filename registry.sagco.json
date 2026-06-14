@@ -1,6 +1,6 @@
 {
   "sagco_registry_version": "1.0.0",
-  "scanned_at": 1781461175.5731182,
+  "scanned_at": 1781461556.2324414,
   "brick_count": 9,
   "seal": "ec1427288b729e22",
   "bricks": [
@@ -160,7 +160,7 @@
       "id": "sagco-node-hp",
       "name": "HP Sovereign Node",
       "version": "0.1.0",
-      "description": "HP Windows 11 local compute node. Runs Docker Desktop, Ollama (local LLM), WSL2, SSH-agent, Node.js, Python, Git. Classified as: sovereign-adjacent (Windows, not pure Linux), high-capability, on-premise.",
+      "description": "HP Windows 11 local compute node. AMD Radeon 740M (RDNA3, 15.5GB shared VRAM), 31.1GB DDR5, 932GB NVMe. Runs Ollama (local LLM + AMD DirectML/ROCm GPU accel), Docker Desktop with MCP, WSL2, OpenSSH (port 22), Node.js, Python, Git. IP: 192.168.1.98 (AT&T Ethernet). Claude Code agent in dangerous/developer mode.",
       "language": "multi",
       "layer": "core",
       "owner": "Strategickhaos DAO LLC",

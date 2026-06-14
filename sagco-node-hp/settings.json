@@ -1,0 +1,56 @@
+{
+  "_comment": "Claude Code settings for SAGCO HP Node — developer/dangerous mode",
+
+  "dangerouslySkipPermissions": true,
+
+  "model": "claude-sonnet-4-6",
+
+  "env": {
+    "SAGCO_NODE":       "hp",
+    "SAGCO_NODE_IP":    "192.168.1.98",
+    "SAGCO_ENV":        "sovereign",
+    "OLLAMA_HOST":      "http://localhost:11434",
+    "OLLAMA_GPU":       "amd-radeon-740m",
+    "DOCKER_HOST":      "npipe:////./pipe/docker_engine",
+    "SAGCO_REPO":       "C:\\Users\\%USERNAME%\\Sovereignty-Architecture-Elevator-Pitch-",
+    "SAGCO_REPO_WSL":   "/mnt/c/Users/$USER/Sovereignty-Architecture-Elevator-Pitch-"
+  },
+
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "mcp__*"
+    ]
+  },
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher":  "Bash",
+        "hooks": [
+          {
+            "type":    "command",
+            "command": "echo [SAGCO-HP] $(date -u +%H:%M:%S) bash: $CLAUDE_TOOL_INPUT_COMMAND >> ~/.sagco/hp-audit.log 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type":    "command",
+            "command": "echo [SAGCO-HP] session-end $(date -u) >> ~/.sagco/hp-audit.log 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
