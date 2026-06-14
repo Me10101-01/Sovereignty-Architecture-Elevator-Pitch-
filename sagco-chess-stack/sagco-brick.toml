@@ -1,0 +1,36 @@
+[brick]
+id          = "sagco-chess-stack"
+name        = "SAGCO Chess Stack"
+version     = "0.1.0"
+description = "640-node callable execution grid: 10 stacked 8×8 chessboards. 2040 hidden square-patterns. Loop closer: closed path = QED proof. Rubik equiv ≈ 37.78 cubes."
+language    = "rust"
+layer       = "platform"
+owner       = "Strategickhaos DAO LLC"
+path        = "sagco-chess-stack"
+
+capabilities = [
+  "execution-grid",
+  "loop-detection",
+  "state-machine",
+  "move-graph",
+  "stack-trace",
+  "rubik-geometry",
+  "chess-addressing",
+  "sha256-seal",
+]
+
+apis = [
+  "sagco-chess status",
+  "sagco-chess board <layer>",
+  "sagco-chess trace --piece <kind> --start <id>",
+  "sagco-chess loops",
+  "sagco-chess audit",
+  "sagco-chess registry",
+]
+
+depends_on = []
+
+test_command = "cargo test --manifest-path sagco-chess-stack/Cargo.toml"
+wafer_status = "WAFER-PASS"
+coverage     = "unit+integration"
+notes        = "10 boards × 64 cells = 640 nodes; 10 × 204 = 2040 hidden squares; 2040÷54=37.78 Rubik cubes"

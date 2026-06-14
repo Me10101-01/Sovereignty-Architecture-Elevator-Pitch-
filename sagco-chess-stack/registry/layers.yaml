@@ -1,0 +1,38 @@
+layer_model:
+  description: >
+    Each of the 10 boards maps to an execution depth layer.
+    Cursor movement between layers = state-space traversal.
+    Inter-layer edges always connect the same square (col, row) at adjacent depths.
+
+  depth_semantics:
+    L0: "entry / bootstrap"
+    L1: "kernel / root"
+    L2: "core / foundation"
+    L3: "structure / IR"
+    L4: "circuit / wiring"
+    L5: "logic / rules"
+    L6: "protocol / adapters"
+    L7: "interface / API"
+    L8: "sovereignty / proof"
+    L9: "crown / closure"
+
+  inter_layer_rule:
+    type: "vertical lift"
+    condition: "any cell can transition to the same (row, col) on layer ± 1"
+    cost: "1 tick"
+
+  intra_layer_rule:
+    type: "chess piece movement"
+    pieces: [king, knight, rook, bishop, queen]
+    cost: "1 tick"
+
+  loop_close_condition: >
+    A cursor path forms a closed loop when it revisits any previously-visited
+    cell ID. The tick count at that moment = loop_length. QED.
+
+state_space:
+  total_nodes:      640
+  total_edges_king: "~6400 (avg 10 per node)"
+  rubik_analogy: >
+    204 hidden square-patterns per board × 10 boards = 2040.
+    2040 / 54 (Rubik stickers) ≈ 37.78 Rubik cubes of state-space geometry.

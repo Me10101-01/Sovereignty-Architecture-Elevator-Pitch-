@@ -1,0 +1,20 @@
+[package]
+name = "sagco-chess-stack"
+version = "0.1.0"
+edition = "2021"
+description = "SAGCO Chess Stack — 640-node callable execution grid | 10 boards × 64 cells"
+
+[[bin]]
+name = "sagco-chess"
+path = "src/main.rs"
+
+[lib]
+name = "sagco_chess"
+path = "src/lib.rs"
+
+[dependencies]
+serde     = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2      = "0.10"
+hex       = "0.4"
+clap      = { version = "4", features = ["derive"] }

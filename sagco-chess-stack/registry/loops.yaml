@@ -1,0 +1,42 @@
+loop_closure_model:
+  definition: >
+    A closed loop is detected when the cursor visits a cell ID it has
+    already visited on the current walk. The loop_length is the number
+    of ticks between the first and second visit to that cell.
+
+  qed_statement: >
+    Closed loop = QED. When execution returns to a known state, the
+    computation is self-consistent and terminates. The SHA-256 seal
+    of the final ExecState is the proof token.
+
+known_loops:
+  - piece: King
+    start_cell: 0
+    expected_status: CLOSED
+    typical_ticks: "<= 10"
+    note: "King from corner closes immediately — only 3 neighbors"
+
+  - piece: Knight
+    start_cell: 0
+    expected_status: CLOSED
+    typical_ticks: "<= 640"
+    note: "Knight from L0-A1: 2 intra neighbors + 1 inter, closes quickly"
+
+  - piece: Queen
+    start_cell: 320
+    expected_status: CLOSED
+    typical_ticks: "<= 1000"
+    note: "Queen from L5 center has 30 edges — greedy walk loops fast"
+
+  - piece: Rook
+    start_cell: 35
+    expected_status: CLOSED
+    typical_ticks: "<= 500"
+    note: "Rook along ranks and files"
+
+loop_geometry:
+  rubik_analogy: >
+    Each closed loop traces a path through the 640-node grid.
+    The grid contains 2040 hidden square-patterns (204 per board × 10).
+    2040 / 54 = 37.78 → the state-space has the geometry of ~38 Rubik cubes.
+    A loop closure is equivalent to solving one configuration of that cube.

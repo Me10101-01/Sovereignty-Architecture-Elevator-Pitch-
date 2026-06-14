@@ -1,0 +1,76 @@
+boards:
+  - index: 0
+    label: "L0-Base"
+    cells: 64
+    id_range: [0, 63]
+    hidden_squares: 204
+    description: "Ground layer — entry-point execution plane"
+
+  - index: 1
+    label: "L1-Root"
+    cells: 64
+    id_range: [64, 127]
+    hidden_squares: 204
+    description: "Root dependencies and kernel primitives"
+
+  - index: 2
+    label: "L2-Foundation"
+    cells: 64
+    id_range: [128, 191]
+    hidden_squares: 204
+    description: "Core data structures and type layer"
+
+  - index: 3
+    label: "L3-Structure"
+    cells: 64
+    id_range: [192, 255]
+    hidden_squares: 204
+    description: "Structural transforms and intermediate representation"
+
+  - index: 4
+    label: "L4-Circuit"
+    cells: 64
+    id_range: [256, 319]
+    hidden_squares: 204
+    description: "Circuit-level logic — wiring and signal routing"
+
+  - index: 5
+    label: "L5-Logic"
+    cells: 64
+    id_range: [320, 383]
+    hidden_squares: 204
+    description: "Business logic and rule evaluation"
+
+  - index: 6
+    label: "L6-Protocol"
+    cells: 64
+    id_range: [384, 447]
+    hidden_squares: 204
+    description: "Protocol adapters and serialization"
+
+  - index: 7
+    label: "L7-Interface"
+    cells: 64
+    id_range: [448, 511]
+    hidden_squares: 204
+    description: "API surfaces and external boundaries"
+
+  - index: 8
+    label: "L8-Sovereign"
+    cells: 64
+    id_range: [512, 575]
+    hidden_squares: 204
+    description: "Sovereignty layer — governance and proof sealing"
+
+  - index: 9
+    label: "L9-Crown"
+    cells: 64
+    id_range: [576, 639]
+    hidden_squares: 204
+    description: "Crown layer — final output and loop closure"
+
+totals:
+  boards:            10
+  cells:            640
+  hidden_squares:  2040
+  rubik_equiv:    37.78

@@ -1,0 +1,47 @@
+pieces:
+  - name: King
+    symbol: "♚"
+    intra_moves: "1 step in any of 8 directions"
+    inter_moves: "yes — vertical lift ±1 layer"
+    max_intra_degree: 8
+    min_intra_degree: 3   # corner
+    use_case: "conservative traversal — guaranteed to close loop quickly"
+
+  - name: Knight
+    symbol: "♞"
+    intra_moves: "L-shape: (±1,±2) or (±2,±1)"
+    inter_moves: "yes — vertical lift ±1 layer"
+    max_intra_degree: 8
+    min_intra_degree: 2   # corner
+    use_case: "non-linear jump — traces deeply irregular paths"
+
+  - name: Rook
+    symbol: "♜"
+    intra_moves: "any distance along rank or file"
+    inter_moves: "yes — vertical lift ±1 layer"
+    max_intra_degree: 14
+    min_intra_degree: 14  # always 7+7
+    use_case: "high-degree traversal — covers entire rank/file axis"
+
+  - name: Bishop
+    symbol: "♝"
+    intra_moves: "any distance diagonally"
+    inter_moves: "yes — vertical lift ±1 layer"
+    max_intra_degree: 13
+    min_intra_degree: 7
+    use_case: "diagonal-only state traversal — color-bound within a layer"
+
+  - name: Queen
+    symbol: "♛"
+    intra_moves: "combines rook + bishop"
+    inter_moves: "yes — vertical lift ±1 layer"
+    max_intra_degree: 27
+    min_intra_degree: 21  # corner
+    use_case: "maximum-coverage traversal — highest branching factor"
+
+move_graph_stats:
+  total_node_count:  640
+  piece_kinds:       5
+  inter_edges_per_node:
+    L0_or_L9: 1   # only one adjacent layer
+    L1_to_L8: 2   # two adjacent layers
