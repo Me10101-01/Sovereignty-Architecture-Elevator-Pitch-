@@ -885,6 +885,58 @@ def cmd_manifest(sub: str = "", args: list = []) -> None:
         print()
 
 
+def cmd_trade(args: list[str] = []) -> None:
+    """
+    SAGCO Trade Simulator — test strategies without real money.
+
+    Usage:
+      sagco trade                         — run all 3 strategies (100 trades)
+      sagco trade dividend                — dividend capture only
+      sagco trade trend                   — renko trend following only
+      sagco trade reversion               — renko mean reversion only
+      sagco trade --n 500                 — 500 trades
+      sagco trade --seed 99               — different random seed
+      sagco trade --json                  — JSON output
+      sagco trade ab-overfit              — fire AB-OVERFIT-001
+      sagco trade ab-screenshot           — fire AB-SCREENSHOT-CONFIG-001
+    """
+    import subprocess
+
+    _SIM = _ROOT.parent / "sagco-trade-simulator" / "simulate.py"
+
+    if not _SIM.exists():
+        print(f"  [error] sagco-trade-simulator not found at {_SIM}")
+        return
+
+    strategies = {"dividend", "trend", "reversion"}
+
+    if args and args[0] == "ab-overfit":
+        from sagco_true.antibodies.trading import fire_overfit_antibody
+        fire_overfit_antibody()
+        return
+
+    if args and args[0] == "ab-screenshot":
+        from sagco_true.antibodies.trading import fire_screenshot_config_antibody
+        fire_screenshot_config_antibody()
+        return
+
+    sim_args = [sys.executable, str(_SIM)]
+
+    for a in args:
+        if a in strategies:
+            sim_args += ["--strategy", a]
+        elif a == "--json":
+            sim_args.append("--json")
+        elif a == "--trades":
+            sim_args.append("--trades")
+        elif a.startswith("--n"):
+            sim_args += [a] if "=" in a else [a, args[args.index(a) + 1]]
+        elif a.startswith("--seed"):
+            sim_args += [a] if "=" in a else [a, args[args.index(a) + 1]]
+
+    subprocess.run(sim_args)
+
+
 def cmd_eru(sub: str = "", args: list[str] = []) -> None:
     """
     SAGCO ERU — Expected Reality Unit
@@ -1139,6 +1191,7 @@ def main() -> None:
         "heal":       lambda: cmd_heal(rest),
         "node":       lambda: cmd_node(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
         "eru":        lambda: cmd_eru(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
+        "trade":      lambda: cmd_trade(rest),
     }
 
     fn = dispatch.get(cmd)

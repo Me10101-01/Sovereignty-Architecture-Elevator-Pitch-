@@ -1,0 +1,46 @@
+[brick]
+id          = "sagco-trade-simulator"
+name        = "SAGCO Trade Simulator"
+version     = "0.1.0"
+description = "100 fake trades. No real money. No real orders. A playground where trading strategies are tested without consequences. Runs Dividend Capture, Renko Trend, and Renko Mean Reversion with full ERU verdict output and AB-OVERFIT-001 detection."
+language    = "python"
+layer       = "platform"
+owner       = "Strategickhaos DAO LLC"
+path        = "sagco-trade-simulator"
+
+[provides]
+capabilities = [
+  "trade-simulation",
+  "renko-modeling",
+  "dividend-capture-model",
+  "win-rate-analysis",
+  "expected-value",
+  "max-drawdown",
+  "profit-factor",
+  "eru-verdict",
+  "ab-overfit-detection",
+]
+apis = [
+  "python simulate.py",
+  "python simulate.py --strategy [dividend|trend|reversion]",
+  "python simulate.py --json",
+  "sagco trade",
+]
+
+[depends_on]
+eru = "sagco-true/eru"
+
+[strategies]
+dividend_capture    = { difficulty = "4/10", regime = "any", win_rate_range = "45–55%" }
+renko_trend         = { difficulty = "6/10", regime = "trending 60% / choppy 40%", win_rate_range = "50–60%" }
+renko_mean_reversion = { difficulty = "7/10", regime = "ranging 45% / trending 55%", win_rate_range = "variable" }
+
+[wafers]
+test_command = "python -m pytest sagco-trade-simulator/tests/ -v"
+status       = "PASS"
+coverage     = "10 assertions"
+seal         = "simulator-v0.1.0"
+
+[audit]
+layer_status = "ACTIVE"
+notes        = "A strategy can be 60% accurate and still lose money. EV = (WR × avg_gain) - (LR × avg_loss). Risk management > win rate. This is the playground the subconscious always wanted."
