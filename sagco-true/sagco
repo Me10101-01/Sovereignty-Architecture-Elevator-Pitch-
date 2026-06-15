@@ -885,6 +885,78 @@ def cmd_manifest(sub: str = "", args: list = []) -> None:
         print()
 
 
+def cmd_eru(sub: str = "", args: list[str] = []) -> None:
+    """
+    SAGCO ERU — Expected Reality Unit
+    Truth-checking protocol: Claim → Expected → Actual → Variance → Verdict
+
+    Usage:
+      sagco eru                    — help
+      sagco eru renko              — ERU for RenkoMasterVisualization_AI
+      sagco eru graph              — ERU for the full SAGCO knowledge graph
+      sagco eru valuation          — fire AB-VALUATION-ASSUMPTION-001 + remedy
+      sagco eru valuation --json   — JSON output
+    """
+    from sagco_true.eru.eru import (
+        renko_eru, sagco_graph_eru, ValuationFrame, ERU, run_eru
+    )
+    from sagco_true.antibodies.valuation import fire_valuation_antibody
+
+    as_json = "--json" in args
+
+    if sub in ("renko", "renko-master"):
+        run_eru(renko_eru(), as_json)
+        return
+
+    if sub in ("graph", "sagco", "knowledge"):
+        run_eru(sagco_graph_eru(), as_json)
+        return
+
+    if sub in ("valuation", "value", "ab-001"):
+        fire_valuation_antibody()
+        # Show the Renko assessment as a concrete example
+        vf = ValuationFrame(
+            project                = "RenkoMasterVisualization_AI",
+            dev_hours              = 40,
+            dev_rate               = 100,
+            replacement_engineers  = 5,
+            replacement_hours      = 80,
+            replacement_rate       = 100,
+            business_value_low     = 10_000,
+            business_value_high    = 50_000,
+            business_value_basis   = "time saved on manual chart analysis, indicator setup, strategy debugging",
+            market_value           = None,
+            market_comparables     = [
+                "NinjaTrader marketplace indicators: $99–$499",
+                "Custom trading systems: $5k–$50k (bespoke)",
+                "GitHub portfolio asset: intangible / hiring signal",
+            ],
+            market_evidence        = [],
+        )
+        print(vf.report())
+        return
+
+    if sub in ("custom", "new"):
+        # Interactive ERU builder (non-interactive: show template)
+        eru = ERU(
+            claim    = "My project is worth $X",
+            expected = ["users", "metrics", "comparables", "revenue"],
+            actual   = ["architecture", "codebase"],
+            notes    = "Replace these with your actual claim and evidence",
+        )
+        run_eru(eru, as_json)
+        return
+
+    print()
+    print("  sagco eru renko         — assess RenkoMasterVisualization_AI")
+    print("  sagco eru graph         — assess the full SAGCO knowledge graph")
+    print("  sagco eru valuation     — fire AB-VALUATION-ASSUMPTION-001")
+    print("  sagco eru custom        — show ERU template")
+    print()
+    print("  Verdicts: PROVEN | PROMISING | UNPROVEN | INFLATED")
+    print()
+
+
 def cmd_node(sub: str = "", args: list[str] = []) -> None:
     """
     SAGCO Node — reach and probe hardware nodes in the sovereign network.
@@ -1066,6 +1138,7 @@ def main() -> None:
         "inspect":    lambda: cmd_inspect(rest[0]) if rest else print("usage: sagco inspect <file.sagcob>"),
         "heal":       lambda: cmd_heal(rest),
         "node":       lambda: cmd_node(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
+        "eru":        lambda: cmd_eru(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
     }
 
     fn = dispatch.get(cmd)

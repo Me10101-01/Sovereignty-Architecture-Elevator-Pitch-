@@ -1,8 +1,8 @@
 {
   "sagco_registry_version": "1.0.0",
-  "scanned_at": 1781461556.2324414,
-  "brick_count": 9,
-  "seal": "ec1427288b729e22",
+  "scanned_at": 1781484459.1106079,
+  "brick_count": 10,
+  "seal": "47eff3e5d5f32e4e",
   "bricks": [
     {
       "id": "flamelang",
@@ -290,6 +290,24 @@
       "coverage": "n/a",
       "audit_status": "PROBE",
       "notes": "External AI node. Classified honestly: possible=YES, core=NO, probe/sandbox=YES. Risk: vendor dependency. Antibody: DO_NOT_TRUST_AS_SOURCE_OF_TRUTH."
+    },
+    {
+      "id": "renko-master",
+      "name": "RenkoMasterVisualization AI",
+      "version": "1.0.0",
+      "description": "NinjaTrader Renko chart visualization system with AI integration. C# codebase. Trading indicators, automated charting, data processing, strategy debugging tools. Portfolio node in the SAGCO knowledge graph.",
+      "language": "csharp",
+      "layer": "extension",
+      "owner": "Strategickhaos DAO LLC",
+      "path": "/home/user/Sovereignty-Architecture-Elevator-Pitch-/sagco-node-renko",
+      "capabilities": [],
+      "apis": [],
+      "ports": [],
+      "depends_on": {},
+      "wafer_status": "EXTERNAL",
+      "coverage": "n/a (NinjaTrader runtime required)",
+      "audit_status": "PROMISING",
+      "notes": "Project → Artifact → Lineage → Knowledge System. Valuation: promising portfolio asset, not yet market-proven. ERU verdict: PROMISING."
     }
   ]
 }

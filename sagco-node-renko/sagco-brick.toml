@@ -1,0 +1,64 @@
+[brick]
+id          = "renko-master"
+name        = "RenkoMasterVisualization AI"
+version     = "1.0.0"
+description = "NinjaTrader Renko chart visualization system with AI integration. C# codebase. Trading indicators, automated charting, data processing, strategy debugging tools. Portfolio node in the SAGCO knowledge graph."
+language    = "csharp"
+layer       = "extension"
+owner       = "Strategickhaos DAO LLC"
+path        = "sagco-node-renko"
+
+[provides]
+capabilities = [
+  "renko-visualization",
+  "trading-indicators",
+  "ninjatrader-integration",
+  "automated-charting",
+  "data-processing",
+  "strategy-debugging",
+  "ai-integration",
+  "c-sharp-runtime",
+]
+apis = [
+  "NinjaTrader indicator API",
+  "Renko chart engine",
+  "AI signal integration",
+]
+
+[valuation]
+# ERU assessment: AB-VALUATION-ASSUMPTION-001 fired
+dev_cost_estimate     = "$4,000"      # 40 hrs × $100/hr
+replacement_cost      = "$40,000"     # 5 engineers × 80 hrs × $100/hr
+business_value_range  = "$10,000–$50,000+"
+market_value          = "NOT YET PROVEN"
+market_evidence_needed = [
+  "users or paying customers",
+  "backtest performance metrics",
+  "NinjaTrader marketplace comparable sales",
+  "adoption data",
+]
+eru_verdict           = "PROMISING"
+
+[portfolio_signal]
+signals = [
+  "Trading systems design",
+  "Financial data visualization",
+  "Automated chart analysis",
+  "C# .NET development",
+  "NinjaScript (NinjaTrader API)",
+  "AI integration in trading context",
+]
+portfolio_value = "STRONG — all signals in one repo"
+note = "This is no longer a standalone project. It is one node in the SAGCO knowledge graph."
+
+[depends_on]
+
+[wafers]
+test_command = "echo 'renko-master: C# project — test via NinjaTrader IDE'"
+status       = "EXTERNAL"
+coverage     = "n/a (NinjaTrader runtime required)"
+seal         = "portfolio-asset"
+
+[audit]
+layer_status = "PROMISING"
+notes        = "Project → Artifact → Lineage → Knowledge System. Valuation: promising portfolio asset, not yet market-proven. ERU verdict: PROMISING."
