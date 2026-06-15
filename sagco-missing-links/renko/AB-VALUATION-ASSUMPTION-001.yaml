@@ -1,0 +1,70 @@
+# Antibody Record
+# AB-VALUATION-ASSUMPTION-001
+
+antibody:
+  id: AB-VALUATION-ASSUMPTION-001
+  name: "Valuation Assumption Antibody"
+  severity: HIGH
+  category: cognitive_bias
+
+  trigger: |
+    Claiming market value based on development cost, replacement cost,
+    or business value estimates — without a real market transaction.
+
+  cause: |
+    Builders conflate effort (hours × rate) with what the market will pay.
+    These are different things measured in the same unit (USD) but
+    completely different meanings.
+
+  the_four_pillars:
+    - pillar: Development Cost
+      measures: "Hours × rate — what YOU spent"
+      proves_market_value: false
+      formula: "dev_hours × hourly_rate"
+
+    - pillar: Replacement Cost
+      measures: "What it would cost to rebuild from scratch"
+      proves_market_value: false
+      formula: "engineers × hours × rate"
+
+    - pillar: Business Value
+      measures: "Estimated impact on your operations or future revenue"
+      proves_market_value: false
+      notes: "Ranges are speculative until realized"
+
+    - pillar: Market Value
+      measures: "What a real buyer will ACTUALLY pay in a real transaction"
+      proves_market_value: true
+      evidence_required:
+        - "Signed LOI or term sheet"
+        - "Actual sale / acquisition"
+        - "Recurring revenue (SaaS, white-label, licensing)"
+        - "Comparable sale of similar system at similar price"
+
+  remedy: |
+    1. Separate the four pillars — never add them or use one as proxy for another
+    2. Label any valuation claim with its pillar type
+    3. Mark market_value = UNPROVEN until a real transaction exists
+    4. Re-run ERU on market_value when evidence appears
+
+  example_bad:
+    claim: "Project worth $55k because it took 600 hours at $92/hr"
+    verdict: INFLATED
+    why: "Development cost ≠ market value. No buyer confirmed."
+
+  example_good:
+    claim: "Project has $55k replacement cost and $10-50k business value range"
+    additional_claim: "Market value is UNPROVEN — seeking comparables"
+    verdict: PROMISING
+    why: "Honest about what each number represents"
+
+  applied_to:
+    - project: sagco-node-renko
+      claim_id: RENKO-VAL-001
+      outcome: INFLATED → remediation steps defined in valuation_frame.yaml
+
+  history:
+    created: "2025-01-15"
+    fired_count: 1
+    last_fired: "2025-01-15"
+    fired_by: "ERU audit of Renko project valuation"

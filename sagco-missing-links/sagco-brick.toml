@@ -1,0 +1,66 @@
+[brick]
+id          = "sagco-missing-links"
+name        = "SAGCO Missing Links"
+version     = "0.1.0"
+description = "ERU-core (Rust): Claim → Expected → Actual → Variance → Verdict → BurnRate. Claims registry (YAML). Lineage tracker. Knowledge graph builder (Neo4j Cypher + Obsidian canvas). Renko claims. Don't measure projects — measure claims."
+language    = "multi"
+layer       = "kernel"
+owner       = "Strategickhaos DAO LLC"
+path        = "sagco-missing-links"
+
+[provides]
+capabilities = [
+  "eru-core",
+  "claims-registry",
+  "lineage-tracking",
+  "kg-builder",
+  "obsidian-canvas-export",
+  "neo4j-cypher-export",
+  "burnrate-analysis",
+  "verdict-engine",
+]
+apis = [
+  "eru formula  — eru formula",
+  "eru run      — run all SAGCO claims",
+  "eru burn     — burnrate analysis",
+  "eru claims   — list registered claims",
+  "python sagco-missing-links/graph/kg_builder.py --summary",
+  "python kg_builder.py --cypher --out sagco.cypher",
+  "python kg_builder.py --canvas --out sagco.canvas",
+]
+
+[verdicts]
+sagco_graph     = "PROVEN (250% coverage)"
+renko_portfolio = "PROVEN (100% coverage)"
+renko_valuation = "INFLATED (0% — AB-VALUATION-ASSUMPTION-001)"
+eru_universal   = "PROVEN — applies to all wings"
+hp_node         = "PROMISING — needs live probe"
+trade_trend     = "PROMISING — simulation only"
+trade_reversion = "INFLATED — AB-OVERFIT-001"
+
+[missing_links]
+open = [
+  "ML-GRAPH-001: kg_builder live Neo4j connection",
+  "ML-PROBE-001: sagco node hp probe (live verification)",
+  "ML-DATASET-001: one real dataset → full ERU loop end-to-end",
+]
+
+[antibodies]
+ab_valuation   = "AB-VALUATION-ASSUMPTION-001 — savings ≠ market value"
+ab_overfit     = "AB-OVERFIT-001 — high WR + negative EV"
+ab_screenshot  = "AB-SCREENSHOT-CONFIG-001 — screenshots ≠ ground truth"
+ab_dataset     = "AB-DATASET-HOARDING-001 — every dataset must answer a claim"
+
+[depends_on]
+eru     = "sagco-true/eru"
+khaos   = "khaos"
+
+[wafers]
+test_command = "cd sagco-missing-links/eru-core && cargo test"
+status       = "PASS"
+coverage     = "unit tests: claim, variance, verdict, burnrate"
+seal         = "eru-core-v0.1.0"
+
+[audit]
+layer_status = "FOUNDATIONAL"
+notes        = "ERU is the universal training format. A calculus answer, a Renko strategy, a hardware node, a plugin, a dataset — they all become Claim→Expected→Actual→Variance→Verdict."

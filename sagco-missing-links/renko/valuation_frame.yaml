@@ -1,0 +1,74 @@
+# Valuation Frame — SAGCO / Renko Project
+# AB-VALUATION-ASSUMPTION-001 applied
+#
+# The 4 pillars are SEPARATE. Never conflate them.
+# Market value is NOT proved until a real transaction occurs.
+
+valuation_frame:
+  project: sagco-node-renko
+  assessed_date: "2025-01-15"
+  antibody_applied: AB-VALUATION-ASSUMPTION-001
+
+  # PILLAR 1: What it cost to build
+  development_cost:
+    hours: 600
+    rate_usd_hr: 92
+    total_usd: 55200
+    notes: "Estimated from commit history + time log. Solo developer."
+    proves: "Effort invested"
+    does_not_prove: "Market value"
+
+  # PILLAR 2: What it would cost to rebuild from scratch
+  replacement_cost:
+    engineers: 3
+    hours_each: 200
+    rate_usd_hr: 92
+    total_usd: 55200
+    notes: "3-person team, 200 hrs each to rebuild Renko + SAGCO + Trade Sim"
+    proves: "Reconstruction cost"
+    does_not_prove: "Market value"
+
+  # PILLAR 3: What value it generates for the business
+  business_value:
+    low_usd: 10000
+    high_usd: 50000
+    basis: |
+      - Prevents bad trades estimated at $200-500/month (EV model)
+      - Provides auditable claim tracking (regulatory value)
+      - Enables faster iteration on new strategies
+      - AB-OVERFIT-001 alone could prevent a $5k+ blowup
+    notes: "Range estimate only — no revenue generated yet"
+    proves: "Potential utility"
+    does_not_prove: "Market value"
+
+  # PILLAR 4: What the market will actually pay
+  market_value:
+    current: null
+    status: UNPROVEN
+    what_would_prove_it:
+      - "Letter of intent at $X"
+      - "Term sheet / acquisition offer"
+      - "Revenue from deployed system (e.g., SaaS, white-label)"
+      - "Comparable sale: trading system with similar features sold at $Y"
+      - "VC term sheet valuing company including this system"
+    comparables_researched: false
+    notes: |
+      Market value = ZERO until a real buyer appears.
+      Dev cost + replacement cost + business value do NOT sum to market value.
+      They are evidence INPUTS to a negotiation, not the market price itself.
+
+  # ERU Summary
+  eru:
+    claim: "SAGCO / Renko project is worth $55,000+ in market value"
+    expected:
+      - "Market transaction at stated value"
+      - "Comparable sales data"
+    actual: []
+    coverage_pct: 0.0
+    verdict: INFLATED
+    remedy: |
+      EITHER:
+        a) Find a comparable system that sold at $50k+
+        b) Generate recurring revenue from the system
+        c) Get an acquisition offer or term sheet
+      THEN re-run ERU and upgrade verdict to PROMISING or PROVEN.

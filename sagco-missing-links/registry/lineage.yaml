@@ -1,0 +1,72 @@
+# SAGCO Lineage Registry
+# The provenance chain: Project → Artifact → Claim → Verdict
+# "Don't measure projects. Measure claims."
+
+lineage_version: "1.0.0"
+
+chains:
+
+  - id: "LINEAGE-001"
+    label: "Renko → Knowledge System"
+    steps:
+      - { step: 1, type: "project",   node: "RenkoMasterVisualization_AI",  artifact: "C# NinjaTrader indicator" }
+      - { step: 2, type: "artifact",  node: "sagco-node-renko",              artifact: "SAGCO brick registration" }
+      - { step: 3, type: "claim",     node: "RENKO-VAL-001",                 artifact: "valuation claim (INFLATED)" }
+      - { step: 4, type: "claim",     node: "RENKO-PORTFOLIO-001",           artifact: "portfolio signal (PROVEN)" }
+      - { step: 5, type: "antibody",  node: "AB-VALUATION-ASSUMPTION-001",   artifact: "4-pillar separation" }
+      - { step: 6, type: "knowledge", node: "SAGCO-GRAPH-001",               artifact: "one node in the graph (PROVEN)" }
+    verdict:  "PROVEN"
+    burnrate: "1/4 claims proven (AB fired on 1, PROMISING on 1)"
+
+  - id: "LINEAGE-002"
+    label: "Trading Claim → Simulator → ERU"
+    steps:
+      - { step: 1, type: "claim",   node: "TRADE-SIM-001", artifact: "renko trend profitable?" }
+      - { step: 2, type: "experiment", node: "sagco-trade-simulator", artifact: "100 fake trades" }
+      - { step: 3, type: "actual",  node: "WR=73% EV=+$1527",  artifact: "simulation result" }
+      - { step: 4, type: "verdict", node: "PROMISING",          artifact: "simulation only — needs real data" }
+      - { step: 5, type: "claim",   node: "TRADE-SIM-002",      artifact: "mean reversion profitable?" }
+      - { step: 6, type: "antibody",node: "AB-OVERFIT-001",     artifact: "INFLATED — EV=-$11.23" }
+    verdict:  "MIXED"
+    burnrate: "0.5 — one claim promising, one inflated"
+
+  - id: "LINEAGE-003"
+    label: "Chess Stack → Execution Grid → QED"
+    steps:
+      - { step: 1, type: "concept", node: "chessboard = execution grid", artifact: "10×64=640 nodes" }
+      - { step: 2, type: "code",    node: "sagco-chess-stack",           artifact: "Rust implementation" }
+      - { step: 3, type: "proof",   node: "loop_closer",                 artifact: "King CLOSED at tick=447" }
+      - { step: 4, type: "math",    node: "2040/54=37.78",               artifact: "Rubik cube geometry" }
+      - { step: 5, type: "verdict", node: "CHESS-STACK-001 PROVEN",      artifact: "62/62 tests pass" }
+    verdict:  "PROVEN"
+
+  - id: "LINEAGE-004"
+    label: "ERU → Universal Comparator"
+    steps:
+      - { step: 1, type: "concept",   node: "Claim→Expected→Actual→Variance→Verdict", artifact: "ERU schema" }
+      - { step: 2, type: "applied_to",node: "valuation (RENKO-VAL-001)",              artifact: "INFLATED detected" }
+      - { step: 3, type: "applied_to",node: "trading (TRADE-SIM-002)",                artifact: "AB-OVERFIT-001 fired" }
+      - { step: 4, type: "applied_to",node: "hardware (HP-NODE-001)",                 artifact: "PROMISING — needs probe" }
+      - { step: 5, type: "applied_to",node: "architecture (SAGCO-GRAPH-001)",         artifact: "PROVEN 250%" }
+      - { step: 6, type: "verdict",   node: "ERU-FOUNDATIONAL-001 PROVEN",            artifact: "universal comparator" }
+    verdict:  "PROVEN"
+
+missing_links:
+  - id:      "ML-GRAPH-001"
+    gap:     "kg_builder.py — registry to graph export"
+    status:  "OPEN"
+    claim:   "SAGCO-GRAPH-001"
+    blocks:  ["Obsidian canvas export", "Neo4j queries", "visual lineage"]
+
+  - id:      "ML-PROBE-001"
+    gap:     "sagco node hp probe — live verification of HP node"
+    status:  "OPEN"
+    claim:   "HP-NODE-001"
+    blocks:  ["HP-NODE-001 moving from PROMISING to PROVEN"]
+
+  - id:      "ML-DATASET-001"
+    gap:     "One real dataset → full ERU loop end-to-end"
+    status:  "OPEN"
+    claim:   "TRADE-SIM-001"
+    blocks:  ["TRADE-SIM-001 moving from PROMISING to PROVEN"]
+    note:    "AB-DATASET-HOARDING-001: every dataset must answer a claim first"

@@ -1009,6 +1009,209 @@ def cmd_eru(sub: str = "", args: list[str] = []) -> None:
     print()
 
 
+def cmd_missing_links(sub: str = "", args: list[str] = []) -> None:
+    """
+    SAGCO Missing Links — ERU audit of the SAGCO knowledge graph.
+
+    Usage:
+      sagco missing-links                    — show all open missing links
+      sagco missing-links burn               — burnrate analysis
+      sagco missing-links claims             — list all 9 registered claims
+      sagco missing-links graph              — summary of the KG
+      sagco missing-links canvas [--out F]   — export Obsidian canvas
+      sagco missing-links cypher [--out F]   — export Neo4j Cypher
+      sagco missing-links renko              — Renko-specific claims + valuation
+      sagco missing-links dashboard          — export Excel dashboard
+    """
+    import subprocess
+    import yaml
+
+    _ML = _ROOT.parent / "sagco-missing-links"
+    _REG = _ML / "registry"
+    _GRAPH = _ML / "graph"
+    _DASH = _ML / "dashboards"
+    _RENKO = _ML / "renko"
+
+    flags = _parse_flags(args)
+
+    def _load_claims() -> list[dict]:
+        p = _REG / "claims.yaml"
+        if not p.exists():
+            return []
+        with open(p) as f:
+            data = yaml.safe_load(f)
+        return data.get("claims", [])
+
+    def _load_lineage() -> dict:
+        p = _REG / "lineage.yaml"
+        if not p.exists():
+            return {}
+        with open(p) as f:
+            return yaml.safe_load(f) or {}
+
+    if sub in ("", "status", "open"):
+        lineage = _load_lineage()
+        missing = lineage.get("missing_links", [])
+        if isinstance(missing, dict):
+            missing = missing.get("open", [])
+        print()
+        print("  SAGCO Missing Links — Open Gaps")
+        print()
+        if missing:
+            for ml in missing:
+                blocks = ml.get("blocks") or ml.get("blocks_claim") or ml.get("claim", "?")
+                desc   = ml.get("description") or ml.get("gap", "?")
+                print(f"  ⚠  {ml['id']}: {desc}")
+                if isinstance(blocks, list):
+                    for b in blocks:
+                        print(f"      blocks: {b}")
+                else:
+                    print(f"      blocks: {blocks}")
+                print()
+        else:
+            print("  No open missing links — all claims proven!")
+        print()
+        return
+
+    if sub == "claims":
+        claims = _load_claims()
+        print()
+        print(f"  SAGCO Claims Registry ({len(claims)} claims)")
+        print()
+        w = {"PROVEN": "✓", "PROMISING": "◉", "UNPROVEN": "○", "INFLATED": "✗", "OPEN": "?"}
+        for c in claims:
+            v = c.get("verdict", "OPEN")
+            pct = c.get("coverage_pct") or c.get("coverage", 0)
+            icon = w.get(v, "?")
+            print(f"  [{icon}] {c['id']:<28} {pct:6.1f}%  {v}")
+        print()
+        return
+
+    if sub == "burn":
+        claims = _load_claims()
+        total     = len(claims)
+        # status field is the authoritative state in claims.yaml
+        proven    = sum(1 for c in claims if c.get("verdict","").upper() == "PROVEN"    or c.get("status","").upper() == "PROVEN")
+        promising = sum(1 for c in claims if c.get("verdict","").upper() == "PROMISING" or c.get("status","").upper() == "PROMISING")
+        unproven  = sum(1 for c in claims if c.get("verdict","").upper() == "UNPROVEN"  or c.get("status","").upper() == "UNPROVEN")
+        inflated  = sum(1 for c in claims if c.get("verdict","").upper() == "INFLATED"  or c.get("status","").upper() == "INFLATED")
+        burnrate  = proven / total if total else 0.0
+        ev        = (proven*1.0 + promising*0.5 + unproven*0.1 - inflated*0.5) / total if total else 0.0
+        verdict   = (
+            "STRONG"   if burnrate >= 0.8 else
+            "HEALTHY"  if burnrate >= 0.5 else
+            "LAGGING"  if burnrate >= 0.3 else
+            "CRITICAL"
+        )
+        print()
+        print("  BurnRate Report — SAGCO Claims")
+        print()
+        print(f"  Total     : {total}")
+        print(f"  Proven    : {proven}  ({burnrate*100:.1f}%)")
+        print(f"  Promising : {promising}")
+        print(f"  Unproven  : {unproven}")
+        print(f"  Inflated  : {inflated}")
+        print()
+        print(f"  BurnRate  : {burnrate*100:.1f}%")
+        print(f"  EV/claim  : {ev:.3f}")
+        print(f"  Verdict   : {verdict}")
+        print()
+        return
+
+    if sub == "graph":
+        print()
+        print("  SAGCO Knowledge Graph — Summary")
+        print()
+        claims = _load_claims()
+        lineage = _load_lineage()
+        chains = lineage.get("chains", [])
+        missing = lineage.get("missing_links", [])
+        if isinstance(missing, dict):
+            missing = missing.get("open", [])
+        from collections import Counter
+        verdicts = Counter(c.get("verdict", "OPEN") for c in claims)
+        print(f"  Claims    : {len(claims)}")
+        for v, n in verdicts.most_common():
+            print(f"    {v:<12}: {n}")
+        print(f"  Lineage chains : {len(chains)}")
+        print(f"  Missing links  : {len(missing)} open")
+        print()
+        kg = _GRAPH / "kg_builder.py"
+        if kg.exists():
+            subprocess.run([sys.executable, str(kg), "--summary"])
+        return
+
+    if sub == "canvas":
+        out = flags.get("out", "sagco.canvas")
+        canvas_script = _DASH / "obsidian_canvas_export.py"
+        if canvas_script.exists():
+            subprocess.run([sys.executable, str(canvas_script), "--out", out])
+        else:
+            print(f"  [error] canvas export not found at {canvas_script}")
+        return
+
+    if sub == "cypher":
+        out = flags.get("out", "sagco.cypher")
+        kg = _GRAPH / "kg_builder.py"
+        if kg.exists():
+            subprocess.run([sys.executable, str(kg), "--cypher", "--out", out])
+        else:
+            print(f"  [error] kg_builder not found at {kg}")
+        return
+
+    if sub == "dashboard":
+        dash_script = _DASH / "excel_export.py"
+        if dash_script.exists():
+            subprocess.run([sys.executable, str(dash_script)])
+        else:
+            print(f"  [error] dashboard export not found at {dash_script}")
+        return
+
+    if sub == "renko":
+        print()
+        print("  Renko Claims + Valuation Frame")
+        print()
+        rv = _RENKO / "renko_claims.yaml"
+        vf = _RENKO / "valuation_frame.yaml"
+        if rv.exists():
+            with open(rv) as f:
+                data = yaml.safe_load(f)
+            for c in data.get("claims", []):
+                v = c.get("verdict", "OPEN")
+                pct = c.get("coverage_pct", 0)
+                print(f"  {c['id']:<28} {pct:6.1f}%  {v}")
+                print(f"    {c['text']}")
+                gaps = c.get("gaps", [])
+                if gaps:
+                    for g in gaps[:3]:
+                        print(f"    ⚠ {g}")
+                print()
+        if vf.exists():
+            with open(vf) as f:
+                data = yaml.safe_load(f)
+            vframe = data.get("valuation_frame", {})
+            dc = vframe.get("development_cost", {})
+            rc = vframe.get("replacement_cost", {})
+            mv = vframe.get("market_value", {})
+            print(f"  Valuation Frame ({vframe.get('project', '')})")
+            print(f"    Development cost  : ${dc.get('total_usd', 0):,}  (proves effort, NOT market value)")
+            print(f"    Replacement cost  : ${rc.get('total_usd', 0):,}  (proves rebuild cost, NOT market value)")
+            print(f"    Market value      : {mv.get('status', 'UNPROVEN')} — {mv.get('current') or 'no transaction yet'}")
+            print()
+        return
+
+    print()
+    print("  sagco missing-links                  — open gaps")
+    print("  sagco missing-links claims           — all 9 claims + verdicts")
+    print("  sagco missing-links burn             — burnrate analysis")
+    print("  sagco missing-links graph            — knowledge graph summary")
+    print("  sagco missing-links canvas [--out F] — export Obsidian canvas")
+    print("  sagco missing-links cypher [--out F] — export Neo4j Cypher")
+    print("  sagco missing-links renko            — Renko claims + valuation")
+    print("  sagco missing-links dashboard        — export Excel dashboard")
+    print()
+
+
 def cmd_node(sub: str = "", args: list[str] = []) -> None:
     """
     SAGCO Node — reach and probe hardware nodes in the sovereign network.
@@ -1189,9 +1392,10 @@ def main() -> None:
         "serve":      lambda: cmd_serve(rest),
         "inspect":    lambda: cmd_inspect(rest[0]) if rest else print("usage: sagco inspect <file.sagcob>"),
         "heal":       lambda: cmd_heal(rest),
-        "node":       lambda: cmd_node(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
-        "eru":        lambda: cmd_eru(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
-        "trade":      lambda: cmd_trade(rest),
+        "node":          lambda: cmd_node(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
+        "eru":           lambda: cmd_eru(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
+        "trade":         lambda: cmd_trade(rest),
+        "missing-links": lambda: cmd_missing_links(rest[0] if rest else "", rest[1:] if len(rest) > 1 else []),
     }
 
     fn = dispatch.get(cmd)

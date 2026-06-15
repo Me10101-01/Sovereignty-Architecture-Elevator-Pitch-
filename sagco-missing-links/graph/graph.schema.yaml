@@ -1,0 +1,115 @@
+# SAGCO Knowledge Graph — Schema
+# Defines node types, edge types, and validation rules
+
+schema:
+  version: "1.0.0"
+  description: "SAGCO knowledge graph schema — bricks, claims, verdicts, lineage"
+
+node_types:
+
+  - type: brick
+    description: "A SAGCO software component (sagco-brick.toml)"
+    required_fields: [id, name, version, layer, status]
+    optional_fields: [owner, description, language]
+    color: "#4A90E2"   # blue
+    shape: rectangle
+
+  - type: claim
+    description: "An ERU claim — what we assert to be true"
+    required_fields: [id, text, status, coverage_pct, verdict]
+    optional_fields: [project, category, notes, missing_link]
+    color: "#7ED321"   # green = PROVEN
+    color_variants:
+      PROVEN:    "#7ED321"
+      PROMISING: "#F5A623"
+      UNPROVEN:  "#9B9B9B"
+      INFLATED:  "#D0021B"
+      OPEN:      "#B8E986"
+    shape: ellipse
+
+  - type: evidence
+    description: "A piece of actual evidence for a claim"
+    required_fields: [text, source, present]
+    color: "#50E3C2"
+    shape: diamond
+
+  - type: antibody
+    description: "A known failure mode with detect + heal"
+    required_fields: [id, trigger, severity]
+    optional_fields: [remedy, applied_to]
+    color: "#BD10E0"   # purple = warning
+    shape: hexagon
+
+  - type: missing_link
+    description: "A gap between current state and a PROVEN verdict"
+    required_fields: [id, description, blocks_claim]
+    optional_fields: [effort_estimate, priority]
+    color: "#D0021B"   # red = open gap
+    shape: triangle
+
+  - type: dataset
+    description: "A dataset attached to a claim"
+    required_fields: [id, source, claim_id]
+    optional_fields: [rows, columns, date_range, format]
+    color: "#F8E71C"   # yellow
+    shape: cylinder
+
+  - type: verdict
+    description: "The ERU verdict record for a claim"
+    required_fields: [claim_id, verdict, coverage_pct, timestamp]
+    color_variants:
+      PROVEN:    "#7ED321"
+      PROMISING: "#F5A623"
+      UNPROVEN:  "#9B9B9B"
+      INFLATED:  "#D0021B"
+    shape: badge
+
+edge_types:
+
+  - type: depends_on
+    description: "Brick A depends on Brick B"
+    direction: A → B
+    label: "depends_on"
+
+  - type: makes_claim
+    description: "Brick or project makes a claim"
+    direction: brick → claim
+    label: "makes_claim"
+
+  - type: has_evidence
+    description: "Claim has an actual evidence item"
+    direction: claim → evidence
+    label: "has_evidence"
+
+  - type: has_verdict
+    description: "Claim has a verdict record"
+    direction: claim → verdict
+    label: "has_verdict"
+
+  - type: fires_antibody
+    description: "A claim or evidence pattern triggers an antibody"
+    direction: claim → antibody
+    label: "fires_antibody"
+
+  - type: blocks
+    description: "Missing link blocks a claim from being proven"
+    direction: missing_link → claim
+    label: "blocks"
+
+  - type: uses_dataset
+    description: "Claim requires or uses a dataset"
+    direction: claim → dataset
+    label: "uses_dataset"
+
+  - type: derives_from
+    description: "Lineage: this node derives from another"
+    direction: A → B
+    label: "derives_from"
+
+validation_rules:
+  - rule: "Every claim must have a verdict"
+  - rule: "PROVEN verdict requires coverage_pct >= 100.0"
+  - rule: "INFLATED verdict requires at least one antibody fired"
+  - rule: "OPEN claims must have at least one missing_link node"
+  - rule: "Every dataset node must reference a claim_id"
+  - rule: "No orphan nodes — every node must have at least one edge"

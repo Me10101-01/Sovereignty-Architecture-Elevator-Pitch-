@@ -1,0 +1,112 @@
+# Renko Claims Registry
+# ERU format: Claim → Expected → Actual → Variance → Verdict
+
+claims:
+
+  - id: RENKO-PORTFOLIO-001
+    text: "Renko strategies improve risk-adjusted returns vs. raw candle trading"
+    project: sagco-node-renko
+    category: trading_strategy
+    status: PROVEN
+    created_at: "2025-01-01"
+
+    expected:
+      - "Renko reduces noise compared to raw OHLC candles"
+      - "Renko trend-following produces positive EV in simulation"
+      - "Renko mean reversion can be parameterized to reduce drawdown"
+      - "Portfolio of Renko strategies outperforms any single strategy"
+
+    actual:
+      - item: "Renko reduces noise compared to raw OHLC candles"
+        source: "sagco-node-renko/renko_chart.py — brick size filters sub-threshold moves"
+        present: true
+      - item: "Renko trend-following produces positive EV in simulation"
+        source: "sagco-trade-simulator: TREND_FOLLOWING EV=+$8.14, PF=1.47"
+        present: true
+      - item: "Renko mean reversion can be parameterized to reduce drawdown"
+        source: "sagco-trade-simulator: MEAN_REVERSION AB-OVERFIT-001 fired — max_dd=-18.3%"
+        present: true
+      - item: "Portfolio of Renko strategies outperforms any single strategy"
+        source: "sagco-trade-simulator: multi-strategy equity curve comparison"
+        present: true
+
+    gaps: []
+    surplus:
+      - "dividend_capture strategy (WR=71%, EV=+$6.43) — not originally in scope"
+      - "AB-OVERFIT-001 antibody created to prevent overfitting future strategies"
+
+    coverage_pct: 100.0
+    verdict: PROVEN
+    notes: "4/4 expected items confirmed. Surplus items strengthen the case."
+
+  - id: RENKO-VAL-001
+    text: "SAGCO / Renko project is worth $55,000+ in market value"
+    project: sagco-node-renko
+    category: valuation
+    status: INFLATED
+    created_at: "2025-01-01"
+
+    expected:
+      - "Market transaction at or above stated value (offer, term sheet, or sale)"
+      - "Comparable sales of similar trading systems at $55k+"
+      - "Recurring revenue from deployed system"
+      - "Institutional buyer due diligence confirmation"
+
+    actual:
+      - item: "Development cost estimated at 600 hrs × $92/hr = $55,200"
+        source: "internal time log — development hours"
+        present: false
+      - item: "Replacement cost estimated at 3 engineers × 200 hrs × $92 = $55,200"
+        source: "internal estimate"
+        present: false
+
+    gaps:
+      - "Market transaction at or above stated value (offer, term sheet, or sale)"
+      - "Comparable sales of similar trading systems at $55k+"
+      - "Recurring revenue from deployed system"
+      - "Institutional buyer due diligence confirmation"
+
+    surplus: []
+    coverage_pct: 0.0
+    verdict: INFLATED
+    antibody: AB-VALUATION-ASSUMPTION-001
+    notes: |
+      Development cost ≠ market value.
+      Replacement cost ≠ market value.
+      Market value is ONLY what someone will ACTUALLY pay.
+      The $55k figure measures effort, not market demand.
+      Verdict: INFLATED until a real buyer or comparable is found.
+
+  - id: RENKO-SIGNAL-001
+    text: "Renko bricks reduce false reversals by ≥20% vs raw candles on AAPL daily"
+    project: sagco-node-renko
+    category: signal_quality
+    status: OPEN
+    created_at: "2025-01-15"
+    missing_link: ML-DATASET-001
+
+    expected:
+      - "AAPL daily OHLC dataset loaded and processed"
+      - "Renko brick generator applied (brick_size determined by ATR)"
+      - "False reversal count on raw candles measured"
+      - "False reversal count on Renko bricks measured"
+      - "Reduction ≥ 20% confirmed"
+
+    actual: []
+    gaps:
+      - "AAPL daily OHLC dataset loaded and processed"
+      - "Renko brick generator applied (brick_size determined by ATR)"
+      - "False reversal count on raw candles measured"
+      - "False reversal count on Renko bricks measured"
+      - "Reduction ≥ 20% confirmed"
+
+    coverage_pct: 0.0
+    verdict: OPEN
+    notes: |
+      This is ML-DATASET-001 — the first real dataset ERU loop.
+      Until this runs on real data, the Renko signal claim is ASSUMED, not PROVEN.
+      Steps to close:
+        1. pip install yfinance
+        2. python data/fetch_aapl.py
+        3. python renko/signal_test.py
+        4. Compute variance, render verdict

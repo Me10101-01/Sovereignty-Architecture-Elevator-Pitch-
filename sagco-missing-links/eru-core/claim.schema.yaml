@@ -1,0 +1,83 @@
+# ERU Claim Schema — the atomic unit of truth measurement
+#
+# Don't measure projects. Measure claims.
+# Every SAGCO wing uses this same schema.
+
+schema_version: "1.0.0"
+
+claim:
+  id:
+    type: string
+    pattern: "^[A-Z]+-[A-Z]+-[0-9]{3}$"   # e.g. SAGCO-GRAPH-001
+    required: true
+
+  text:
+    type: string
+    required: true
+    description: "The assertion being made. Specific, falsifiable."
+
+  project:
+    type: string
+    required: true
+    description: "Which brick/project owns this claim"
+
+  category:
+    type: enum
+    values: [valuation, architecture, capability, market, portfolio, performance]
+    required: true
+
+  status:
+    type: enum
+    values: [OPEN, IN_PROGRESS, PROVEN, PROMISING, UNPROVEN, INFLATED, RETRACTED]
+    default: OPEN
+
+  expected:
+    type: list[string]
+    description: "Evidence items that would prove this claim"
+    min_items: 1
+
+  actual:
+    type: list[{text: string, source: string}]
+    description: "Evidence items that currently exist"
+
+  variance:
+    type: computed
+    formula: "len(actual ∩ expected) / len(expected) × 100"
+    note: "Can exceed 100% if actual has surplus evidence"
+
+  verdict:
+    type: computed
+    rules:
+      "coverage >= 100%": PROVEN
+      "coverage >= 50%":  PROMISING
+      "coverage >= 1%":   UNPROVEN
+      "coverage == 0%":   INFLATED
+
+  seal:
+    type: computed
+    formula: "SHA-256(id || text)[:16]"
+
+  lineage:
+    type: object
+    fields:
+      created_at: timestamp
+      updated_at: timestamp
+      derived_from: list[claim_id]
+      antibodies_fired: list[string]
+
+# Example claim:
+example:
+  id:       "RENKO-VAL-001"
+  text:     "RenkoMasterVisualization_AI market value = $55,000+"
+  project:  "renko-master"
+  category: "valuation"
+  status:   "INFLATED"
+  expected:
+    - "users or paying customers"
+    - "backtest performance metrics"
+    - "comparable NinjaTrader sales"
+    - "revenue data"
+    - "adoption data"
+  actual: []
+  verdict:  "INFLATED"
+  notes:    "AB-VALUATION-ASSUMPTION-001 fired. Dev=$4k Replacement=$40k Business=$10k-50k."

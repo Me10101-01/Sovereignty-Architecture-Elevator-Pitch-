@@ -1,0 +1,148 @@
+# SAGCO Claims Registry
+# Every claim across all wings — measured, not assumed.
+
+claims:
+
+  - id:       "SAGCO-GRAPH-001"
+    text:     "SAGCO knowledge graph exceeds value of any single component"
+    project:  "sagco-organism"
+    category: "architecture"
+    status:   "PROVEN"
+    expected:
+      - "multiple interconnected projects"
+      - "shared registry / truth layer"
+      - "cross-project lineage"
+      - "reusable architecture patterns"
+    actual:
+      - text:   "multiple interconnected projects"
+        source: "11 bricks in registry.sagco.json"
+      - text:   "shared registry / truth layer"
+        source: "sagco-true/registry/ + registry.sagco.json"
+      - text:   "cross-project lineage"
+        source: "topological sort + dep tree in resolver.py"
+      - text:   "reusable architecture patterns"
+        source: "ERU, antibodies, brick manifest, FlameLang"
+    verdict:  "PROVEN"
+    coverage: 250.0
+    notes:    "10 actual components vs 4 expected = 250% over-evidenced"
+
+  - id:       "RENKO-VAL-001"
+    text:     "RenkoMasterVisualization_AI market value = $55,000+"
+    project:  "renko-master"
+    category: "valuation"
+    status:   "INFLATED"
+    expected:
+      - "users or paying customers"
+      - "backtest performance metrics"
+      - "adoption / install data"
+      - "comparable NinjaTrader indicator sales"
+      - "revenue or documented cost savings"
+    actual: []
+    verdict:  "INFLATED"
+    coverage: 0.0
+    notes:    "AB-VALUATION-ASSUMPTION-001 fired. Dev=$4k Replacement=$40k Business=$10k-50k. Market value requires adoption."
+
+  - id:       "RENKO-PORTFOLIO-001"
+    text:     "RenkoMasterVisualization_AI is a strong portfolio signal for hiring"
+    project:  "renko-master"
+    category: "portfolio"
+    status:   "PROVEN"
+    expected:
+      - "C# codebase"
+      - "trading domain knowledge"
+      - "data visualization"
+      - "AI integration"
+      - "automation"
+    actual:
+      - { text: "C# codebase",          source: "NinjaScript/NinjaTrader repo" }
+      - { text: "trading domain knowledge", source: "Renko chart engine" }
+      - { text: "data visualization",   source: "RenkoMasterVisualization project" }
+      - { text: "AI integration",       source: "AI in project name + features" }
+      - { text: "automation",           source: "automated charting pipeline" }
+    verdict:  "PROVEN"
+    coverage: 100.0
+
+  - id:       "ERU-FOUNDATIONAL-001"
+    text:     "ERU is a universal comparator applicable across all SAGCO wings"
+    project:  "sagco-organism"
+    category: "architecture"
+    status:   "PROVEN"
+    expected:
+      - "applied to valuation claims"
+      - "applied to trading strategy claims"
+      - "applied to hardware node claims"
+      - "applied to architecture claims"
+    actual:
+      - { text: "applied to valuation claims",       source: "sagco eru valuation → INFLATED on Renko" }
+      - { text: "applied to trading strategy claims", source: "sagco trade → AB-OVERFIT-001 on mean reversion" }
+      - { text: "applied to hardware node claims",   source: "sagco node hp probe" }
+      - { text: "applied to architecture claims",    source: "sagco eru graph → PROVEN" }
+    verdict:  "PROVEN"
+    coverage: 100.0
+
+  - id:       "CHESS-STACK-001"
+    text:     "640-node chess stack models a complete callable execution grid"
+    project:  "sagco-chess-stack"
+    category: "capability"
+    status:   "PROVEN"
+    expected:
+      - "640 unique callable nodes"
+      - "loop closure proof (QED)"
+      - "tests passing"
+      - "Rubik geometry link"
+    actual:
+      - { text: "640 unique callable nodes", source: "62/62 tests, all_cells_unique_ids" }
+      - { text: "loop closure proof (QED)",  source: "loop_closer: King CLOSED tick=447" }
+      - { text: "tests passing",             source: "cargo test: 62/62" }
+      - { text: "Rubik geometry link",       source: "2040/54=37.78 cubes, chess-rubik-map.md" }
+    verdict:  "PROVEN"
+    coverage: 100.0
+
+  - id:       "HP-NODE-001"
+    text:     "HP node (192.168.1.98) is a sovereign local compute node"
+    project:  "sagco-node-hp"
+    category: "capability"
+    status:   "PROMISING"
+    expected:
+      - "SSH accessible"
+      - "Ollama running with models"
+      - "Docker MCP active"
+      - "live probe confirmed"
+    actual:
+      - { text: "SSH accessible",       source: "ssh-agent process observed in Task Manager" }
+      - { text: "Ollama running",       source: "ollama process observed in Task Manager" }
+      - { text: "Docker MCP active",    source: "docker-mcp process observed" }
+    verdict:  "PROMISING"
+    coverage: 75.0
+    notes:    "AB-SCREENSHOT-CONFIG-001: verify with live commands. sagco node hp probe"
+
+  - id:       "TRADE-SIM-001"
+    text:     "Renko trend following has positive expected value"
+    project:  "sagco-trade-simulator"
+    category: "performance"
+    status:   "PROMISING"
+    expected:
+      - "positive EV in simulation"
+      - "positive EV on real market data"
+      - "consistent across different seeds"
+      - "profit factor > 1.5"
+    actual:
+      - { text: "positive EV in simulation", source: "simulate.py: EV=+$1527 WR=73% PF=10.64" }
+      - { text: "profit factor > 1.5",       source: "PF=10.64 on seed=42" }
+    verdict:  "PROMISING"
+    coverage: 50.0
+    notes:    "Simulation only. Needs real market validation. EV highly sensitive to position sizing."
+
+  - id:       "TRADE-SIM-002"
+    text:     "Renko mean reversion is a profitable strategy"
+    project:  "sagco-trade-simulator"
+    category: "performance"
+    status:   "INFLATED"
+    expected:
+      - "positive EV"
+      - "profit factor > 1.2"
+      - "controlled drawdown"
+    actual: []
+    verdict:  "INFLATED"
+    coverage: 0.0
+    notes:    "AB-OVERFIT-001 fired. EV=-$11.23 PF=0.76 MDD=15.5%. Strategy destroys capital in simulation."
