@@ -133,6 +133,25 @@ claims:
     coverage: 50.0
     notes:    "Simulation only. Needs real market validation. EV highly sensitive to position sizing."
 
+  - id:       "ERU-FIELD-ORIGIN-001"
+    text:     "ERU was derived from pipefitting field measurement before it had a name"
+    project:  "sagco-organism"
+    category: "origin"
+    status:   "PROVEN"
+    expected:
+      - "pre-ERU spreadsheet using Expected/Actual columns"
+      - "field domain (not software) as origin context"
+      - "LNFT/SQFT/MEN/HOURS as the primitive variables"
+      - "V = A/E visible as a ratio in the original sheet"
+    actual:
+      - { text: "pre-ERU spreadsheet using Expected/Actual columns", source: "pipefitting-spreadsheet.xlsx — LNFT/SQFT/MEN/HOURS columns" }
+      - { text: "field domain (not software) as origin context",     source: "pipefitting trade data — SIN/COS/LAT/LONG coordinates" }
+      - { text: "LNFT/SQFT/MEN/HOURS as the primitive variables",    source: "spreadsheet headers confirm field measurement primitives" }
+      - { text: "V = A/E visible as a ratio in the original sheet",  source: "coverage% = actual_hours / expected_hours × 100" }
+    verdict:  "PROVEN"
+    coverage: 100.0
+    notes:    "ERU pre-dates its own name. The formula V=A/E was first computed in pipefitting before it became the SAGCO verdict engine."
+
   - id:       "TRADE-SIM-002"
     text:     "Renko mean reversion is a profitable strategy"
     project:  "sagco-trade-simulator"
