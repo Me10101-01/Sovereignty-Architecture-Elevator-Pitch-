@@ -1,0 +1,31 @@
+id          = "sagco-json-trainer"
+name        = "SAGCO JSON Headless Trainer"
+version     = "0.1.0"
+layer       = "kernel"
+description = "Ingests JSON/JSONL sandbox artifacts → SAGCO vocabulary, FlameLang candidates, Q/A training cards, antibodies"
+
+capabilities = [
+  "schema-fingerprint",
+  "token-extraction",
+  "qa-trainer",
+  "flamelang-candidate-gen",
+  "antibody-builder",
+]
+
+[[missing_links]]
+id     = "ML-TRAINER-001"
+gap    = "Connect trainer output to live Qdrant embedding pipeline on Pi 4"
+status = "OPEN"
+blocks = ["SAGCO-CORPUS-001"]
+
+[[missing_links]]
+id     = "ML-TRAINER-002"
+gap    = "Wire FlameLang candidates into actual FlameLang M2 grammar file"
+status = "OPEN"
+blocks = ["FLAMELANG-M2-001"]
+
+[intake]
+ps_script     = "C:\\SAGCO\\493.88_VAULT\\json-ingest"
+sandbox_rule  = "NEVER parse live originals — sandbox copy only"
+source_filter = ["*.json", "*.jsonl"]
+exclude       = ["node_modules", ".git", "__pycache__"]

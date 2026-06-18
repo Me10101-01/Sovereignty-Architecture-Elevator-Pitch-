@@ -1,0 +1,196 @@
+files_scanned: 20
+unique_keys: 17
+flamelang_candidates:
+- key: compile_kind
+  type: int
+  frequency: 20
+  confidence: HIGH
+- key: config
+  type: int
+  frequency: 20
+  confidence: HIGH
+- key: declared_features
+  type: str
+  frequency: 20
+  confidence: HIGH
+- key: features
+  type: str
+  frequency: 20
+  confidence: HIGH
+- key: local
+  type: list[object]
+  frequency: 20
+  confidence: HIGH
+- key: local[].CheckDepInfo
+  type: object
+  frequency: 16
+  confidence: HIGH
+- key: local[].CheckDepInfo.checksum
+  type: bool
+  frequency: 16
+  confidence: HIGH
+- key: local[].CheckDepInfo.dep_info
+  type: str
+  frequency: 16
+  confidence: HIGH
+- key: local[].RerunIfChanged
+  type: object
+  frequency: 4
+  confidence: MEDIUM
+- key: local[].RerunIfChanged.output
+  type: str
+  frequency: 4
+  confidence: MEDIUM
+- key: local[].RerunIfChanged.paths
+  type: list[str]
+  frequency: 4
+  confidence: MEDIUM
+- key: path
+  type: int
+  frequency: 20
+  confidence: HIGH
+- key: profile
+  type: int
+  frequency: 20
+  confidence: HIGH
+- key: rustc
+  type: int
+  frequency: 20
+  confidence: HIGH
+- key: rustflags
+  type: list[any]
+  frequency: 20
+  confidence: HIGH
+- key: target
+  type: int
+  frequency: 20
+  confidence: HIGH
+antibody_candidates:
+- id: AB-TYPE-MISMATCH-DEPS
+  key: deps
+  types:
+  - list[list[int]]
+  - list[any]
+  trigger: "key 'deps' appears as ['list[list[int]]', 'list[any]'] \u2014 type ambiguity"
+  msg: 'FlameLang M2 type error: ''deps'' has inconsistent types across files'
+fingerprint:
+  compile_kind:
+    key: compile_kind
+    types:
+      int: 20
+    file_count: 20
+    consistent: true
+    dominant: int
+  config:
+    key: config
+    types:
+      int: 20
+    file_count: 20
+    consistent: true
+    dominant: int
+  declared_features:
+    key: declared_features
+    types:
+      str: 20
+    file_count: 20
+    consistent: true
+    dominant: str
+  deps:
+    key: deps
+    types:
+      list[list[int]]: 14
+      list[any]: 6
+    file_count: 20
+    consistent: false
+    dominant: list[list[int]]
+  features:
+    key: features
+    types:
+      str: 20
+    file_count: 20
+    consistent: true
+    dominant: str
+  local:
+    key: local
+    types:
+      list[object]: 20
+    file_count: 20
+    consistent: true
+    dominant: list[object]
+  local[].CheckDepInfo:
+    key: local[].CheckDepInfo
+    types:
+      object: 16
+    file_count: 16
+    consistent: true
+    dominant: object
+  local[].CheckDepInfo.checksum:
+    key: local[].CheckDepInfo.checksum
+    types:
+      bool: 16
+    file_count: 16
+    consistent: true
+    dominant: bool
+  local[].CheckDepInfo.dep_info:
+    key: local[].CheckDepInfo.dep_info
+    types:
+      str: 16
+    file_count: 16
+    consistent: true
+    dominant: str
+  local[].RerunIfChanged:
+    key: local[].RerunIfChanged
+    types:
+      object: 4
+    file_count: 4
+    consistent: true
+    dominant: object
+  local[].RerunIfChanged.output:
+    key: local[].RerunIfChanged.output
+    types:
+      str: 4
+    file_count: 4
+    consistent: true
+    dominant: str
+  local[].RerunIfChanged.paths:
+    key: local[].RerunIfChanged.paths
+    types:
+      list[str]: 4
+    file_count: 4
+    consistent: true
+    dominant: list[str]
+  path:
+    key: path
+    types:
+      int: 20
+    file_count: 20
+    consistent: true
+    dominant: int
+  profile:
+    key: profile
+    types:
+      int: 20
+    file_count: 20
+    consistent: true
+    dominant: int
+  rustc:
+    key: rustc
+    types:
+      int: 20
+    file_count: 20
+    consistent: true
+    dominant: int
+  rustflags:
+    key: rustflags
+    types:
+      list[any]: 20
+    file_count: 20
+    consistent: true
+    dominant: list[any]
+  target:
+    key: target
+    types:
+      int: 20
+    file_count: 20
+    consistent: true
+    dominant: int

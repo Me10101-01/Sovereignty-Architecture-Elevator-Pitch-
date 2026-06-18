@@ -1,0 +1,42 @@
+version: 0.1.0
+source: headless-json-trainer
+flamelang_type_seeds:
+- 'rerunifchanged: Token  // freq=8'
+top_sagco_tokens:
+- rerunifchanged
+- rerun
+- chess
+- sagco
+- debug/.fingerprint/sagco-chess-stack-2482114b255e69d4/dep-lib-sagco_chess
+- debug/.fingerprint/sagco-chess-stack-2482114b255e69d4/dep-lib-sagco
+top_general_tokens:
+- features
+- dep
+- rustc
+- target
+- profile
+- path
+- deps
+- local
+- rustflags
+- config
+- info
+- checksum
+- build
+- declared
+- compile
+- kind
+- checkdepinfo
+- declared_features
+- compile_kind
+- debug
+- script
+- check
+- dep_info
+- output
+- fingerprint
+- lib
+- paths
+- default
+- serde
+- std

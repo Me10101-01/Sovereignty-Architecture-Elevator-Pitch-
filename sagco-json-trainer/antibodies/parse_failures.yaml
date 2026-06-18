@@ -1,0 +1,11 @@
+total: 1
+by_severity:
+  UNKNOWN: 1
+antibodies:
+- id: AB-TYPE-MISMATCH-DEPS
+  key: deps
+  types:
+  - list[list[int]]
+  - list[any]
+  trigger: "key 'deps' appears as ['list[list[int]]', 'list[any]'] \u2014 type ambiguity"
+  msg: 'FlameLang M2 type error: ''deps'' has inconsistent types across files'
