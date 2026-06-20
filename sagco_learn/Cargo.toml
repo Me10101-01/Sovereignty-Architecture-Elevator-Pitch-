@@ -1,0 +1,19 @@
+[package]
+name    = "sagco_learn"
+version = "0.1.0"
+edition = "2021"
+description = "SAGCO organism HTTP fetch → learn → artifact pipeline"
+
+[[bin]]
+name = "sagco-learn"
+path = "src/main.rs"
+
+[dependencies]
+# ureq: sync HTTP, no tokio, fast compile — good for Termux aarch64
+ureq   = { version = "2.10", features = ["tls"] }
+serde_json = "1"
+
+[profile.release]
+opt-level = "z"   # minimize binary size for mobile
+strip     = true
+lto       = true
