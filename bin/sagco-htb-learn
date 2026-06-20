@@ -1,0 +1,94 @@
+#!/bin/sh
+# sagco htb-learn — Feed HTB Academy into SAGCO Organism
+# Usage: sagco-htb-learn [output_yaml_path]
+#
+# Emits: htb_learn YAML block for sagco_master_command / Obsidian ingest
+
+OUTPUT="${1:-}"
+
+MODULES="Kerberos Attacks
+ADCS Attacks
+DACL Attacks I
+DACL Attacks II
+Advanced SQL Injections
+Blind SQL Injection
+NTLM Relay Attacks
+Whitebox Pentesting 101: Command Injection
+Introduction to Deserialization Attacks
+Advanced Deserialization Attacks
+OSINT: Corporate Recon"
+
+echo "=== SAGCO HTB Academy Learning Feed ==="
+echo "Target modules for Organism:"
+echo "$MODULES" | while IFS= read -r m; do
+    echo "  - $m"
+done
+
+echo ""
+echo "Fetching public module index..."
+curl -s --max-time 8 "https://academy.hackthebox.com/" \
+    | grep -oE '(Hard|Medium|Easy)[^<]*' \
+    | head -10 \
+    || echo "  (use authenticated session for full module list)"
+
+TS="$(date +%Y-%m-%d)"
+
+YAML_BLOCK="htb_learn:
+  timestamp: ${TS}
+  status: QUEUED_FOR_ORGANISM
+  action: ingest into symbolic reasoner + generate detection primitives
+  priority_modules:
+    - name: \"Kerberos Attacks\"
+      tier: III
+      primitive: KERBEROS_TICKET
+      status: QUEUED
+    - name: \"ADCS Attacks\"
+      tier: III
+      primitive: CERT_TEMPLATE
+      status: QUEUED
+    - name: \"DACL Attacks I\"
+      tier: III
+      primitive: ACE_ANALYZER
+      status: QUEUED
+    - name: \"DACL Attacks II\"
+      tier: III
+      primitive: ACE_ANALYZER
+      status: QUEUED
+    - name: \"Advanced SQL Injections\"
+      tier: III
+      primitive: SQLI_PATTERN
+      status: QUEUED
+    - name: \"Blind SQL Injection\"
+      tier: II
+      primitive: SQLI_PATTERN
+      status: QUEUED
+    - name: \"NTLM Relay Attacks\"
+      tier: III
+      primitive: RELAY_CHAIN
+      status: QUEUED
+    - name: \"Whitebox Pentesting 101: Command Injection\"
+      tier: III
+      primitive: CMDI_SCAN
+      status: QUEUED
+    - name: \"Introduction to Deserialization Attacks\"
+      tier: II
+      primitive: DESER_PATTERN
+      status: QUEUED
+    - name: \"Advanced Deserialization Attacks\"
+      tier: III
+      primitive: DESER_PATTERN
+      status: QUEUED
+    - name: \"OSINT: Corporate Recon\"
+      tier: II
+      primitive: RECON_SCAN
+      status: QUEUED"
+
+echo ""
+echo "--- YAML for sagco_master_command / Obsidian ---"
+echo "$YAML_BLOCK"
+
+if [ -n "$OUTPUT" ]; then
+    echo "$YAML_BLOCK" > "$OUTPUT"
+    echo ""
+    echo "Written to: $OUTPUT"
+fi
