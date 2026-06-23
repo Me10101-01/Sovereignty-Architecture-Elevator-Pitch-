@@ -498,6 +498,122 @@ static void cmd_list(void) {
     printf("\n");
 }
 
+/*
+ * EUCLID  —  Euclidean distance in 1–4 dimensions.
+ *
+ * Formula (n-dimensional generalization of Pythagorean theorem):
+ *   d(p, q) = sqrt( Σᵢ (qᵢ − pᵢ)² )
+ *
+ * Syntax (up to 4 coordinates per point, missing ones default to 0):
+ *   euclid  x1 [y1 [z1 [w1]]]  :  x2 [y2 [z2 [w2]]]
+ *
+ * Field uses:
+ *   - Rope length between two anchor points in 3D space
+ *   - Diagonal distance across a work area
+ *   - Multi-point rigging triangle perimeters
+ *
+ * With 3 points, also computes all three pairwise distances and
+ * the triangle perimeter (useful for load triangle rigging).
+ */
+static void cmd_euclid(void) {
+    /* parse up to 4 coordinates for point 1, then ':', then point 2 */
+    double p[4] = {0,0,0,0}, q[4] = {0,0,0,0};
+    int    dim = 0;
+
+    /* point 1 coords until we hit ':' or EOF */
+    while (cur.k == TK_NUM && dim < 4) {
+        p[dim++] = cur.v; advance();
+        accept(TK_IDENT);  /* eat optional unit like ft/m */
+    }
+    if (dim == 0) { fprintf(stderr, "euclid: expected coordinates\n"); return; }
+
+    if (!accept(TK_COLON)) {
+        /* if no ':', maybe it was "euclid x1 y1 x2 y2" space-separated style */
+        int half = dim / 2;
+        if (dim >= 2 && dim % 2 == 0) {
+            for (int i = 0; i < half; i++) { q[i] = p[half + i]; p[half + i] = 0; }
+            dim = half;
+        } else {
+            fprintf(stderr, "euclid: use  x1 [y1 [z1]] : x2 [y2 [z2]]\n");
+            return;
+        }
+    } else {
+        /* read point 2 with same dimensionality */
+        int j = 0;
+        while (cur.k == TK_NUM && j < dim) {
+            q[j++] = cur.v; advance();
+            accept(TK_IDENT);
+        }
+        /* fill remaining with 0 if fewer coords given for point 2 */
+    }
+
+    /* optional third point */
+    double r[4] = {0,0,0,0}; int has_r = 0;
+    if (accept(TK_COLON) && cur.k == TK_NUM) {
+        has_r = 1;
+        int j = 0;
+        while (cur.k == TK_NUM && j < dim) {
+            r[j++] = cur.v; advance(); accept(TK_IDENT);
+        }
+    }
+
+    /* compute pairwise distances */
+    double sum_pq = 0, sum_qr = 0, sum_pr = 0;
+    for (int i = 0; i < dim; i++) {
+        sum_pq += (q[i]-p[i])*(q[i]-p[i]);
+        if (has_r) {
+            sum_qr += (r[i]-q[i])*(r[i]-q[i]);
+            sum_pr += (r[i]-p[i])*(r[i]-p[i]);
+        }
+    }
+    double d_pq = sqrt(sum_pq);
+    double d_qr = has_r ? sqrt(sum_qr) : 0;
+    double d_pr = has_r ? sqrt(sum_pr) : 0;
+
+    /* label coordinates based on dimension */
+    const char *axes[] = {"x","y","z","w"};
+
+    printf("\n  EUCLIDEAN DISTANCE  (%dD)\n", dim);
+    printf("  ────────────────────────────────────────────────────\n");
+
+    printf("  Point P  ( ");
+    for (int i = 0; i < dim; i++) printf("%s=%.3g%s", axes[i], p[i], i<dim-1?" ":"");
+    printf(" )\n");
+
+    printf("  Point Q  ( ");
+    for (int i = 0; i < dim; i++) printf("%s=%.3g%s", axes[i], q[i], i<dim-1?" ":"");
+    printf(" )\n");
+
+    if (has_r) {
+        printf("  Point R  ( ");
+        for (int i = 0; i < dim; i++) printf("%s=%.3g%s", axes[i], r[i], i<dim-1?" ":"");
+        printf(" )\n");
+    }
+
+    printf("\n");
+
+    /* formula display */
+    printf("  d(P,Q) = √(");
+    for (int i = 0; i < dim; i++) {
+        double diff = q[i] - p[i];
+        printf("(%.3g)²%s", diff, i<dim-1?"+":"");
+    }
+    printf(")\n");
+    printf("         = %.6g\n", d_pq);
+
+    if (has_r) {
+        printf("\n");
+        printf("  d(P,Q) = %10.6g\n", d_pq);
+        printf("  d(Q,R) = %10.6g\n", d_qr);
+        printf("  d(P,R) = %10.6g\n", d_pr);
+        printf("  ────────────────────────────────────────\n");
+        printf("  Perimeter (triangle) = %.6g\n", d_pq + d_qr + d_pr);
+    }
+
+    printf("  ────────────────────────────────────────────────────\n\n");
+}
+
+
 static void cmd_help(void) {
     printf(
         "\n  SAGCO OmniCalculator v" VERSION "  ─  Mechanical Advantage\n\n"
@@ -509,6 +625,8 @@ static void cmd_help(void) {
         "    cascade  <a>[:1] [+] <b>[:1] <load> [fric%%]\n"
         "                                         a:1 pulling on b:1 haul line\n"
         "    travel   <n>[:1] [dist_ft]           rope travel per load displacement\n"
+        "    euclid   x1 [y1 [z1]] : x2 [y2 [z2]] [: x3 [y3 [z3]]]\n"
+        "                                         Euclidean distance 1–4D\n"
         "    solve    <load> [max_input] [fric%%] enumerate valid systems\n"
         "    anchor   <n>[:1]  <load> [fric%%]   anchor load for n:1\n"
         "    list                                 show all templates\n"
@@ -554,6 +672,8 @@ static int parse_command(void) {
     else if (!strcmp(cmd,"anchor")  || !strcmp(cmd,"a"))       cmd_anchor();
     else if (!strcmp(cmd,"cascade") || !strcmp(cmd,"cs"))      cmd_cascade();
     else if (!strcmp(cmd,"travel")  || !strcmp(cmd,"tr"))      cmd_travel();
+    else if (!strcmp(cmd,"euclid")  || !strcmp(cmd,"dist") ||
+             !strcmp(cmd,"d"))                                 cmd_euclid();
     else if (!strcmp(cmd,"list")    || !strcmp(cmd,"ls"))      cmd_list();
     else if (!strcmp(cmd,"help")    || !strcmp(cmd,"?") ||
              !strcmp(cmd,"h"))                                cmd_help();
