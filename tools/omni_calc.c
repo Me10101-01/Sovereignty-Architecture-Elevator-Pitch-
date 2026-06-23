@@ -9,13 +9,15 @@
  * Batch:     ./omni_calc < problems.txt
  *
  * Commands:
- *   zdrag    <load> [friction%]             3:1 Z-drag
- *   crig     <load> [friction%]             3:1 C-rig
- *   simple   <n>[:1]  <load> [friction%]   n:1 simple (any n ≥ 2)
- *   compound <m>[:1] <n>[:1] <load> [f%]   m:1 piggybacked on n:1
- *   solve    <load> [max_input] [f%]        enumerate valid systems
- *   anchor   <n>[:1]  <load> [f%]          anchor load for n:1
- *   list                                    show all built-in systems
+ *   zdrag    <load> [friction%]                  3:1 Z-drag
+ *   crig     <load> [friction%]                  3:1 C-rig
+ *   simple   <n>[:1]  <load> [friction%]         n:1 simple (any n ≥ 2)
+ *   compound <m>[:1] <n>[:1] <load> [f%]         m:1 piggybacked on n:1
+ *   cascade  <a>[:1] [+] <b>[:1] <load> [f%]     a:1 pulling on b:1 haul line
+ *   travel   <n>[:1]  [distance_ft]               rope movement per load displacement
+ *   solve    <load> [max_input] [f%]              enumerate valid systems
+ *   anchor   <n>[:1]  <load> [f%]                anchor load for n:1
+ *   list                                          show all built-in systems
  *   help
  *
  * Load units:  lbs  kg  kn  n   (default: lbs)
@@ -355,6 +357,135 @@ static void cmd_solve(void) {
         printf("  ⚠  No standard system achieves target — try a compound system\n\n");
 }
 
+/*
+ * CASCADE  —  System A pulling on System B's haul line.
+ *
+ * This is different from a simple piggyback (compound):
+ *   - Two physically separate systems connected in series
+ *   - System B is anchored to the load
+ *   - System B's haul line feeds into System A's load point
+ *   - System A is anchored to a fixed point
+ *   - Human pulls System A's haul end
+ *
+ * Force path:
+ *   F_input → [System A  MA_a × η_a] → [System B  MA_b × η_b] → Load
+ *
+ * F_between = F_input × MA_a × η_a          (force between the two stages)
+ * F_load    = F_between × MA_b × η_b
+ *           = F_input × (MA_a × MA_b) × (η_a × η_b)
+ *
+ * Rope travel per unit of load movement:
+ *   load moves 1 ft → System B haul end moves MA_b ft
+ *   System B haul end (= System A load) moves 1 ft → haul rope moves MA_a ft
+ *   ∴  human pulls  MA_a × MA_b  ft  per  1 ft  of load travel
+ *
+ * Motion begins when:
+ *   F_input ≥ Load / (MA_a × MA_b × η_total)  [dynamic]
+ *   Add ~15% for static breakaway friction.
+ */
+static void cmd_cascade(void) {
+    int ma_a = parse_ma();
+    if (ma_a < 2) { fprintf(stderr, "cascade: expected MA for system A  (e.g. 6)\n"); return; }
+    accept(TK_PLUS);
+    int ma_b = parse_ma();
+    if (ma_b < 2) { fprintf(stderr, "cascade: expected MA for system B  (e.g. 4)\n"); return; }
+    double load = parse_load();
+    if (load < 0) { fprintf(stderr, "cascade: expected load\n"); return; }
+    double fric = (cur.k == TK_NUM) ? parse_friction() : DEFAULT_FRICTION;
+
+    int    shv_a   = ma_a - 1;
+    int    shv_b   = ma_b - 1;
+    double eta_a   = pow(1.0 - fric, shv_a);
+    double eta_b   = pow(1.0 - fric, shv_b);
+    double ma_act_a = ma_a * eta_a;
+    double ma_act_b = ma_b * eta_b;
+
+    int    ma_total_theo = ma_a * ma_b;
+    double eta_total     = eta_a * eta_b;
+    double ma_total_act  = ma_total_theo * eta_total;
+
+    double f_input     = load / ma_total_act;
+    double f_between   = f_input * ma_act_a;   /* tension in the line joining A→B */
+    double rope_per_ft = (double)(ma_a * ma_b); /* ft of rope per ft of load travel */
+
+    /* static breakaway: ~15% more than dynamic (stiction) */
+    double f_static = f_input * 1.15;
+    /*
+     * Anchor loads (in-line, conservative):
+     *   System B (inner, load side): its fixed anchor bears load + f_between
+     *     because the rope from load + the haul from A both pull on B's anchor.
+     *   System A (outer, haul side): its fixed anchor bears f_between + f_input
+     *     because the "load" for A is f_between, and human pulls f_input.
+     */
+    double anchor_b = load     + f_between;  /* primary (load-side) anchor */
+    double anchor_a = f_between + f_input;   /* secondary (haul-side) anchor */
+
+    printf("\n");
+    printf("  CASCADE  %d:1 pulling on %d:1  —  load = %.1f lbs"
+           "  friction = %.1f%%/sheave\n",
+           ma_a, ma_b, load, fric * 100.0);
+    printf("  ═══════════════════════════════════════════════════════════════\n");
+    printf("  Force path:\n");
+    printf("    Human ──► [%d:1  η=%.0f%%] ──► [%d:1  η=%.0f%%] ──► LOAD\n",
+           ma_a, eta_a * 100.0, ma_b, eta_b * 100.0);
+    printf("\n");
+    printf("  Gain stages:\n");
+    printf("    Stage A (outer %d:1)   %2d sheaves  eff=%.2f  MA_act=%.2f:1\n",
+           ma_a, shv_a, eta_a, ma_act_a);
+    printf("    Stage B (inner %d:1)   %2d sheaves  eff=%.2f  MA_act=%.2f:1\n",
+           ma_b, shv_b, eta_b, ma_act_b);
+    printf("    ─────────────────────────────────────────────────────────────\n");
+    printf("    TOTAL  %2d:1 theoretical  /  %.2f:1 actual  (%.0f%% overall eff)\n",
+           ma_total_theo, ma_total_act, eta_total * 100.0);
+    printf("\n");
+    printf("  Forces:\n");
+    printf("    Input  (human)       %8.1f lbs  (%6.1f kg)  ← you pull this\n",
+           f_input,   f_input   / 2.20462);
+    printf("    Between stages       %8.1f lbs  (%6.1f kg)  ← A output = B haul\n",
+           f_between, f_between / 2.20462);
+    printf("    At load              %8.1f lbs  (%6.1f kg)\n",
+           load,      load      / 2.20462);
+    printf("\n");
+    printf("  Rope travel per 1 ft of load movement:\n");
+    printf("    System B haul end    %6.1f ft\n", (double)ma_b);
+    printf("    Human haul rope      %6.1f ft  ← how much you pull\n", rope_per_ft);
+    printf("\n");
+    printf("  Motion threshold:\n");
+    printf("    Dynamic (moving)     %8.1f lbs  — system moves once past this\n", f_input);
+    printf("    Static  (breakaway)  %8.1f lbs  — first pull to unstick load\n", f_static);
+    printf("    Everything moves simultaneously when F_input ≥ %.1f lbs\n", f_static);
+    printf("\n");
+    printf("  Anchor loads (in-line estimate):\n");
+    printf("    System B anchor (load side)  %7.1f lbs  (%6.1f kg)"
+           "  ← load + between\n",
+           anchor_b, anchor_b / 2.20462);
+    printf("    System A anchor (haul side)  %7.1f lbs  (%6.1f kg)"
+           "  ← between + input\n",
+           anchor_a, anchor_a / 2.20462);
+    printf("  ═══════════════════════════════════════════════════════════════\n\n");
+}
+
+/* TRAVEL  —  rope movement for a given load displacement */
+static void cmd_travel(void) {
+    int ma = parse_ma();
+    if (ma < 2) { fprintf(stderr, "travel: expected MA  (e.g. 5  or  5:1)\n"); return; }
+    double dist = 1.0;
+    if (cur.k == TK_NUM) { dist = cur.v; advance(); accept(TK_IDENT); /* eat ft/m */ }
+
+    printf("\n  ROPE TRAVEL  —  %d:1  system  (load moves %.2f ft)\n", ma, dist);
+    printf("  ──────────────────────────────────────────────────\n");
+    printf("  Haul rope to pull   : %.2f ft  (%.0f in)\n",
+           ma * dist, ma * dist * 12.0);
+    printf("  Rope-to-load ratio  : %d:1   (pull %d ft → load moves 1 ft)\n", ma, ma);
+    printf("  Load displacement   : %.2f ft\n", dist);
+    printf("\n");
+    printf("  Progress capture reset cycle:\n");
+    printf("    each reset feeds the stroke length of your device\n");
+    printf("    strokes needed ≈ %.0f  (assuming 12 in stroke)\n",
+           ma * dist);
+    printf("  ──────────────────────────────────────────────────\n\n");
+}
+
 static void cmd_list(void) {
     printf("\n  Built-in system templates:\n");
     printf("  %-12s  %4s  %8s  Description\n", "Name", "MA", "Sheaves");
@@ -375,6 +506,9 @@ static void cmd_help(void) {
         "    crig     <load> [fric%%]             3:1 C-rig\n"
         "    simple   <n>[:1]  <load> [fric%%]   n:1 simple (any n≥2)\n"
         "    compound <m>[:1] [+] <n>[:1] <load> [fric%%]\n"
+        "    cascade  <a>[:1] [+] <b>[:1] <load> [fric%%]\n"
+        "                                         a:1 pulling on b:1 haul line\n"
+        "    travel   <n>[:1] [dist_ft]           rope travel per load displacement\n"
         "    solve    <load> [max_input] [fric%%] enumerate valid systems\n"
         "    anchor   <n>[:1]  <load> [fric%%]   anchor load for n:1\n"
         "    list                                 show all templates\n"
@@ -416,9 +550,11 @@ static int parse_command(void) {
     else if (!strcmp(cmd,"simple")  || !strcmp(cmd,"s"))      cmd_simple();
     else if (!strcmp(cmd,"compound")|| !strcmp(cmd,"comp") ||
              !strcmp(cmd,"c"))                                cmd_compound();
-    else if (!strcmp(cmd,"solve")   || !strcmp(cmd,"sl"))     cmd_solve();
-    else if (!strcmp(cmd,"anchor")  || !strcmp(cmd,"a"))      cmd_anchor();
-    else if (!strcmp(cmd,"list")    || !strcmp(cmd,"ls"))     cmd_list();
+    else if (!strcmp(cmd,"solve")   || !strcmp(cmd,"sl"))      cmd_solve();
+    else if (!strcmp(cmd,"anchor")  || !strcmp(cmd,"a"))       cmd_anchor();
+    else if (!strcmp(cmd,"cascade") || !strcmp(cmd,"cs"))      cmd_cascade();
+    else if (!strcmp(cmd,"travel")  || !strcmp(cmd,"tr"))      cmd_travel();
+    else if (!strcmp(cmd,"list")    || !strcmp(cmd,"ls"))      cmd_list();
     else if (!strcmp(cmd,"help")    || !strcmp(cmd,"?") ||
              !strcmp(cmd,"h"))                                cmd_help();
     else if (!strcmp(cmd,"quit")    || !strcmp(cmd,"exit") ||
