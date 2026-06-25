@@ -1,0 +1,90 @@
+name: Sovereignty Audit
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  sagco-audit:
+    name: SAGCO Audit Board A
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pytest pyyaml -q
+
+      - name: Run sagco-audit tests
+        working-directory: sagco-audit
+        run: python -m pytest tests/ -v
+
+      - name: Run sagco-archaeologist tests
+        working-directory: sagco-archaeologist
+        run: python -m pytest tests/ -v
+
+  gpg-verify:
+    name: GPG Signature Verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Import public key (if available)
+        run: |
+          if [ -f "strategickhaos_dao_public.asc" ]; then
+            gpg --import strategickhaos_dao_public.asc
+            echo "  GPG key imported."
+          else
+            echo "  No public key file found — skipping GPG verification."
+            echo "  Export with: gpg --armor --export YOUR_KEY > strategickhaos_dao_public.asc"
+          fi
+
+      - name: Verify signed artifacts
+        run: |
+          PASS=0; FAIL=0; SKIP=0
+          for f in *.md.gpg *.yaml.gpg *.toml.gpg; do
+            [ -f "$f" ] || continue
+            if gpg --verify "$f" 2>/dev/null; then
+              echo "  ✓ PROVEN: $f"
+              PASS=$((PASS+1))
+            else
+              echo "  ✗ FAILED: $f"
+              FAIL=$((FAIL+1))
+            fi
+          done
+          echo "GPG: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"
+          [ $FAIL -eq 0 ] || exit 1
+
+  sagco-gdrive-check:
+    name: sagco-gdrive Rust check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: cargo check (sagco-gdrive)
+        working-directory: sagco-sovereignty-missing-links/sagco-gdrive
+        run: cargo check
+
+  sovereignty-receipt:
+    name: Sovereignty Receipt
+    runs-on: ubuntu-latest
+    needs: [sagco-audit, gpg-verify, sagco-gdrive-check]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write sovereignty receipt
+        run: |
+          mkdir -p logs
+          TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          printf '{"ts":"%s","commit":"%s","verdict":"COMPUTED","move1":"pending","move2":"pending","move3":"pending"}\n' \
+            "$TS" "${{ github.sha }}" >> logs/sovereignty_receipts.log
+          echo "  Sovereignty receipt written: $TS"

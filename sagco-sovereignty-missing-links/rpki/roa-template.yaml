@@ -1,0 +1,29 @@
+# RPKI ROA Template — Strategickhaos DAO LLC
+#
+# Fill in YOUR_ASN and YOUR_PREFIX after ARIN assigns your ASN.
+# Submit via ARIN Online → RPKI → Create ROA
+#
+# RFC 6482: A Profile for Route Origin Authorizations (ROAs)
+
+roa:
+  asn:         "YOUR_ASN"              # e.g. AS399999  (fill in after ARIN assigns)
+  prefix:      "YOUR_PREFIX/24"        # e.g. 203.0.113.0/24
+  max_length:  24                      # max prefix length BGP will accept
+  validity:
+    not_before: "2026-01-01"
+    not_after:  "2028-01-01"           # renew annually — set a calendar reminder
+
+  # SAGCO metadata (not part of the ROA wire format — for our records only)
+  sagco_meta:
+    entity:     "Strategickhaos DAO LLC"
+    wy_file:    "2025-001708194"
+    ein:        "39-2900295"
+    org_id:     "YOUR_ARIN_ORG_ID"    # assigned when you create Org ID
+    signed_by:  "SAGCO GPG key"
+    brick_ref:  "ML-ORGANISM-004"
+
+  # ERU tracking
+  eru:
+    expected:   1    # one valid ROA in ARIN's RPKI repository
+    actual:     0    # fill in 1 after ROA is confirmed visible in RPKI validators
+    verdict:    "INFLATED"   # flips to PROVEN once actual=1
