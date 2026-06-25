@@ -1,0 +1,79 @@
+# holding.yaml — Per-holding schema
+# One entry per position in portfolio.yaml
+
+schema_version: "1.0"
+
+fields:
+  symbol:
+    type: string
+    required: true
+    example: "SCHD"
+
+  name:
+    type: string
+    example: "Schwab U.S. Dividend Equity ETF"
+
+  account:
+    type: string
+    enum: [ROTH_IRA, TRAD_IRA, TAXABLE, HSA]
+    note: "Tax location matters — put highest-yield in tax-advantaged"
+
+  shares:
+    type: float
+    required: true
+
+  cost_basis_per_share:
+    type: float
+    required: true
+    description: "Average cost basis. Used to compute yield-on-cost."
+
+  current_price:
+    type: float
+    description: "Update periodically for current yield calculation"
+
+  annual_dividend_per_share:
+    type: float
+    required: true
+    description: "TTM (trailing twelve months) dividends paid per share"
+
+  dividend_growth_rate:
+    type: float
+    description: "5-year CAGR of dividend growth. Used for income projections."
+    example: 0.10
+
+  frequency:
+    type: string
+    enum: [monthly, quarterly, semi-annual, annual]
+
+  risk_tier:
+    type: string
+    enum: [CONSERVATIVE, MODERATE, AGGRESSIVE]
+    description: "CONSERVATIVE = Aristocrat-grade. AGGRESSIVE = covered call, high yield."
+
+  drip_enabled:
+    type: bool
+    description: "True = dividends reinvested automatically"
+
+  notes:
+    type: string
+
+  # Computed fields (populated by tracker.py)
+  yield_on_cost:
+    type: float
+    computed: true
+    formula: "annual_dividend_per_share / cost_basis_per_share"
+
+  current_yield:
+    type: float
+    computed: true
+    formula: "annual_dividend_per_share / current_price"
+
+  annual_income:
+    type: float
+    computed: true
+    formula: "annual_dividend_per_share * shares"
+
+  monthly_income:
+    type: float
+    computed: true
+    formula: "annual_income / 12"

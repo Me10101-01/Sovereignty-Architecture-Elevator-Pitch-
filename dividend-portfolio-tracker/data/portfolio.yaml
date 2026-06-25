@@ -1,0 +1,114 @@
+# portfolio.yaml — Strategickhaos DAO LLC / Domenic Garza Dividend Portfolio
+#
+# Target: $5,000/month ($60,000/year) in sustainable dividend income
+# Strategy: Quality-first dividend growth. SCHD anchor + DGRO growth + small JEPI boost.
+#
+# IMPORTANT: Update shares, cost_basis_per_share, current_price, and
+# annual_dividend_per_share regularly. Prices here are illustrative.
+#
+# Run: python tracker.py report
+
+meta:
+  owner:          "Strategickhaos DAO LLC"
+  target_monthly: 5000.00
+  target_annual:  60000.00
+  strategy:       "Quality dividend growth — SCHD anchor"
+  brokerage:      "Schwab / Fidelity (separate from NinjaTrader)"
+  note:           "This is WEALTH capital, not RISK capital. Never mix with futures account."
+  created:        "2026-01-01"
+
+holdings:
+  # ─── CORE HOLDING (55%) ──────────────────────────────────────────────────
+  - symbol:                  "SCHD"
+    name:                    "Schwab U.S. Dividend Equity ETF"
+    account:                 "ROTH_IRA"
+    shares:                  100.0
+    cost_basis_per_share:    80.00
+    current_price:           83.00
+    annual_dividend_per_share: 2.92     # ~3.5% yield at $83
+    dividend_growth_rate:    0.10       # SCHD 10-yr avg DGR ~10%
+    frequency:               "quarterly"
+    risk_tier:               "CONSERVATIVE"
+    drip_enabled:            true
+    notes:                   "Core holding — best quality/yield balance. Max this first."
+
+  # ─── DIVIDEND GROWTH (25%) ───────────────────────────────────────────────
+  - symbol:                  "DGRO"
+    name:                    "iShares Core Dividend Growth ETF"
+    account:                 "TRAD_IRA"
+    shares:                  50.0
+    cost_basis_per_share:    55.00
+    current_price:           57.00
+    annual_dividend_per_share: 1.26     # ~2.2% yield at $57
+    dividend_growth_rate:    0.09
+    frequency:               "quarterly"
+    risk_tier:               "CONSERVATIVE"
+    drip_enabled:            true
+    notes:                   "Broad dividend growth. Lower current yield but better LT growth."
+
+  # ─── STABILITY LAYER (10%) ───────────────────────────────────────────────
+  - symbol:                  "VIG"
+    name:                    "Vanguard Dividend Appreciation ETF"
+    account:                 "TAXABLE"
+    shares:                  25.0
+    cost_basis_per_share:    190.00
+    current_price:           195.00
+    annual_dividend_per_share: 3.12     # ~1.6% yield at $195
+    dividend_growth_rate:    0.07
+    frequency:               "quarterly"
+    risk_tier:               "CONSERVATIVE"
+    drip_enabled:            false
+    notes:                   "Dividend appreciation focus. Adds quality companies with 10+ years of raises."
+
+  # ─── INCOME BOOSTER (10%) — USE SPARINGLY ────────────────────────────────
+  - symbol:                  "JEPI"
+    name:                    "JPMorgan Equity Premium Income ETF"
+    account:                 "TAXABLE"
+    shares:                  30.0
+    cost_basis_per_share:    56.00
+    current_price:           57.50
+    annual_dividend_per_share: 4.60     # ~8% yield at $57.50 (covered call strategy)
+    dividend_growth_rate:    0.00       # DO NOT assume dividend growth for JEPI
+    frequency:               "monthly"
+    risk_tier:               "MODERATE"
+    drip_enabled:            false
+    notes: >
+      High current yield but caps upside in strong bull markets.
+      Keep ≤ 10% of portfolio. Good for income while SCHD/DGRO compound.
+      JEPI distributions partly ordinary income — less tax-efficient. Keep in taxable small.
+
+# ─── WATCHLIST (not yet purchased) ──────────────────────────────────────────
+watchlist:
+  - symbol: "VYM"
+    name:   "Vanguard High Dividend Yield ETF"
+    notes:  "Add if SCHD + DGRO are maxed and still short of income target"
+
+  - symbol: "O"
+    name:   "Realty Income Corp (REIT)"
+    notes:  "Monthly dividend. Consider for small REIT exposure. Account for REIT tax treatment."
+
+  - symbol: "KO"
+    name:   "Coca-Cola (Dividend King)"
+    notes:  "62+ year streak. Lower yield but very low cut risk. Pairs well with SCHD."
+
+# ─── REBALANCING RULES ───────────────────────────────────────────────────────
+rebalancing:
+  frequency:        "Annual (December)"
+  target_weights:
+    SCHD:  0.55
+    DGRO:  0.25
+    VIG:   0.10
+    JEPI:  0.10
+  drift_tolerance:  0.05     # rebalance if any holding drifts ±5% from target
+  rules:
+    - "NEVER sell SCHD/DGRO unless dividend is cut — let it compound"
+    - "Rebalance by buying the lagging position, not selling the leader"
+    - "Add new contributions to the most underweight position each month"
+    - "Review JEPI allocation if payout drops >20% YoY — rotate to SCHD"
+
+# ─── RISK NOTES ──────────────────────────────────────────────────────────────
+risks:
+  - "Dividend cuts happen in recessions — SCHD/DGRO have strong quality screens but not bulletproof"
+  - "JEPI distributions can vary monthly — do not budget around peak JEPI income"
+  - "Inflation erodes fixed income — SCHD + DGRO dividend growth offsets this over time"
+  - "This portfolio is separate from NinjaTrader futures capital — never cross-contaminate"

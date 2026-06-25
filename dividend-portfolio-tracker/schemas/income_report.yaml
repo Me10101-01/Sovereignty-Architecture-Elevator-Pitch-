@@ -1,0 +1,43 @@
+# income_report.yaml — Monthly/annual income projection schema
+
+schema_version: "1.0"
+
+fields:
+  generated_at:    { type: string, format: ISO8601 }
+  target_monthly:  { type: float, description: "Target monthly income ($5,000)" }
+
+  # Current state
+  total_invested:    { type: float }
+  total_market_value:{ type: float }
+  blended_yield:     { type: float }
+  blended_yoc:       { type: float, description: "Yield-on-cost across all positions" }
+  annual_income:     { type: float }
+  monthly_income:    { type: float }
+  monthly_to_target_gap: { type: float, description: "target_monthly - monthly_income" }
+  capital_to_close_gap:
+    type: float
+    description: "Additional capital needed at current blended yield to reach target"
+
+  # ERU tracking
+  progress_ratio:
+    type: float
+    description: "monthly_income / target_monthly. ERU: PROVEN ≥ 1.0"
+  verdict:
+    type: string
+    enum: [PROVEN, PROMISING, UNPROVEN, INFLATED]
+
+  # Per-account breakdown
+  accounts:
+    type: object
+    description: "Income by account type (ROTH_IRA, TAXABLE, etc.)"
+
+  # Per-holding summary
+  holdings_summary:
+    type: list
+
+  # Growth projections
+  projections:
+    type: list
+    description: "Year-by-year projected income assuming dividend_growth_rate"
+
+  sha256: { type: string }
