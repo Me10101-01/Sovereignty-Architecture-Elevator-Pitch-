@@ -1,0 +1,39 @@
+[brick]
+id          = "BRICK-021"
+name        = "SAGCO Archaeologist"
+version     = "0.1.0"
+layer       = "provenance"
+description = "Recursive verification swarm — the verifiers verify the verifiers"
+language    = "Python 3.10+"
+
+[dependencies]
+sagco-audit = ">=0.1.0"   # inherits invocation_logger + decision_tracer
+# System: git, pdftotext (poppler), pyyaml, hashlib (stdlib)
+
+[rules]
+# Agent_004 (skeptic) runs FIRST on any novelty claim — must attempt to disprove before proving.
+# Every agent output carries an ERU verdict before being passed downstream.
+# Final manifest is SHA-256 sealed via seal_agent.
+skeptic_runs_first      = true
+eru_on_every_output     = true
+sha256_final_manifest   = true
+no_silent_provenance    = true   # every gap logged as UNCOMPUTED, not omitted
+
+[agents]
+Agent_001 = { role = "Origin Finder",      file = "agents/origin_agent.py" }
+Agent_002 = { role = "Evolution Tracker",  file = "agents/evolution_agent.py" }
+Agent_003 = { role = "Evidence Correlator",file = "agents/evidence_agent.py" }
+Agent_004 = { role = "Prior-Art Honesty",  file = "agents/skeptic_agent.py" }
+Agent_005 = { role = "Novelty Detector",   file = "agents/novelty_agent.py" }
+Agent_006 = { role = "Timeline Builder",   file = "agents/seal_agent.py" }
+
+[missing_links]
+ML-ARCH-001 = { gap = "PDF date extraction needs pdfinfo — falls back to mtime if absent", status = "UNCOMPUTED" }
+ML-ARCH-002 = { gap = "Patent prior-art DB is static YAML — no live USPTO API query", status = "UNCOMPUTED" }
+ML-ARCH-003 = { gap = "HTB solve log cross-reference not wired — evidence_agent skips HTB corpus", status = "UNCOMPUTED" }
+ML-ARCH-004 = { gap = "Git signature verification (gpg --verify) not yet called — provenance unwitnessed", status = "UNCOMPUTED" }
+
+[commands]
+audit  = "sagco-archaeologist audit  <artifact_path_or_git_root>"
+report = "sagco-archaeologist report <manifest.jsonl>"
+seal   = "sagco-archaeologist seal   <manifest.jsonl>"

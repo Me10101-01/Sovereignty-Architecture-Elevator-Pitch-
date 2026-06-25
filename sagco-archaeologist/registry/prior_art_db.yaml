@@ -1,0 +1,217 @@
+# SAGCO Archaeologist — Prior Art Database
+# Agent_004 (skeptic) loads this file.
+# Format:
+#   primitives   : known individual techniques (NOT novel alone)
+#   combinations : known assemblies of primitives (NOT novel alone)
+#
+# IMPORTANT: When in doubt, ADD the entry.
+# The skeptic defaults to PRIOR_ART_EXISTS on ambiguity.
+# Absence from this DB is NOT novelty — it means the DB is incomplete.
+
+primitives:
+  - id: PA-001
+    name: SHA-256 File Hashing
+    keywords: [sha256, sha-256, hashlib, sha256_file, sha256_buf]
+    reference: "FIPS 180-4 (2015), OpenSSL, Python hashlib"
+    year: 2001
+    note: "Cryptographic hash function — universally known primitive"
+
+  - id: PA-002
+    name: Append-Only Log File
+    keywords: [append-only, jsonl, audit log, invocation log, receipt.c, receipt_append]
+    reference: "POSIX O_APPEND semantics; journald; Kafka log segments"
+    year: 1970
+    note: "Append-only write pattern predates digital computers"
+
+  - id: PA-003
+    name: Git Version Control
+    keywords: [git log, git commit, git follow, version control, git history]
+    reference: "Linus Torvalds, 2005"
+    year: 2005
+
+  - id: PA-004
+    name: Haversine Distance Formula
+    keywords: [haversine, bearing, lat, lon, great circle]
+    reference: "Haversine formula — spherical trigonometry, published 1805"
+    year: 1805
+
+  - id: PA-005
+    name: Ohm's Law
+    keywords: [ohm, v=ir, p=iv, resistance, voltage, current, power]
+    reference: "Georg Simon Ohm, 1827"
+    year: 1827
+
+  - id: PA-006
+    name: Python Implementation
+    keywords: [python implementation, .py, python script]
+    reference: "Python — Guido van Rossum, 1991"
+    year: 1991
+
+  - id: PA-007
+    name: C Language Implementation
+    keywords: [c language implementation, .c, c11, c99, gcc]
+    reference: "C — Dennis Ritchie, 1972"
+    year: 1972
+
+  - id: PA-008
+    name: C# Implementation
+    keywords: [c# implementation, .cs, csharp, dotnet, ninjascript]
+    reference: "C# — Microsoft, 2000"
+    year: 2000
+
+  - id: PA-009
+    name: Markdown Documentation
+    keywords: [markdown documentation, .md, readme]
+    reference: "Markdown — John Gruber, 2004"
+    year: 2004
+
+  - id: PA-010
+    name: YAML Configuration
+    keywords: [yaml, .yaml, .toml, config file]
+    reference: "YAML — Clark Evans, 2001"
+    year: 2001
+
+  - id: PA-011
+    name: Command Dispatcher Pattern
+    keywords: [command dispatcher, route_table, dispatch table, command router]
+    reference: "Gang of Four Command Pattern, 1994"
+    year: 1994
+
+  - id: PA-012
+    name: PBFT Consensus
+    keywords: [pbft, practical byzantine fault tolerance, byzantine]
+    reference: "Castro & Liskov, OSDI 1999"
+    year: 1999
+
+  - id: PA-013
+    name: Raft Consensus
+    keywords: [raft, raft consensus, log replication, leader election]
+    reference: "Ongaro & Ousterhout, USENIX ATC 2014"
+    year: 2014
+
+  - id: PA-014
+    name: Lexer / Tokenizer
+    keywords: [lexer, tokenizer, token_lexer, token stream]
+    reference: "Aho, Lam, Sethi, Ullman — Compilers (Dragon Book), 1977"
+    year: 1977
+
+  - id: PA-015
+    name: Abstract Syntax Tree (AST)
+    keywords: [ast, abstract syntax tree, ast_builder, parse tree]
+    reference: "Standard compiler theory — Knuth 1965"
+    year: 1965
+
+  - id: PA-016
+    name: WireGuard VPN
+    keywords: [wireguard, vpn tunnel, wg-quick]
+    reference: "Jason Donenfeld, 2016 (merged Linux 5.6, 2020)"
+    year: 2016
+
+  - id: PA-017
+    name: RPKI Route Origin Authorization
+    keywords: [rpki, roa, route origin, asn, arin]
+    reference: "RFC 6482 (2012)"
+    year: 2012
+
+  - id: PA-018
+    name: GPG Signing
+    keywords: [gpg, gnupg, clearsign, gpg --sign, gpg signature]
+    reference: "GnuPG — Werner Koch, 1999 (RFC 4880)"
+    year: 1999
+
+  - id: PA-019
+    name: Decision Scoring / Ratio Metric
+    keywords: [decision score, ratio metric, actual/expected, a/e ratio]
+    reference: "Actuarial A/E analysis — used in insurance since 1900s"
+    year: 1900
+
+  - id: PA-020
+    name: Renko Chart
+    keywords: [renko, renko bar, brick chart]
+    reference: "Japanese trading methodology — 1900s"
+    year: 1900
+
+  - id: PA-021
+    name: Volume Delta Analysis
+    keywords: [delta volume, ask volume, bid volume, volume delta, order flow]
+    reference: "Order flow trading theory — widely published post-2010"
+    year: 2010
+
+  - id: PA-022
+    name: Moving Average
+    keywords: [sma, ema, moving average, smaperiod, smabuffer]
+    reference: "Statistical smoothing — R.H. Hooker 1901"
+    year: 1901
+
+  - id: PA-023
+    name: PDF Text Extraction
+    keywords: [pdftotext, pdfinfo, pdf extraction, poppler]
+    reference: "Poppler/xpdf — 1996"
+    year: 1996
+
+  - id: PA-024
+    name: WYoming LLC Formation
+    keywords: [wyoming llc, articles of organization, registered agent]
+    reference: "Wyoming Statutes Title 17 Chapter 29 (1977 + WULLCA 2010)"
+    year: 1977
+
+combinations:
+  - id: KC-001
+    name: SHA-256 Audit Log (hash-chained append log)
+    keywords: [sha256 audit log, hash-chained log, sha256 per entry, sealed log]
+    reference: "Append-only + SHA-256 per entry — used in certificate transparency (RFC 6962, 2013)"
+    year: 2013
+
+  - id: KC-002
+    name: Git + SHA-256 Provenance
+    keywords: [git sha256, git seal, git provenance, git hash]
+    reference: "Git's own object store uses SHA-1/SHA-256. Combined provenance = known pattern."
+    year: 2005
+
+  - id: KC-003
+    name: Command Dispatcher + Subsystem Router
+    keywords: [subsystem router, route table, sagco dispatch, sagco_dispatch]
+    reference: "Command pattern + strategy pattern — GoF 1994. CLI frameworks since 1990s."
+    year: 1994
+
+  - id: KC-004
+    name: Lexer + Parser + AST Pipeline
+    keywords: [lex parse ast, lexer parser ast, token ast, lex parse pipeline]
+    reference: "Standard compiler front-end — universally documented since 1960s"
+    year: 1965
+
+  - id: KC-005
+    name: Risk Engine with Kill Switch
+    keywords: [risk engine, kill switch, halt on loss, max daily loss, risk limits]
+    reference: "Algorithmic trading risk systems — FIA standards, post-2010 regulation"
+    year: 2010
+
+  - id: KC-006
+    name: Volume Delta + Renko Bars
+    keywords: [delta renko, volume renko, delta on renko, renko delta]
+    reference: "Delta volume on Renko — published by footprint chart vendors (Sierra Chart, Jigsaw) ~2012"
+    year: 2012
+
+  - id: KC-007
+    name: NinjaTrader Strategy with TraceOrders
+    keywords: [ninjascript strategy, traceorders, ninjatrader strategy, calculate.onbarclose]
+    reference: "NinjaTrader 8 documentation — standard strategy template"
+    year: 2016
+
+  - id: KC-008
+    name: YAML Antibody Registry
+    keywords: [antibody registry, yaml registry, antibody_registry.yaml, ab-]
+    reference: "Rule registry pattern — used in ESLint, SonarQube, OWASP tools"
+    year: 2013
+
+  - id: KC-009
+    name: JSONL Invocation Log with Verdict Field
+    keywords: [invocation log, verdict field, computed verdict, uncomputed verdict]
+    reference: "Structured logging with outcome fields — Splunk, ELK, Datadog patterns"
+    year: 2010
+
+  - id: KC-010
+    name: PDF Metadata + Text Keyword Extraction
+    keywords: [pdf keyword extraction, pdfinfo metadata, pdf provenance, pdf creation date]
+    reference: "PDF metadata extraction — standard eDiscovery tooling since early 2000s"
+    year: 2002
