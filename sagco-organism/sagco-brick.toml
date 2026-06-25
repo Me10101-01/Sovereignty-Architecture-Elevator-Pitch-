@@ -1,0 +1,30 @@
+[brick]
+id          = "BRICK-020"
+name        = "SAGCO Organism Dispatcher"
+version     = "0.1.0"
+layer       = "core"
+description = "The front door — lexer → parser → AST → router → subsystem → ledger → seal"
+language    = "C (C11)"
+
+[dependencies]
+# No SAGCO dependencies — this is the root organism
+# System deps: gcc, make, pdftotext (poppler), curl
+
+[rules]
+# All subsystem handlers registered in route_table.c. No inline routing elsewhere.
+# Every command invocation gets a receipt (logs/invocations.log).
+# Every file input gets SHA-256 sealed on exit.
+single_route_table = true
+receipt_on_exit    = true
+sha256_all_inputs  = true
+
+[missing_links]
+ML-ORGANISM-001 = { gap = "parser/graph_parser.c not yet built — AST cannot emit graph edges", status = "UNCOMPUTED" }
+ML-ORGANISM-002 = { gap = "physics/lever.c + tension.c + fos.c + rc.c stubs empty", status = "UNCOMPUTED" }
+ML-ORGANISM-003 = { gap = "field/exchanger.c + insulation.c + pipe.c + rope_access.c stubs empty", status = "UNCOMPUTED" }
+ML-ORGANISM-004 = { gap = "network/ssh.c + vpn.c not built", status = "UNCOMPUTED" }
+ML-ORGANISM-005 = { gap = "gps/compass.c + declination.c + exchanger_locator.c not built", status = "UNCOMPUTED" }
+
+[commands]
+dispatch = "sagco <subsystem> <command> [args]"
+analyze  = "sagco analyze <pdf|url|file>  — auto-route through full pipeline"
