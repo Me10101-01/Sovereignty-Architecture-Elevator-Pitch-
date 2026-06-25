@@ -17,7 +17,13 @@
  *   travel   <n>[:1]  [distance_ft]               rope movement per load displacement
  *   solve    <load> [max_input] [f%]              enumerate valid systems
  *   anchor   <n>[:1]  <load> [f%]                anchor load for n:1
- *   list                                          show all built-in systems
+ *   lever    <effort_arm> <load_arm> <load>          lever/fulcrum MA
+ *   fos      <breaking_strength> <applied_load>      factor of safety
+ *   bridle   <included_angle_deg> <load>             2-leg sling tension
+ *   pipe_span <od_in> <wall_in> <len_ft> [fluid_sg]  pipe weight + span reaction
+ *   bearing  <lat1> <lon1> : <lat2> <lon2>           GPS bearing + distance (ft)
+ *   euclid   x1 [y1 [z1]] : x2 [y2 [z2]]            Euclidean distance 1–4D
+ *   list                                             show all built-in systems
  *   help
  *
  * Load units:  lbs  kg  kn  n   (default: lbs)
@@ -25,10 +31,12 @@
  *
  * Examples:
  *   zdrag 500lbs 10%
- *   simple 5:1 600lbs 9%
- *   compound 3 3 900lbs 10%
- *   solve 800lbs 150lbs 9%
- *   anchor 3 500lbs 10%
+ *   cascade 6 4 1000lbs 9%
+ *   bridle 90 2000lbs
+ *   pipe_span 10.75 0.365 20 1.0
+ *   fos 9600 1200
+ *   lever 6 2 500lbs
+ *   bearing 27.8 -97.583 : 27.801 -97.582
  */
 
 #include <stdio.h>
@@ -38,7 +46,11 @@
 #include <math.h>
 #include <unistd.h>
 
-#define VERSION          "0.1"
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+#define VERSION          "0.2"
 #define DEFAULT_FRICTION 0.09     /* 9% loss per sheave = 91% efficiency */
 #define MAX_TLEN         64
 
@@ -73,6 +85,16 @@ static Tok lex_next(void) {
         case '%': t.k=TK_PCT;    t.s[0]='%'; lex_p++; return t;
         case '(': t.k=TK_LPAREN; t.s[0]='('; lex_p++; return t;
         case ')': t.k=TK_RPAREN; t.s[0]=')'; lex_p++; return t;
+    }
+    /* negative numbers: '-' immediately followed by digit or dot+digit */
+    if (*lex_p == '-' && (isdigit(lex_p[1]) ||
+                          (lex_p[1] == '.' && isdigit(lex_p[2])))) {
+        int i = 0;
+        t.s[i++] = *lex_p++;
+        while ((isdigit(*lex_p) || *lex_p == '.') && i < MAX_TLEN-1)
+            t.s[i++] = *lex_p++;
+        t.s[i] = 0; t.v = atof(t.s); t.k = TK_NUM;
+        return t;
     }
     if (isdigit(*lex_p) || (*lex_p == '.' && isdigit(lex_p[1]))) {
         int i = 0;
@@ -613,24 +635,326 @@ static void cmd_euclid(void) {
     printf("  ────────────────────────────────────────────────────\n\n");
 }
 
+/*
+ * LEVER  —  lever / fulcrum mechanical advantage.
+ *
+ * MA        = effort_arm / load_arm
+ * F_effort  = load / MA  =  load × (load_arm / effort_arm)
+ * F_fulcrum = load + F_effort   (reaction at pivot, Class 1/2)
+ *
+ * Both arm values must be in the same unit (ft, in, m).
+ * MA > 1 when effort arm is longer than load arm.
+ *
+ * Syntax:  lever <effort_arm> <load_arm> <load>
+ */
+static void cmd_lever(void) {
+    if (cur.k != TK_NUM) { fprintf(stderr, "lever: expected effort arm\n"); return; }
+    double effort_arm = cur.v; advance(); accept(TK_IDENT);
+    if (effort_arm <= 0) { fprintf(stderr, "lever: effort arm must be > 0\n"); return; }
+
+    if (cur.k != TK_NUM) { fprintf(stderr, "lever: expected load arm\n"); return; }
+    double load_arm = cur.v; advance(); accept(TK_IDENT);
+    if (load_arm <= 0) { fprintf(stderr, "lever: load arm must be > 0\n"); return; }
+
+    double load = parse_load();
+    if (load <= 0) { fprintf(stderr, "lever: expected load\n"); return; }
+
+    double ma        = effort_arm / load_arm;
+    double f_effort  = load / ma;
+    double f_fulcrum = load + f_effort;
+
+    printf("\n  LEVER  effort_arm=%.3g  load_arm=%.3g  load=%.1f lbs\n",
+           effort_arm, load_arm, load);
+    printf("  ─────────────────────────────────────────────────────────\n");
+    printf("  MA (effort / load arm)   : %.4f:1\n", ma);
+    printf("  Effort required          : %8.1f lbs  (%6.1f kg)  ← you apply\n",
+           f_effort, f_effort / 2.20462);
+    printf("  Fulcrum reaction         : %8.1f lbs  (%6.1f kg)\n",
+           f_fulcrum, f_fulcrum / 2.20462);
+    printf("\n");
+    if (ma >= 1.0)
+        printf("  ✓  MA %.2f — apply %.1f lbs to move %.1f lbs\n",
+               ma, f_effort, load);
+    else
+        printf("  ⚠  MA < 1 — load arm longer than effort arm (force amplifier, speed reducer)\n");
+    printf("  ─────────────────────────────────────────────────────────\n\n");
+}
+
+/*
+ * FOS  —  factor of safety / working load limit.
+ *
+ * FOS = breaking_strength / applied_load
+ *
+ * Reference minimums (conservative side):
+ *   OSHA 1926.251 personnel hoisting  : 10:1
+ *   OSHA 1926.251 materials rigging   :  5:1
+ *   ASME B30.9 slings (general)       :  5:1
+ *   Wire rope general rigging         :  5:1
+ *   Chain slings                      :  4:1
+ *
+ * Syntax:  fos <breaking_strength> <applied_load>
+ */
+static void cmd_fos(void) {
+    double bs = parse_load();
+    if (bs <= 0) { fprintf(stderr, "fos: expected breaking strength\n"); return; }
+    double applied = parse_load();
+    if (applied <= 0) { fprintf(stderr, "fos: expected applied load\n"); return; }
+
+    double fos  = bs / applied;
+    double wll5 = bs / 5.0;
+    double wll4 = bs / 4.0;
+
+    printf("\n  FACTOR OF SAFETY\n");
+    printf("  ─────────────────────────────────────────────────────\n");
+    printf("  Breaking strength    : %8.1f lbs  (%6.1f kg)\n", bs, bs / 2.20462);
+    printf("  Applied load         : %8.1f lbs  (%6.1f kg)\n", applied, applied / 2.20462);
+    printf("  ─────────────────────────────────────────────────────\n");
+    printf("  FOS                  : %8.2f:1\n", fos);
+    printf("  WLL @ 5:1            : %8.1f lbs  (OSHA materials / ASME B30.9)\n", wll5);
+    printf("  WLL @ 4:1            : %8.1f lbs  (chain sling minimum)\n", wll4);
+    printf("\n");
+    if      (fos >= 10.0) printf("  ✓  PASS  — ≥10:1  (safe for personnel hoisting)\n");
+    else if (fos >=  5.0) printf("  ✓  PASS  — ≥5:1   (materials rigging, OSHA 1926.251)\n");
+    else if (fos >=  4.0) printf("  ⚠  MARGINAL  — ≥4:1  (chain sling minimum only)\n");
+    else                  printf("  ✗  FAIL  — below 4:1  DO NOT USE in life-safety rigging\n");
+    printf("  ─────────────────────────────────────────────────────\n\n");
+}
+
+/*
+ * BRIDLE  —  2-leg symmetric sling tension at included angle.
+ *
+ * For a 2-leg symmetric bridle, with θ = included angle between legs:
+ *   T per leg = load / (2 × cos(θ/2))
+ *
+ *   θ=0°   → T = load/2     (× 1.000  — vertical, minimum)
+ *   θ=60°  → T = load/1.732 (× 0.577  per leg)
+ *   θ=90°  → T = load/1.414 (× 0.707  per leg)
+ *   θ=120° → T = load        (× 1.000  per leg) ← ASME B30.9 max
+ *   θ→180° → T → ∞
+ *
+ * Rule: never exceed 120° included angle for life-safety rigging.
+ * At 120° each leg bears the full load — slings must be rated ≥ load.
+ *
+ * Syntax:  bridle <included_angle_deg> <load>
+ */
+static void cmd_bridle(void) {
+    if (cur.k != TK_NUM) { fprintf(stderr, "bridle: expected included angle (deg)\n"); return; }
+    double angle_deg = cur.v; advance();
+    if (cur.k == TK_IDENT &&
+        (!strcmp(cur.s,"deg") || !strcmp(cur.s,"degrees"))) advance();
+
+    double load = parse_load();
+    if (load <= 0) { fprintf(stderr, "bridle: expected load\n"); return; }
+
+    if (angle_deg <= 0 || angle_deg >= 180.0) {
+        fprintf(stderr, "bridle: angle must be 0°–179°  (180° = infinite tension)\n");
+        return;
+    }
+
+    double half_rad  = (angle_deg / 2.0) * M_PI / 180.0;
+    double cos_half  = cos(half_rad);
+    double t_per_leg = load / (2.0 * cos_half);
+
+    printf("\n  BRIDLE SLING  —  2-leg symmetric  θ=%.1f° included  load=%.1f lbs\n",
+           angle_deg, load);
+    printf("  ══════════════════════════════════════════════════════════\n");
+    printf("  Half-angle from vertical  : %.2f°\n", angle_deg / 2.0);
+    printf("  cos(θ/2)                  : %.4f\n", cos_half);
+    printf("  ──────────────────────────────────────────────────────────\n");
+    printf("  TENSION PER LEG  : %8.1f lbs  (%6.1f kg)  ← rate each leg ≥ this\n",
+           t_per_leg, t_per_leg / 2.20462);
+    printf("  Tension × 2 legs : %8.1f lbs  (%6.1f kg)\n",
+           2.0 * t_per_leg, 2.0 * t_per_leg / 2.20462);
+    printf("\n");
+
+    if (angle_deg <= 60.0)
+        printf("  ✓  GOOD  — ≤60°  (low sling stress, preferred)\n");
+    else if (angle_deg <= 90.0)
+        printf("  ✓  ACCEPTABLE  — ≤90°  (moderate tension increase)\n");
+    else if (angle_deg <= 120.0)
+        printf("  ⚠  CAUTION  — 90°–120°  (each leg approaching full load)\n");
+    else
+        printf("  ✗  DANGER  — >120° exceeds ASME B30.9 limit\n");
+
+    printf("\n  Angle table for %.1f lbs:\n", load);
+    static const int ANGLES[] = {0, 30, 45, 60, 90, 120, 150};
+    for (int i = 0; i < 7; i++) {
+        double a = ANGLES[i];
+        double t = load / (2.0 * cos((a / 2.0) * M_PI / 180.0));
+        printf("    %3.0f° → %8.1f lbs/leg  (×%.3f)%s\n",
+               a, t, t / (load / 2.0),
+               (fabs(a - angle_deg) < 0.5) ? "  ◄" : "");
+    }
+    printf("  ══════════════════════════════════════════════════════════\n\n");
+}
+
+/*
+ * PIPE_SPAN  —  steel pipe dead weight + simply-supported span reaction.
+ *
+ * Steel pipe weight per foot  (ASME B36.10 standard formula):
+ *   W_pipe = 10.68 × (OD − t) × t          [lb/ft]
+ *
+ * Fluid fill weight per foot  (if SG provided):
+ *   ID = OD − 2t
+ *   A_bore = π/4 × ID²                     [in²]
+ *   W_fluid = A_bore × SG × 0.03613 × 12   [lb/ft]
+ *   (0.03613 lb/in³ = density of water; SG scales it)
+ *
+ * Simply-supported span:
+ *   Reaction per end = W_total/ft × L / 2
+ *   Midspan moment   = W_total/ft × L² / 8   [ft·lb]
+ *
+ * Syntax:  pipe_span <od_in> <wall_in> <length_ft> [fluid_sg]
+ *   e.g.   pipe_span 10.75 0.365 20 1.0    (10" std bore, 20 ft, water-filled)
+ */
+static void cmd_pipe_span(void) {
+    if (cur.k != TK_NUM) { fprintf(stderr, "pipe_span: expected OD (in)\n"); return; }
+    double od = cur.v; advance(); accept(TK_IDENT);
+
+    if (od <= 0) { fprintf(stderr, "pipe_span: OD must be > 0\n"); return; }
+
+    if (cur.k != TK_NUM) { fprintf(stderr, "pipe_span: expected wall thickness (in)\n"); return; }
+    double wall = cur.v; advance(); accept(TK_IDENT);
+
+    if (wall <= 0 || wall >= od / 2.0) {
+        fprintf(stderr, "pipe_span: wall must be > 0 and < OD/2\n"); return;
+    }
+
+    if (cur.k != TK_NUM) { fprintf(stderr, "pipe_span: expected span length (ft)\n"); return; }
+    double span = cur.v; advance(); accept(TK_IDENT);
+
+    if (span <= 0) { fprintf(stderr, "pipe_span: span must be > 0\n"); return; }
+
+    double sg = 0.0;
+    if (cur.k == TK_NUM) { sg = cur.v; advance(); }
+
+    double id       = od - 2.0 * wall;
+    double w_pipe   = 10.68 * (od - wall) * wall;
+    double a_bore   = (M_PI / 4.0) * id * id;
+    double w_fluid  = a_bore * sg * 0.03613 * 12.0;
+    double w_total  = w_pipe + w_fluid;
+    double r_end    = w_total * span / 2.0;
+    double moment   = w_total * span * span / 8.0;
+
+    printf("\n  PIPE SPAN  OD=%.3f\"  wall=%.3f\"  span=%.1f ft%s\n",
+           od, wall, span,
+           sg > 0.0 ? "  (fluid-filled)" : "  (empty)");
+    printf("  ══════════════════════════════════════════════════════════\n");
+    printf("  ID (bore)              : %.3f in\n", id);
+    printf("  t/OD ratio             : %.1f%%\n", 100.0 * wall / od);
+    printf("\n");
+    printf("  Weight per foot:\n");
+    printf("    Pipe steel           : %7.2f lb/ft  (ASME B36.10 formula)\n", w_pipe);
+    if (sg > 0.0)
+        printf("    Fluid (SG %.3f)     : %7.2f lb/ft\n", sg, w_fluid);
+    printf("    ─────────────────────────────────────────\n");
+    printf("    TOTAL                : %7.2f lb/ft\n", w_total);
+    printf("\n");
+    printf("  Span loads (simply supported):\n");
+    printf("    Total span weight    : %7.1f lbs  (%5.1f kg)\n",
+           w_total * span, w_total * span / 2.20462);
+    printf("    REACTION PER END     : %7.1f lbs  (%5.1f kg)  ← size each support\n",
+           r_end, r_end / 2.20462);
+    printf("    Midspan moment       : %7.0f ft·lb\n", moment);
+    printf("  ══════════════════════════════════════════════════════════\n\n");
+}
+
+/*
+ * BEARING  —  true bearing and distance between two GPS coordinates.
+ *
+ * Forward azimuth (from Haversine / spherical law of cosines):
+ *   y = sin(Δλ) · cos(φ₂)
+ *   x = cos(φ₁)·sin(φ₂) − sin(φ₁)·cos(φ₂)·cos(Δλ)
+ *   θ = atan2(y, x)  → normalize to 0–360°
+ *
+ * Haversine distance:
+ *   a = sin²(Δφ/2) + cos(φ₁)·cos(φ₂)·sin²(Δλ/2)
+ *   d = 2 · R · atan2(√a, √(1−a))   R = 20,902,464 ft
+ *
+ * Syntax:  bearing <lat1> <lon1> : <lat2> <lon2>
+ *   (decimal degrees; negative = South/West)
+ *   e.g.   bearing 27.8 -97.583 : 27.801 -97.582
+ */
+static void cmd_bearing(void) {
+    if (cur.k != TK_NUM) { fprintf(stderr, "bearing: expected lat1\n"); return; }
+    double lat1 = cur.v; advance(); accept(TK_IDENT);
+
+    if (cur.k != TK_NUM) { fprintf(stderr, "bearing: expected lon1\n"); return; }
+    double lon1 = cur.v; advance(); accept(TK_IDENT);
+
+    if (!accept(TK_COLON)) {
+        fprintf(stderr, "bearing: use  bearing <lat1> <lon1> : <lat2> <lon2>\n");
+        return;
+    }
+
+    if (cur.k != TK_NUM) { fprintf(stderr, "bearing: expected lat2\n"); return; }
+    double lat2 = cur.v; advance(); accept(TK_IDENT);
+
+    if (cur.k != TK_NUM) { fprintf(stderr, "bearing: expected lon2\n"); return; }
+    double lon2 = cur.v; advance(); accept(TK_IDENT);
+
+    double phi1 = lat1 * M_PI / 180.0;
+    double phi2 = lat2 * M_PI / 180.0;
+    double lam1 = lon1 * M_PI / 180.0;
+    double lam2 = lon2 * M_PI / 180.0;
+    double dphi = phi2 - phi1;
+    double dlam = lam2 - lam1;
+
+    double y       = sin(dlam) * cos(phi2);
+    double x       = cos(phi1) * sin(phi2) - sin(phi1) * cos(phi2) * cos(dlam);
+    double theta   = atan2(y, x) * 180.0 / M_PI;
+    double fwd_brg = fmod(theta + 360.0, 360.0);
+    double rev_brg = fmod(fwd_brg + 180.0, 360.0);
+
+    double a      = sin(dphi/2)*sin(dphi/2)
+                  + cos(phi1)*cos(phi2)*sin(dlam/2)*sin(dlam/2);
+    double c      = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
+    double dist_ft = 20902464.0 * c;
+
+    const char *card;
+    double b = fwd_brg;
+    if      (b <  22.5 || b >= 337.5) card = "N";
+    else if (b <  67.5)               card = "NE";
+    else if (b < 112.5)               card = "E";
+    else if (b < 157.5)               card = "SE";
+    else if (b < 202.5)               card = "S";
+    else if (b < 247.5)               card = "SW";
+    else if (b < 292.5)               card = "W";
+    else                              card = "NW";
+
+    printf("\n  BEARING  P1=(%.5f, %.5f)  →  P2=(%.5f, %.5f)\n",
+           lat1, lon1, lat2, lon2);
+    printf("  ───────────────────────────────────────────────────────\n");
+    printf("  Forward bearing     : %7.2f°  (%s)\n", fwd_brg, card);
+    printf("  Reciprocal bearing  : %7.2f°\n", rev_brg);
+    printf("  Distance            : %7.1f ft  (%.4f mi  /  %.1f m)\n",
+           dist_ft, dist_ft / 5280.0, dist_ft * 0.3048);
+    printf("  ───────────────────────────────────────────────────────\n\n");
+}
+
 
 static void cmd_help(void) {
     printf(
-        "\n  SAGCO OmniCalculator v" VERSION "  ─  Mechanical Advantage\n\n"
-        "  Commands:\n"
-        "    zdrag    <load> [fric%%]             3:1 Z-drag\n"
-        "    crig     <load> [fric%%]             3:1 C-rig\n"
-        "    simple   <n>[:1]  <load> [fric%%]   n:1 simple (any n≥2)\n"
-        "    compound <m>[:1] [+] <n>[:1] <load> [fric%%]\n"
-        "    cascade  <a>[:1] [+] <b>[:1] <load> [fric%%]\n"
-        "                                         a:1 pulling on b:1 haul line\n"
-        "    travel   <n>[:1] [dist_ft]           rope travel per load displacement\n"
+        "\n  SAGCO OmniCalculator v" VERSION "  ─  Mechanical Advantage + Field Rigging\n\n"
+        "  ── Rope / Pulley ────────────────────────────────────────────────────────\n"
+        "    zdrag    <load> [fric%%]                  3:1 Z-drag\n"
+        "    crig     <load> [fric%%]                  3:1 C-rig\n"
+        "    simple   <n>[:1] <load> [fric%%]          n:1 simple (any n≥2)\n"
+        "    compound <m>[:1] [+] <n>[:1] <load> [f%%] m:1 piggybacked on n:1\n"
+        "    cascade  <a>[:1] [+] <b>[:1] <load> [f%%] a:1 pulling on b:1 haul line\n"
+        "    travel   <n>[:1] [dist_ft]                rope travel per load displacement\n"
+        "    solve    <load> [max_input] [fric%%]       enumerate valid systems\n"
+        "    anchor   <n>[:1] <load> [fric%%]           anchor load for n:1\n"
+        "    list                                       show all templates\n\n"
+        "  ── Geometry ─────────────────────────────────────────────────────────────\n"
         "    euclid   x1 [y1 [z1]] : x2 [y2 [z2]] [: x3 [y3 [z3]]]\n"
-        "                                         Euclidean distance 1–4D\n"
-        "    solve    <load> [max_input] [fric%%] enumerate valid systems\n"
-        "    anchor   <n>[:1]  <load> [fric%%]   anchor load for n:1\n"
-        "    list                                 show all templates\n"
-        "    help   quit\n\n"
+        "                                           Euclidean distance 1–4D\n"
+        "    bearing  <lat1> <lon1> : <lat2> <lon2> GPS bearing + distance (ft/mi)\n\n"
+        "  ── Rigging / Field ──────────────────────────────────────────────────────\n"
+        "    lever    <effort_arm> <load_arm> <load>  lever/fulcrum MA\n"
+        "    fos      <breaking_strength> <load>      factor of safety (OSHA ref)\n"
+        "    bridle   <included_angle_deg> <load>     2-leg sling tension at angle\n"
+        "    pipe_span <od_in> <wall_in> <len_ft> [sg] pipe weight + span reaction\n\n"
         "  Load units:   lbs  kg  kn  n    (default: lbs)\n"
         "  Friction:     %%    per sheave   (default: 9%%)\n\n"
         "  Physics:\n"
@@ -640,10 +964,12 @@ static void cmd_help(void) {
         "    F_anchor  ≈ load + F_haul   (conservative in-line)\n\n"
         "  Examples:\n"
         "    zdrag 500lbs 10%%\n"
-        "    simple 5:1 600lbs 9%%\n"
-        "    compound 3 3 900lbs 10%%\n"
-        "    solve 800lbs 150lbs 9%%\n"
-        "    anchor 3 500lbs 10%%\n\n"
+        "    cascade 6 4 1000lbs 9%%\n"
+        "    bridle 90 2000lbs\n"
+        "    pipe_span 10.75 0.365 20 1.0\n"
+        "    fos 9600 1200\n"
+        "    lever 6 2 500lbs\n"
+        "    bearing 27.8 -97.583 : 27.801 -97.582\n\n"
     );
 }
 
@@ -674,6 +1000,12 @@ static int parse_command(void) {
     else if (!strcmp(cmd,"travel")  || !strcmp(cmd,"tr"))      cmd_travel();
     else if (!strcmp(cmd,"euclid")  || !strcmp(cmd,"dist") ||
              !strcmp(cmd,"d"))                                 cmd_euclid();
+    else if (!strcmp(cmd,"lever")   || !strcmp(cmd,"lv"))      cmd_lever();
+    else if (!strcmp(cmd,"fos"))                               cmd_fos();
+    else if (!strcmp(cmd,"bridle")  || !strcmp(cmd,"br"))      cmd_bridle();
+    else if (!strcmp(cmd,"pipe_span")|| !strcmp(cmd,"pipe") ||
+             !strcmp(cmd,"ps"))                                cmd_pipe_span();
+    else if (!strcmp(cmd,"bearing") || !strcmp(cmd,"brg"))     cmd_bearing();
     else if (!strcmp(cmd,"list")    || !strcmp(cmd,"ls"))      cmd_list();
     else if (!strcmp(cmd,"help")    || !strcmp(cmd,"?") ||
              !strcmp(cmd,"h"))                                cmd_help();
