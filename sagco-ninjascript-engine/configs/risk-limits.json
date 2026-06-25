@@ -1,0 +1,8 @@
+{
+  "MaxDailyLossDollars": 500.0,
+  "MaxPositionSizeLots": 1.0,
+  "MaxSingleTradeLossDollars": 150.0,
+  "MinBurnRateToTrade": 0.5,
+  "HaltOnAntibodyFire": true,
+  "Notes": "Start conservative. Raise after 30 PROVEN trades. AB-RISK-* antibodies fire if breached."
+}

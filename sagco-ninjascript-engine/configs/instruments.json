@@ -1,0 +1,40 @@
+{
+  "instruments": [
+    {
+      "symbol": "ES",
+      "exchange": "CME",
+      "type": "futures",
+      "pointValue": 50.0,
+      "tickSize": 0.25,
+      "sessionOpen": "08:30",
+      "sessionClose": "15:00",
+      "timezone": "America/Chicago",
+      "eru_domain": "trading",
+      "Notes": "S&P 500 E-mini — primary SAGCO futures instrument"
+    },
+    {
+      "symbol": "NQ",
+      "exchange": "CME",
+      "type": "futures",
+      "pointValue": 20.0,
+      "tickSize": 0.25,
+      "sessionOpen": "08:30",
+      "sessionClose": "15:00",
+      "timezone": "America/Chicago",
+      "eru_domain": "trading",
+      "Notes": "Nasdaq-100 E-mini — secondary"
+    },
+    {
+      "symbol": "CL",
+      "exchange": "NYMEX",
+      "type": "futures",
+      "pointValue": 1000.0,
+      "tickSize": 0.01,
+      "sessionOpen": "08:00",
+      "sessionClose": "13:30",
+      "timezone": "America/New_York",
+      "eru_domain": "trading",
+      "Notes": "Crude Oil — ERU expected = prior day settlement"
+    }
+  ]
+}

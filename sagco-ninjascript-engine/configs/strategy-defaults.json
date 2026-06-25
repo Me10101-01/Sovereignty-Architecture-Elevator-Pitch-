@@ -1,0 +1,10 @@
+{
+  "BaselinePeriod": 20,
+  "ExpectedVolumeDelta": 1.0,
+  "MinBurnRateToTrade": 0.5,
+  "InflatedStreakTrigger": 3,
+  "BarsRequiredToTrade": 20,
+  "TraceOrders": true,
+  "Calculate": "OnBarClose",
+  "Notes": "SAGCO BRICK-019 defaults — never set TraceOrders=false in production"
+}

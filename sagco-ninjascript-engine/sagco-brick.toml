@@ -1,0 +1,31 @@
+[brick]
+id          = "BRICK-019"
+name        = "NinjaScript Debug + TraceOrders + Volume Engine"
+version     = "0.1.0"
+layer       = "execution"
+description = "NinjaTrader 8 execution surface — SAGCO ERU runs inside the market"
+
+[dependencies]
+sagco-audit     = "0.1.0"   # invocation_logger + decision_tracer feed from here
+NinjaTrader     = ">=8.0"
+dotnet          = ">=4.8"
+
+[rules]
+# TraceOrders = true on ALL strategies — non-negotiable.
+# Print() routes through SagcoPrintTrace, never raw NinjaTrader Print().
+# Every trade receipt gets SHA-256 sealed before report export.
+# Risk limits enforced by risk_engine.cs BEFORE order submission.
+always_trace_orders = true
+sealed_receipts     = true
+
+[missing_links]
+ML-NINJA-001 = { gap = "sagco-audit decision_tracer.py not yet bridged to NinjaScript via file socket", status = "UNCOMPUTED" }
+ML-NINJA-002 = { gap = "Live account not yet open — strategies run sim only until Articles of Org uploaded", status = "UNCOMPUTED" }
+ML-NINJA-003 = { gap = "ML-DATASET-001 — real AAPL/ES futures feed not yet piped into ERU", status = "UNCOMPUTED" }
+
+[commands]
+debug  = "sagco ninja debug  — run TraceOrders + Print smoke test on sim account"
+trace  = "sagco ninja trace  — dump decision_trace from last N bars"
+volume = "sagco ninja volume — bid/ask delta pulse on current instrument"
+risk   = "sagco ninja risk   — check positions against risk-limits.json"
+seal   = "sagco ninja seal   — SHA-256 seal reports/SHA256SUMS.txt"
