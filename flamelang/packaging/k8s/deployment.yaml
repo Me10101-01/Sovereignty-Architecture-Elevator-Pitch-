@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sagco-organism
+  namespace: sagco
+  labels:
+    app: sagco-organism
+    strategickhaos.io/tier: organism
+    strategickhaos.io/inv: INV-001
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sagco-organism
+  template:
+    metadata:
+      labels:
+        app: sagco-organism
+        strategickhaos.io/tier: organism
+    spec:
+      containers:
+        - name: sagco-organism
+          image: ghcr.io/me10101-01/sagco-organism:0.2.0
+          imagePullPolicy: Always
+          ports:
+            - name: dispatch
+              containerPort: 8842
+              protocol: TCP
+            - name: genesis
+              containerPort: 9137
+              protocol: TCP
+          env:
+            - name: RUST_LOG
+              value: "sagco_organism=info,flame_ffi=info"
+            - name: SAGCO_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: sagco-organism-config
+                  key: config.toml
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sagco-organism-secrets
+                  key: smtp-password
+          livenessProbe:
+            httpGet:
+              path: /genesis_proof
+              port: genesis
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /genesis_proof
+              port: genesis
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      imagePullSecrets:
+        - name: ghcr-pull-secret

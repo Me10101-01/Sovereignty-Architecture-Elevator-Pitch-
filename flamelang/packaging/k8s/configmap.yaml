@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sagco-organism-config
+  namespace: sagco
+data:
+  config.toml: |
+    [organism]
+    version         = "0.2.0"
+    genesis_increment = 3449
+    dispatch_port   = 8842
+    genesis_port    = 9137
+
+    [smtp]
+    host = "smtp.gmail.com"
+    port = 587
+    user = "garza.domenic101@gmail.com"
+    # password loaded from secret sagco-organism-secrets/smtp-password
+
+    [k8s]
+    namespace       = "sagco"
+    hitl_required   = true
+    hitl_timeout_s  = 300
+
+    [audit]
+    log_path        = "/var/lib/sagco/audit.jsonl"
+    genesis_signed  = true

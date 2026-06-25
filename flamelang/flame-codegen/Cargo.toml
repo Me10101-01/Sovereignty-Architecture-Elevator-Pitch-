@@ -1,0 +1,13 @@
+[package]
+name    = "flame-codegen"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+flame-transform = { path = "../flame-transform" }
+flametoken      = { path = "../flametoken" }
+anyhow          = { workspace = true }
+serde           = { workspace = true }
+serde_json      = { workspace = true }
