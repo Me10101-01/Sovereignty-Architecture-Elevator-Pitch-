@@ -1,0 +1,46 @@
+# probability_report.yaml — Output schema per simulation run
+# One report per run, SHA-256 sealed.
+
+schema_version: "1.0"
+
+fields:
+  session_id:    { type: string }
+  ts:            { type: string, format: ISO8601 }
+  symbol:        { type: string }
+  mode:          { type: string, enum: [CANDLE, RENKO, HYBRID] }
+  bars_analyzed: { type: int }
+
+  # Aggregate ERU across all bars
+  proven_count:    { type: int }
+  promising_count: { type: int }
+  unproven_count:  { type: int }
+  inflated_count:  { type: int }
+  burn_rate:
+    type: float
+    description: "(proven + promising) / bars_analyzed"
+
+  # Distribution
+  mean_probability:   { type: float }
+  median_probability: { type: float }
+  stddev_probability: { type: float }
+
+  # Signal summary
+  bull_signals:    { type: int }
+  bear_signals:    { type: int }
+  neutral_signals: { type: int }
+
+  # Antibodies fired
+  antibodies_fired:
+    type: list
+    items: { type: string }
+
+  # Active potentiometer state at time of report
+  params_snapshot: { type: object }
+
+  # Renko summary (if mode != CANDLE)
+  renko_bricks:          { type: int }
+  renko_bull_bricks:     { type: int }
+  renko_bear_bricks:     { type: int }
+  renko_max_streak:      { type: int }
+
+  sha256: { type: string, description: "SHA-256 of this report JSON" }

@@ -1,0 +1,88 @@
+# candle_signal.yaml — OHLCV + feature schema
+# One entry per bar. Append-only. SHA-256 per entry via ledger.
+
+schema_version: "1.0"
+description: "OHLCV bar with extracted features and ERU verdict"
+
+fields:
+  ts:
+    type: string
+    format: ISO8601
+    description: "Bar open timestamp"
+
+  symbol:
+    type: string
+    example: "ES"
+
+  timeframe:
+    type: string
+    example: "5m"
+
+  # OHLCV
+  open:   { type: float }
+  high:   { type: float }
+  low:    { type: float }
+  close:  { type: float }
+  volume: { type: float }
+
+  # Features (computed by feature_engine)
+  atr:
+    type: float
+    description: "Average True Range (N-period)"
+
+  body_ratio:
+    type: float
+    description: "|close - open| / (high - low). 0=doji, 1=no wick"
+
+  upper_wick_ratio:
+    type: float
+    description: "(high - max(open,close)) / (high - low)"
+
+  lower_wick_ratio:
+    type: float
+    description: "(min(open,close) - low) / (high - low)"
+
+  rel_volume:
+    type: float
+    description: "volume / mean_volume(lookback). >1.5 = elevated"
+
+  trend_score:
+    type: float
+    range: [0.0, 1.0]
+    description: "Price position relative to SMA band. 0=below, 1=above"
+
+  momentum_score:
+    type: float
+    range: [0.0, 1.0]
+    description: "Rate of ATR expansion vs contraction"
+
+  # Pattern flags
+  is_engulfing:   { type: bool }
+  is_doji:        { type: bool }
+  is_hammer:      { type: bool }
+  is_shooting_star: { type: bool }
+
+  # ERU output
+  probability:
+    type: float
+    range: [0.0, 1.0]
+    description: "Continuation probability (A/E ratio)"
+
+  verdict:
+    type: string
+    enum: [PROVEN, PROMISING, UNPROVEN, INFLATED]
+    description: "ERU classification"
+
+  direction:
+    type: string
+    enum: [BULL, BEAR, NEUTRAL]
+
+  # Renko context (if renko_bridge computed this)
+  renko_brick_dir:
+    type: string
+    enum: [UP, DOWN, null]
+    description: "Direction of most recent Renko brick at this bar"
+
+  renko_streak:
+    type: int
+    description: "Consecutive bricks in same direction"

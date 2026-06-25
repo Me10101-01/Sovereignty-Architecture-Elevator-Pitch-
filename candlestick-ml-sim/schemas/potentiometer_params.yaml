@@ -1,0 +1,112 @@
+# potentiometer_params.yaml — Simulator control surface definition
+# Each entry is a knob/slider on the dashboard.
+
+schema_version: "1.0"
+
+params:
+  # --- Trend ---
+  sma_period:
+    label: "SMA Period"
+    default: 20
+    min: 5
+    max: 200
+    step: 1
+    group: trend
+    description: "Simple moving average lookback for trend score"
+
+  atr_period:
+    label: "ATR Period"
+    default: 14
+    min: 5
+    max: 50
+    step: 1
+    group: trend
+
+  # --- Probability Engine ---
+  prob_threshold_proven:
+    label: "PROVEN Threshold"
+    default: 0.75
+    min: 0.50
+    max: 0.99
+    step: 0.01
+    group: probability
+    description: "Probability ≥ this → PROVEN verdict"
+
+  prob_threshold_promising:
+    label: "PROMISING Threshold"
+    default: 0.50
+    min: 0.25
+    max: 0.74
+    step: 0.01
+    group: probability
+
+  # --- Volume ---
+  vol_lookback:
+    label: "Volume Lookback"
+    default: 20
+    min: 5
+    max: 100
+    step: 1
+    group: volume
+
+  vol_spike_mult:
+    label: "Volume Spike Mult"
+    default: 1.5
+    min: 1.0
+    max: 4.0
+    step: 0.1
+    group: volume
+    description: "rel_volume > this = elevated volume signal"
+
+  # --- Weights (probability model) ---
+  weight_trend:
+    label: "Trend Weight"
+    default: 0.40
+    min: 0.0
+    max: 1.0
+    step: 0.05
+    group: weights
+
+  weight_volume:
+    label: "Volume Weight"
+    default: 0.30
+    min: 0.0
+    max: 1.0
+    step: 0.05
+    group: weights
+
+  weight_pattern:
+    label: "Pattern Weight"
+    default: 0.30
+    min: 0.0
+    max: 1.0
+    step: 0.05
+    group: weights
+
+  # --- Renko ---
+  renko_brick_atr_mult:
+    label: "Renko Brick (ATR mult)"
+    default: 1.0
+    min: 0.25
+    max: 4.0
+    step: 0.25
+    group: renko
+    description: "Brick size = ATR × this multiplier"
+
+  renko_streak_antibody:
+    label: "Renko Streak Trigger"
+    default: 5
+    min: 2
+    max: 20
+    step: 1
+    group: renko
+    description: "Fire AB-RENKO-INFLATED-STREAK after this many same-dir bricks"
+
+  # --- Display ---
+  lookback_bars:
+    label: "Lookback Bars"
+    default: 100
+    min: 20
+    max: 500
+    step: 10
+    group: display
