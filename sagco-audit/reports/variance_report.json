@@ -1,0 +1,64 @@
+{
+  "generated": "2026-06-25T17:23:10.438347+00:00",
+  "total_decisions": 4,
+  "global_burn_rate": 0.75,
+  "claims_tracked": 4,
+  "antibody_candidates": 1,
+  "claims": [
+    {
+      "claim_id": "ERU-FIELD-ORIGIN-001",
+      "domain": "eru",
+      "count": 1,
+      "mean_ratio": 1.0,
+      "stddev": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "trend": "INSUFFICIENT_DATA",
+      "last_verdict": "PROVEN"
+    },
+    {
+      "claim_id": "CHESS-STACK-001",
+      "domain": "sagco",
+      "count": 1,
+      "mean_ratio": 1.0,
+      "stddev": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "trend": "INSUFFICIENT_DATA",
+      "last_verdict": "PROVEN"
+    },
+    {
+      "claim_id": "SAGCO-GRAPH-001",
+      "domain": "sagco",
+      "count": 1,
+      "mean_ratio": 0.0,
+      "stddev": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "trend": "INSUFFICIENT_DATA",
+      "last_verdict": "INFLATED"
+    },
+    {
+      "claim_id": "RENKO-VAL-001",
+      "domain": "trading",
+      "count": 1,
+      "mean_ratio": 1.0,
+      "stddev": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "trend": "INSUFFICIENT_DATA",
+      "last_verdict": "PROVEN"
+    }
+  ],
+  "antibodies": [
+    {
+      "id": "AB-VARIANCE-SAGCO_GRAPH_001",
+      "type": "variance_drift",
+      "claim_id": "SAGCO-GRAPH-001",
+      "domain": "sagco",
+      "trigger": "Last 1 ratios all below 0.5: [0.0]",
+      "msg": "Claim SAGCO-GRAPH-001 is consistently underperforming \u2014 review expected value.",
+      "severity": "HIGH"
+    }
+  ]
+}

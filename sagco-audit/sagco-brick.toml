@@ -1,0 +1,28 @@
+[brick]
+id          = "sagco-audit"
+name        = "SAGCO Audit Core"
+version     = "0.1.0"
+layer       = "audit"
+description = "Foundation audit layer — every board inherits from this"
+
+[dependencies]
+# No upstream SAGCO dependencies — this IS the foundation
+python = ">=3.10"
+pyyaml  = ">=6.0"
+
+[rules]
+# Audit log is append-only. Never truncate invocation_log.jsonl.
+# Decision traces must include SHA-256 of the evidence payload.
+# Antibody registry is the single source of truth — no inline antibody defs elsewhere.
+immutable_logs = true
+sha256_evidence = true
+
+[missing_links]
+ML-AUDIT-001 = { gap = "sagco-graph/ not yet built — variance_report cannot cross-reference graph edges", status = "UNCOMPUTED" }
+ML-AUDIT-002 = { gap = "sagco-security/ not yet built — invocation_log has no tamper-seal chain", status = "UNCOMPUTED" }
+
+[outputs]
+invocation_log    = "registry/invocation_log.jsonl"
+antibody_registry = "registry/antibody_registry.yaml"
+decision_trace    = "reports/decision_trace.jsonl"
+variance_report   = "reports/variance_report.json"

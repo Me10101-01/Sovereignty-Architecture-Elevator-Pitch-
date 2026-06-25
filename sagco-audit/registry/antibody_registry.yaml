@@ -1,0 +1,113 @@
+total: 12
+generated: "2026-06-25"
+source: "sagco-audit/registry/antibody_registry.yaml — SINGLE SOURCE OF TRUTH"
+
+antibodies:
+
+  # ── ERU / Claim Layer ──────────────────────────────────────────────────────
+
+  - id: AB-VALUATION-ASSUMPTION-001
+    domain: eru
+    severity: HIGH
+    type: assumption_error
+    trigger: "Expected value set without historical baseline"
+    msg: "ERU expected must be derived from measured baseline, not assumption"
+    origin: "sagco-node-renko"
+
+  - id: AB-DATASET-HOARDING-001
+    domain: eru
+    severity: HIGH
+    type: data_access
+    trigger: "Dataset referenced but not ingested into corpus"
+    msg: "Run sagco ingest before computing ERU on external datasets"
+    origin: "sagco-missing-links"
+
+  - id: AB-COVERAGE-ZERO-001
+    domain: eru
+    severity: MEDIUM
+    type: zero_coverage
+    trigger: "coverage == 0 on an ERU claim"
+    msg: "Zero coverage means no evidence was supplied — mark UNCOMPUTED not PROVEN"
+    origin: "sagco-audit"
+
+  # ── FlameLang / VM Layer ───────────────────────────────────────────────────
+
+  - id: AB-PAREN-FRAC-001
+    domain: flamelang
+    severity: MEDIUM
+    type: ambiguous_expression
+    trigger: "Fraction expression missing parentheses around numerator/denominator"
+    msg: "1/x+1 parses as (1/x)+1 not 1/(x+1) — add explicit parentheses"
+    origin: "mat225-calc1-mobius"
+
+  - id: AB-SQRT-SYMBOL-001
+    domain: flamelang
+    severity: MEDIUM
+    type: symbol_mismatch
+    trigger: "sqrt written as text string instead of sqrt() call"
+    msg: "Use sqrt(x) not 'sqrt x' — FlameLang M2 type: Pow not Symbol"
+    origin: "mat225-calc1-mobius"
+
+  - id: AB-ABS-BARS-001
+    domain: flamelang
+    severity: LOW
+    type: symbol_mismatch
+    trigger: "Absolute value written with pipe chars |x|"
+    msg: "Use Abs(x) — pipe bars are not valid FlameLang M2 syntax"
+    origin: "mat225-calc1-mobius"
+
+  - id: AB-IMPLICIT-MUL-001
+    domain: flamelang
+    severity: LOW
+    type: implicit_operation
+    trigger: "Implicit multiplication: 2x instead of 2*x"
+    msg: "FlameLang M2 requires explicit * — implicit mul is not parsed"
+    origin: "mat225-calc1-mobius"
+
+  # ── JSON Corpus / Trainer Layer ────────────────────────────────────────────
+
+  - id: AB-PARSE-FAIL-GENERIC
+    domain: corpus
+    severity: HIGH
+    type: json_parse_error
+    trigger: "JSONDecodeError on sandbox file"
+    msg: "File is not valid JSON — run json_lint before ingesting to sandbox"
+    origin: "sagco-json-trainer"
+
+  - id: AB-MISSING-KEY-ID
+    domain: corpus
+    severity: HIGH
+    type: missing_required_key
+    trigger: "SAGCO record missing 'id' field"
+    msg: "All SAGCO records require 'id' — add before ingesting"
+    origin: "sagco-json-trainer"
+
+  # ── Audit Layer ────────────────────────────────────────────────────────────
+
+  - id: AB-VARIANCE-DRIFT-001
+    domain: audit
+    severity: HIGH
+    type: variance_drift
+    trigger: "Claim ratio below 0.5 on last 3 consecutive traces"
+    msg: "Claim is consistently underperforming — review expected value baseline"
+    origin: "sagco-audit"
+
+  - id: AB-LOG-TAMPER-001
+    domain: audit
+    severity: CRITICAL
+    type: integrity_violation
+    trigger: "SHA-256 mismatch on invocation_log entry"
+    msg: "Log entry has been modified — tamper detected. sagco-security/ seal required."
+    origin: "sagco-audit"
+    missing_link: "ML-AUDIT-002"
+
+  # ── NDA / Provenance Layer ─────────────────────────────────────────────────
+
+  - id: AB-GPG-UNSIGNED-001
+    domain: provenance
+    severity: HIGH
+    type: missing_signature
+    trigger: "Document lacks GPG clearsign"
+    msg: "Run: gpg --clearsign <file> on Athena before publishing"
+    origin: "sagco-nda-anchor"
+    nda_gap: "GPG_SIGNING"
