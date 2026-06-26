@@ -1,0 +1,94 @@
+#!/bin/sh
+# SAGCO Organism CLI Dispatcher
+# Routes commands to organism tools. No LLM yet — pure signal routing.
+WORK="${SAGCO_ROOT:-/root/sagco_workspace}"
+BIN="/root/bin"
+
+case "$1" in
+  help|"")
+    echo "SAGCO ORGANISM CLI"
+    echo "=================="
+    echo "  sagco immune              run immune system scan"
+    echo "  sagco firstparty          filter first-party cells"
+    echo "  sagco priority [N]        organ priority map (top N, default 40)"
+    echo "  sagco organ <name>        inspect a single organ"
+    echo "  sagco subsystem <organ>   subsystem dependency graph"
+    echo "  sagco blueprint           full organism blueprint"
+    echo "  sagco eru-doctor          diagnose and recover sagco-eru"
+    echo "  sagco recover             forensic ERU recovery (WBC-009)"
+    echo "  sagco status              workspace health check"
+    echo "  sagco ask <question>      LLM organism query (requires ANTHROPIC_API_KEY)"
+    echo ""
+    echo "env: SAGCO_ROOT=$WORK"
+    ;;
+  immune)
+    cd "$WORK" && sagco_immune
+    ;;
+  firstparty)
+    cd "$WORK" && sagco_firstparty
+    ;;
+  priority)
+    cd "$WORK" && sagco_priority "${2:-40}"
+    ;;
+  organ)
+    if [ -z "$2" ]; then echo "usage: sagco organ <name>"; exit 1; fi
+    cd "$WORK" && sagco_organ "$2"
+    ;;
+  subsystem)
+    if [ -z "$2" ]; then echo "usage: sagco subsystem <organ>"; exit 1; fi
+    cd "$WORK" && python3 "${WORK}/sagco_subsystem_graph.py" "$2"
+    ;;
+  blueprint)
+    cd "$WORK" && python3 "${WORK}/sagco_blueprint.py"
+    ;;
+  eru-doctor)
+    cd "$WORK" && sagco_eru_doctor 2>/dev/null || python3 "${WORK}/sagco_eru_recover.py"
+    ;;
+  recover)
+    cd "$WORK" && python3 "${WORK}/sagco_eru_recover.py"
+    ;;
+  status)
+    echo "SAGCO ORGANISM STATUS"
+    echo "====================="
+    echo "workspace : $WORK"
+    echo "sagco bin : $(which sagco 2>/dev/null || echo 'not in PATH')"
+    echo "python    : $(python3 --version 2>/dev/null || echo 'missing')"
+    echo ""
+    echo "TREE FILES:"
+    ls -lh "$WORK"/*tree*.json 2>/dev/null || echo "  none found"
+    echo ""
+    echo "TOOLS:"
+    for tool in sagco_immune sagco_firstparty sagco_priority sagco_organ sagco_eru_doctor; do
+      loc=$(which "$tool" 2>/dev/null)
+      if [ -n "$loc" ]; then
+        echo "  OK  $tool → $loc"
+      else
+        echo "  --  $tool (not in PATH)"
+      fi
+    done
+    echo ""
+    echo "ERU BINARY:"
+    if [ -x "/root/target/release/sagco-eru" ]; then
+      echo "  OK  /root/target/release/sagco-eru"
+    elif [ -f "$WORK/sagco-eru-recovered.sh" ]; then
+      echo "  RECOVERED  $WORK/sagco-eru-recovered.sh"
+    else
+      echo "  MISSING  run: sagco recover"
+    fi
+    ;;
+  ask)
+    shift
+    if [ -z "$*" ]; then echo "usage: sagco ask <question>"; exit 1; fi
+    python3 "${WORK}/sagco_ask.py" "$@"
+    ;;
+  *)
+    # Try to pass unknown commands to LLM router if available
+    if [ -f "${WORK}/sagco_ask.py" ] && [ -n "$ANTHROPIC_API_KEY" ]; then
+      python3 "${WORK}/sagco_ask.py" "$@"
+    else
+      echo "unknown command: $1"
+      echo "run: sagco help"
+      exit 1
+    fi
+    ;;
+esac
