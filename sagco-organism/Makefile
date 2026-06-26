@@ -16,6 +16,7 @@ SRCS = \
     src/router/router.c \
     src/gps/bearing.c \
     src/field/insulation.c \
+    src/field/takeoff.c \
     src/ledger/receipt.c \
     src/ledger/seal.c \
     src/ledger/sha256.c \
@@ -57,6 +58,12 @@ test-bearing: $(BIN)
 		--lat1 27.810164 --lon1 -97.593503 \
 		--lat2 27.810203 --lon2 -97.593470
 
+test-takeoff: $(BIN)
+	@mkdir -p logs
+	./$(BIN) field takeoff \
+		--factors data/takeoff_sqft_factors.csv \
+		--survey  data/takeoff_ca1648j.csv
+
 # ── Hydra — run all heads sequentially ──────────────────────────────────────────
 hydra: all
 	@echo ""
@@ -73,6 +80,8 @@ hydra: all
 	@./$(BIN) field pipe-survey --csv data/pipe_survey_ca1648j.csv
 	@echo "  [HEAD 4] gps bearing — node-to-node"
 	@./$(BIN) gps bearing --lat1 27.810164 --lon1 -97.593503 --lat2 27.810203 --lon2 -97.593470
+	@echo "  [HEAD 5] field takeoff — refinery insulation SQFT packet"
+	@./$(BIN) field takeoff --factors data/takeoff_sqft_factors.csv --survey data/takeoff_ca1648j.csv
 	@echo "  ══ HYDRA COMPLETE ══"
 	@echo ""
 
@@ -89,4 +98,4 @@ clean:
 	rm -f sagco-hydra-*.tar.gz
 
 .PHONY: all hydra tarball install-pi clean \
-        test-insulation test-pipe test-locator test-bearing
+        test-insulation test-pipe test-locator test-bearing test-takeoff

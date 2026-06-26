@@ -228,15 +228,19 @@ static int pipe_survey_handle(SagcoContext *ctx)
     return 0;
 }
 
+/* forward declaration — takeoff.c compiled separately, same subsystem */
+int takeoff_handle(SagcoContext *ctx);
+
 /* ── field_handle — main dispatch entry ─────────────────────────────────────── */
 int field_handle(SagcoContext *ctx)
 {
     if (!ctx->command || ctx->command[0] == '\0') {
-        printf("  field: insulation | pipe-survey | exchanger | rope-access\n");
+        printf("  field: insulation | pipe-survey | takeoff | exchanger | rope-access\n");
         return 0;
     }
     if (strcmp(ctx->command, "insulation")  == 0) return insulation_handle(ctx);
     if (strcmp(ctx->command, "pipe-survey") == 0) return pipe_survey_handle(ctx);
+    if (strcmp(ctx->command, "takeoff")     == 0) return takeoff_handle(ctx);
 
     fprintf(stderr, "  field: unknown command '%s'\n", ctx->command);
     return 1;

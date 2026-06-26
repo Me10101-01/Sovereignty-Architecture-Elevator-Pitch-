@@ -1,0 +1,60 @@
+type,size_ips,size_label,sqft_per_lf,sqft_each,notes
+pipe,0.5,1/2",0.174,0,
+pipe,0.75,3/4",0.209,0,
+pipe,1,1",0.275,0,
+pipe,1.25,1-1/4",0.344,0,
+pipe,1.5,1-1/2",0.393,0,
+pipe,2,2",0.510,0,
+pipe,2.5,2-1/2",0.622,0,
+pipe,3,3",0.753,0,
+pipe,3.5,3-1/2",0.916,0,
+pipe,4,4",1.047,0,
+pipe,5,5",1.309,0,
+pipe,6,6",1.571,0,
+pipe,8,8",2.094,0,
+pipe,10,10",2.618,0,
+pipe,12,12",3.272,0,
+pipe,14,14",3.665,0,
+pipe,16,16",4.189,0,
+pipe,18,18",4.712,0,
+pipe,20,20",5.236,0,
+pipe,24,24",6.283,0,
+pipe,30,30",7.854,0,
+pipe,36,36",9.425,0,
+pipe,42,42",10.996,0,
+pipe,48,48",12.566,0,
+pipe,54,54",14.137,0,
+pipe,60,60",15.708,0,
+pipe,66,66",17.279,0,
+pipe,72,72",18.850,0,
+pipe,78,78",20.420,0,
+pipe,84,84",21.991,0,
+pipe,90,90",23.562,0,
+pipe,96,96",25.133,0,
+pipe,100,100"+,26.180,0,
+flange,2,2" flange,0,0.9,welded flange
+flange,3,3" flange,0,1.4,welded flange
+flange,4,4" flange,0,1.8,welded flange
+flange,6,6" flange,0,2.7,welded flange
+flange,8,8" flange,0,3.6,welded flange
+flange,10,10" flange,0,5.0,welded flange
+flange,12,12" flange,0,6.3,welded flange
+flange,14,14" flange,0,8.0,welded flange
+flange,16,16" flange,0,9.7,welded flange
+flange,18,18" flange,0,12.0,welded flange
+flange,20,20" flange,0,14.5,welded flange
+flange,24,24" flange,0,20.0,welded flange
+valve_welded,2,2" weld valve,0,1.3,welded valve
+valve_welded,3,3" weld valve,0,2.0,welded valve
+valve_welded,4,4" weld valve,0,2.7,welded valve
+valve_welded,6,6" weld valve,0,4.0,welded valve
+valve_welded,8,8" weld valve,0,5.8,welded valve
+valve_welded,10,10" weld valve,0,8.0,welded valve
+valve_welded,12,12" weld valve,0,10.3,welded valve
+valve_flanged,2,2" flanged valve,0,2.2,flanged valve (2x flange)
+valve_flanged,3,3" flanged valve,0,2.8,flanged valve (2x flange)
+valve_flanged,4,4" flanged valve,0,3.6,flanged valve (2x flange)
+valve_flanged,6,6" flanged valve,0,5.4,flanged valve (2x flange)
+valve_flanged,8,8" flanged valve,0,7.2,flanged valve (2x flange)
+valve_flanged,10,10" flanged valve,0,10.0,flanged valve (2x flange)
+valve_flanged,12,12" flanged valve,0,12.6,flanged valve (2x flange)

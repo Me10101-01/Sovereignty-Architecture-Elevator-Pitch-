@@ -1,0 +1,12 @@
+asset_id,segment,diameter_ips,lnft,fitting_type,fitting_count,status,layer,sqft_factor,sqft_total,confidence,notes
+PO-HDRFE-1B,main_run,8,42,pipe,0,complete,2nd_layer_metal_cap,2.094,87.95,1.00,CA-1648 J INS-01 zone verified PROVEN
+PO-HDRFE-1B,multi_seg_run,8,46,pipe,0,complete,2nd_layer_metal_cap,2.094,96.32,1.00,CA-1648 J INS-02 zone 14+32+5+20 verified PROVEN
+PO-HDRFE-1B,lower_elbow_run,8,61,pipe,0,complete,2nd_layer_metal_cap,2.094,127.73,1.00,CA-1648 J INS-03 zone verified PROVEN
+PO-HDRFE-1B,ladder_flanges,8,0,flange,10,complete,2nd_layer_metal_cap,3.600,36.00,0.90,10 ladder flanges 8" per notebook
+IS-HDRFE-1A,main_run,8,85,pipe,0,in_progress,1st_layer,2.094,177.99,0.85,CA-1648-4 per Brock sheet
+IS-HDRFE-1A,extension,8,93,pipe,0,in_progress,1st_layer,2.094,194.74,0.85,CA-1648-K per Brock sheet
+C-4690240-4B,segment_A,6,45,pipe,0,stripped,stripped,1.571,70.70,0.70,stripped — awaiting re-insulation
+C-4690240-4B,segment_B,6,30,pipe,0,stripped,stripped,1.571,47.13,0.70,stripped — awaiting re-insulation
+CA-1648-B,main_run,8,55,pipe,0,not_started,not_started,2.094,115.17,0.60,CA-1648-B labeled on isometric
+CA-1648-K,south_run,8,93,pipe,0,in_progress,1st_layer,2.094,194.74,0.85,CA-1648-K confirmed 93 LNFT
+CA-1648-4,north_run,8,85,pipe,0,in_progress,1st_layer,2.094,177.99,0.85,CA-1648-4 confirmed 85 LNFT
