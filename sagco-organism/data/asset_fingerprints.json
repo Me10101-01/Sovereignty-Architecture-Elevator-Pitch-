@@ -1,0 +1,29 @@
+{
+  "schema": "sagco-exchanger-fingerprint-v1",
+  "eru_formula": "V = A / E",
+  "fingerprints": [
+    {
+      "asset_id":          "PO-HDRFE-1B",
+      "asset_type":        "insulated_pipe_circuit",
+      "description":       "PAI OL circuit, rope-access re-insulation zone, manlift approach",
+      "facility":          "LyondellBasell",
+      "line_no":           "2-PO-163/250K-B1B",
+      "gps": {
+        "lat":    27.810203,
+        "lon":   -97.593953,
+        "alt_ft": 69
+      },
+      "magnetic_mean_ut":   58.56,
+      "magnetic_min_ut":    36.0,
+      "magnetic_max_ut":   102.0,
+      "magnetic_range_ut":  66.0,
+      "heading_min_deg":     8.0,
+      "heading_max_deg":   324.0,
+      "heading_spread_deg": 316.0,
+      "n_readings":          9,
+      "eru_verdict":        "PROVEN",
+      "eru_ratio":           1.0,
+      "notes": "Compass spins 316 degrees at fixed GPS anchor due to EM interference from adjacent equipment. High-µT zone (83-102 µT) indicates proximity to transformer/motor bank. Fingerprint validated 2026-06-26."
+    }
+  ]
+}
