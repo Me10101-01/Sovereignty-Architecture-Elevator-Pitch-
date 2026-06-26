@@ -41,3 +41,7 @@ __pycache__/
 
 # Claude Code worktrees (managed by claude-code, not project code)
 .claude/worktrees/
+
+# Dark Matter Protocol — generated archives (regenerate with dark_matter_protocol.py)
+# SHA-256 hashes are sealed in sagco-dark-matter/reports/dark_matter_manifest.jsonl
+sagco-dark-matter/archives/sagco-everything.tar.gz
