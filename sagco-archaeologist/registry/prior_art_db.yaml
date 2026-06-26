@@ -215,3 +215,84 @@ combinations:
     keywords: [pdf keyword extraction, pdfinfo metadata, pdf provenance, pdf creation date]
     reference: "PDF metadata extraction — standard eDiscovery tooling since early 2000s"
     year: 2002
+
+  # ── New combinations identified 2026-06-26 ──────────────────────────────────
+
+  - id: KC-011
+    name: Content-Addressed File Storage (IPFS / Git objects)
+    keywords: [content addressed, ipfs hash, git objects, cas storage, merkle dag]
+    reference: "IPFS (2014), Git object store (2005) — hash-based content addressing"
+    year: 2005
+
+  - id: KC-012
+    name: Container Image Packaging (Docker / OCI)
+    keywords: [container image, docker image, oci image, dockerfile, layer digest]
+    reference: "Docker (2013), OCI image spec (2016) — operational state packaging"
+    year: 2013
+
+  - id: KC-013
+    name: Quantum Teleportation Protocol
+    keywords: [quantum teleportation, bell measurement, entanglement, no-cloning, qubit state transfer]
+    reference: "Bennett et al. 1993 — original quantum teleportation paper, IBM Research"
+    year: 1993
+
+candidate_novelty:
+  - id: CN-001
+    name: SAGCO Teleportation Protocol (STP)
+    status: CANDIDATE_NOVELTY
+    eru_verdict: CANDIDATE_NOVELTY
+    date: "2026-06-26"
+
+    claim: >
+      A packet-structured protocol for transferring verified operational state between
+      nodes, structured identically to OSI network packets (Layer 2-7) but carrying
+      provenance-verified field artifacts rather than network payload.
+
+    packet_structure:
+      layer_2_seal:    "SHA-256 + GPG clearsign  — identity, cannot be forged"
+      layer_3_routing: "asset_id + GPS coordinates  — origin fingerprint"
+      layer_4_dispatch:"subsystem command  — which head processes the state"
+      layer_7_payload: "verified operational state  — insulation zones, weld survey, compass readings"
+
+    protocol_steps:
+      step_1_bell_measurement: >
+        xray + hash + parser scan of input (zip/pdf/csv/repo).
+        Destructive: naïve trust assumption is destroyed.
+        No-cloning enforced: SHA-256 of original state captured before any mutation.
+      step_2_classical_receipt: >
+        JSONL manifest — the 2 classical bits.
+        Carries enough information to reconstruct equivalent verified state.
+        Speed-of-light bound: travels through git push / scp / ledger log.
+      step_3_rotation_operation: >
+        hydrate / rebuild / import step at destination.
+        Reconstructs equivalent working state from manifest.
+        Not a copy — a verified reconstruction.
+      step_4_seal: >
+        SHA-256 of reconstructed state sealed into ledger receipt.
+        Proves reconstruction fidelity.
+
+    prior_art_delta:
+      ipfs_git: "CAS addresses content but applies no ERU verdict or field-origin fingerprint"
+      docker:   "Packages operational state but carries no provenance chain or BFT trust model"
+      quantum:  "Identical protocol structure but for subatomic particles, not operational artifacts"
+      sagco:    >
+        Unique combination: ERU scoring (V=A/E) + BFT trust model (T=A/E, min 3 validators)
+        + packet-structured operational state + GPS magnetic fingerprint origin
+        + SHA-256 sealed ledger receipt = no known prior implementation
+
+    key_phrase: "SAGCO does not teleport files. SAGCO teleports verified operational state."
+
+    evidence:
+      - "exchanger_locator.c — GPS + µT fingerprint as Layer 3 routing header (2026-06-26)"
+      - "insulation.c — field measurement as verified payload (2026-06-26)"
+      - "sagco-hydra-v1.0.tar.gz — 68K headless deployable packet (2026-06-26)"
+      - "dark_matter_manifest.jsonl — JSONL receipt with SHA-256 seal (2026-06-26)"
+      - "Dropbox ingest — zip-level Bell measurement, 646 files, 193 duplicate groups (2026-06-26)"
+
+    who:  "Domenic Garza / StrategicKhaos DAO LLC / ValorYield Engine PBC"
+    where: "LyondellBasell field site, Corpus Christi TX + claude.ai/code remote session"
+    why: >
+      Industrial rope access inspectors cannot trust GPS compass inside plant EM fields.
+      Traditional file transfer cannot prove operational state fidelity across nodes.
+      SAGCO solves both: the EM interference becomes the fingerprint; the manifest becomes
+      the reconstruction blueprint.

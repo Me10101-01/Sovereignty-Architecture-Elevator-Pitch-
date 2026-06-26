@@ -1,0 +1,54 @@
+[brick]
+id          = "BRICK-027"
+name        = "sagco-ingest"
+layer       = "teleportation"
+version     = "1.0.0"
+status      = "PROMISING"
+date        = "2026-06-26"
+
+[protocol]
+name        = "SAGCO Teleportation Protocol (STP)"
+key_phrase  = "SAGCO does not teleport files. SAGCO teleports verified operational state."
+
+# STP maps exactly onto OSI packet structure
+[packet_layers]
+layer_2 = "SHA-256 + GPG clearsign        — identity seal (cannot be forged)"
+layer_3 = "asset_id + GPS + µT fingerprint — origin routing"
+layer_4 = "subsystem command               — dispatch port"
+layer_7 = "verified operational state      — field artifact payload"
+
+[teleportation_steps]
+# Maps to quantum teleportation protocol (Bennett et al. 1993)
+bell_measurement = "xray + hash + parser scan  — destroys naïve trust assumption"
+classical_receipt= "JSONL manifest             — 2 classical bits, git-push speed"
+rotation_op      = "hydrate / rebuild / import — reconstruct at destination"
+seal             = "SHA-256 ledger receipt     — fidelity proof"
+
+[no_cloning_theorem]
+sagco_equivalent = "SHA-256 of original captured before mutation — origin state is irreversible"
+enforcement      = "sagco analyze <input> hashes before any write operation"
+
+[validated_against]
+dropbox_ingest = { files = 646, workbooks = 13, fuzz_candidates = 460, duplicate_groups = 193 }
+hydra_packet   = { size_kb = 68, heads = 4, all_proven = true }
+fingerprint    = { asset = "PO-HDRFE-1B", confidence = 1.00, verdict = "PROVEN" }
+
+[eru]
+expected = 8
+actual   = 5
+ratio    = 0.625
+verdict  = "PROMISING"
+# Missing: live ingest runner, fuzz executor, workbook parser module, GPG seal on receipt
+
+[missing_links]
+ML-INGEST-001 = "sagco_ingest.py — Python zip/pdf ingest runner wired to organism"
+ML-INGEST-002 = "workbook_parser.c or .py — Excel/CSV workbook column fingerprinter"
+ML-INGEST-003 = "fuzz_executor.sh — runs the 200-entry fuzz queue against organism"
+ML-INGEST-004 = "GPG auto-clearsign on every JSONL manifest before git push"
+
+[prior_art_delta]
+# What exists vs what SAGCO adds
+ipfs    = "CAS storage — no ERU, no field origin, no BFT"
+docker  = "State packaging — no provenance chain, no GPS fingerprint"
+quantum = "Identical protocol — for particles, not operational artifacts"
+sagco   = "ERU + BFT + GPS-mag fingerprint + packet structure + SHA-256 ledger — CANDIDATE_NOVELTY"
