@@ -1,0 +1,90 @@
+[brick]
+id              = "BRICK-026"
+name            = "sagco-dark-matter"
+layer           = "integration"
+version         = "1.0.0"
+status          = "PROVEN"
+build_days      = 4
+sprint_start    = "2026-06-23"
+sprint_end      = "2026-06-26"
+
+[protocol]
+name            = "Dark Matter Protocol"
+description     = """
+Integration test of the entire 4-day SAGCO build.
+Archive 1 = the Known Universe (every variable, constant, schema, proof).
+Archive 2 = the Working Matter (every PROVEN/tested component).
+Dark Matter = the delta: what you know exists but cannot yet see working.
+"""
+
+[formula]
+# ERU: V = A / E
+eru_formula              = "V = A / E"
+burnrate_formula         = "beta = |{PROVEN union PROMISING}| / |C|"
+dark_matter_formula      = "delta = |working_files| / |universe_files|"
+roi_formula              = "rho_4day = beta * (proven_count / build_days)"
+
+[expected]
+# Total across all 18 components
+total_e     = 173
+total_a     = 140
+ratio       = 0.809
+verdict     = "PROMISING"
+burn_rate   = 0.833   # 15/18 components PROVEN or PROMISING
+
+[archives]
+everything  = "archives/sagco-everything.tar.gz"
+working     = "archives/sagco-working.tar.gz"
+manifest    = "reports/dark_matter_manifest.jsonl"
+ingest_log  = "logs/dark_matter_invocations.log"
+
+[organism]
+brick       = "BRICK-020"
+dispatch    = "INPUT → lexer → parser → AST → router → subsystem → ledger → SHA-256 seal"
+sandbox     = "Raspberry Pi (simulated in cloud remote session)"
+
+[security]
+# CRITICAL SEPARATION OF CONCERNS
+futures_account  = "NinjaTrader LLC — RISK CAPITAL ONLY"
+dividend_account = "divtrack portfolio — WEALTH CAPITAL — NEVER MIX"
+rsa_signing      = "sagco-gdrive auth.rs — STUB — not production"
+arin_asn         = "PENDING — ML-MOVE2 — $250/yr at account.arin.net"
+rpki_roa         = "BLOCKED — ML-MOVE3 — requires ARIN ASN first"
+
+[who]
+author      = "Domenic Garza"
+entities    = ["StrategicKhaos DAO LLC (WY 2025-001708194)", "ValorYield Engine PBC (EIN 39-2923503)"]
+email       = "domenic.garza@snhu.edu"
+
+[what]
+layers_built = [
+    "BRICK-018 sagco-audit        17/17 PROVEN",
+    "BRICK-019 sagco-ninjascript  7/10 PROMISING",
+    "BRICK-020 sagco-organism     12/15 PROMISING",
+    "BRICK-021 sagco-archaeologist 32/32 PROVEN",
+    "BRICK-023 candlestick-ml-sim 27/27 PROVEN",
+    "BRICK-024 divtrack           24/24 PROVEN",
+    "BRICK-025 sagco-sovereignty  5/8 PROMISING",
+]
+
+[when]
+date        = "2026-06-26"
+duration    = "4 days"
+note        = "lol 4 days — BurnRate=83%"
+
+[where]
+primary     = "claude.ai/code remote execution environment"
+target      = "Raspberry Pi sandbox (headless SAGCO-Organism)"
+repo        = "me10101-01/sovereignty-architecture-elevator-pitch-"
+branch      = "claude/fellowship-audit-sagco-QNpEq"
+
+[how]
+architecture  = "INV-198 recursive verification — the verifiers verify the verifiers"
+trust_model   = "T(claim) = A/E — BFT-Delta — SLAAC trusts the router, SAGCO requires 2-of-3"
+language_core = "FlameLang — ERU verdict on every output"
+swarm_dna     = "SWARM_DNA_v12.0-born-from-the-womb"
+
+[why]
+purpose = "Provenance substrate: cryptographic proof of existence + novelty"
+claim   = "The combination of recursive verification + ERU scoring + BFT trust model is CANDIDATE_NOVELTY"
+evidence = "32 archaeologist tests prove the claim survives Agent_004 skeptic scrutiny"
