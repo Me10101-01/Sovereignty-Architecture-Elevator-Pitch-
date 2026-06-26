@@ -1,7 +1,7 @@
 /* seal.c — Ledger subsystem entry point */
 #include <stdio.h>
 #include <string.h>
-#include "../../router/router.h"
+#include "../router/router.h"
 #include "sha256.h"
 int ledger_handle(SagcoContext *ctx) {
     if (ctx->argc >= 1 && strcmp(ctx->command, "seal") == 0) {

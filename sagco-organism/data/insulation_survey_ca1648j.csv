@@ -1,0 +1,4 @@
+zone_id,asset_id,description,required_circ_in,measured_circ_in,segments,eru_expected,notes
+INS-01,CA-1648J,main_run_upper,42.0,42.0,42,1,42 inch circ -- full coverage confirmed
+INS-02,CA-1648J,multi_segment_zone,46.0,46.0,4,1,segments: 14+32+5+20=46 inches total
+INS-03,CA-1648J,lower_elbow_run,61.0,61.0,61,1,61 inch circ -- full coverage confirmed

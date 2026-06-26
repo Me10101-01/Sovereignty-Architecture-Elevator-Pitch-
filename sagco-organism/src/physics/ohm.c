@@ -11,8 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../../router/router.h"
-#include "../../ledger/receipt.h"
+#include "../router/router.h"
+#include "../ledger/receipt.h"
 
 static double get_arg(SagcoContext *ctx, const char *flag)
 {

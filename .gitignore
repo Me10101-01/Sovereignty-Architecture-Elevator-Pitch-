@@ -45,3 +45,8 @@ __pycache__/
 # Dark Matter Protocol — generated archives (regenerate with dark_matter_protocol.py)
 # SHA-256 hashes are sealed in sagco-dark-matter/reports/dark_matter_manifest.jsonl
 sagco-dark-matter/archives/sagco-everything.tar.gz
+
+# SAGCO Organism — compiled binaries and object files
+sagco-organism/sagco
+sagco-organism/exchanger_locator
+sagco-organism/src/**/*.o

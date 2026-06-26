@@ -1,0 +1,13 @@
+weld_id,asset_id,lat,lon,alt_ft,fitting_type,nominal_size_in,direction,notes
+W1,CA-1648J,27.810164,-97.593503,69,pipe,2,UP,start of run — 2" pipe vertical
+W2,CA-1648J,27.810164,-97.593503,69,elbow_90,2,NE,90-degree turn NE
+W3,CA-1648J,27.810175,-97.593497,69,pup,18,NE,pup piece 18 inch
+W4,CA-1648J,27.810175,-97.593497,69,elbow_90,2,E,90-degree turn East
+W5,CA-1648J,27.810181,-97.593490,69,pup,25,E,pup piece 25 inch
+W6,CA-1648J,27.810186,-97.593484,69,elbow_90,2,S,90-degree turn South
+W7,CA-1648J,27.810186,-97.593484,69,cap,2,S,cap end + pup 18 inch branch + pup 22 inch cap
+W8,CA-1648J,27.810192,-97.593479,69,pup,5,S,pup piece 5 inch — short spool
+W9,CA-1648J,27.810203,-97.593470,69,tee,2,S,tee fitting — branch off main
+WFLARY,CA-1648J,27.810203,-97.593470,69,flange_elbow,2,S,flary — flanged elbow
+WRED,CA-1648J,27.810203,-97.593470,69,reducer,2,S,reducer — size transition
+WLB,CA-1648J,27.810209,-97.593463,69,long_radius_bend,2,S,LB long-radius bend

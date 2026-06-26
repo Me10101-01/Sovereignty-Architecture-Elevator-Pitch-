@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../../router/router.h"
+#include "../router/router.h"
 
 #define PI       3.14159265358979323846
 #define R_EARTH  3958.8   /* miles */
