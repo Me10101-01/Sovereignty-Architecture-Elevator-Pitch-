@@ -16,6 +16,7 @@ int field_handle(SagcoContext *ctx);
 int network_handle(SagcoContext *ctx);
 int ninja_handle(SagcoContext *ctx);
 int ledger_handle(SagcoContext *ctx);
+int knowledge_handle(SagcoContext *ctx);
 
 typedef struct {
     const char       *name;
@@ -28,8 +29,9 @@ static const RouteEntry sagco_routes[] = {
     { "field",    field_handle    },
     { "network",  network_handle  },
     { "ninja",    ninja_handle    },
-    { "ledger",   ledger_handle   },
-    { NULL,       NULL            },  /* sentinel */
+    { "ledger",    ledger_handle    },
+    { "knowledge", knowledge_handle },
+    { NULL,        NULL             },  /* sentinel */
 };
 
 SubsystemHandler route_lookup(const char *subsystem)

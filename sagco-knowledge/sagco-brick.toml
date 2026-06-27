@@ -1,0 +1,76 @@
+[brick]
+id          = "BRICK-021"
+name        = "sagco-knowledge"
+layer       = "knowledge"
+version     = "1.0.0"
+status      = "PROMISING"
+date        = "2026-06-27"
+
+[architecture]
+# The three-layer architecture — locked 2026-06-27 by Domenic Garza
+# Layer 1: What is this artifact?
+layer_1 = "Artifact Registry (BRICK-019) — URL/PDF/Rust/C/JSON/Image/Hash → Lexer → Parser → AST → Worker → Receipt → Ledger"
+# Layer 2: How is the software connected?
+layer_2 = "Codebase Graph (BRICK-020) — imports/exports/classes/functions/dependencies/communities/god_nodes/bridges/centrality"
+# Layer 3: Can I prove this artifact existed without exposing the implementation?
+layer_3 = "NDA/Provenance Layer — SHA-256 anchors + readiness gates + protocol snapshot + provenance chain + signing workflow"
+# The bridge: artifact → knowledge
+layer_bridge = "Knowledge Engine (BRICK-021) — AST → entity extraction → relationship mapping → knowledge graph → receipt"
+
+[pipeline]
+# Every input type flows through the same pipeline. This standardization IS the invention.
+# artifact (any type) → lexer → parser → AST → graph_builder → knowledge_graph → receipt → ledger
+universal_input_types = ["URL", "PDF", "Rust", "C", "JSON", "Image", "Hash", "CSV", "telemetry", "JSONL"]
+pipeline_stages       = ["lexer", "parser", "AST", "entity_extractor", "graph_builder", "knowledge_graph", "receipt", "ledger"]
+
+[knowledge_graph]
+# What BRICK-021 adds: not "this is a PDF" but "this PDF references:"
+entity_classes = [
+  "protocol",      # RFC4862, IPv6, SLAAC, RPKI, ROA, BGP, TCP, UDP, TLS, GPG
+  "crypto",        # SHA-256, Ed25519, RSA, BFT, merkle
+  "cloud",         # Cloud_Run, Cloud_Monitoring, GCP, GCS, compute, container
+  "field",         # GPS, µT, ERU, SQFT, LNFT, insulation, pipe, exchanger, flange
+  "finance",       # NinjaTrader, dividend, DRIP, ERU, ValorYield
+  "physics",       # tension, FOS, ohm, resistance, circumference, bearing
+  "software",      # Rust, C11, Python, SAGCO, organism, hydra, dispatch
+  "document",      # RFC, patent, CN-001, BRICK, JSONL, manifest, receipt
+]
+edge_type = "co_occurrence"           # entities in same artifact → edge weight by frequency
+graph_format = "JSONL"                # one edge per line: {from, to, weight, source_artifact}
+
+[eru]
+expected = 6
+actual   = 3
+ratio    = 0.500
+verdict  = "UNPROVEN"
+# Missing: entity_extractor.c, graph_builder.c, knowledge query interface
+
+[missing_links]
+ML-KNOW-001 = "entity_extractor.c — NER for technical concepts from lexer token stream"
+ML-KNOW-002 = "graph_builder.c — co-occurrence → adjacency list → JSONL edges"
+ML-KNOW-003 = "knowledge_query — sagco knowledge query --entity RFC4862 → all related artifacts"
+ML-KNOW-004 = "graph_merge — accumulate across all ingested artifacts into persistent knowledge_graph.jsonl"
+ML-KNOW-005 = "visualization bridge — knowledge_graph.jsonl → Graphify-compatible JSON"
+ML-KNOW-006 = "receipt enrichment — existing receipts re-emitted with entity counts + graph edges"
+
+[full_organism_stack]
+# Domenic's insight 2026-06-27: the coherent stack
+physics_engine       = "ohm.c + tension/FOS stubs (BRICK-020)"
+field_measurements   = "insulation.c + pipe_survey + takeoff.c + exchanger_locator.c"
+artifact_registry    = "lexer + parser + AST (BRICK-019)"
+knowledge_graph      = "entity_extractor + graph_builder (BRICK-021)"
+code_graph           = "graph_parser.c stub (ML-ORGANISM-001)"
+verification_engine  = "ERU V=A/E + BFT T=A/E min 3 validators"
+receipt_generator    = "receipt.c + seal.c (ledger subsystem)"
+ledger               = "sha256.c → SHA-256 sealed JSONL"
+provenance           = "NDA anchor + GPG clearsign + RPKI ROA (CN-001 MOVE 1/2/3)"
+
+[key_insight]
+# "You're gradually standardizing everything so that different kinds of inputs
+#  (PDFs, source code, URLs, telemetry, hashes) all pass through a common pipeline.
+#  That's a solid architectural pattern because it lets you reuse parsing, routing,
+#  graphing, and verification across many artifact types instead of building a
+#  separate tool for each one."
+# — Domenic Garza, 2026-06-27
+author = "Domenic Garza"
+date   = "2026-06-27"

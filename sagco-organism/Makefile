@@ -17,6 +17,9 @@ SRCS = \
     src/gps/bearing.c \
     src/field/insulation.c \
     src/field/takeoff.c \
+    src/knowledge/knowledge.c \
+    src/knowledge/entity_extractor.c \
+    src/knowledge/graph_builder.c \
     src/ledger/receipt.c \
     src/ledger/seal.c \
     src/ledger/sha256.c \
